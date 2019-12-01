@@ -89,10 +89,6 @@ def extract_headers_siblings(proof):
     for p in proof:
         hs = p[0]
         mp = p[1]
-        print("p:", p)
-        print("p type:", type(p))
-        print("hs:", hs)
-        print("mp:", mp)
         # Copy the header to an array of 4 bytes32
         header = str_to_bytes32(hs)
         # Encode the Merkle bits (mu) in the largest byte
