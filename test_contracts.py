@@ -114,7 +114,7 @@ def submit_event_proof(my_contract, proof):
                                           headers[100]
                                       ).estimateGas()
     print("Estimated gas:", gas)
-    success = my_contract.functions.submit_event_proof(
+    res = my_contract.functions.submit_event_proof(
                                           headers,
                                           siblings,
                                           headers[100]
