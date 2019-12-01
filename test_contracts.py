@@ -1,8 +1,9 @@
 # TODO:
-# 1. Wrap the functionality around an object
-# 2. Add snapshots
-# 3. Import NipopwsContract.sol
+# 1. Import NipopwsContract.sol
+# 2. Wrap the functionality around an object
+# 3. Add snapshots
 # 4. Check if there is something better than just estimating the gas used
+# 5. Gas usage per solidity code line
 
 import web3
 from web3 import Web3, EthereumTesterProvider, contract
