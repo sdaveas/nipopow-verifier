@@ -14,6 +14,19 @@ from eth_tester import EthereumTester, PyEVMBackend
 import solcx
 from solcx import set_solc_version, get_solc_version, compile_source, compile_files
 
+import pickle
+from create_blockchain_new import *
+## Create roof pickle
+# header, headerMap, mapInterlink = create_blockchain(blocks=450000)
+# proof = make_proof(header, headerMap, mapInterlink)
+# pickle_out = open("proof_new.pkl","wb")
+# pickle.dump(proof, pickle_out)
+# pickle_out.close()
+## Read existing proof pickle
+pickle_in = open("proof_new.pkl","rb")
+proof = pickle.load(pickle_in)
+
+
 def print_fabulously(message, fill='='):
     message_length = len(message)
     print(fill * message_length)
@@ -88,7 +101,7 @@ def extract_headers_siblings(proof):
         mu = sum(bit << i for (i,(bit,_)) in enumerate(mp[::-1]))
         assert 0 <= mu < 256
         #header[3] = chr(len(mp)) + chr(mu) + header[3][2:]
-        header[3] = header[3] + ('\x00'*14) + chr(len(mp)) + chr(mu)
+        header[3] = header[3] + ('\x00'*14).encode() + bytes([len(mp)]) + bytes([mu])
         headers.append(header)
 
         for (_,sibling) in mp:
