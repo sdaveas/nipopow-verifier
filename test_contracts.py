@@ -61,18 +61,69 @@ def deploy_contracts(compiled_contracts, w3):
 
     return contract_instances
 
+def str_to_bytes32(s):
+    r = []
+    for start in range(0,len(s),32):
+        r.append(s[start:start+32])
+    return r
+
+def extract_headers_siblings(proof):
+    headers = []
+    hashed_headers = []
+    siblings = []
+    # mp stands for merkle proof
+    # hs stands for headers.
+    for p in proof:
+        hs = p[0]
+        mp = p[1]
+        print("p:", p)
+        print("p type:", type(p))
+        print("hs:", hs)
+        print("mp:", mp)
+        # Copy the header to an array of 4 bytes32
+        header = str_to_bytes32(hs)
+        # Encode the Merkle bits (mu) in the largest byte
+        # Encode the mp size in the next largest byte
+        assert 0 <= len(mp) < 256
+        mu = sum(bit << i for (i,(bit,_)) in enumerate(mp[::-1]))
+        assert 0 <= mu < 256
+        #header[3] = chr(len(mp)) + chr(mu) + header[3][2:]
+        header[3] = header[3] + ('\x00'*14) + chr(len(mp)) + chr(mu)
+        headers.append(header)
+
+        for (_,sibling) in mp:
+            siblings.append(sibling)
+
+    return headers, siblings
+
+def submit_event_proof(my_contract, proof):
+    headers, siblings = extract_headers_siblings(proof)
+
+    gas = my_contract.functions.submit_event_proof(
+                                          headers,
+                                          siblings,
+                                          headers[100]
+                                      ).estimateGas()
+    print("Estimated gas:", gas)
+    success = my_contract.functions.submit_event_proof(
+                                          headers,
+                                          siblings,
+                                          headers[100]
+                                      ).call()
+    print("Result was:", res)
+
+# Create a chain with custom parameters
 genesis_overrides = {'gas_limit': 31415926}
 custom_genesis_params = PyEVMBackend._generate_genesis_params(overrides=genesis_overrides)
 pyevm_backend = PyEVMBackend(genesis_parameters=custom_genesis_params)
 test_chain = EthereumTester(backend=pyevm_backend)
 w3 = Web3(EthereumTesterProvider(test_chain))
 
-compiled_contracts = compile_contracts("./test.sol")
+# compile and deploy contracts
+compiled_contracts = compile_contracts("./contractNipopow.sol")
 deployed_contracts = deploy_contracts(compiled_contracts, w3)
 my_contract = deployed_contracts[0]
 
-gas = my_contract.functions.test_func(True).estimateGas()
-print("Estimated gas:", gas)
+# Aquire proof somehow and run the below
+# submit_event_proof(my_contract, proof)
 
-res = my_contract.functions.test_func(True).call()
-print("Result was:", res)
