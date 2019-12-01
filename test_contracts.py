@@ -122,7 +122,7 @@ def submit_event_proof(my_contract, proof):
     print("Result was:", res)
 
 # Create a chain with custom parameters
-genesis_overrides = {'gas_limit': 31415926}
+genesis_overrides = {'gas_limit': 3141592000}
 custom_genesis_params = PyEVMBackend._generate_genesis_params(overrides=genesis_overrides)
 pyevm_backend = PyEVMBackend(genesis_parameters=custom_genesis_params)
 test_chain = EthereumTester(backend=pyevm_backend)
