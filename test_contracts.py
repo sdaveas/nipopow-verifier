@@ -15,15 +15,18 @@ def import_proof(filename='proof_new.pkl'):
     import pickle
     pickle_in = open(filename,'rb')
     proof = pickle.load(pickle_in)
+    return proof
 
-def export_proof(blocks=450000, filename='proof_new.pkl'):
+def create_proof(blocks=450000, filename='proof_new.pkl'):
     import pickle
     import create_blockchain_new as blockchain_utils
     header, headerMap, mapInterlink = blockchain_utils.create_blockchain(blocks=blocks)
-    proof = make_proof(header, headerMap, mapInterlink)
+    proof = blockchain_utils.make_proof(header, headerMap, mapInterlink)
     pickle_out = open(filename, 'wb')
     pickle.dump(proof, pickle_out)
     pickle_out.close()
+    print("Proof was written in " + filename)
+    return proof
 
 # proof data manipulation
 def str_to_bytes32(s):
