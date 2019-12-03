@@ -1,79 +1,31 @@
 # TODO:
-# 1. Import NipopwsContract.sol
-# 2. Wrap the functionality around an object
+# 1. Test NipopwsContract.sol all functionalities
+# 2.~Wrap the functionality around an object~
 # 3. Add snapshots
 # 4. Check if there is something better than just estimating the gas used
 # 5. Gas usage per solidity code line
+# 6. Provide thorough unit tests
 
-import web3
-from web3 import Web3, EthereumTesterProvider, contract
-
+import contract_interface
 import eth_tester
 from eth_tester import EthereumTester, PyEVMBackend
 
-import solcx
-from solcx import set_solc_version, get_solc_version, compile_source, compile_files
+# import/export proof
+def import_proof(filename='proof_new.pkl'):
+    import pickle
+    pickle_in = open(filename,'rb')
+    proof = pickle.load(pickle_in)
 
-import pickle
-from create_blockchain_new import *
-## Create roof pickle
-# header, headerMap, mapInterlink = create_blockchain(blocks=450000)
-# proof = make_proof(header, headerMap, mapInterlink)
-# pickle_out = open("proof_new.pkl","wb")
-# pickle.dump(proof, pickle_out)
-# pickle_out.close()
-## Read existing proof pickle
-pickle_in = open("proof_new.pkl","rb")
-proof = pickle.load(pickle_in)
+def export_proof(blocks=450000, filename='proof_new.pkl'):
+    import pickle
+    import create_blockchain_new as blockchain_utils
+    header, headerMap, mapInterlink = blockchain_utils.create_blockchain(blocks=blocks)
+    proof = make_proof(header, headerMap, mapInterlink)
+    pickle_out = open(filename, 'wb')
+    pickle.dump(proof, pickle_out)
+    pickle_out.close()
 
-
-def print_fabulously(message, fill='='):
-    message_length = len(message)
-    print(fill * message_length)
-    print(message)
-    print(fill * message_length)
-
-def compile_contracts(contract_path_list):
-
-    if not isinstance(contract_path_list, list):
-        contract_path_list = [contract_path_list]
-    set_solc_version('v0.5.13')
-    print_fabulously("Compiling with solidity " + str(get_solc_version()))
-    compiled_contracts = compile_files(contract_path_list)
-    print("Compiled contract(s): ", len(compiled_contracts))
-    return compiled_contracts
-
-def deploy_contracts(compiled_contracts, w3):
-    deployed_contracts = []
-    contract_instances = []
-    for compiled_contract in compiled_contracts.items():
-        deployed_contract = w3.eth.contract(
-                                abi=compiled_contract[1]['abi'],
-                                bytecode = compiled_contract[1]['bin']
-                            )
-        my_contract = deployed_contract.constructor()
-
-        gas_estimate = my_contract.estimateGas()
-        tx_hash = my_contract.transact()
-
-        tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
-        contract_address = tx_receipt['contractAddress']
-        print("Deployed {0} at: {1} using {2} gas.".format(
-            compiled_contract[0],
-            contract_address,
-            tx_receipt['cumulativeGasUsed']
-            ))
-
-        deployed_contracts.append(deployed_contract)
-
-        contract_instance = w3.eth.contract(
-                                abi = compiled_contract[1]['abi'],
-                                address = contract_address
-                            )
-        contract_instances.append(contract_instance)
-
-    return contract_instances
-
+# proof data manipulation
 def str_to_bytes32(s):
     r = []
     for start in range(0,len(s),32):
@@ -105,6 +57,7 @@ def extract_headers_siblings(proof):
 
     return headers, siblings
 
+# tests
 def submit_event_proof(my_contract, proof):
     headers, siblings = extract_headers_siblings(proof)
 
@@ -121,18 +74,22 @@ def submit_event_proof(my_contract, proof):
                                       ).call()
     print("Result was:", res)
 
-# Create a chain with custom parameters
-genesis_overrides = {'gas_limit': 3141592000}
-custom_genesis_params = PyEVMBackend._generate_genesis_params(overrides=genesis_overrides)
-pyevm_backend = PyEVMBackend(genesis_parameters=custom_genesis_params)
-test_chain = EthereumTester(backend=pyevm_backend)
-w3 = Web3(EthereumTesterProvider(test_chain))
+def main():
+    # Create a test chain
+    genesis_overrides = {'gas_limit': 3141592000}
+    custom_genesis_params = PyEVMBackend._generate_genesis_params(overrides=genesis_overrides)
+    pyevm_backend = PyEVMBackend(genesis_parameters=custom_genesis_params)
+    test_chain = EthereumTester(backend=pyevm_backend)
 
-# compile and deploy contracts
-compiled_contracts = compile_contracts("./contractNipopow.sol")
-deployed_contracts = deploy_contracts(compiled_contracts, w3)
-my_contract = deployed_contracts[0]
+    # Create contract interface
+    my_contract_interface = contract_interface.ContractInterface(test_chain, "./contractNipopow.sol")
+    my_contract = my_contract_interface.get_contract();
+    gas = my_contract.functions.test(True).estimateGas()
+    print("Estemated gas:", gas)
+    res = my_contract.functions.test(True).call()
+    print("Result:", res)
 
-# Aquire proof somehow and run the below
-# submit_event_proof(my_contract, proof)
+    # submit_event_proof(my_contract, proof)
 
+if __name__ == "__main__":
+    main()
