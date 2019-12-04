@@ -77,22 +77,23 @@ def submit_event_proof(my_contract, proof):
                                       ).call()
     print("Result was:", res)
 
-def main():
-    # Create a test chain
-    genesis_overrides = {'gas_limit': 3141592000}
+# Create a test chain
+def create_chain(block_gas_limit=3141592000):
+    genesis_overrides = {'gas_limit': block_gas_limit}
     custom_genesis_params = PyEVMBackend._generate_genesis_params(overrides=genesis_overrides)
     pyevm_backend = PyEVMBackend(genesis_parameters=custom_genesis_params)
     test_chain = EthereumTester(backend=pyevm_backend)
+    return test_chain
 
+def main():
+    test_chain = create_chain()
     # Create contract interface
     my_contract_interface = contract_interface.ContractInterface(test_chain, "./contractNipopow.sol")
     my_contract = my_contract_interface.get_contract();
-    gas = my_contract.functions.test(True).estimateGas()
-    print("Estemated gas:", gas)
-    res = my_contract.functions.test(True).call()
-    print("Result:", res)
 
-    # submit_event_proof(my_contract, proof)
+    # proof = create_proof(blocks=45000)
+    proof = import_proof()
+    submit_event_proof(my_contract, proof)
 
 if __name__ == "__main__":
     main()
