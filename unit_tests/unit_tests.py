@@ -4,12 +4,13 @@ import sys
 sys.path.append('../')
 import contract_interface
 import test_contracts
-import eth_tester
-from eth_tester import EthereumTester, PyEVMBackend
 import unittest
 
-contract_path = './test.sol'
 gas_block_limit = 3141592000
+contract_path = './test.sol'
+
+print(gas_block_limit)
+
 chain = test_contracts.create_chain(gas_block_limit)
 ci = contract_interface.ContractInterface(chain, contract_path)
 
