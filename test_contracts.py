@@ -2,7 +2,7 @@
 # 1. Test NipopwsContract.sol all functionalities
 # 2.~Wrap the functionality around an object~
 # 3. Add snapshots
-# 4. Check if there is something better than just estimating the gas used
+# 4.~Check if there is something better than just estimating the gas used
 # 5. Gas usage per solidity code line
 # 6. Provide thorough unit tests
 
