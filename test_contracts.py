@@ -74,8 +74,9 @@ def submit_event_proof(my_contract, proof):
                                           headers,
                                           siblings,
                                           headers[100]
-                                      ).call()
+                                          ).call({'value':1000000000000000000000})
     print("Result was:", res)
+    return res
 
 # Create a test chain
 def create_chain(block_gas_limit=3141592000):
