@@ -7,8 +7,6 @@
 # 6. Provide thorough unit tests
 
 import contract_interface
-import eth_tester
-from eth_tester import EthereumTester, PyEVMBackend
 
 # import/export proof
 def import_proof(filename='proof_new.pkl'):
@@ -61,40 +59,58 @@ def extract_headers_siblings(proof):
     return headers, siblings
 
 # tests
-def submit_event_proof(my_contract, proof):
+def run_test(backend, filepath='./unit_tests/test.sol'):
+
+    interface = contract_interface.ContractInterface(filepath, backend=backend)
+    estimated_gas = interface.get_contract().functions.test(True).estimateGas()
+    from_address = interface.w3.eth.accounts[0]
+    result = interface.get_contract().functions.test(False).call({'from':from_address})
+    gas_used = interface.w3.eth.getBlock('pending').gasUsed
+    return {'result'        : result,
+            'estimated_gas' : estimated_gas,
+            'gas_used'      : gas_used,
+            'from'          : from_address,
+            'backend'       : interface.backend}
+
+
+def submit_event_proof(interface, proof):
     headers, siblings = extract_headers_siblings(proof)
 
-    gas = my_contract.functions.submit_event_proof(
-                                          headers,
-                                          siblings,
-                                          headers[100]
-                                      ).estimateGas()
-    print("Estimated gas:", gas)
-    res = my_contract.functions.submit_event_proof(
-                                          headers,
-                                          siblings,
-                                          headers[100]
-                                          ).call({'value':1000000000000000000000})
-    print("Result was:", res)
-    return res
+    my_contract = interface.get_contract()
+    from_address = interface.w3.eth.accounts[0]
+    estimated_gas = my_contract.functions.submit_event_proof(
+                                            headers,
+                                            siblings,
+                                            headers[100]
+                                            ).estimateGas()
 
-# Create a test chain
-def create_chain(block_gas_limit=3141592000):
-    genesis_overrides = {'gas_limit': block_gas_limit}
-    custom_genesis_params = PyEVMBackend._generate_genesis_params(overrides=genesis_overrides)
-    pyevm_backend = PyEVMBackend(genesis_parameters=custom_genesis_params)
-    test_chain = EthereumTester(backend=pyevm_backend)
-    return test_chain
+    result = my_contract.functions.submit_event_proof(
+                                            headers,
+                                            siblings,
+                                            headers[100]
+                                            ).call({'from' : from_address,
+                                                    'value': 100000000000000000})
+
+    gas_used = interface.w3.eth.getBlock('pending').gasUsed
+
+    return {'result'        : result,
+            'estimated_gas' : estimated_gas,
+            'gas_used'      : gas_used,
+            'from'          : from_address,
+            'backend'       : interface.backend}
 
 def main():
-    test_chain = create_chain()
-    # Create contract interface
-    my_contract_interface = contract_interface.ContractInterface(test_chain, "./contractNipopow.sol")
-    my_contract = my_contract_interface.get_contract();
 
-    # proof = create_proof(blocks=45000)
-    proof = import_proof()
-    submit_event_proof(my_contract, proof)
+    interface=contract_interface.ContractInterface("./contractNipopow.sol", backend='Py-EVM', genesis_overrides={'gas_limit': 67219750})
+    # precompiled_contract={'abi':'./Crosschain.abi', 'bytecode':'./Crosschain.bin'}
+
+    blocks = 4500
+
+    proof = create_proof(blocks=blocks, filename=str('proof_'+str(blocks)+'.pkl'))
+    print(submit_event_proof(interface, proof))
+
+    # print(run_test(backend='Py-EVM'))
+    # print(run_test(backend='ganache'))
 
 if __name__ == "__main__":
     main()
