@@ -1,4 +1,5 @@
 # Inspired by https://github.com/pryce-turner/web3_python_tutorials
+import sys
 
 import solcx
 from solcx import set_solc_version, get_solc_version, compile_source, compile_files
@@ -6,20 +7,41 @@ from solcx import set_solc_version, get_solc_version, compile_source, compile_fi
 import web3
 from web3 import Web3, EthereumTesterProvider, contract
 
+import eth_tester
+from eth_tester import EthereumTester, PyEVMBackend
+
 # Provide an interface to facilitate smart contracts compilation and deployment
 class ContractInterface:
     def __init__(
             self,
-            chain,
-            contract_path_list,
-            solc_version = 'v0.5.13',
-            contract_instances = []
+            contract_path_list=[],
+            solc_version='v0.5.13',
+            contract_instances=[],
+            backend='ganache',
+            genesis_overrides={},
+            precompiled_contract={},
             ):
 
-        self.solc_version = solc_version
-        self.contract_path_list = contract_path_list
-        self.w3 = Web3(EthereumTesterProvider(chain))
+        self.solc_version=solc_version
+        self.precompiled_contract=precompiled_contract
+        self.contract_path_list=contract_path_list
+        self.backend=backend
+        self.compiled_contracts = {}
         self.contract_instances = []
+
+        # backend -> 'ganache'
+        # backend -> 'Py-EVM', override_params -> {'gas_limit': block_gas_limit}
+        if backend=='Py-EVM':
+            custom_genesis_params = PyEVMBackend._generate_genesis_params(overrides=genesis_overrides)
+            py_backend = PyEVMBackend(genesis_parameters=custom_genesis_params)
+            self.w3 = Web3(EthereumTesterProvider(EthereumTester(py_backend)))
+        elif backend=='ganache':
+            self.w3 = Web3(Web3.HTTPProvider("HTTP://127.0.0.1:7545"))
+        else:
+            print("Error: unknown backend '"+backend+"'). Available backends:")
+            print(" 1. ganache\n 2. Py-EVM")
+            exit()
+
         self.compile_contracts()
         self.deploy_contracts()
 
@@ -45,20 +67,35 @@ class ContractInterface:
             self.contract_path_list = [self.contract_path_list]
         self.xprint("Compiling with solidity " +
                          str(solcx.get_solc_version()))
-        self.compiled_contracts = compile_files(self.contract_path_list)
+
+        if len(self.precompiled_contract) == 0:
+            self.compiled_contracts = compile_files(self.contract_path_list)
+        else:
+            self.compiled_contracts = {
+                    self.contract_path_list[0] :
+                    {
+                      'abi' : open(self.precompiled_contract['abi']).read(),
+                      'bytecode' : open(self.precompiled_contract['bytecode']).read()
+                    }}
+
+        # print("Compiled contract(s)->\n", self.compiled_contracts)
         print("Compiled contract(s): ", len(self.compiled_contracts))
 
     def deploy_contracts(self):
         deployed_contracts = []
+
         for compiled_contract in self.compiled_contracts.items():
             self.deployed_contract = self.w3.eth.contract(
                                     abi=compiled_contract[1]['abi'],
-                                    bytecode = compiled_contract[1]['bin']
+                                    bytecode=compiled_contract[1]['bin'],
+                                    # Provide compiled contract abi and bytecode
+                                    # abi=open('./Crosschain.abi').read(),
+                                    # bytecode=open('./Crosschain.bin').read()
                                 )
             my_contract = self.deployed_contract.constructor()
 
             gas_estimate = my_contract.estimateGas()
-            tx_hash = my_contract.transact()
+            tx_hash = my_contract.transact({'from': self.w3.eth.accounts[0]})
 
             tx_receipt = self.w3.eth.waitForTransactionReceipt(tx_hash)
             contract_address = tx_receipt['contractAddress']
