@@ -75,7 +75,7 @@ class ContractInterface:
                     self.contract_path_list[0] :
                     {
                       'abi' : open(self.precompiled_contract['abi']).read(),
-                      'bytecode' : open(self.precompiled_contract['bytecode']).read()
+                      'bin' : open(self.precompiled_contract['bytecode']).read()
                     }}
 
         # print("Compiled contract(s)->\n", self.compiled_contracts)

@@ -7,6 +7,7 @@
 # 6. Provide thorough unit tests
 
 import contract_interface
+import argparse
 
 # import/export proof
 def import_proof(filename='proof_new.pkl'):
@@ -101,11 +102,18 @@ def submit_event_proof(interface, proof):
 
 def main():
 
-    interface=contract_interface.ContractInterface("./contractNipopow.sol", backend='Py-EVM', genesis_overrides={'gas_limit': 67219750})
-    # precompiled_contract={'abi':'./Crosschain.abi', 'bytecode':'./Crosschain.bin'}
+    interface=contract_interface.ContractInterface(
+                                    "./contractNipopow.sol",
+                                    backend='Py-EVM',
+                                    genesis_overrides={
+                                                        'gas_limit': 67219750
+                                                        },
+                                    precompiled_contract={
+                                                        'abi':'./Crosschain.abi',
+                                                        'bytecode':'./Crosschain.bin'
+                                                        })
 
     blocks = 4500
-
     proof = create_proof(blocks=blocks, filename=str('proof_'+str(blocks)+'.pkl'))
     print(submit_event_proof(interface, proof))
 
