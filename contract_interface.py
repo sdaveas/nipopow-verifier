@@ -81,8 +81,7 @@ class ContractInterface:
                       'bin' : open(self.precompiled_contract['bin']).read()
                     }}
 
-        # print("Compiled contract(s)->\n", self.compiled_contracts)
-        print("Compiled contract(s): ", len(self.compiled_contracts))
+        # print("Compiled contract(s): ", len(self.compiled_contracts))
 
     def deploy_contracts(self):
         deployed_contracts = []
