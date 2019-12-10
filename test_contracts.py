@@ -60,16 +60,37 @@ def extract_headers_siblings(proof):
     return headers, siblings
 
 # tests
-def run_test(backend, filepath='./unit_tests/test.sol'):
+def measure_gas(method, backend, filepath='./unit_tests/test.sol'):
 
     interface = contract_interface.ContractInterface(filepath, backend=backend)
-    estimated_gas = interface.get_contract().functions.test(True).estimateGas()
+
+    estimated_gas = interface.get_contract().functions.measure_gas().estimateGas()
     from_address = interface.w3.eth.accounts[0]
-    result = interface.get_contract().functions.test(False).call({'from':from_address})
-    gas_used = interface.w3.eth.getBlock('pending').gasUsed
+    result = interface.get_contract().functions.measure_gas().transact({'from':from_address})
+
+    print(interface.get_contract().functions.gas().call())
+
     return {'result'        : result,
+            'method'        : method,
             'estimated_gas' : estimated_gas,
-            'gas_used'      : gas_used,
+            'from'          : from_address,
+            'backend'       : interface.backend}
+
+def run_test(method, backend, filepath='./unit_tests/test.sol'):
+
+    interface = contract_interface.ContractInterface(filepath, backend=backend)
+
+    callback=interface.get_contract().get_function_by_name(method)
+
+    # estimated_gas = interface.get_contract().functions.test(True).estimateGas()
+    estimated_gas = callback(True).estimateGas()
+    from_address = interface.w3.eth.accounts[0]
+    tx_hash = callback(False).transact({'from':from_address})
+    receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
+
+    return {'method'        : method,
+            'estimated_gas' : estimated_gas,
+            'gas_used'      : receipt['gasUsed'],
             'from'          : from_address,
             'backend'       : interface.backend}
 
@@ -82,43 +103,65 @@ def submit_event_proof(interface, proof):
     estimated_gas = my_contract.functions.submit_event_proof(
                                             headers,
                                             siblings,
-                                            headers[100]
+                                            headers[1]
                                             ).estimateGas()
 
-    result = my_contract.functions.submit_event_proof(
+    tx_hash = my_contract.functions.submit_event_proof(
                                             headers,
                                             siblings,
-                                            headers[100]
-                                            ).call({'from' : from_address,
+                                            headers[1]
+                                            ).transact({'from' : from_address,
                                                     'value': 100000000000000000})
+
+    receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
 
     gas_used = interface.w3.eth.getBlock('pending').gasUsed
 
-    return {'result'        : result,
+    return {'receipt'       : receipt,
             'estimated_gas' : estimated_gas,
-            'gas_used'      : gas_used,
             'from'          : from_address,
             'backend'       : interface.backend}
 
-def main():
+def run_nipopow(backend, blocks):
 
     interface=contract_interface.ContractInterface(
                                     "./contractNipopow.sol",
-                                    backend='Py-EVM',
+                                    backend=backend,
                                     genesis_overrides={
                                                         'gas_limit': 67219750
                                                         },
                                     precompiled_contract={
                                                         'abi':'./Crosschain.abi',
-                                                        'bytecode':'./Crosschain.bin'
+                                                        'bin':'./Crosschain.bin'
                                                         })
 
-    blocks = 4500
     proof = create_proof(blocks=blocks, filename=str('proof_'+str(blocks)+'.pkl'))
-    print(submit_event_proof(interface, proof))
+    print("Proof lenght:", len(proof))
+    result = submit_event_proof(interface, proof)
+    return {'gas_used' : result['receipt']['gasUsed'], result['backend'] : backend}
 
-    # print(run_test(backend='Py-EVM'))
-    # print(run_test(backend='ganache'))
+def main():
+
+    blocks = 100
+    # print(run_nipopow(backend='Py-EVM', blocks=blocks))
+    # print(run_nipopow(backend='ganache', blocks=blocks))
+
+    # methods = [
+    #         # 'test',
+    #         # 'test_payable',
+    #         'test_memory',
+    #         ]
+    # backends = [
+    #         'ganache',
+    #         'Py-EVM',
+    #         ]
+
+    # for method in methods:
+    #     for backend in backends:
+    #         print(method, backend)
+    #         print(run_test(method=method, backend=backend))
+
+    print(measure_gas('measure_gas', 'ganache'));
 
 if __name__ == "__main__":
     main()
