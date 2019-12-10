@@ -37,6 +37,9 @@ class ContractInterface:
             self.w3 = Web3(EthereumTesterProvider(EthereumTester(py_backend)))
         elif backend=='ganache':
             self.w3 = Web3(Web3.HTTPProvider("HTTP://127.0.0.1:7545"))
+        elif backend=='geth':
+            self.w3 = Web3(Web3.HTTPProvider("HTTP://127.0.0.1:8543"))
+            # self.w3 = Web3(Web3.IPCProvider('~/.ethereum/geth.ipc'))
         else:
             print("Error: unknown backend '"+backend+"'). Available backends:")
             print(" 1. ganache\n 2. Py-EVM")
