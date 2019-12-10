@@ -65,8 +65,8 @@ class ContractInterface:
 
         if not isinstance(self.contract_path_list, list):
             self.contract_path_list = [self.contract_path_list]
-        self.xprint("Compiling with solidity " +
-                         str(solcx.get_solc_version()))
+        # self.xprint("Compiling with solidity " +
+        #                  str(solcx.get_solc_version()))
 
         if len(self.precompiled_contract) == 0:
             self.compiled_contracts = compile_files(self.contract_path_list)
