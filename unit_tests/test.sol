@@ -2,34 +2,53 @@ pragma solidity ^0.5.13;
 
 contract Crosschain {
 
+    uint constant size = 1<<15;
+
+    mapping(string => uint256) gases;
+
+    event GasUsed(uint size, uint gas_used, string tag);
+
+    uint256 start_gas = 0;
+    function measure_gas_start(string memory tag) private {
+        gases[tag] = gasleft();
+    }
+
+    function measure_gas_stop(string memory tag) private {
+        emit GasUsed(size, gases[tag] - gasleft(), tag);
+    }
+
     struct Gas {
         uint test;
         uint test_payable;
         uint test_memory;
     }
 
-    uint constant size = 60000;
     bool dummy;
     Gas public gas;
 
-    function measure_gas() public payable returns(uint) {
-        uint256 start_gas = gasleft();
-        bool res = test_memory(true);
-        dummy = res;
-        gas.test_memory += start_gas - gasleft();
+    function measure_gas(bool value) public payable returns(uint) {
+        {
+            measure_gas_start('lalalal');
+            test_memory(true);
+            measure_gas_stop("lalalal");
+        }
 
-        start_gas = gasleft();
-        res = test(true);
-        dummy = dummy && res;
-        gas.test += start_gas - gasleft();
+        // {
+        //     uint256 start_gas = gasleft();
+        //     bool res = test(true);
+        //     dummy = dummy && res;
+        //     gas.test += start_gas - gasleft();
+        // }
 
-        start_gas = gasleft();
-        res = test_payable(true);
-        dummy = dummy && res;
-        gas.test_payable += start_gas - gasleft();
+        // {
+        //     uint256 start_gas = gasleft();
+        //     bool res = test_payable(true);
+        //     dummy = dummy && res;
+        //     gas.test_payable += start_gas - gasleft();
+        // }
     }
 
-    function test(bool value) public view returns(bool) {
+    function test(bool value) public pure returns(bool) {
         return !value;
     }
 
@@ -39,7 +58,11 @@ contract Crosschain {
 
     function test_memory(bool value) public returns(bool) {
 
+        measure_gas_start("buffer");
         bytes32[size] memory b;
+        measure_gas_stop("buffer");
+
+        measure_gas_start("loop");
         for (uint i=0; i<=1; i++) {
             b[0]=sha256(abi.encodePacked(b[i]));
         }
@@ -50,6 +73,7 @@ contract Crosschain {
         else {
             value = true;
         }
+        measure_gas_stop("loop");
         return value;
     }
 

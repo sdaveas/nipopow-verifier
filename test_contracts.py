@@ -87,12 +87,15 @@ def run_test(method, backend, filepath='./unit_tests/test.sol'):
     from_address = interface.w3.eth.accounts[0]
     tx_hash = callback(False).transact({'from':from_address})
     receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
+    event = interface.get_contract().events.GasUsed().processReceipt(receipt)
 
     return {'method'        : method,
             'estimated_gas' : estimated_gas,
             'gas_used'      : receipt['gasUsed'],
             'from'          : from_address,
-            'backend'       : interface.backend}
+            'backend'       : interface.backend,
+            'event'         : event,
+            }
 
 
 def submit_event_proof(interface, proof):
@@ -161,7 +164,7 @@ def main():
     #         print(method, backend)
     #         print(run_test(method=method, backend=backend))
 
-    print(measure_gas('measure_gas', 'ganache'));
+    print(run_test('measure_gas', 'ganache'));
 
 if __name__ == "__main__":
     main()
