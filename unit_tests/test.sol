@@ -4,11 +4,15 @@ contract Crosschain {
 
     uint constant size = 1<<15;
 
+
+    // -----------------------
+
     mapping(string => uint256) gases;
 
     event GasUsed(uint size, uint gas_used, string tag);
 
     uint256 start_gas = 0;
+
     function measure_gas_start(string memory tag) private {
         gases[tag] = gasleft();
     }
@@ -17,36 +21,7 @@ contract Crosschain {
         emit GasUsed(size, gases[tag] - gasleft(), tag);
     }
 
-    struct Gas {
-        uint test;
-        uint test_payable;
-        uint test_memory;
-    }
-
-    bool dummy;
-    Gas public gas;
-
-    function measure_gas(bool value) public payable returns(uint) {
-        {
-            measure_gas_start('lalalal');
-            test_memory(true);
-            measure_gas_stop("lalalal");
-        }
-
-        // {
-        //     uint256 start_gas = gasleft();
-        //     bool res = test(true);
-        //     dummy = dummy && res;
-        //     gas.test += start_gas - gasleft();
-        // }
-
-        // {
-        //     uint256 start_gas = gasleft();
-        //     bool res = test_payable(true);
-        //     dummy = dummy && res;
-        //     gas.test_payable += start_gas - gasleft();
-        // }
-    }
+    // -----------------------
 
     function test(bool value) public pure returns(bool) {
         return !value;
