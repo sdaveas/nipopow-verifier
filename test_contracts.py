@@ -117,13 +117,15 @@ def submit_event_proof(interface, proof):
                                                     'value': 100000000000000000})
 
     receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
+    events = interface.get_contract().events.GasUsed().processReceipt(receipt)
 
     gas_used = interface.w3.eth.getBlock('pending').gasUsed
 
     return {'receipt'       : receipt,
             'estimated_gas' : estimated_gas,
             'from'          : from_address,
-            'backend'       : interface.backend}
+            'backend'       : interface.backend,
+            'events'        : events}
 
 def run_nipopow(backend, blocks):
 
@@ -133,20 +135,28 @@ def run_nipopow(backend, blocks):
                                     genesis_overrides={
                                                         'gas_limit': 67219750
                                                         },
-                                    precompiled_contract={
-                                                        'abi':'./Crosschain.abi',
-                                                        'bin':'./Crosschain.bin'
-                                                        })
+                                    # precompiled_contract={
+                                    #                     'abi':'./Crosschain.abi',
+                                    #                     'bin':'./Crosschain.bin'
+                                    #                     }
+                                    )
 
     proof = create_proof(blocks=blocks, filename=str('proof_'+str(blocks)+'.pkl'))
     print("Proof lenght:", len(proof))
     result = submit_event_proof(interface, proof)
-    return {'gas_used' : result['receipt']['gasUsed'], result['backend'] : backend}
+    return result['events']
+    # return {'gas_used' : result['receipt']['gasUsed'], result['backend'] : backend}
 
 def main():
 
-    blocks = 100
-    # print(run_nipopow(backend='Py-EVM', blocks=blocks))
+    blocks = 10000
+    res = run_nipopow(backend='Py-EVM', blocks=blocks)
+    for e in res:
+        print(e['args']['tag'], end=' ')
+        print('\t', end=' ')
+        print(e['args']['gas_used'])
+
+
     # print(run_nipopow(backend='ganache', blocks=blocks))
 
     # methods = [
@@ -164,7 +174,7 @@ def main():
     #         print(method, backend)
     #         print(run_test(method=method, backend=backend))
 
-    print(run_test('measure_gas', 'ganache'));
+    # print(run_test('measure_gas', 'ganache'));
 
 if __name__ == "__main__":
     main()
