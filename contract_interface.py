@@ -15,10 +15,10 @@ class ContractInterface:
     def __init__(
             self,
             contract_path_list=[],
-            solc_version='v0.5.13',
+            solc_version='v0.5.4',
             contract_instances=[],
             backend='ganache',
-            genesis_overrides={},
+            genesis_overrides={'gas_limit':3141592000},
             precompiled_contract={},
             ):
 
