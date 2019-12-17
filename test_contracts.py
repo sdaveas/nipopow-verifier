@@ -106,13 +106,13 @@ def submit_event_proof(interface, proof):
     estimated_gas = my_contract.functions.submit_event_proof(
                                             headers,
                                             siblings,
-                                            headers[1]
+                                            headers[-1]
                                             ).estimateGas()
 
     tx_hash = my_contract.functions.submit_event_proof(
                                             headers,
                                             siblings,
-                                            headers[1]
+                                            headers[-1]
                                             ).transact({'from' : from_address,
                                                     'value': 100000000000000000})
 
