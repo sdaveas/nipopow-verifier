@@ -2,10 +2,10 @@ pragma solidity ^0.5.13;
 
 contract Crosschain {
 
-    uint constant size = 1<<15;
 
 
     // -----------------------
+    uint constant size = 1<<15;
 
     mapping(string => uint256) gases;
 
