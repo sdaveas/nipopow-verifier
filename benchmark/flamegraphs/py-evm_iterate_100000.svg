@@ -1,0 +1,407 @@
+<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg version="1.1" width="1200" height="870" onload="init(evt)" viewBox="0 0 1200 870" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><!--Flame graph stack visualization. See https://github.com/brendangregg/FlameGraph for latest version, and http://www.brendangregg.com/flamegraphs.html for examples.--><!--NOTES: --><defs><linearGradient id="background" y1="0" y2="1" x1="0" x2="0"><stop stop-color="#eeeeee" offset="5%"/><stop stop-color="#eeeeb0" offset="95%"/></linearGradient></defs><style type="text/css">
+text { font-family:"Verdana"; font-size:12px; fill:rgb(0,0,0); }
+#title { text-anchor:middle; font-size:17px; }
+#search { opacity:0.1; cursor:pointer; }
+#search:hover, #search.show { opacity:1; }
+#subtitle { text-anchor:middle; font-color:rgb(160,160,160); }
+#unzoom { cursor:pointer; }
+#frames > *:hover { stroke:black; stroke-width:0.5; cursor:pointer; }
+.hide { display:none; }
+.parent { opacity:0.5; }
+</style><script type="text/ecmascript"><![CDATA[var nametype = 'Function:';
+var fontsize = 12;
+var fontwidth = 0.59;
+var xpad = 10;
+var inverted = true;
+var searchcolor = 'rgb(230,0,230)';
+var fluiddrawing = true;]]><![CDATA["use strict";
+var details, searchbtn, unzoombtn, matchedtxt, svg, searching, frames;
+function init(evt) {
+    details = document.getElementById("details").firstChild;
+    searchbtn = document.getElementById("search");
+    unzoombtn = document.getElementById("unzoom");
+    matchedtxt = document.getElementById("matched");
+    svg = document.getElementsByTagName("svg")[0];
+    frames = document.getElementById("frames");
+    searching = 0;
+
+    // Use GET parameters to restore a flamegraph's state.
+    var restore_state = function() {
+        var params = get_params();
+        if (params.x && params.y)
+            zoom(find_group(document.querySelector('[x="' + params.x + '"][y="' + params.y + '"]')));
+        if (params.s)
+            search(params.s);
+    };
+
+    if (fluiddrawing) {
+        // Make width dynamic so the SVG fits its parent's width.
+        svg.removeAttribute("width");
+        // Edge requires us to have a viewBox that gets updated with size changes.
+        var isEdge = /Edge\/\d./i.test(navigator.userAgent);
+        if (!isEdge) {
+          svg.removeAttribute("viewBox");
+        }
+        var update_for_width_change = function() {
+            if (isEdge) {
+                svg.attributes.viewBox.value = "0 0 " + svg.width.baseVal.value + " " + svg.height.baseVal.value;
+            }
+
+            // Keep consistent padding on left and right of frames container.
+            frames.attributes.width.value = svg.width.baseVal.value - xpad * 2;
+
+            // Text truncation needs to be adjusted for the current width.
+            var el = frames.children;
+            for(var i = 0; i < el.length; i++) {
+                update_text(el[i]);
+            }
+
+            // Keep search elements at a fixed distance from right edge.
+            var svgWidth = svg.width.baseVal.value;
+            searchbtn.attributes.x.value = svgWidth - xpad - 100;
+            matchedtxt.attributes.x.value = svgWidth - xpad - 100;
+        };
+        window.addEventListener('resize', function() {
+            update_for_width_change();
+        });
+        // This needs to be done asynchronously for Safari to work.
+        setTimeout(function() {
+            unzoom();
+            update_for_width_change();
+            restore_state();
+        }, 0);
+    } else {
+        restore_state();
+    }
+}
+// event listeners
+window.addEventListener("click", function(e) {
+    var target = find_group(e.target);
+    if (target) {
+        if (target.nodeName == "a") {
+            if (e.ctrlKey === false) return;
+            e.preventDefault();
+        }
+        if (target.classList.contains("parent")) unzoom();
+        zoom(target);
+
+        // set parameters for zoom state
+        var el = target.querySelector("rect");
+        if (el && el.attributes && el.attributes.y && el.attributes._orig_x) {
+            var params = get_params()
+            params.x = el.attributes._orig_x.value;
+            params.y = el.attributes.y.value;
+            history.replaceState(null, null, parse_params(params));
+        }
+    }
+    else if (e.target.id == "unzoom") {
+        unzoom();
+
+        // remove zoom state
+        var params = get_params();
+        if (params.x) delete params.x;
+        if (params.y) delete params.y;
+        history.replaceState(null, null, parse_params(params));
+    }
+    else if (e.target.id == "search") search_prompt();
+}, false)
+// mouse-over for info
+// show
+window.addEventListener("mouseover", function(e) {
+    var target = find_group(e.target);
+    if (target) details.nodeValue = nametype + " " + g_to_text(target);
+}, false)
+// clear
+window.addEventListener("mouseout", function(e) {
+    var target = find_group(e.target);
+    if (target) details.nodeValue = ' ';
+}, false)
+// ctrl-F for search
+window.addEventListener("keydown",function (e) {
+    if (e.keyCode === 114 || (e.ctrlKey && e.keyCode === 70)) {
+        e.preventDefault();
+        search_prompt();
+    }
+}, false)
+// functions
+function get_params() {
+    var params = {};
+    var paramsarr = window.location.search.substr(1).split('&');
+    for (var i = 0; i < paramsarr.length; ++i) {
+        var tmp = paramsarr[i].split("=");
+        if (!tmp[0] || !tmp[1]) continue;
+        params[tmp[0]]  = decodeURIComponent(tmp[1]);
+    }
+    return params;
+}
+function parse_params(params) {
+    var uri = "?";
+    for (var key in params) {
+        uri += key + '=' + encodeURIComponent(params[key]) + '&';
+    }
+    if (uri.slice(-1) == "&")
+        uri = uri.substring(0, uri.length - 1);
+    if (uri == '?')
+        uri = window.location.href.split('?')[0];
+    return uri;
+}
+function find_child(node, selector) {
+    var children = node.querySelectorAll(selector);
+    if (children.length) return children[0];
+    return;
+}
+function find_group(node) {
+    var parent = node.parentElement;
+    if (!parent) return;
+    if (parent.id == "frames") return node;
+    return find_group(parent);
+}
+function orig_save(e, attr, val) {
+    if (e.attributes["_orig_" + attr] != undefined) return;
+    if (e.attributes[attr] == undefined) return;
+    if (val == undefined) val = e.attributes[attr].value;
+    e.setAttribute("_orig_" + attr, val);
+}
+function orig_load(e, attr) {
+    if (e.attributes["_orig_"+attr] == undefined) return;
+    e.attributes[attr].value = e.attributes["_orig_" + attr].value;
+    e.removeAttribute("_orig_" + attr);
+}
+function g_to_text(e) {
+    var text = find_child(e, "title").firstChild.nodeValue;
+    return (text)
+}
+function g_to_func(e) {
+    var func = g_to_text(e);
+    // if there's any manipulation we want to do to the function
+    // name before it's searched, do it here before returning.
+    return (func);
+}
+function update_text(e) {
+    var r = find_child(e, "rect");
+    var t = find_child(e, "text");
+    var w = parseFloat(r.attributes.width.value) * frames.attributes.width.value / 100 - 3;
+    var txt = find_child(e, "title").textContent.replace(/\([^(]*\)$/,"");
+    t.attributes.x.value = format_percent((parseFloat(r.attributes.x.value) + (100 * 3 / frames.attributes.width.value)));
+    // Smaller than this size won't fit anything
+    if (w < 2 * fontsize * fontwidth) {
+        t.textContent = "";
+        return;
+    }
+    t.textContent = txt;
+    // Fit in full text width
+    if (/^ *\$/.test(txt) || t.getComputedTextLength() < w)
+        return;
+    for (var x = txt.length - 2; x > 0; x--) {
+        if (t.getSubStringLength(0, x + 2) <= w) {
+            t.textContent = txt.substring(0, x) + "..";
+            return;
+        }
+    }
+    t.textContent = "";
+}
+// zoom
+function zoom_reset(e) {
+    if (e.attributes != undefined) {
+        orig_load(e, "x");
+        orig_load(e, "width");
+    }
+    if (e.childNodes == undefined) return;
+    for(var i = 0, c = e.childNodes; i < c.length; i++) {
+        zoom_reset(c[i]);
+    }
+}
+function zoom_child(e, x, ratio) {
+    if (e.attributes != undefined) {
+        if (e.attributes.x != undefined) {
+            orig_save(e, "x");
+            e.attributes.x.value = format_percent((parseFloat(e.attributes.x.value) - x) * ratio);
+            if (e.tagName == "text") {
+                e.attributes.x.value = format_percent(parseFloat(find_child(e.parentNode, "rect[x]").attributes.x.value) + (100 * 3 / frames.attributes.width.value));
+            }
+        }
+        if (e.attributes.width != undefined) {
+            orig_save(e, "width");
+            e.attributes.width.value = format_percent(parseFloat(e.attributes.width.value) * ratio);
+        }
+    }
+    if (e.childNodes == undefined) return;
+    for(var i = 0, c = e.childNodes; i < c.length; i++) {
+        zoom_child(c[i], x, ratio);
+    }
+}
+function zoom_parent(e) {
+    if (e.attributes) {
+        if (e.attributes.x != undefined) {
+            orig_save(e, "x");
+            e.attributes.x.value = "0.0%";
+        }
+        if (e.attributes.width != undefined) {
+            orig_save(e, "width");
+            e.attributes.width.value = "100.0%";
+        }
+    }
+    if (e.childNodes == undefined) return;
+    for(var i = 0, c = e.childNodes; i < c.length; i++) {
+        zoom_parent(c[i]);
+    }
+}
+function zoom(node) {
+    var attr = find_child(node, "rect").attributes;
+    var width = parseFloat(attr.width.value);
+    var xmin = parseFloat(attr.x.value);
+    var xmax = xmin + width;
+    var ymin = parseFloat(attr.y.value);
+    var ratio = 100 / width;
+    // XXX: Workaround for JavaScript float issues (fix me)
+    var fudge = 0.001;
+    unzoombtn.classList.remove("hide");
+    var el = frames.children;
+    for (var i = 0; i < el.length; i++) {
+        var e = el[i];
+        var a = find_child(e, "rect").attributes;
+        var ex = parseFloat(a.x.value);
+        var ew = parseFloat(a.width.value);
+        // Is it an ancestor
+        if (!inverted) {
+            var upstack = parseFloat(a.y.value) > ymin;
+        } else {
+            var upstack = parseFloat(a.y.value) < ymin;
+        }
+        if (upstack) {
+            // Direct ancestor
+            if (ex <= xmin && (ex+ew+fudge) >= xmax) {
+                e.classList.add("parent");
+                zoom_parent(e);
+                update_text(e);
+            }
+            // not in current path
+            else
+                e.classList.add("hide");
+        }
+        // Children maybe
+        else {
+            // no common path
+            if (ex < xmin || ex + fudge >= xmax) {
+                e.classList.add("hide");
+            }
+            else {
+                zoom_child(e, xmin, ratio);
+                update_text(e);
+            }
+        }
+    }
+}
+function unzoom() {
+    unzoombtn.classList.add("hide");
+    var el = frames.children;
+    for(var i = 0; i < el.length; i++) {
+        el[i].classList.remove("parent");
+        el[i].classList.remove("hide");
+        zoom_reset(el[i]);
+        update_text(el[i]);
+    }
+}
+// search
+function reset_search() {
+    var el = document.querySelectorAll("#frames rect");
+    for (var i = 0; i < el.length; i++) {
+        orig_load(el[i], "fill")
+    }
+    var params = get_params();
+    delete params.s;
+    history.replaceState(null, null, parse_params(params));
+}
+function search_prompt() {
+    if (!searching) {
+        var term = prompt("Enter a search term (regexp " +
+            "allowed, eg: ^ext4_)", "");
+        if (term != null) {
+            search(term)
+        }
+    } else {
+        reset_search();
+        searching = 0;
+        searchbtn.classList.remove("show");
+        searchbtn.firstChild.nodeValue = "Search"
+        matchedtxt.classList.add("hide");
+        matchedtxt.firstChild.nodeValue = ""
+    }
+}
+function search(term) {
+    var re = new RegExp(term);
+    var el = frames.children;
+    var matches = new Object();
+    var maxwidth = 0;
+    for (var i = 0; i < el.length; i++) {
+        var e = el[i];
+        var func = g_to_func(e);
+        var rect = find_child(e, "rect");
+        if (func == null || rect == null)
+            continue;
+        // Save max width. Only works as we have a root frame
+        var w = parseFloat(rect.attributes.width.value);
+        if (w > maxwidth)
+            maxwidth = w;
+        if (func.match(re)) {
+            // highlight
+            var x = parseFloat(rect.attributes.x.value);
+            orig_save(rect, "fill");
+            rect.attributes.fill.value = searchcolor;
+            // remember matches
+            if (matches[x] == undefined) {
+                matches[x] = w;
+            } else {
+                if (w > matches[x]) {
+                    // overwrite with parent
+                    matches[x] = w;
+                }
+            }
+            searching = 1;
+        }
+    }
+    if (!searching)
+        return;
+    var params = get_params();
+    params.s = term;
+    history.replaceState(null, null, parse_params(params));
+
+    searchbtn.classList.add("show");
+    searchbtn.firstChild.nodeValue = "Reset Search";
+    // calculate percent matched, excluding vertical overlap
+    var count = 0;
+    var lastx = -1;
+    var lastw = 0;
+    var keys = Array();
+    for (k in matches) {
+        if (matches.hasOwnProperty(k))
+            keys.push(k);
+    }
+    // sort the matched frames by their x location
+    // ascending, then width descending
+    keys.sort(function(a, b){
+        return a - b;
+    });
+    // Step through frames saving only the biggest bottom-up frames
+    // thanks to the sort order. This relies on the tree property
+    // where children are always smaller than their parents.
+    var fudge = 0.0001;    // JavaScript floating point
+    for (var k in keys) {
+        var x = parseFloat(keys[k]);
+        var w = matches[keys[k]];
+        if (x >= lastx + lastw - fudge) {
+            count += w;
+            lastx = x;
+            lastw = w;
+        }
+    }
+    // display matched percent
+    matchedtxt.classList.remove("hide");
+    var pct = 100 * count / maxwidth;
+    if (pct != 100) pct = pct.toFixed(1);
+    matchedtxt.firstChild.nodeValue = "Matched: " + pct + "%";
+}
+function format_percent(n) {
+    return n.toFixed(4) + "%";
+}
+]]></script><rect x="0" y="0" width="100%" height="870" fill="url(#background)"/><text id="title" x="50.0000%" y="24.00">py-spy</text><text id="details" x="10" y="853.00"> </text><text id="unzoom" class="hide" x="10" y="24.00">Reset Zoom</text><text id="search" x="1090" y="24.00">Search</text><text id="matched" x="1090" y="853.00"> </text><svg id="frames" x="10" width="1180"><g><title>apply_computation (eth/vm/computation.py:1066) (278 samples, 1.97%)</title><rect x="0.1419%" y="532" width="1.9726%" height="15" fill="rgb(227,0,7)"/><text x="0.3919%" y="542.50">a..</text></g><g><title>wrapped_logic_fn (eth/vm/opcode.py:567) (161 samples, 1.14%)</title><rect x="0.9721%" y="548" width="1.1424%" height="15" fill="rgb(217,0,24)"/><text x="1.2221%" y="558.50"></text></g><g><title>binary_gas_search (eth/estimators/gas.py:1602) (330 samples, 2.34%)</title><rect x="0.1206%" y="436" width="2.3416%" height="15" fill="rgb(221,193,54)"/><text x="0.3706%" y="446.50">b..</text></g><g><title>_get_computation_error (eth/estimators/gas.py:19) (330 samples, 2.34%)</title><rect x="0.1206%" y="452" width="2.3416%" height="15" fill="rgb(248,212,6)"/><text x="0.3706%" y="462.50">_..</text></g><g><title>apply_transaction (eth/vm/forks/frontier/state.py:193) (330 samples, 2.34%)</title><rect x="0.1206%" y="468" width="2.3416%" height="15" fill="rgb(208,68,35)"/><text x="0.3706%" y="478.50">a..</text></g><g><title>__call__ (eth/vm/state.py:264) (330 samples, 2.34%)</title><rect x="0.1206%" y="484" width="2.3416%" height="15" fill="rgb(232,128,0)"/><text x="0.3706%" y="494.50">_..</text></g><g><title>build_computation (eth/vm/forks/frontier/state.py:2691) (330 samples, 2.34%)</title><rect x="0.1206%" y="500" width="2.3416%" height="15" fill="rgb(207,160,47)"/><text x="0.3706%" y="510.50">b..</text></g><g><title>apply_message (eth/vm/forks/frontier/computation.py:1610) (330 samples, 2.34%)</title><rect x="0.1206%" y="516" width="2.3416%" height="15" fill="rgb(228,23,34)"/><text x="0.3706%" y="526.50">a..</text></g><g><title>consume_gas (eth/vm/gas_meter.py:578) (293 samples, 2.08%)</title><rect x="15.4616%" y="580" width="2.0790%" height="15" fill="rgb(218,30,26)"/><text x="15.7116%" y="590.50">c..</text></g><g><title>consume_gas (eth/vm/gas_meter.py:580) (224 samples, 1.59%)</title><rect x="17.5406%" y="580" width="1.5894%" height="15" fill="rgb(220,122,19)"/><text x="17.7906%" y="590.50"></text></g><g><title>wrapped_logic_fn (eth/vm/opcode.py:563) (1,357 samples, 9.63%)</title><rect x="10.3881%" y="548" width="9.6289%" height="15" fill="rgb(250,228,42)"/><text x="10.6381%" y="558.50">wrapped_logic_..</text></g><g><title>consume_gas (eth/vm/computation.py:254) (1,178 samples, 8.36%)</title><rect x="11.6583%" y="564" width="8.3588%" height="15" fill="rgb(240,193,28)"/><text x="11.9083%" y="574.50">consume_gas ..</text></g><g><title>add (eth/vm/logic/arithmetic.py:20) (292 samples, 2.07%)</title><rect x="23.6004%" y="564" width="2.0720%" height="15" fill="rgb(216,20,37)"/><text x="23.8504%" y="574.50">a..</text></g><g><title>dup_XX (eth/vm/logic/duplication.py:10) (376 samples, 2.67%)</title><rect x="26.9212%" y="564" width="2.6680%" height="15" fill="rgb(206,188,39)"/><text x="27.1712%" y="574.50">du..</text></g><g><title>stack_dup (eth/vm/computation.py:290) (283 samples, 2.01%)</title><rect x="27.5811%" y="580" width="2.0081%" height="15" fill="rgb(217,207,13)"/><text x="27.8311%" y="590.50">s..</text></g><g><title>jumpi (eth/vm/logic/flow.py:32) (221 samples, 1.57%)</title><rect x="31.7675%" y="564" width="1.5682%" height="15" fill="rgb(231,73,38)"/><text x="32.0175%" y="574.50"></text></g><g><title>lt (eth/vm/logic/comparison.py:15) (181 samples, 1.28%)</title><rect x="33.4067%" y="564" width="1.2843%" height="15" fill="rgb(225,20,46)"/><text x="33.6567%" y="574.50"></text></g><g><title>push_XX (eth/vm/logic/stack.py:11) (225 samples, 1.60%)</title><rect x="35.9043%" y="564" width="1.5965%" height="15" fill="rgb(210,31,41)"/><text x="36.1543%" y="574.50"></text></g><g><title>push_XX (eth/vm/logic/stack.py:19) (262 samples, 1.86%)</title><rect x="37.7563%" y="564" width="1.8591%" height="15" fill="rgb(221,200,47)"/><text x="38.0063%" y="574.50">p..</text></g><g><title>swap_XX (eth/vm/logic/swap.py:10) (180 samples, 1.28%)</title><rect x="39.6651%" y="564" width="1.2772%" height="15" fill="rgb(226,26,5)"/><text x="39.9151%" y="574.50"></text></g><g><title>stack_swap (eth/vm/computation.py:287) (149 samples, 1.06%)</title><rect x="39.8850%" y="580" width="1.0573%" height="15" fill="rgb(249,33,26)"/><text x="40.1350%" y="590.50"></text></g><g><title>apply_computation (eth/vm/computation.py:1066) (5,414 samples, 38.42%)</title><rect x="2.5332%" y="532" width="38.4162%" height="15" fill="rgb(235,183,28)"/><text x="2.7832%" y="542.50">apply_computation (eth/vm/computation.py:1066)</text></g><g><title>wrapped_logic_fn (eth/vm/opcode.py:567) (2,950 samples, 20.93%)</title><rect x="20.0170%" y="548" width="20.9324%" height="15" fill="rgb(221,5,38)"/><text x="20.2670%" y="558.50">wrapped_logic_fn (eth/vm/opcode.p..</text></g><g><title>__iter__ (eth/vm/code_stream.py:50) (158 samples, 1.12%)</title><rect x="41.6235%" y="548" width="1.1211%" height="15" fill="rgb(247,18,42)"/><text x="41.8735%" y="558.50"></text></g><g><title>__iter__ (eth/vm/code_stream.py:51) (172 samples, 1.22%)</title><rect x="42.7446%" y="548" width="1.2205%" height="15" fill="rgb(241,131,45)"/><text x="42.9946%" y="558.50"></text></g><g><title>__iter__ (eth/vm/code_stream.py:52) (177 samples, 1.26%)</title><rect x="43.9651%" y="548" width="1.2559%" height="15" fill="rgb(249,31,29)"/><text x="44.2151%" y="558.50"></text></g><g><title>apply_computation (eth/vm/computation.py:539) (831 samples, 5.90%)</title><rect x="40.9494%" y="532" width="5.8965%" height="15" fill="rgb(225,111,53)"/><text x="41.1994%" y="542.50">apply_c..</text></g><g><title>__iter__ (eth/vm/code_stream.py:55) (158 samples, 1.12%)</title><rect x="45.7248%" y="548" width="1.1211%" height="15" fill="rgb(238,160,17)"/><text x="45.9748%" y="558.50"></text></g><g><title>__call__ (eth/vm/state.py:264) (6,415 samples, 45.52%)</title><rect x="2.4622%" y="484" width="45.5191%" height="15" fill="rgb(214,148,48)"/><text x="2.7122%" y="494.50">__call__ (eth/vm/state.py:264)</text></g><g><title>build_computation (eth/vm/forks/frontier/state.py:2691) (6,415 samples, 45.52%)</title><rect x="2.4622%" y="500" width="45.5191%" height="15" fill="rgb(232,36,49)"/><text x="2.7122%" y="510.50">build_computation (eth/vm/forks/frontier/state.py:2691)</text></g><g><title>apply_message (eth/vm/forks/frontier/computation.py:1610) (6,415 samples, 45.52%)</title><rect x="2.4622%" y="516" width="45.5191%" height="15" fill="rgb(209,103,24)"/><text x="2.7122%" y="526.50">apply_message (eth/vm/forks/frontier/computation.py:1610)</text></g><g><title>benchmark (benchmark_py-evm.py:525) (6,748 samples, 47.88%)</title><rect x="0.1064%" y="84" width="47.8819%" height="15" fill="rgb(229,88,8)"/><text x="0.3564%" y="94.50">benchmark (benchmark_py-evm.py:525)</text></g><g><title>estimateGas (web3/contract.py:3529) (6,748 samples, 47.88%)</title><rect x="0.1064%" y="100" width="47.8819%" height="15" fill="rgb(213,181,19)"/><text x="0.3564%" y="110.50">estimateGas (web3/contract.py:3529)</text></g><g><title>estimate_gas_for_function (web3/contract.py:2054) (6,748 samples, 47.88%)</title><rect x="0.1064%" y="116" width="47.8819%" height="15" fill="rgb(254,191,54)"/><text x="0.3564%" y="126.50">estimate_gas_for_function (web3/contract.py:2054)</text></g><g><title>estimateGas (web3/eth.py:872) (6,748 samples, 47.88%)</title><rect x="0.1064%" y="132" width="47.8819%" height="15" fill="rgb(241,83,37)"/><text x="0.3564%" y="142.50">estimateGas (web3/eth.py:872)</text></g><g><title>request_blocking (web3/manager.py:109) (6,748 samples, 47.88%)</title><rect x="0.1064%" y="148" width="47.8819%" height="15" fill="rgb(233,36,39)"/><text x="0.3564%" y="158.50">request_blocking (web3/manager.py:109)</text></g><g><title>_make_request (web3/manager.py:608) (6,748 samples, 47.88%)</title><rect x="0.1064%" y="164" width="47.8819%" height="15" fill="rgb(226,3,54)"/><text x="0.3564%" y="174.50">_make_request (web3/manager.py:608)</text></g><g><title>apply_formatters (web3/middleware/formatting.py:50) (6,748 samples, 47.88%)</title><rect x="0.1064%" y="180" width="47.8819%" height="15" fill="rgb(245,192,40)"/><text x="0.3564%" y="190.50">apply_formatters (web3/middleware/formatting.py:50)</text></g><g><title>middleware (web3/middleware/gas_price_strategy.py:18) (6,748 samples, 47.88%)</title><rect x="0.1064%" y="196" width="47.8819%" height="15" fill="rgb(238,167,29)"/><text x="0.3564%" y="206.50">middleware (web3/middleware/gas_price_strategy.py:18)</text></g><g><title>apply_formatters (web3/middleware/formatting.py:48) (6,748 samples, 47.88%)</title><rect x="0.1064%" y="212" width="47.8819%" height="15" fill="rgb(232,182,51)"/><text x="0.3564%" y="222.50">apply_formatters (web3/middleware/formatting.py:48)</text></g><g><title>middleware (web3/middleware/attrdict.py:18) (6,748 samples, 47.88%)</title><rect x="0.1064%" y="228" width="47.8819%" height="15" fill="rgb(231,60,39)"/><text x="0.3564%" y="238.50">middleware (web3/middleware/attrdict.py:18)</text></g><g><title>apply_formatters (web3/middleware/formatting.py:48) (6,748 samples, 47.88%)</title><rect x="0.1064%" y="244" width="47.8819%" height="15" fill="rgb(208,69,12)"/><text x="0.3564%" y="254.50">apply_formatters (web3/middleware/formatting.py:48)</text></g><g><title>middleware (web3/middleware/normalize_errors.py:9) (6,748 samples, 47.88%)</title><rect x="0.1064%" y="260" width="47.8819%" height="15" fill="rgb(235,93,37)"/><text x="0.3564%" y="270.50">middleware (web3/middleware/normalize_errors.py:9)</text></g><g><title>apply_formatters (web3/middleware/formatting.py:48) (6,748 samples, 47.88%)</title><rect x="0.1064%" y="276" width="47.8819%" height="15" fill="rgb(213,116,39)"/><text x="0.3564%" y="286.50">apply_formatters (web3/middleware/formatting.py:48)</text></g><g><title>apply_formatters (web3/middleware/formatting.py:48) (6,748 samples, 47.88%)</title><rect x="0.1064%" y="292" width="47.8819%" height="15" fill="rgb(222,207,29)"/><text x="0.3564%" y="302.50">apply_formatters (web3/middleware/formatting.py:48)</text></g><g><title>middleware (web3/providers/eth_tester/middleware.py:1335) (6,747 samples, 47.87%)</title><rect x="0.1135%" y="308" width="47.8748%" height="15" fill="rgb(206,96,30)"/><text x="0.3635%" y="318.50">middleware (web3/providers/eth_tester/middleware.py:1335)</text></g><g><title>apply_formatters (web3/middleware/formatting.py:48) (6,747 samples, 47.87%)</title><rect x="0.1135%" y="324" width="47.8748%" height="15" fill="rgb(218,138,4)"/><text x="0.3635%" y="334.50">apply_formatters (web3/middleware/formatting.py:48)</text></g><g><title>make_request (web3/providers/eth_tester/main.py:580) (6,747 samples, 47.87%)</title><rect x="0.1135%" y="340" width="47.8748%" height="15" fill="rgb(250,191,14)"/><text x="0.3635%" y="350.50">make_request (web3/providers/eth_tester/main.py:580)</text></g><g><title>call_eth_tester (web3/providers/eth_tester/defaults.py:35) (6,747 samples, 47.87%)</title><rect x="0.1135%" y="356" width="47.8748%" height="15" fill="rgb(239,60,40)"/><text x="0.3635%" y="366.50">call_eth_tester (web3/providers/eth_tester/defaults.py:35)</text></g><g><title>estimate_gas (eth_tester/main.py:434) (6,746 samples, 47.87%)</title><rect x="0.1206%" y="372" width="47.8677%" height="15" fill="rgb(206,27,48)"/><text x="0.3706%" y="382.50">estimate_gas (eth_tester/main.py:434)</text></g><g><title>wrapper (eth_utils/decorators.py:112) (6,746 samples, 47.87%)</title><rect x="0.1206%" y="388" width="47.8677%" height="15" fill="rgb(225,35,8)"/><text x="0.3706%" y="398.50">wrapper (eth_utils/decorators.py:112)</text></g><g><title>estimate_gas (eth_tester/backends/pyevm/main.py:983) (6,746 samples, 47.87%)</title><rect x="0.1206%" y="404" width="47.8677%" height="15" fill="rgb(250,213,24)"/><text x="0.3706%" y="414.50">estimate_gas (eth_tester/backends/pyevm/main.py:983)</text></g><g><title>estimate_gas (eth/chains/base.py:429) (6,746 samples, 47.87%)</title><rect x="0.1206%" y="420" width="47.8677%" height="15" fill="rgb(247,123,22)"/><text x="0.3706%" y="430.50">estimate_gas (eth/chains/base.py:429)</text></g><g><title>binary_gas_search (eth/estimators/gas.py:1611) (6,416 samples, 45.53%)</title><rect x="2.4622%" y="436" width="45.5261%" height="15" fill="rgb(231,138,38)"/><text x="2.7122%" y="446.50">binary_gas_search (eth/estimators/gas.py:1611)</text></g><g><title>_get_computation_error (eth/estimators/gas.py:19) (6,416 samples, 45.53%)</title><rect x="2.4622%" y="452" width="45.5261%" height="15" fill="rgb(231,145,46)"/><text x="2.7122%" y="462.50">_get_computation_error (eth/estimators/gas.py:19)</text></g><g><title>apply_transaction (eth/vm/forks/frontier/state.py:193) (6,416 samples, 45.53%)</title><rect x="2.4622%" y="468" width="45.5261%" height="15" fill="rgb(251,118,11)"/><text x="2.7122%" y="478.50">apply_transaction (eth/vm/forks/frontier/state.py:193)</text></g><g><title>apply_computation (eth/vm/computation.py:1066) (314 samples, 2.23%)</title><rect x="48.0026%" y="772" width="2.2281%" height="15" fill="rgb(217,147,25)"/><text x="48.2526%" y="782.50">a..</text></g><g><title>wrapped_logic_fn (eth/vm/opcode.py:567) (184 samples, 1.31%)</title><rect x="48.9250%" y="788" width="1.3056%" height="15" fill="rgb(247,81,37)"/><text x="49.1750%" y="798.50"></text></g><g><title>binary_gas_search (eth/estimators/gas.py:1602) (350 samples, 2.48%)</title><rect x="47.9884%" y="676" width="2.4835%" height="15" fill="rgb(209,12,38)"/><text x="48.2384%" y="686.50">bi..</text></g><g><title>_get_computation_error (eth/estimators/gas.py:19) (350 samples, 2.48%)</title><rect x="47.9884%" y="692" width="2.4835%" height="15" fill="rgb(227,1,9)"/><text x="48.2384%" y="702.50">_g..</text></g><g><title>apply_transaction (eth/vm/forks/frontier/state.py:193) (350 samples, 2.48%)</title><rect x="47.9884%" y="708" width="2.4835%" height="15" fill="rgb(248,47,43)"/><text x="48.2384%" y="718.50">ap..</text></g><g><title>__call__ (eth/vm/state.py:264) (350 samples, 2.48%)</title><rect x="47.9884%" y="724" width="2.4835%" height="15" fill="rgb(221,10,30)"/><text x="48.2384%" y="734.50">__..</text></g><g><title>build_computation (eth/vm/forks/frontier/state.py:2691) (350 samples, 2.48%)</title><rect x="47.9884%" y="740" width="2.4835%" height="15" fill="rgb(210,229,1)"/><text x="48.2384%" y="750.50">bu..</text></g><g><title>apply_message (eth/vm/forks/frontier/computation.py:1610) (350 samples, 2.48%)</title><rect x="47.9884%" y="756" width="2.4835%" height="15" fill="rgb(222,148,37)"/><text x="48.2384%" y="766.50">ap..</text></g><g><title>consume_gas (eth/vm/gas_meter.py:578) (325 samples, 2.31%)</title><rect x="63.2300%" y="820" width="2.3061%" height="15" fill="rgb(234,67,33)"/><text x="63.4800%" y="830.50">c..</text></g><g><title>consume_gas (eth/vm/gas_meter.py:580) (262 samples, 1.86%)</title><rect x="65.5361%" y="820" width="1.8591%" height="15" fill="rgb(247,98,35)"/><text x="65.7861%" y="830.50">c..</text></g><g><title>wrapped_logic_fn (eth/vm/opcode.py:563) (1,495 samples, 10.61%)</title><rect x="57.8940%" y="788" width="10.6081%" height="15" fill="rgb(247,138,52)"/><text x="58.1440%" y="798.50">wrapped_logic_f..</text></g><g><title>consume_gas (eth/vm/computation.py:254) (1,289 samples, 9.15%)</title><rect x="59.3557%" y="804" width="9.1464%" height="15" fill="rgb(213,79,30)"/><text x="59.6057%" y="814.50">consume_gas (..</text></g><g><title>consume_gas (eth/vm/gas_meter.py:59) (156 samples, 1.11%)</title><rect x="67.3952%" y="820" width="1.1069%" height="15" fill="rgb(246,177,23)"/><text x="67.6452%" y="830.50"></text></g><g><title>add (eth/vm/logic/arithmetic.py:20) (307 samples, 2.18%)</title><rect x="72.4331%" y="804" width="2.1784%" height="15" fill="rgb(230,62,27)"/><text x="72.6831%" y="814.50">a..</text></g><g><title>dup_XX (eth/vm/logic/duplication.py:10) (363 samples, 2.58%)</title><rect x="75.8178%" y="804" width="2.5757%" height="15" fill="rgb(216,154,8)"/><text x="76.0678%" y="814.50">du..</text></g><g><title>stack_dup (eth/vm/computation.py:290) (278 samples, 1.97%)</title><rect x="76.4209%" y="820" width="1.9726%" height="15" fill="rgb(244,35,45)"/><text x="76.6709%" y="830.50">s..</text></g><g><title>jumpi (eth/vm/logic/flow.py:32) (181 samples, 1.28%)</title><rect x="80.6854%" y="804" width="1.2843%" height="15" fill="rgb(251,115,12)"/><text x="80.9354%" y="814.50"></text></g><g><title>lt (eth/vm/logic/comparison.py:15) (187 samples, 1.33%)</title><rect x="81.9982%" y="804" width="1.3269%" height="15" fill="rgb(240,54,50)"/><text x="82.2482%" y="814.50"></text></g><g><title>push_XX (eth/vm/logic/stack.py:11) (249 samples, 1.77%)</title><rect x="84.8081%" y="804" width="1.7668%" height="15" fill="rgb(233,84,52)"/><text x="85.0581%" y="814.50"></text></g><g><title>push_XX (eth/vm/logic/stack.py:19) (287 samples, 2.04%)</title><rect x="86.8445%" y="804" width="2.0365%" height="15" fill="rgb(207,117,47)"/><text x="87.0945%" y="814.50">p..</text></g><g><title>swap_XX (eth/vm/logic/swap.py:10) (185 samples, 1.31%)</title><rect x="88.9307%" y="804" width="1.3127%" height="15" fill="rgb(249,43,39)"/><text x="89.1807%" y="814.50"></text></g><g><title>apply_computation (eth/vm/computation.py:1066) (5,595 samples, 39.70%)</title><rect x="50.5499%" y="772" width="39.7006%" height="15" fill="rgb(209,38,44)"/><text x="50.7999%" y="782.50">apply_computation (eth/vm/computation.py:1066)</text></g><g><title>wrapped_logic_fn (eth/vm/opcode.py:567) (3,065 samples, 21.75%)</title><rect x="68.5021%" y="788" width="21.7484%" height="15" fill="rgb(236,212,23)"/><text x="68.7521%" y="798.50">wrapped_logic_fn (eth/vm/opcode.py..</text></g><g><title>__iter__ (eth/vm/code_stream.py:50) (141 samples, 1.00%)</title><rect x="90.9388%" y="788" width="1.0005%" height="15" fill="rgb(242,79,21)"/><text x="91.1888%" y="798.50"></text></g><g><title>__iter__ (eth/vm/code_stream.py:51) (147 samples, 1.04%)</title><rect x="91.9393%" y="788" width="1.0431%" height="15" fill="rgb(211,96,35)"/><text x="92.1893%" y="798.50"></text></g><g><title>__iter__ (eth/vm/code_stream.py:52) (197 samples, 1.40%)</title><rect x="92.9823%" y="788" width="1.3979%" height="15" fill="rgb(253,215,40)"/><text x="93.2323%" y="798.50"></text></g><g><title>apply_computation (eth/vm/computation.py:539) (785 samples, 5.57%)</title><rect x="90.2505%" y="772" width="5.5701%" height="15" fill="rgb(211,81,21)"/><text x="90.5005%" y="782.50">apply_c..</text></g><g><title>__call__ (eth/vm/state.py:264) (6,559 samples, 46.54%)</title><rect x="50.4719%" y="724" width="46.5408%" height="15" fill="rgb(208,190,38)"/><text x="50.7219%" y="734.50">__call__ (eth/vm/state.py:264)</text></g><g><title>build_computation (eth/vm/forks/frontier/state.py:2691) (6,559 samples, 46.54%)</title><rect x="50.4719%" y="740" width="46.5408%" height="15" fill="rgb(235,213,38)"/><text x="50.7219%" y="750.50">build_computation (eth/vm/forks/frontier/state.py:2691)</text></g><g><title>apply_message (eth/vm/forks/frontier/computation.py:1610) (6,559 samples, 46.54%)</title><rect x="50.4719%" y="756" width="46.5408%" height="15" fill="rgb(237,122,38)"/><text x="50.7219%" y="766.50">apply_message (eth/vm/forks/frontier/computation.py:1610)</text></g><g><title>middleware (web3/providers/eth_tester/middleware.py:809) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="324" width="49.0314%" height="15" fill="rgb(244,218,35)"/><text x="48.2384%" y="334.50">middleware (web3/providers/eth_tester/middleware.py:809)</text></g><g><title>fill_default (web3/providers/eth_tester/middleware.py:286) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="340" width="49.0314%" height="15" fill="rgb(240,68,47)"/><text x="48.2384%" y="350.50">fill_default (web3/providers/eth_tester/middleware.py:286)</text></g><g><title>guess_gas (web3/providers/eth_tester/middleware.py:278) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="356" width="49.0314%" height="15" fill="rgb(210,16,53)"/><text x="48.2384%" y="366.50">guess_gas (web3/providers/eth_tester/middleware.py:278)</text></g><g><title>estimateGas (web3/eth.py:872) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="372" width="49.0314%" height="15" fill="rgb(235,124,12)"/><text x="48.2384%" y="382.50">estimateGas (web3/eth.py:872)</text></g><g><title>request_blocking (web3/manager.py:109) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="388" width="49.0314%" height="15" fill="rgb(224,169,11)"/><text x="48.2384%" y="398.50">request_blocking (web3/manager.py:109)</text></g><g><title>_make_request (web3/manager.py:608) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="404" width="49.0314%" height="15" fill="rgb(250,166,2)"/><text x="48.2384%" y="414.50">_make_request (web3/manager.py:608)</text></g><g><title>apply_formatters (web3/middleware/formatting.py:50) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="420" width="49.0314%" height="15" fill="rgb(242,216,29)"/><text x="48.2384%" y="430.50">apply_formatters (web3/middleware/formatting.py:50)</text></g><g><title>middleware (web3/middleware/gas_price_strategy.py:18) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="436" width="49.0314%" height="15" fill="rgb(230,116,27)"/><text x="48.2384%" y="446.50">middleware (web3/middleware/gas_price_strategy.py:18)</text></g><g><title>apply_formatters (web3/middleware/formatting.py:48) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="452" width="49.0314%" height="15" fill="rgb(228,99,48)"/><text x="48.2384%" y="462.50">apply_formatters (web3/middleware/formatting.py:48)</text></g><g><title>middleware (web3/middleware/attrdict.py:18) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="468" width="49.0314%" height="15" fill="rgb(253,11,6)"/><text x="48.2384%" y="478.50">middleware (web3/middleware/attrdict.py:18)</text></g><g><title>apply_formatters (web3/middleware/formatting.py:48) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="484" width="49.0314%" height="15" fill="rgb(247,143,39)"/><text x="48.2384%" y="494.50">apply_formatters (web3/middleware/formatting.py:48)</text></g><g><title>middleware (web3/middleware/normalize_errors.py:9) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="500" width="49.0314%" height="15" fill="rgb(236,97,10)"/><text x="48.2384%" y="510.50">middleware (web3/middleware/normalize_errors.py:9)</text></g><g><title>apply_formatters (web3/middleware/formatting.py:48) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="516" width="49.0314%" height="15" fill="rgb(233,208,19)"/><text x="48.2384%" y="526.50">apply_formatters (web3/middleware/formatting.py:48)</text></g><g><title>apply_formatters (web3/middleware/formatting.py:48) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="532" width="49.0314%" height="15" fill="rgb(216,164,2)"/><text x="48.2384%" y="542.50">apply_formatters (web3/middleware/formatting.py:48)</text></g><g><title>middleware (web3/providers/eth_tester/middleware.py:1335) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="548" width="49.0314%" height="15" fill="rgb(220,129,5)"/><text x="48.2384%" y="558.50">middleware (web3/providers/eth_tester/middleware.py:1335)</text></g><g><title>apply_formatters (web3/middleware/formatting.py:48) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="564" width="49.0314%" height="15" fill="rgb(242,17,10)"/><text x="48.2384%" y="574.50">apply_formatters (web3/middleware/formatting.py:48)</text></g><g><title>make_request (web3/providers/eth_tester/main.py:580) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="580" width="49.0314%" height="15" fill="rgb(242,107,0)"/><text x="48.2384%" y="590.50">make_request (web3/providers/eth_tester/main.py:580)</text></g><g><title>call_eth_tester (web3/providers/eth_tester/defaults.py:35) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="596" width="49.0314%" height="15" fill="rgb(251,28,31)"/><text x="48.2384%" y="606.50">call_eth_tester (web3/providers/eth_tester/defaults.py:35)</text></g><g><title>estimate_gas (eth_tester/main.py:434) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="612" width="49.0314%" height="15" fill="rgb(233,223,10)"/><text x="48.2384%" y="622.50">estimate_gas (eth_tester/main.py:434)</text></g><g><title>wrapper (eth_utils/decorators.py:112) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="628" width="49.0314%" height="15" fill="rgb(215,21,27)"/><text x="48.2384%" y="638.50">wrapper (eth_utils/decorators.py:112)</text></g><g><title>estimate_gas (eth_tester/backends/pyevm/main.py:983) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="644" width="49.0314%" height="15" fill="rgb(232,23,21)"/><text x="48.2384%" y="654.50">estimate_gas (eth_tester/backends/pyevm/main.py:983)</text></g><g><title>estimate_gas (eth/chains/base.py:429) (6,910 samples, 49.03%)</title><rect x="47.9884%" y="660" width="49.0314%" height="15" fill="rgb(244,5,23)"/><text x="48.2384%" y="670.50">estimate_gas (eth/chains/base.py:429)</text></g><g><title>binary_gas_search (eth/estimators/gas.py:1611) (6,560 samples, 46.55%)</title><rect x="50.4719%" y="676" width="46.5479%" height="15" fill="rgb(226,81,46)"/><text x="50.7219%" y="686.50">binary_gas_search (eth/estimators/gas.py:1611)</text></g><g><title>_get_computation_error (eth/estimators/gas.py:19) (6,560 samples, 46.55%)</title><rect x="50.4719%" y="692" width="46.5479%" height="15" fill="rgb(247,70,30)"/><text x="50.7219%" y="702.50">_get_computation_error (eth/estimators/gas.py:19)</text></g><g><title>apply_transaction (eth/vm/forks/frontier/state.py:193) (6,560 samples, 46.55%)</title><rect x="50.4719%" y="708" width="46.5479%" height="15" fill="rgb(212,68,19)"/><text x="50.7219%" y="718.50">apply_transaction (eth/vm/forks/frontier/state.py:193)</text></g><g><title>apply_computation (eth/vm/computation.py:1066) (291 samples, 2.06%)</title><rect x="97.0553%" y="500" width="2.0649%" height="15" fill="rgb(240,187,13)"/><text x="97.3053%" y="510.50">a..</text></g><g><title>wrapped_logic_fn (eth/vm/opcode.py:567) (162 samples, 1.15%)</title><rect x="97.9706%" y="516" width="1.1495%" height="15" fill="rgb(223,113,26)"/><text x="98.2206%" y="526.50"></text></g><g><title>&lt;module&gt; (benchmark_py-evm.py:25) (14,028 samples, 99.54%)</title><rect x="0.0000%" y="52" width="99.5388%" height="15" fill="rgb(206,192,2)"/><text x="0.2500%" y="62.50">&lt;module&gt; (benchmark_py-evm.py:25)</text></g><g><title>main (benchmark_py-evm.py:21) (14,028 samples, 99.54%)</title><rect x="0.0000%" y="68" width="99.5388%" height="15" fill="rgb(241,108,4)"/><text x="0.2500%" y="78.50">main (benchmark_py-evm.py:21)</text></g><g><title>benchmark (benchmark_py-evm.py:527) (7,265 samples, 51.55%)</title><rect x="47.9884%" y="84" width="51.5504%" height="15" fill="rgb(247,173,49)"/><text x="48.2384%" y="94.50">benchmark (benchmark_py-evm.py:527)</text></g><g><title>call (web3/contract.py:3453) (7,265 samples, 51.55%)</title><rect x="47.9884%" y="100" width="51.5504%" height="15" fill="rgb(224,114,35)"/><text x="48.2384%" y="110.50">call (web3/contract.py:3453)</text></g><g><title>call_contract_function (web3/contract.py:1935) (7,265 samples, 51.55%)</title><rect x="47.9884%" y="116" width="51.5504%" height="15" fill="rgb(245,159,27)"/><text x="48.2384%" y="126.50">call_contract_function (web3/contract.py:1935)</text></g><g><title>inner (eth_utils/functional.py:45) (7,265 samples, 51.55%)</title><rect x="47.9884%" y="132" width="51.5504%" height="15" fill="rgb(245,172,44)"/><text x="48.2384%" y="142.50">inner (eth_utils/functional.py:45)</text></g><g><title>call (web3/eth.py:857) (7,265 samples, 51.55%)</title><rect x="47.9884%" y="148" width="51.5504%" height="15" fill="rgb(236,23,11)"/><text x="48.2384%" y="158.50">call (web3/eth.py:857)</text></g><g><title>request_blocking (web3/manager.py:109) (7,265 samples, 51.55%)</title><rect x="47.9884%" y="164" width="51.5504%" height="15" fill="rgb(205,117,38)"/><text x="48.2384%" y="174.50">request_blocking (web3/manager.py:109)</text></g><g><title>_make_request (web3/manager.py:608) (7,265 samples, 51.55%)</title><rect x="47.9884%" y="180" width="51.5504%" height="15" fill="rgb(237,72,25)"/><text x="48.2384%" y="190.50">_make_request (web3/manager.py:608)</text></g><g><title>apply_formatters (web3/middleware/formatting.py:50) (7,265 samples, 51.55%)</title><rect x="47.9884%" y="196" width="51.5504%" height="15" fill="rgb(244,70,9)"/><text x="48.2384%" y="206.50">apply_formatters (web3/middleware/formatting.py:50)</text></g><g><title>middleware (web3/middleware/gas_price_strategy.py:18) (7,265 samples, 51.55%)</title><rect x="47.9884%" y="212" width="51.5504%" height="15" fill="rgb(217,125,39)"/><text x="48.2384%" y="222.50">middleware (web3/middleware/gas_price_strategy.py:18)</text></g><g><title>apply_formatters (web3/middleware/formatting.py:48) (7,265 samples, 51.55%)</title><rect x="47.9884%" y="228" width="51.5504%" height="15" fill="rgb(235,36,10)"/><text x="48.2384%" y="238.50">apply_formatters (web3/middleware/formatting.py:48)</text></g><g><title>middleware (web3/middleware/attrdict.py:18) (7,265 samples, 51.55%)</title><rect x="47.9884%" y="244" width="51.5504%" height="15" fill="rgb(251,123,47)"/><text x="48.2384%" y="254.50">middleware (web3/middleware/attrdict.py:18)</text></g><g><title>apply_formatters (web3/middleware/formatting.py:48) (7,265 samples, 51.55%)</title><rect x="47.9884%" y="260" width="51.5504%" height="15" fill="rgb(221,13,13)"/><text x="48.2384%" y="270.50">apply_formatters (web3/middleware/formatting.py:48)</text></g><g><title>middleware (web3/middleware/normalize_errors.py:9) (7,265 samples, 51.55%)</title><rect x="47.9884%" y="276" width="51.5504%" height="15" fill="rgb(238,131,9)"/><text x="48.2384%" y="286.50">middleware (web3/middleware/normalize_errors.py:9)</text></g><g><title>apply_formatters (web3/middleware/formatting.py:48) (7,265 samples, 51.55%)</title><rect x="47.9884%" y="292" width="51.5504%" height="15" fill="rgb(211,50,8)"/><text x="48.2384%" y="302.50">apply_formatters (web3/middleware/formatting.py:48)</text></g><g><title>apply_formatters (web3/middleware/formatting.py:48) (7,265 samples, 51.55%)</title><rect x="47.9884%" y="308" width="51.5504%" height="15" fill="rgb(245,182,24)"/><text x="48.2384%" y="318.50">apply_formatters (web3/middleware/formatting.py:48)</text></g><g><title>middleware (web3/providers/eth_tester/middleware.py:814) (355 samples, 2.52%)</title><rect x="97.0198%" y="324" width="2.5190%" height="15" fill="rgb(242,14,37)"/><text x="97.2698%" y="334.50">mi..</text></g><g><title>apply_formatters (web3/middleware/formatting.py:48) (355 samples, 2.52%)</title><rect x="97.0198%" y="340" width="2.5190%" height="15" fill="rgb(246,228,12)"/><text x="97.2698%" y="350.50">ap..</text></g><g><title>make_request (web3/providers/eth_tester/main.py:580) (355 samples, 2.52%)</title><rect x="97.0198%" y="356" width="2.5190%" height="15" fill="rgb(213,55,15)"/><text x="97.2698%" y="366.50">ma..</text></g><g><title>call_eth_tester (web3/providers/eth_tester/defaults.py:35) (355 samples, 2.52%)</title><rect x="97.0198%" y="372" width="2.5190%" height="15" fill="rgb(209,9,3)"/><text x="97.2698%" y="382.50">ca..</text></g><g><title>call (eth_tester/main.py:426) (355 samples, 2.52%)</title><rect x="97.0198%" y="388" width="2.5190%" height="15" fill="rgb(230,59,30)"/><text x="97.2698%" y="398.50">ca..</text></g><g><title>call (eth_tester/backends/pyevm/main.py:1519) (354 samples, 2.51%)</title><rect x="97.0269%" y="404" width="2.5119%" height="15" fill="rgb(209,121,21)"/><text x="97.2769%" y="414.50">ca..</text></g><g><title>_execute_and_revert_transaction (eth_tester/backends/pyevm/main.py:239) (354 samples, 2.51%)</title><rect x="97.0269%" y="420" width="2.5119%" height="15" fill="rgb(220,109,13)"/><text x="97.2769%" y="430.50">_e..</text></g><g><title>apply_transaction (eth/vm/forks/frontier/state.py:193) (354 samples, 2.51%)</title><rect x="97.0269%" y="436" width="2.5119%" height="15" fill="rgb(232,18,1)"/><text x="97.2769%" y="446.50">ap..</text></g><g><title>__call__ (eth/vm/state.py:264) (350 samples, 2.48%)</title><rect x="97.0553%" y="452" width="2.4835%" height="15" fill="rgb(215,41,42)"/><text x="97.3053%" y="462.50">__..</text></g><g><title>build_computation (eth/vm/forks/frontier/state.py:2691) (350 samples, 2.48%)</title><rect x="97.0553%" y="468" width="2.4835%" height="15" fill="rgb(224,123,36)"/><text x="97.3053%" y="478.50">bu..</text></g><g><title>apply_message (eth/vm/forks/frontier/computation.py:1610) (350 samples, 2.48%)</title><rect x="97.0553%" y="484" width="2.4835%" height="15" fill="rgb(240,125,3)"/><text x="97.3053%" y="494.50">ap..</text></g><g><title>all (14,093 samples, 100%)</title><rect x="0.0000%" y="36" width="100.0000%" height="15" fill="rgb(205,98,50)"/><text x="0.2500%" y="46.50"></text></g></svg></svg>
