@@ -8,6 +8,20 @@ from ethereum.tools._solidity import (
     )
 SOLIDITY_AVAILABLE = get_solidity() is not None
 
+from create_blockchain import *
+
+def create_proof(blocks=450000):
+    import cPickle as pickle
+    filename = "proof_" + str(blocks) + "_old.pkl"
+    header, headerMap, mapInterlink = create_blockchain(blocks=blocks)
+    proof = make_proof(header, headerMap, mapInterlink)
+    print(len(proof))
+    f = open(filename, 'w')
+    pickle.dump(proof, f)
+    f.close()
+
+blocks = 450000
+
 def sha256(s):
     import hashlib
     return hashlib.sha256(s).digest()
