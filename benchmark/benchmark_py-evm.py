@@ -1,6 +1,6 @@
+import argparse
 import sys
 sys.path.append('../')
-
 import contract_interface
 
 def benchmark():
@@ -19,6 +19,11 @@ def benchmark():
 def main():
 
     res = benchmark()
+    parser = argparse.ArgumentParser(description='Benchmark Py-EVM and Ganache')
+    parser.add_argument('--backend', choices=['Py-EVM', 'ganache'], required=True, type=str, help='The name of the EVM')
+    args = parser.parse_args()
+    backend = args.backend
+
     print(res)
 
 if __name__ == "__main__":
