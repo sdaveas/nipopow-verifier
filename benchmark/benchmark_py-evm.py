@@ -3,10 +3,10 @@ import sys
 sys.path.append('../')
 import contract_interface
 
-def benchmark():
+def benchmark(backend):
 
     interface = contract_interface.ContractInterface(contract_path_list='./benchmark.sol',
-                                                     backend='Py-EVM')
+                                                     backend=backend)
 
     callback = interface.get_contract().functions.benchmark()
 
@@ -18,12 +18,12 @@ def benchmark():
 
 def main():
 
-    res = benchmark()
     parser = argparse.ArgumentParser(description='Benchmark Py-EVM and Ganache')
     parser.add_argument('--backend', choices=['Py-EVM', 'ganache'], required=True, type=str, help='The name of the EVM')
     args = parser.parse_args()
     backend = args.backend
 
+    res = benchmark(backend=backend)
     print(res)
 
 if __name__ == "__main__":
