@@ -15,7 +15,7 @@ class ContractInterface:
     def __init__(
             self,
             contract_path_list=[],
-            solc_version='v0.5.4',
+            solc_version='v0.5.13',
             contract_instances=[],
             backend='ganache',
             genesis_overrides={'gas_limit':3141592000},
@@ -29,6 +29,7 @@ class ContractInterface:
         self.compiled_contracts = {}
         self.contract_instances = []
 
+        # TODO: make backend specification more formal
         # backend -> 'ganache'
         # backend -> 'Py-EVM', override_params -> {'gas_limit': block_gas_limit}
         if backend=='Py-EVM':
@@ -36,7 +37,7 @@ class ContractInterface:
             py_backend = PyEVMBackend(genesis_parameters=custom_genesis_params)
             self.w3 = Web3(EthereumTesterProvider(EthereumTester(py_backend)))
         elif backend=='ganache':
-            self.w3 = Web3(Web3.HTTPProvider("HTTP://127.0.0.1:7545"))
+            self.w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:7545", request_kwargs = {'timeout':60}))
         elif backend=='geth':
             self.w3 = Web3(Web3.HTTPProvider("HTTP://127.0.0.1:8543"))
             # self.w3 = Web3(Web3.IPCProvider('~/.ethereum/geth.ipc'))
