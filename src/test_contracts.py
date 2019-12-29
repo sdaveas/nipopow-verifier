@@ -6,9 +6,12 @@
 # 5. Gas usage per solidity code line
 # 6. Provide thorough unit tests
 
+import sys
+sys.path.append('../lib/')
 import contract_interface
 from create_proof import import_proof, create_proof, make_proof_file_name, get_proof
 from timer import Timer
+
 import argparse
 
 # proof data manipulation
@@ -75,7 +78,7 @@ def submit_event_proof(interface, proof):
 def run_nipopow(backend, blocks):
 
     interface=contract_interface.ContractInterface(
-                                    "./contractNipopow.sol",
+                                    "../contractNipopow.sol",
                                     backend=backend,
                                     genesis_overrides={
                                                         'gas_limit': 67219750

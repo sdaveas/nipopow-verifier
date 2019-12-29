@@ -18,7 +18,7 @@ def create_proof(blocks=450000, filename='proof.pkl'):
     return proof
 
 def make_proof_file_name(blocks):
-    return str('proof_'+str(blocks)+'.pkl')
+    return str('../proofs/proof_'+str(blocks)+'.pkl')
 
 def get_proof(blocks):
     proof_file_name = make_proof_file_name(blocks)
