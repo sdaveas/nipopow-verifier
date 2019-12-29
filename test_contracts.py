@@ -43,45 +43,6 @@ def extract_headers_siblings(proof):
 
     return headers, siblings
 
-# tests
-def measure_gas(method, backend, filepath='./unit_tests/test.sol'):
-
-    interface = contract_interface.ContractInterface(filepath, backend=backend)
-
-    estimated_gas = interface.get_contract().functions.measure_gas().estimateGas()
-    from_address = interface.w3.eth.accounts[0]
-    result = interface.get_contract().functions.measure_gas().transact({'from':from_address})
-
-    print(interface.get_contract().functions.gas().call())
-
-    return {'result'        : result,
-            'method'        : method,
-            'estimated_gas' : estimated_gas,
-            'from'          : from_address,
-            'backend'       : interface.backend}
-
-def run_test(method, backend, filepath='./unit_tests/test.sol'):
-
-    interface = contract_interface.ContractInterface(filepath, backend=backend)
-
-    callback=interface.get_contract().get_function_by_name(method)
-
-    # estimated_gas = interface.get_contract().functions.test(True).estimateGas()
-    estimated_gas = callback(True).estimateGas()
-    from_address = interface.w3.eth.accounts[0]
-    tx_hash = callback(False).transact({'from':from_address})
-    receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
-    event = interface.get_contract().events.GasUsed().processReceipt(receipt)
-
-    return {'method'        : method,
-            'estimated_gas' : estimated_gas,
-            'gas_used'      : receipt['gasUsed'],
-            'from'          : from_address,
-            'backend'       : interface.backend,
-            'event'         : event,
-            }
-
-
 def submit_event_proof(interface, proof):
     headers, siblings = extract_headers_siblings(proof)
 
@@ -141,24 +102,6 @@ def main():
         print(e['args']['gas_used'])
 
 
-    # print(run_nipopow(backend='ganache', blocks=blocks))
-
-    # methods = [
-    #         # 'test',
-    #         # 'test_payable',
-    #         'test_memory',
-    #         ]
-    # backends = [
-    #         'ganache',
-    #         'Py-EVM',
-    #         ]
-
-    # for method in methods:
-    #     for backend in backends:
-    #         print(method, backend)
-    #         print(run_test(method=method, backend=backend))
-
-    # print(run_test('measure_gas', 'ganache'));
 
 if __name__ == "__main__":
     main()
