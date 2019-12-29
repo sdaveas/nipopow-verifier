@@ -94,14 +94,30 @@ def run_nipopow(backend, blocks):
 
 def main():
 
-    blocks = 10000
-    res = run_nipopow(backend='Py-EVM', blocks=blocks)
-    for e in res:
-        print(e['args']['tag'], end=' ')
-        print('\t', end=' ')
-        print(e['args']['gas_used'])
+    available_backends = contract_interface.ContractInterface.available_backends()
+    parser = argparse.ArgumentParser(description='Benchmark Py-EVM, Ganache and Geth')
+    parser.add_argument('--backend', choices=available_backends+['all'], required=True, type=str, help='The name of the EVM')
+    parser.add_argument('--blocks', required=True, type=int, help='Number of blocks')
+    parser.add_argument('--timer', action='store_true')
 
+    args = parser.parse_args()
+    backend = args.backend
+    blocks = args.blocks
+    timer = args.timer
 
+    if (backend=='all'):
+        backend=available_backends
+    else:
+        backend=[backend]
+
+    for b in backend:
+        print('Testing', b)
+        if timer: t = Timer()
+        res = run_nipopow(backend=b, blocks=blocks)
+        for e in res:
+            print(e['args']['tag'], end=' ')
+            print('\t', end=' ')
+            print(e['args']['gas_used'])
 
 if __name__ == "__main__":
     main()
