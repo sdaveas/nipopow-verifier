@@ -7,25 +7,9 @@
 # 6. Provide thorough unit tests
 
 import contract_interface
+from create_proof import import_proof, create_proof, make_proof_file_name, get_proof
+from timer import Timer
 import argparse
-
-# import/export proof
-def import_proof(filename='proof_new.pkl'):
-    import pickle
-    pickle_in = open(filename,'rb')
-    proof = pickle.load(pickle_in)
-    return proof
-
-def create_proof(blocks=450000, filename='proof_new.pkl'):
-    import pickle
-    import create_blockchain_new as blockchain_utils
-    header, headerMap, mapInterlink = blockchain_utils.create_blockchain(blocks=blocks)
-    proof = blockchain_utils.make_proof(header, headerMap, mapInterlink)
-    pickle_out = open(filename, 'wb')
-    pickle.dump(proof, pickle_out)
-    pickle_out.close()
-    print("Proof was written in " + filename)
-    return proof
 
 # proof data manipulation
 def str_to_bytes32(s):
@@ -141,7 +125,7 @@ def run_nipopow(backend, blocks):
                                     #                     }
                                     )
 
-    proof = create_proof(blocks=blocks, filename=str('proof_'+str(blocks)+'.pkl'))
+    proof = get_proof(blocks=blocks)
     print("Proof lenght:", len(proof))
     result = submit_event_proof(interface, proof)
     return result['events']
