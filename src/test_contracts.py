@@ -101,7 +101,7 @@ def main():
     parser = argparse.ArgumentParser(description='Benchmark Py-EVM, Ganache and Geth')
     parser.add_argument('--backend', choices=available_backends+['all'], required=True, type=str, help='The name of the EVM')
     parser.add_argument('--blocks', required=True, type=int, help='Number of blocks')
-    parser.add_argument('--timer', action='store_true')
+    parser.add_argument('--timer', action='store_true', help='Enable timers')
 
     args = parser.parse_args()
     backend = args.backend
