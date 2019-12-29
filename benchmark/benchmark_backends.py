@@ -2,6 +2,7 @@ import argparse
 import sys
 sys.path.append('../')
 import contract_interface
+from timer import Timer
 
 def benchmark(backend):
 
@@ -18,13 +19,24 @@ def benchmark(backend):
 
 def main():
 
-    parser = argparse.ArgumentParser(description='Benchmark Py-EVM and Ganache')
-    parser.add_argument('--backend', choices=['Py-EVM', 'ganache'], required=True, type=str, help='The name of the EVM')
+    available_backends = contract_interface.ContractInterface.available_backends()
+    parser = argparse.ArgumentParser(description='Benchmark Py-EVM, Geth and Ganache')
+    parser.add_argument('--backend', choices=available_backends+['all'], required=True, type=str, help='The name of the EVM')
+    parser.add_argument('--timer', action='store_true')
     args = parser.parse_args()
     backend = args.backend
+    timer = args.timer
 
-    res = benchmark(backend=backend)
-    print(res)
+    if backend == 'all':
+        for backend in available_backends:
+            print('Running in ' + backend)
+            if timer: t = Timer()
+            res = benchmark(backend=backend)
+            print(res)
+    else:
+        if timer: t = Timer()
+        res = benchmark(backend=backend)
+        print(res)
 
 if __name__ == "__main__":
     main()
