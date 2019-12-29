@@ -1,6 +1,6 @@
 import argparse
 import sys
-sys.path.append('../')
+sys.path.append('../lib')
 import contract_interface
 from timer import Timer
 
