@@ -29,25 +29,52 @@ class ContractInterface:
         self.compiled_contracts = {}
         self.contract_instances = []
 
-        # TODO: make backend specification more formal
-        # backend -> 'ganache'
-        # backend -> 'Py-EVM', override_params -> {'gas_limit': block_gas_limit}
-        if backend=='Py-EVM':
-            custom_genesis_params = PyEVMBackend._generate_genesis_params(overrides=genesis_overrides)
-            py_backend = PyEVMBackend(genesis_parameters=custom_genesis_params)
-            self.w3 = Web3(EthereumTesterProvider(EthereumTester(py_backend)))
-        elif backend=='ganache':
-            self.w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:7545", request_kwargs = {'timeout':60}))
-        elif backend=='geth':
-            self.w3 = Web3(Web3.HTTPProvider("HTTP://127.0.0.1:8543"))
-            # self.w3 = Web3(Web3.IPCProvider('~/.ethereum/geth.ipc'))
-        else:
-            print("Error: unknown backend '"+backend+"'). Available backends:")
-            print(" 1. ganache\n 2. Py-EVM")
-            exit()
+        self.genesis_overrides=genesis_overrides
+
+        self.init_backend()
 
         self.compile_contracts()
         self.deploy_contracts()
+
+    @staticmethod
+    def available_backends():
+        return ['Py-EVM', 'ganache', 'geth']
+
+    def init_backend(self):
+        # TODO: make backend specification more formal
+        # backend -> 'Py-EVM', override_params -> {'gas_limit': block_gas_limit}
+        # backend -> 'ganache'
+        # backend -> 'geth'
+        if self.backend=='Py-EVM':
+            self.init_backend_pyevm()
+        elif self.backend=='ganache':
+            self.init_backend_ganache()
+        elif self.backend=='geth':
+            self.init_backend_geth()
+        else:
+            print("Error: unknown backend '"+self.backend+"'). Available backends:")
+            print(available_backends)
+            exit()
+
+    def init_backend_pyevm(self):
+        custom_genesis_params = PyEVMBackend._generate_genesis_params(overrides=self.genesis_overrides)
+        py_backend = PyEVMBackend(genesis_parameters=custom_genesis_params)
+        self.w3 = Web3(EthereumTesterProvider(EthereumTester(py_backend)))
+
+    def init_backend_ganache(self):
+        url = 'http://127.0.0.1'
+        port = '7545'
+        self.w3 = Web3(Web3.HTTPProvider(url+":"+port, request_kwargs = {'timeout':60}))
+        if not self.w3.isConnected():
+            print('Cannot connect to '+url+':'+port+'. Is '+self.backend+' up?')
+            raise RuntimeError('Cannot connect to '+url+':'+port+'. Is '+self.backend+' up? If not, run:\n> $ node --max-old-space-size=4000 /bin/ganache-cli -p 7545 -g 1 -l 0x6691b700')
+
+    def init_backend_geth(self):
+        url = 'http://127.0.0.1'
+        port = '8545'
+        self.w3 = Web3(Web3.HTTPProvider(url+':'+port))
+        if not self.w3.isConnected():
+            raise RuntimeError('Cannot connect to '+url+':'+port+'. Is '+self.backend+' up?')
 
     @staticmethod
     def xprint(message, fill='='):
