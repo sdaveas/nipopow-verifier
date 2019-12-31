@@ -1,6 +1,4 @@
 # Inspired by https://github.com/pryce-turner/web3_python_tutorials
-import sys
-
 import solcx
 from solcx import set_solc_version, get_solc_version, compile_source, compile_files
 
