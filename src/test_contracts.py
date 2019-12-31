@@ -91,7 +91,9 @@ def run_nipopow(backend, blocks):
 
     proof = get_proof(blocks=blocks)
     print("Proof lenght:", len(proof))
+    t = Timer()
     result = submit_event_proof(interface, proof)
+    del t
     return result['events']
     # return {'gas_used' : result['receipt']['gasUsed'], result['backend'] : backend}
 
@@ -115,7 +117,6 @@ def main():
 
     for b in backend:
         print('Testing', b)
-        if timer: t = Timer()
         res = run_nipopow(backend=b, blocks=blocks)
         for e in res:
             print(e['args']['tag'], end=' ')
