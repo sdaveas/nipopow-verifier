@@ -10,8 +10,10 @@ from web3 import Web3, EthereumTesterProvider, contract
 import eth_tester
 from eth_tester import EthereumTester, PyEVMBackend
 
-# Provide an interface to facilitate smart contracts compilation and deployment
 class ContractInterface:
+
+    backends_to_inits = {'Py-EVM': None, 'ganache': None, 'geth': None}
+
     def __init__(
             self,
             contract_path_list=[],
@@ -31,6 +33,10 @@ class ContractInterface:
 
         self.genesis_overrides=genesis_overrides
 
+        self.backends_to_inits['Py-EVM']  = self.init_backend_pyevm
+        self.backends_to_inits['ganache'] = self.init_backend_ganache
+        self.backends_to_inits['geth']    = self.init_backend_geth
+
         self.init_backend()
 
         self.compile_contracts()
@@ -38,19 +44,15 @@ class ContractInterface:
 
     @staticmethod
     def available_backends():
-        return ['Py-EVM', 'ganache', 'geth']
+        return list(ContractInterface.backends_to_inits.keys())
 
     def init_backend(self):
         # TODO: make backend specification more formal
         # backend -> 'Py-EVM', override_params -> {'gas_limit': block_gas_limit}
         # backend -> 'ganache'
         # backend -> 'geth'
-        if self.backend=='Py-EVM':
-            self.init_backend_pyevm()
-        elif self.backend=='ganache':
-            self.init_backend_ganache()
-        elif self.backend=='geth':
-            self.init_backend_geth()
+        if self.backend in list(self.backends_to_inits.keys()):
+            self.backends_to_inits[self.backend]()
         else:
             print("Error: unknown backend '"+self.backend+"'). Available backends:")
             print(available_backends)
