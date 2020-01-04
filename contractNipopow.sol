@@ -310,7 +310,7 @@ contract Crosschain {
   }
 
   function verify(Nipopow storage proof, bytes32[4][] memory headers,
-    bytes32[] memory siblings, bytes32[4] memory block_of_interest) internal returns(bool) {
+    bytes32[] memory siblings, bytes32[4] memory block_of_interest, bool from_submit) internal returns(bool) {
 
     bytes32[] memory contesting_proof = new bytes32[](headers.length);
     for (uint i = 0; i < headers.length; i++) {
@@ -320,15 +320,18 @@ contract Crosschain {
     // Throws if invalid.
     validate_interlink(headers, contesting_proof, siblings);
 
-    if (compare_proofs(proof, contesting_proof)) {
+    bool contesting_proof_is_better = compare_proofs(proof, contesting_proof);
+    if (contesting_proof_is_better) {
       proof.best_proof = contesting_proof;
       // Only when we get the "best" we add them to the DAG.
       add_proof_to_dag(proof, contesting_proof);
     }
 
     find_ancestors(proof, proof.best_proof[0]);
-
-    return predicate(proof, hash_header(block_of_interest));
+    if (from_submit) {
+        return predicate(proof, hash_header(block_of_interest));
+    }
+    return !contesting_proof_is_better;
   }
 
   // TODO: Deleting a mapping is impossible without knowing
@@ -349,7 +352,7 @@ contract Crosschain {
     if (events[hashed_block].expire == 0
       && events[hashed_block].proof.best_proof.length == 0
       && verify(events[hashed_block].proof, headers,
-        siblings, block_of_interest)) {
+        siblings, block_of_interest, true)) {
       events[hashed_block].expire = block.number + k;
       events[hashed_block].author = msg.sender;
 
@@ -383,8 +386,17 @@ contract Crosschain {
       return false;
     }
 
-    if (!verify(events[hashed_block].proof, headers,
-      siblings, block_of_interest)) {
+
+    bool verify_old_against_new = verify(events[hashed_block].proof,
+                                         headers,
+                                         siblings,
+                                         block_of_interest,
+                                         false);
+
+    bool contesting_is_better = !verify_old_against_new;
+
+    if (contesting_is_better)
+    {
       events[hashed_block].expire = 0;
       msg.sender.transfer(z);
       return true;
