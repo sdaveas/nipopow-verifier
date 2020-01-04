@@ -4,3 +4,4 @@ web3
 eth-tester
 py-evm
 python-bitcoinlib
+pytest
