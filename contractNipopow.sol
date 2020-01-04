@@ -320,7 +320,8 @@ contract Crosschain {
     // Throws if invalid.
     validate_interlink(headers, contesting_proof, siblings);
 
-    if (compare_proofs(proof, contesting_proof)) {
+    bool contesting_proof_is_better = compare_proofs(proof, contesting_proof);
+    if (contesting_proof_is_better) {
       proof.best_proof = contesting_proof;
       // Only when we get the "best" we add them to the DAG.
       add_proof_to_dag(proof, contesting_proof);
