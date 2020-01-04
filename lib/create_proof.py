@@ -36,6 +36,19 @@ def get_proof(blocks):
 
     return proof
 
+def create_mainproof_and_forkproof(mainblocks, fork_index, forkblocks):
+    import create_blockchain_new as blockchain_utils
+    header, headerMap, mapInterlink = blockchain_utils.create_blockchain(blocks=mainblocks)
+    proof = get_proof(mainblocks)
+    header_f, headerMap_f, mapInterlink_f = blockchain_utils.create_fork(header,
+                                                     headerMap,
+                                                     mapInterlink,
+                                                     fork=fork_index,
+                                                     blocks=forkblocks)
+
+    proof_f = blockchain_utils.make_proof(header_f, headerMap_f, mapInterlink_f)
+    return proof, proof_f
+
 def main():
     parser=argparse.ArgumentParser(description='Create and store proof from create_blockchain_new.py')
     parser.add_argument('--blocks', required=True, type=int, help='Number of blocks')
