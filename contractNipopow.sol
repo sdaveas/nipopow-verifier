@@ -326,6 +326,9 @@ contract Crosschain {
       // Only when we get the "best" we add them to the DAG.
       add_proof_to_dag(proof, contesting_proof);
     }
+    // else {
+    //     return true;
+    // }
 
     find_ancestors(proof, proof.best_proof[0]);
     if (from_submit) {
@@ -377,6 +380,7 @@ contract Crosschain {
 
     return true;
   }
+
 
   function submit_contesting_proof(bytes32[4][] memory headers, bytes32[] memory siblings,
     bytes32[4] memory block_of_interest) public returns(bool) {

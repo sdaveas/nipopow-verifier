@@ -1,0 +1,42 @@
+Big proof has length 54
+Small proof has lenght 37
+Testing with ganache
+================================================================
+Block of interest is a common block :
+Submit with big, contest with small
+   result: {'submit': True}
+gas used: 8522088
+   result: {'contesting': False}
+gas used: 2279992
+Submit with small, contest with big
+   result: {'submit': True}
+gas used: 5858296
+   result: {'contesting': True}
+gas used: 10469663
+================================================================
+================================================================
+Block of interest is only in big chain :
+Submit with big, contest with small
+   result: {'submit': True}
+gas used: 8521896
+   result: {'contesting': False}
+gas used: 2279800
+Submit with small, contest with big
+   result: {'submit': False}
+gas used: 5817633
+   result: {'contesting': False}
+gas used: 598928
+================================================================
+================================================================
+Block of interest is only in small chain :
+Submit with big, contest with small
+   result: {'submit': False}
+gas used: 8483473
+   result: {'contesting': False}
+gas used: 433691
+Submit with small, contest with big
+   result: {'submit': True}
+gas used: 5860152
+   result: {'contesting': True}
+gas used: 10471519
+================================================================
