@@ -162,83 +162,83 @@ def test_submit_over_contesting():
     small_proof = Proof()
     big_proof, small_proof = import_proofs(big_proof_name, small_proof_name)
 
-    # #   Block of interest contained in both chains
-    # #   ---x0---+-------->  Ca
-    # #           |
-    # #           +--->       Cb
+    #   Block of interest contained in both chains
+    #   ---x0---+-------->  Ca
+    #           |
+    #           +--->       Cb
 
-    # block_of_interest = big_proof.headers[-1]
-    # interface=make_interface(backend)
-    # res = submit_event_proof(interface, big_proof, block_of_interest)
-    # assert(res['result']==True)
-    # res = submit_contesting_proof(interface, small_proof, block_of_interest)
-    # assert(res['result']==False)
+    block_of_interest = big_proof.headers[-1]
+    interface=make_interface(backend)
+    res = submit_event_proof(interface, big_proof, block_of_interest)
+    assert(res['result']==True)
+    res = submit_contesting_proof(interface, small_proof, block_of_interest)
+    assert(res['result']==False)
 
-    # interface=make_interface(backend)
-    # res = submit_event_proof(interface, small_proof, block_of_interest)
-    # assert(res['result']==True)
-    # res = submit_contesting_proof(interface, big_proof, block_of_interest)
-    # assert(res['result']==True)
-
-    # #   Block of interest contained only in Ca
-    # #   --------+---x1--->  Ca
-    # #           |
-    # #           +--->       Cb
-
-    # block_of_interest = big_proof.headers[0]
-    # interface=make_interface(backend)
-    # res = submit_event_proof(interface, big_proof, block_of_interest)
-    # assert(res['result']==True)
-    # res = submit_contesting_proof(interface, small_proof, block_of_interest)
-    # assert(res['result']==False)
-
-    # interface=make_interface(backend)
-    # res = submit_event_proof(interface, small_proof, block_of_interest)
-    # assert(res['result']==False)
-    # res = submit_contesting_proof(interface, big_proof, block_of_interest)
-    # assert(res['result']==False)
-
-    # #   Block of interest contained only in Cb
-    # #   --------+---------->  Ca
-    # #           |
-    # #           +--x2-->      Cb
-
-    # block_of_interest = small_proof.headers[0]
-    # interface=make_interface(backend)
-    # res = submit_event_proof(interface, big_proof, block_of_interest)
-    # assert(res['result']==False)
-    # res = submit_contesting_proof(interface, small_proof, block_of_interest)
-    # assert(res['result']==False)
-
-    # interface=make_interface(backend)
-    # res = submit_event_proof(interface, small_proof, block_of_interest)
-    # assert(res['result']==True)
-    # res = submit_contesting_proof(interface, big_proof, block_of_interest)
-    # assert(res['result']==True)
-
-    # # Submit contesting proof without submiting original proof
-    # block_of_interest = big_proof.headers[0]
-    # interface=make_interface(backend)
-    # res = submit_contesting_proof(interface, big_proof, block_of_interest)
-    # assert(res['result']==False)
-
-    # # Submit proof twice
-    # block_of_interest = big_proof.headers[0]
-    # interface=make_interface(backend)
-    # res = submit_event_proof(interface, big_proof, block_of_interest)
-    # assert(res['result']==True)
-    # res = submit_event_proof(interface, big_proof, block_of_interest)
-    # assert(res['result']==False)
-
-    # Submit
-    block_of_interest = bigger_proof.headers[-1]
     interface=make_interface(backend)
     res = submit_event_proof(interface, small_proof, block_of_interest)
     assert(res['result']==True)
-    # res = submit_contesting_proof(interface, big_proof, block_of_interest)
-    # assert(res['result']==True)
-    res = submit_contesting_proof(interface, bigger_proof, block_of_interest)
+    res = submit_contesting_proof(interface, big_proof, block_of_interest)
     assert(res['result']==True)
+
+    #   Block of interest contained only in Ca
+    #   --------+---x1--->  Ca
+    #           |
+    #           +--->       Cb
+
+    block_of_interest = big_proof.headers[0]
+    interface=make_interface(backend)
+    res = submit_event_proof(interface, big_proof, block_of_interest)
+    assert(res['result']==True)
+    res = submit_contesting_proof(interface, small_proof, block_of_interest)
+    assert(res['result']==False)
+
+    interface=make_interface(backend)
+    res = submit_event_proof(interface, small_proof, block_of_interest)
+    assert(res['result']==False)
+    res = submit_contesting_proof(interface, big_proof, block_of_interest)
+    assert(res['result']==False)
+
+    #   Block of interest contained only in Cb
+    #   --------+---------->  Ca
+    #           |
+    #           +--x2-->      Cb
+
+    block_of_interest = small_proof.headers[0]
+    interface=make_interface(backend)
+    res = submit_event_proof(interface, big_proof, block_of_interest)
+    assert(res['result']==False)
+    res = submit_contesting_proof(interface, small_proof, block_of_interest)
+    assert(res['result']==False)
+
+    interface=make_interface(backend)
+    res = submit_event_proof(interface, small_proof, block_of_interest)
+    assert(res['result']==True)
+    res = submit_contesting_proof(interface, big_proof, block_of_interest)
+    assert(res['result']==True)
+
+    # Submit contesting proof without submiting original proof
+    block_of_interest = big_proof.headers[0]
+    interface=make_interface(backend)
+    res = submit_contesting_proof(interface, big_proof, block_of_interest)
+    assert(res['result']==False)
+
+    # Submit proof twice
+    block_of_interest = big_proof.headers[0]
+    interface=make_interface(backend)
+    res = submit_event_proof(interface, big_proof, block_of_interest)
+    assert(res['result']==True)
+    res = submit_event_proof(interface, big_proof, block_of_interest)
+    assert(res['result']==False)
+
+    # # Submit
+    # block_of_interest = bigger_proof.headers[-1]
+    # interface=make_interface(backend)
+    # res = submit_event_proof(interface, small_proof, block_of_interest)
+    # assert(res['result']==True)
+    # # res = submit_contesting_proof(interface, big_proof, block_of_interest)
+    # # assert(res['result']==True)
+    # res = submit_contesting_proof(interface, bigger_proof, block_of_interest)
+    # assert(res['result']==True)
 
 if __name__ == "__main__":
     main()
