@@ -379,7 +379,7 @@ contract Crosschain {
     bytes32[4] memory block_of_interest) public returns(bool) {
     bytes32 hashed_block = hash_header(block_of_interest);
 
-    if (events[hashed_block].expire < block.number) {
+    if (events[hashed_block].expire <= block.number) {
       return false;
     }
 
