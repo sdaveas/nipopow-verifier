@@ -51,31 +51,38 @@ def submit_event_proof(interface, proof):
 
     my_contract = interface.get_contract()
     from_address = interface.w3.eth.accounts[0]
+    collateral = pow(10, 17)
     estimated_gas = my_contract.functions.submit_event_proof(
                                             headers,
                                             siblings,
-                                            headers[-1]
+                                            headers[-1],
                                             ).estimateGas()
+
+    res = my_contract.functions.submit_event_proof(
+                                            headers,
+                                            siblings,
+                                            headers[-1],
+                                            ).call({'from' : from_address,
+                                                    'value': collateral})
 
     tx_hash = my_contract.functions.submit_event_proof(
                                             headers,
                                             siblings,
-                                            headers[-1]
+                                            headers[-1],
                                             ).transact({'from' : from_address,
-                                                    'value': 100000000000000000})
+                                                        'value': collateral})
 
     receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
     events = interface.get_contract().events.GasUsed().processReceipt(receipt)
 
-    gas_used = interface.w3.eth.getBlock('pending').gasUsed
-
-    return {'receipt'       : receipt,
-            'estimated_gas' : estimated_gas,
+    return {'result'        : res,
+            'estemated gas' : estimated_gas,
+            'receipt'       : receipt,
             'from'          : from_address,
             'backend'       : interface.backend,
             'events'        : events}
 
-def run_nipopow(backend, blocks):
+def run_nipopow(backend, proof):
 
     interface=contract_interface.ContractInterface(
                                     "../contractNipopow.sol",
@@ -89,8 +96,6 @@ def run_nipopow(backend, blocks):
                                     #                     }
                                     )
 
-    proof = get_proof(blocks=blocks)
-    print("Proof lenght:", len(proof))
     t = Timer()
     result = submit_event_proof(interface, proof)
     del t
@@ -115,9 +120,12 @@ def main():
     else:
         backend=[backend]
 
+    proof = get_proof(blocks=blocks)
+    print("Proof lenght:", len(proof))
+
     for b in backend:
         print('Testing', b)
-        res = run_nipopow(backend=b, blocks=blocks)
+        res = run_nipopow(backend=b, proof=proof)
         for e in res:
             print(e['args']['tag'], end=' ')
             print('\t', end=' ')
