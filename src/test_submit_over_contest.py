@@ -1,10 +1,8 @@
 import sys
 sys.path.append('../lib/')
 import contract_interface
-from create_proof import import_proof, create_proof, make_proof_file_name, get_proof
-from timer import Timer
-
-import argparse
+from create_proof import import_proof, create_proof, make_proof_file_name, get_proof, create_mainproof_and_forkproof
+import pytest
 
 class Proof:
     def __init__(
@@ -48,27 +46,27 @@ def extract_headers_siblings(proof):
 
     return headers, siblings
 
-def submit_event_proof(interface, headers, siblings, block_of_interest):
+def submit_event_proof(interface, proof, block_of_interest):
 
     my_contract = interface.get_contract()
     from_address = interface.w3.eth.accounts[0]
     collateral = pow(10, 17)
     estimated_gas = my_contract.functions.submit_event_proof(
-                                            headers,
-                                            siblings,
+                                            proof.headers,
+                                            proof.siblings,
                                             block_of_interest,
                                             ).estimateGas()
 
     res = my_contract.functions.submit_event_proof(
-                                            headers,
-                                            siblings,
+                                            proof.headers,
+                                            proof.siblings,
                                             block_of_interest
                                             ).call({'from' : from_address,
                                                     'value': collateral})
 
     tx_hash = my_contract.functions.submit_event_proof(
-                                            headers,
-                                            siblings,
+                                            proof.headers,
+                                            proof.siblings,
                                             block_of_interest
                                             ).transact({'from' : from_address,
                                                         'value': collateral})
@@ -77,33 +75,33 @@ def submit_event_proof(interface, headers, siblings, block_of_interest):
 
     events = interface.get_contract().events.GasUsed().processReceipt(receipt)
 
-    return {'result'        : {'submit': res},
+    return {'result'        : res,
             'receipt'       : receipt,
             'estimated_gas' : estimated_gas,
             'from'          : from_address,
             'backend'       : interface.backend,
             'events'        : events}
 
-def submit_contesting_proof(interface, headers, siblings, block_of_interest):
+def submit_contesting_proof(interface, proof, block_of_interest):
 
     my_contract = interface.get_contract()
     from_address = interface.w3.eth.accounts[0]
     collateral = pow(10, 17)
     estimated_gas = my_contract.functions.submit_contesting_proof(
-                                            headers,
-                                            siblings,
+                                            proof.headers,
+                                            proof.siblings,
                                             block_of_interest,
                                             ).estimateGas()
 
     res = my_contract.functions.submit_contesting_proof(
-                                            headers,
-                                            siblings,
+                                            proof.headers,
+                                            proof.siblings,
                                             block_of_interest
                                             ).call({'from' : from_address})
 
     tx_hash = my_contract.functions.submit_contesting_proof(
-                                            headers,
-                                            siblings,
+                                            proof.headers,
+                                            proof.siblings,
                                             block_of_interest
                                             ).transact({'from' : from_address})
 
@@ -111,39 +109,19 @@ def submit_contesting_proof(interface, headers, siblings, block_of_interest):
 
     events = interface.get_contract().events.GasUsed().processReceipt(receipt)
 
-    return {'result'        : {'contesting': res},
+    return {'result'        : res,
             'receipt'       : receipt,
             'estimated_gas' : estimated_gas,
             'from'          : from_address,
             'backend'       : interface.backend,
             'events'        : events}
 
-def submit_over_contest(backend, proof_1, proof_2, block_of_interest):
-
-    interface=contract_interface.ContractInterface(
-                                    "../contractNipopow.sol",
-                                    backend=backend,
-                                    genesis_overrides={
-                                                        'gas_limit': 67219750
-                                                        },
-                                    # precompiled_contract={
-                                    #                     'abi':'./Crosschain.abi',
-                                    #                     'bin':'./Crosschain.bin'
-                                    #                     }
-                                    )
-
-    results = []
-    res = submit_event_proof(interface, proof_1.headers, proof_1.siblings, block_of_interest)
-    results.append(res)
-    res = submit_contesting_proof(interface, proof_2.headers, proof_2.siblings, block_of_interest)
-    results.append(res)
-    return results
-
 def strip_result(result, tabs='  '):
     for res in result:
         print(tabs, end=' ')
         print('result:', res['result'])
-        # print('gas used:', res['receipt']['gasUsed'])
+        print(tabs, end=' ')
+        print('gas used:', res['receipt']['gasUsed'])
         # for e in res['events']:
         #      print(e['args']['tag'], end=' ')
         #      print(' -> ', end=' ')
@@ -160,50 +138,107 @@ def import_proofs(big_proof_name='big_proof.pkl', small_proof_name='small_proof.
 
     return Proof(headers_big, siblings_big), Proof(headers_small, siblings_small)
 
-def get_blocks_of_interest(big_proof, small_proof):
-
-    blocks_and_summary = [ { 'ctx': big_proof.headers[-1],  'summary': 'a common block'       },
-                           { 'ctx': big_proof.headers[ 0],  'summary': 'only in big chain'  },
-                           { 'ctx': small_proof.headers[0], 'summary': 'only in small chain'}, ]
-    return blocks_and_summary
+def make_interface(backend):
+    return contract_interface.ContractInterface("../contractNipopow.sol",
+                                                backend=backend,
+                                                genesis_overrides={
+                                                                    'gas_limit': 67219750
+                                                                    },
+                                                )
 
 def main():
+    test_submit_over_contesting()
 
-    available_backends = contract_interface.ContractInterface.available_backends()
-    parser = argparse.ArgumentParser(description='Benchmark Py-EVM, Ganache and Geth')
-    parser.add_argument('--backend', choices=available_backends+['all'], required=True, type=str, help='The name of the EVM')
-    parser.add_argument('--big', required=True, type=str, help='Filename of big proof')
-    parser.add_argument('--small', required=True, type=str, help='Filename of small proof')
+def test_submit_over_contesting():
 
-    args = parser.parse_args()
-    backend = args.backend
-    big_proof_name = args.big
-    small_proof_name = args.small
-
-    if (backend=='all'):
-        backend=available_backends
-    else:
-        backend=[backend]
+    backend = 'ganache'
+    big_proof_name = 'proof_1.pkl'
+    small_proof_name = 'proof_2.pkl'
+    bigger_proof = get_proof(200)
+    h, s = extract_headers_siblings(bigger_proof)
+    bigger_proof = Proof(h, s)
 
     big_proof = Proof()
     small_proof = Proof()
-    big_proof, small_proof = import_proofs(big_proof_name=big_proof_name,
-                                           small_proof_name=small_proof_name)
+    big_proof, small_proof = import_proofs(big_proof_name, small_proof_name)
 
-    blocks_of_interest = get_blocks_of_interest(big_proof, small_proof)
+    # #   Block of interest contained in both chains
+    # #   ---x0---+-------->  Ca
+    # #           |
+    # #           +--->       Cb
 
-    for b in backend:
-        print('Testing with', b)
-        for block in blocks_of_interest:
-            print('================================================================')
-            print('Block of interest is', block['summary'],':')
-            print('Submit with big, contest with small')
-            result = submit_over_contest(b, big_proof, small_proof, block['ctx'])
-            strip_result(result)
-            print('Submit with small, contest with big')
-            result = submit_over_contest(b, small_proof, big_proof, block['ctx'])
-            strip_result(result)
-            print('================================================================')
+    # block_of_interest = big_proof.headers[-1]
+    # interface=make_interface(backend)
+    # res = submit_event_proof(interface, big_proof, block_of_interest)
+    # assert(res['result']==True)
+    # res = submit_contesting_proof(interface, small_proof, block_of_interest)
+    # assert(res['result']==False)
+
+    # interface=make_interface(backend)
+    # res = submit_event_proof(interface, small_proof, block_of_interest)
+    # assert(res['result']==True)
+    # res = submit_contesting_proof(interface, big_proof, block_of_interest)
+    # assert(res['result']==True)
+
+    # #   Block of interest contained only in Ca
+    # #   --------+---x1--->  Ca
+    # #           |
+    # #           +--->       Cb
+
+    # block_of_interest = big_proof.headers[0]
+    # interface=make_interface(backend)
+    # res = submit_event_proof(interface, big_proof, block_of_interest)
+    # assert(res['result']==True)
+    # res = submit_contesting_proof(interface, small_proof, block_of_interest)
+    # assert(res['result']==False)
+
+    # interface=make_interface(backend)
+    # res = submit_event_proof(interface, small_proof, block_of_interest)
+    # assert(res['result']==False)
+    # res = submit_contesting_proof(interface, big_proof, block_of_interest)
+    # assert(res['result']==False)
+
+    # #   Block of interest contained only in Cb
+    # #   --------+---------->  Ca
+    # #           |
+    # #           +--x2-->      Cb
+
+    # block_of_interest = small_proof.headers[0]
+    # interface=make_interface(backend)
+    # res = submit_event_proof(interface, big_proof, block_of_interest)
+    # assert(res['result']==False)
+    # res = submit_contesting_proof(interface, small_proof, block_of_interest)
+    # assert(res['result']==False)
+
+    # interface=make_interface(backend)
+    # res = submit_event_proof(interface, small_proof, block_of_interest)
+    # assert(res['result']==True)
+    # res = submit_contesting_proof(interface, big_proof, block_of_interest)
+    # assert(res['result']==True)
+
+    # # Submit contesting proof without submiting original proof
+    # block_of_interest = big_proof.headers[0]
+    # interface=make_interface(backend)
+    # res = submit_contesting_proof(interface, big_proof, block_of_interest)
+    # assert(res['result']==False)
+
+    # # Submit proof twice
+    # block_of_interest = big_proof.headers[0]
+    # interface=make_interface(backend)
+    # res = submit_event_proof(interface, big_proof, block_of_interest)
+    # assert(res['result']==True)
+    # res = submit_event_proof(interface, big_proof, block_of_interest)
+    # assert(res['result']==False)
+
+    # Submit
+    block_of_interest = bigger_proof.headers[-1]
+    interface=make_interface(backend)
+    res = submit_event_proof(interface, small_proof, block_of_interest)
+    assert(res['result']==True)
+    # res = submit_contesting_proof(interface, big_proof, block_of_interest)
+    # assert(res['result']==True)
+    res = submit_contesting_proof(interface, bigger_proof, block_of_interest)
+    assert(res['result']==True)
 
 if __name__ == "__main__":
     main()
