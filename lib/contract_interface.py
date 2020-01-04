@@ -129,11 +129,11 @@ class ContractInterface:
 
             tx_receipt = self.w3.eth.waitForTransactionReceipt(tx_hash)
             contract_address = tx_receipt['contractAddress']
-            print("Deployed {0} at: {1} using {2} gas.".format(
-                compiled_contract[0],
-                contract_address,
-                tx_receipt['cumulativeGasUsed']
-                ))
+            # print("Deployed {0} at: {1} using {2} gas.".format(
+            #     compiled_contract[0],
+            #     contract_address,
+            #     tx_receipt['cumulativeGasUsed']
+            #     ))
 
             deployed_contracts.append(self.deployed_contract)
 
