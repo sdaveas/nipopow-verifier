@@ -320,8 +320,7 @@ contract Crosschain {
     // Throws if invalid.
     validate_interlink(headers, contesting_proof, siblings);
 
-    bool contesting_proof_is_better = compare_proofs(proof, contesting_proof);
-    if (contesting_proof_is_better) {
+    if (compare_proofs(proof, contesting_proof)) {
       proof.best_proof = contesting_proof;
       // Only when we get the "best" we add them to the DAG.
       add_proof_to_dag(proof, contesting_proof);
@@ -391,16 +390,8 @@ contract Crosschain {
     }
 
 
-    bool verify_old_against_new = verify(events[hashed_block].proof,
-                                         headers,
-                                         siblings,
-                                         block_of_interest,
-                                         false);
-
-    bool contesting_is_better = !verify_old_against_new;
-
-    if (contesting_is_better)
-    {
+    if (!verify(events[hashed_block].proof, headers,
+      siblings, block_of_interest, false)) {
       events[hashed_block].expire = 0;
       msg.sender.transfer(z);
       return true;
