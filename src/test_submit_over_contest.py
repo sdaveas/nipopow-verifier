@@ -1,3 +1,8 @@
+#########################
+# run with
+# $ pytest -v -k block
+#########################
+
 import sys
 sys.path.append('../lib/')
 import contract_interface
@@ -12,7 +17,6 @@ class Proof:
             ):
         self.headers=headers
         self.siblings=siblings
-
 
 # proof data manipulation
 def str_to_bytes32(s):
@@ -116,27 +120,19 @@ def submit_contesting_proof(interface, proof, block_of_interest):
             'backend'       : interface.backend,
             'events'        : events}
 
-def strip_result(result, tabs='  '):
-    for res in result:
-        print(tabs, end=' ')
-        print('result:', res['result'])
-        print(tabs, end=' ')
-        print('gas used:', res['receipt']['gasUsed'])
-        # for e in res['events']:
-        #      print(e['args']['tag'], end=' ')
-        #      print(' -> ', end=' ')
-        #      print(e['args']['gas_used'])
-
-def import_proofs(big_proof_name='big_proof.pkl', small_proof_name='small_proof.pkl', proof_dir='../proofs/'):
+def import_main_proof(big_proof_name='big_proof.pkl', proof_dir='../proofs/'):
     proof_big = import_proof(proof_dir+big_proof_name)
     print('Big proof has length', len(proof_big))
     headers_big, siblings_big = extract_headers_siblings(proof_big)
 
+    return Proof(headers_big, siblings_big)
+
+def import_fork_proof(small_proof_name='small_proof.pkl', proof_dir='../proofs/'):
     proof_small = import_proof(proof_dir+small_proof_name)
     print('Small proof has lenght', len(proof_small))
     headers_small, siblings_small = extract_headers_siblings(proof_small)
 
-    return Proof(headers_big, siblings_big), Proof(headers_small, siblings_small)
+    return Proof(headers_small, siblings_small)
 
 def make_interface(backend):
     return contract_interface.ContractInterface("../contractNipopow.sol",
@@ -146,22 +142,33 @@ def make_interface(backend):
                                                                     },
                                                 )
 
-def main():
-    test_submit_over_contesting()
+backend = 'ganache'
+big_proof = Proof()
+small_proof = Proof()
 
-def test_submit_over_contesting():
+@pytest.fixture
+def submit_over_contesting():
+    mainblocks=100
+    fork_index=50
+    forkblocks=25
+    create_mainproof_and_forkproof(mainblocks, fork_index, forkblocks)
 
-    backend = 'ganache'
-    big_proof_name = 'proof_1.pkl'
-    small_proof_name = 'proof_2.pkl'
-    bigger_proof = get_proof(200)
+    big_proof_name = 'proof_'+str(mainblocks)+'.pkl'
+    small_proof_name = str(fork_index)+'_fork_of_proof_'+str(mainblocks)+'.pkl'
+    bigger_proof = get_proof(mainblocks+int(mainblocks/2))
     h, s = extract_headers_siblings(bigger_proof)
     bigger_proof = Proof(h, s)
 
-    big_proof = Proof()
-    small_proof = Proof()
-    big_proof, small_proof = import_proofs(big_proof_name, small_proof_name)
+    b = Proof()
+    b = import_main_proof(big_proof_name)
+    big_proof.headers= b.headers
+    big_proof.siblings= b.siblings
+    s = Proof()
+    s = import_fork_proof(small_proof_name)
+    small_proof.headers = s.headers
+    small_proof.siblings = s.siblings
 
+def test_common_block(submit_over_contesting):
     #   Block of interest contained in both chains
     #   ---x0---+-------->  Ca
     #           |
@@ -180,6 +187,7 @@ def test_submit_over_contesting():
     res = submit_contesting_proof(interface, big_proof, block_of_interest)
     assert(res['result']==True)
 
+def test_block_in_big_chain(submit_over_contesting):
     #   Block of interest contained only in Ca
     #   --------+---x1--->  Ca
     #           |
@@ -198,6 +206,7 @@ def test_submit_over_contesting():
     res = submit_contesting_proof(interface, big_proof, block_of_interest)
     assert(res['result']==False)
 
+def test_block_in_small_chain(submit_over_contesting):
     #   Block of interest contained only in Cb
     #   --------+---------->  Ca
     #           |
@@ -216,13 +225,7 @@ def test_submit_over_contesting():
     res = submit_contesting_proof(interface, big_proof, block_of_interest)
     assert(res['result']==True)
 
-    # Submit contesting proof without submiting original proof
-    block_of_interest = big_proof.headers[0]
-    interface=make_interface(backend)
-    res = submit_contesting_proof(interface, big_proof, block_of_interest)
-    assert(res['result']==False)
-
-    # Submit proof twice
+def test_submit_proof_twice(submit_over_contesting):
     block_of_interest = big_proof.headers[0]
     interface=make_interface(backend)
     res = submit_event_proof(interface, big_proof, block_of_interest)
@@ -230,15 +233,12 @@ def test_submit_over_contesting():
     res = submit_event_proof(interface, big_proof, block_of_interest)
     assert(res['result']==False)
 
-    # # Submit
-    # block_of_interest = bigger_proof.headers[-1]
-    # interface=make_interface(backend)
-    # res = submit_event_proof(interface, small_proof, block_of_interest)
-    # assert(res['result']==True)
-    # # res = submit_contesting_proof(interface, big_proof, block_of_interest)
-    # # assert(res['result']==True)
-    # res = submit_contesting_proof(interface, bigger_proof, block_of_interest)
-    # assert(res['result']==True)
-
-if __name__ == "__main__":
-    main()
+def test_contest_proof_twice(backend, big_proof, small_proof, bigger_proof):
+    block_of_interest = bigger_proof.headers[-1]
+    interface=make_interface(backend)
+    res = submit_event_proof(interface, small_proof, block_of_interest)
+    assert(res['result']==True)
+    res = submit_contesting_proof(interface, big_proof, block_of_interest)
+    assert(res['result']==True)
+    res = submit_contesting_proof(interface, bigger_proof, block_of_interest)
+    assert(res['result']==True)
