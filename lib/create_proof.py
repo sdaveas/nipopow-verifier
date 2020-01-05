@@ -47,6 +47,16 @@ def create_mainproof_and_forkproof(mainblocks, fork_index, forkblocks):
                                                      blocks=forkblocks)
 
     proof_f = blockchain_utils.make_proof(header_f, headerMap_f, mapInterlink_f)
+
+    import pickle
+    pickle_out = open(make_proof_file_name(mainblocks), 'wb')
+    pickle.dump(proof, pickle_out)
+    pickle_out.close()
+
+    pickle_out = open('../proofs/'+str(fork_index)+'_fork_of_proof_'+str(mainblocks)+'.pkl', 'wb')
+    pickle.dump(proof_f, pickle_out)
+    pickle_out.close()
+
     return proof, proof_f
 
 def main():
