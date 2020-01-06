@@ -145,6 +145,7 @@ def make_interface(backend):
 backend = 'ganache'
 big_proof = Proof()
 small_proof = Proof()
+bigger_proof = Proof()
 
 @pytest.fixture
 def submit_over_contesting():
@@ -155,9 +156,10 @@ def submit_over_contesting():
 
     big_proof_name = 'proof_'+str(mainblocks)+'.pkl'
     small_proof_name = str(fork_index)+'_fork_of_proof_'+str(mainblocks)+'.pkl'
-    bigger_proof = get_proof(mainblocks+int(mainblocks/2))
-    h, s = extract_headers_siblings(bigger_proof)
-    bigger_proof = Proof(h, s)
+    b = get_proof(mainblocks+int(mainblocks/2))
+    h, s = extract_headers_siblings(b)
+    bigger_proof.headers = h
+    bigger_proof.siblings = s
 
     b = Proof()
     b = import_main_proof(big_proof_name)
@@ -233,7 +235,7 @@ def test_submit_proof_twice(submit_over_contesting):
     res = submit_event_proof(interface, big_proof, block_of_interest)
     assert(res['result']==False)
 
-def test_contest_proof_twice(backend, big_proof, small_proof, bigger_proof):
+def test_contest_proof_twice(submit_over_contesting):
     block_of_interest = bigger_proof.headers[-1]
     interface=make_interface(backend)
     res = submit_event_proof(interface, small_proof, block_of_interest)
