@@ -241,13 +241,37 @@ def test_submit_proof_twice(init_environment):
     res = submit_event_proof(interface, big_proof, block_of_interest)
     assert res['result']==False, 'submit same proof again should be False'
 
+def finalize_event(interface, block_of_interest):
+    contract = interface.get_contract()
+    from_address = interface.w3.eth.accounts[0]
+    res = contract.functions.finalize_event(block_of_interest).call()
+    contract.functions.finalize_event(block_of_interest).transact({'from' : from_address})
+    return res
 
-def test_contest_proof_twice(submit_over_contesting):
-    block_of_interest = bigger_proof.headers[-1]
+def event_exists(interface, block_of_interest):
+    contract = interface.get_contract()
+    res = contract.functions.event_exists(block_of_interest).call()
+    return res
+
+def test_finalize_and_exists(init_environment):
+    block_of_interest = big_proof.headers[-1]
+
     interface=make_interface(backend)
     res = submit_event_proof(interface, small_proof, block_of_interest)
-    assert(res['result']==True)
+    assert res['result']==True, 'submit small proof should be True'
     res = submit_contesting_proof(interface, big_proof, block_of_interest)
-    assert(res['result']==True)
-    res = submit_contesting_proof(interface, bigger_proof, block_of_interest)
-    assert(res['result']==True)
+    assert res['result']==True, 'contest big proof should be True'
+    res = finalize_event(interface, block_of_interest)
+    assert res==True, 'finalize should be True'
+    res = event_exists(interface, block_of_interest)
+    assert res==True, 'event should exist'
+
+    interface=make_interface(backend)
+    res = submit_event_proof(interface, big_proof, block_of_interest)
+    assert res['result']==True, 'submit big proof should be True'
+    res = submit_contesting_proof(interface, small_proof, block_of_interest)
+    assert res['result']==False, 'submit small proof should be False'
+    res = finalize_event(interface, block_of_interest)
+    assert res==True, 'finalize should be True'
+    res = event_exists(interface, block_of_interest)
+    assert res==True, 'event should exist'
