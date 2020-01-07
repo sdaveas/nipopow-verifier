@@ -148,10 +148,10 @@ small_proof = Proof()
 bigger_proof = Proof()
 
 @pytest.fixture
-    mainblocks=100
-    fork_index=50
-    forkblocks=25
 def init_environment():
+    mainblocks=100
+    fork_index= 50
+    forkblocks= 30
     # create pkl files for big and small proof
     create_mainproof_and_forkproof(mainblocks, fork_index, forkblocks)
 
