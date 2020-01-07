@@ -148,29 +148,33 @@ small_proof = Proof()
 bigger_proof = Proof()
 
 @pytest.fixture
-def submit_over_contesting():
     mainblocks=100
     fork_index=50
     forkblocks=25
+def init_environment():
+    # create pkl files for big and small proof
     create_mainproof_and_forkproof(mainblocks, fork_index, forkblocks)
 
+    # contruct the repsective file namse
     big_proof_name = 'proof_'+str(mainblocks)+'.pkl'
     small_proof_name = str(fork_index)+'_fork_of_proof_'+str(mainblocks)+'.pkl'
-    b = get_proof(mainblocks+int(mainblocks/2))
-    h, s = extract_headers_siblings(b)
-    bigger_proof.headers = h
-    bigger_proof.siblings = s
 
-    b = Proof()
-    b = import_main_proof(big_proof_name)
-    big_proof.headers= b.headers
-    big_proof.siblings= b.siblings
-    s = Proof()
-    s = import_fork_proof(small_proof_name)
-    small_proof.headers = s.headers
-    small_proof.siblings = s.siblings
+    # import big proof and register into global
+    big = import_main_proof(big_proof_name)
+    big_proof.headers = big.headers
+    big_proof.siblings = big.siblings
 
-def test_common_block(submit_over_contesting):
+    # import small proof and register into global
+    small = import_fork_proof(small_proof_name)
+    small_proof.headers = small.headers
+    small_proof.siblings = small.siblings
+
+    # create a even bigger proof
+    bigger = get_proof(mainblocks+int(mainblocks/2))
+    bigger_proof.headers, bigger_proof.siblings = extract_headers_siblings(bigger)
+
+def test_common_block(init_environment):
+
     #   Block of interest contained in both chains
     #   ---x0---+-------->  Ca
     #           |
@@ -189,7 +193,7 @@ def test_common_block(submit_over_contesting):
     res = submit_contesting_proof(interface, big_proof, block_of_interest)
     assert res['result']==True, 'contest big proof should be True'
 
-def test_block_in_big_chain(submit_over_contesting):
+def test_block_in_big_chain(init_environment):
 
     #   Block of interest contained only in Ca
     #   --------+---x1--->  Ca
@@ -209,7 +213,7 @@ def test_block_in_big_chain(submit_over_contesting):
     res = submit_contesting_proof(interface, big_proof, block_of_interest)
     assert res['result']==False, 'contest big proof should be True'
 
-def test_block_in_small_chain(submit_over_contesting):
+def test_block_in_small_chain(init_environment):
 
     #   Block of interest contained only in Cb
     #   --------+---------->  Ca
@@ -229,7 +233,7 @@ def test_block_in_small_chain(submit_over_contesting):
     res = submit_contesting_proof(interface, big_proof, block_of_interest)
     assert res['result']==True, 'contest big proof should be True'
 
-def test_submit_proof_twice(submit_over_contesting):
+def test_submit_proof_twice(init_environment):
     block_of_interest = big_proof.headers[0]
     interface=make_interface(backend)
     res = submit_event_proof(interface, big_proof, block_of_interest)
