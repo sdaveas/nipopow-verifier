@@ -325,9 +325,9 @@ contract Crosschain {
       // Only when we get the "best" we add them to the DAG.
       add_proof_to_dag(proof, contesting_proof);
     }
-    // else {
-    //     return true;
-    // }
+    else {
+        return true;
+    }
 
     find_ancestors(proof, proof.best_proof[0]);
     return predicate(proof, hash_header(block_of_interest));
