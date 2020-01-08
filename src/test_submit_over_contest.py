@@ -242,36 +242,77 @@ def test_submit_proof_twice(init_environment):
     assert res['result']==False, 'submit same proof again should be False'
 
 def finalize_event(interface, block_of_interest):
-    contract = interface.get_contract()
+    my_contract = interface.get_contract()
     from_address = interface.w3.eth.accounts[0]
-    res = contract.functions.finalize_event(block_of_interest).call()
-    contract.functions.finalize_event(block_of_interest).transact({'from' : from_address})
-    return res
+    collateral = pow(10, 17)
+    estimated_gas = my_contract.functions.finalize_event(
+                                            block_of_interest,
+                                            ).estimateGas()
+
+    res = my_contract.functions.finalize_event(
+                                            block_of_interest
+                                            ).call({'from' : from_address})
+
+    tx_hash = my_contract.functions.finalize_event(
+                                            block_of_interest
+                                            ).transact({'from' : from_address})
+
+    receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
+
+    events = interface.get_contract().events.get_block().processReceipt(receipt)
+    for e in events:
+        print(e['args'])
+
+    return {'result'        : res,
+            'receipt'       : receipt,
+            'estimated_gas' : estimated_gas,
+            'from'          : from_address,
+            'backend'       : interface.backend,
+            'events'        : events}
 
 def event_exists(interface, block_of_interest):
     contract = interface.get_contract()
     res = contract.functions.event_exists(block_of_interest).call()
     return res
 
-# def test_finalize_and_exists(init_environment):
-#     block_of_interest = big_proof.headers[-1]
-#
-#     interface=make_interface(backend)
-#     res = submit_event_proof(interface, small_proof, block_of_interest)
-#     assert res['result']==True, 'submit small proof should be True'
-#     res = submit_contesting_proof(interface, big_proof, block_of_interest)
-#     assert res['result']==False, 'contest big proof should be False'
-#     res = finalize_event(interface, block_of_interest)
-#     assert res==True, 'finalize should be True. Is k==1 in the contract?'
-#     res = event_exists(interface, block_of_interest)
-#     assert res==True, 'event should exist'
-#
-#     interface=make_interface(backend)
-#     res = submit_event_proof(interface, big_proof, block_of_interest)
-#     assert res['result']==True, 'submit big proof should be True'
-#     res = submit_contesting_proof(interface, small_proof, block_of_interest)
-#     assert res['result']==False, 'submit small proof should be False'
-#     res = finalize_event(interface, block_of_interest)
-#     assert res==True, 'finalize should be True'
-#     res = event_exists(interface, block_of_interest)
-#     assert res==True, 'event should exist'
+def test_event_exists(init_environment):
+
+    k = 6
+    block_of_interest = big_proof.headers[-1]
+    interface=make_interface(backend)
+    res = submit_event_proof(interface, small_proof, block_of_interest)
+    assert res['result']==True, 'submit small proof should be True'
+    res = submit_contesting_proof(interface, big_proof, block_of_interest)
+    assert res['result']==False, 'contest big proof should be False'
+    res = event_exists(interface, block_of_interest)
+    assert res==False, 'event should exist yet'
+    # Spare k rounds. Then the finalize even should be exepted
+    for i in range(k):
+        finalize_event(interface, block_of_interest)
+    res = event_exists(interface, block_of_interest)
+    assert res==True, 'event should now exist'
+
+def test_event_not_exist(init_environment):
+    k = 6
+    interface=make_interface(backend)
+    block_of_interest = small_proof.headers[0]
+    res = submit_event_proof(interface, small_proof, block_of_interest)
+    assert res['result']==True, 'submit small proof should be True'
+    res = submit_contesting_proof(interface, big_proof, block_of_interest)
+    assert res['result']==True, 'submit big proof should be True'
+    for i in range(k):
+        finalize_event(interface, block_of_interest)
+    res = event_exists(interface, block_of_interest)
+    assert res==False, 'event should still not exist'
+
+def test_submit_after_finalize(init_environment):
+    k = 6
+    interface = make_interface(backend)
+    block_of_interest = small_proof.headers[0]
+    res = submit_event_proof(interface, small_proof, block_of_interest)
+    for i in range(k):
+        finalize_event(interface, block_of_interest)
+    res = event_exists(interface, block_of_interest)
+    assert res==True, 'event should exist'
+    res = submit_event_proof(interface, big_proof, block_of_interest)
+    assert res==False, 'stronger proof should not be accepted because the time expired'
