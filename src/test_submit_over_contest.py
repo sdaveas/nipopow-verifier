@@ -89,7 +89,7 @@ def submit_event_proof(interface, proof, block_of_interest):
 def submit_contesting_proof(interface, proof, block_of_interest):
 
     my_contract = interface.get_contract()
-    from_address = interface.w3.eth.accounts[1]
+    from_address = interface.w3.eth.accounts[0]
     collateral = pow(10, 17)
     estimated_gas = my_contract.functions.submit_contesting_proof(
                                             proof.headers,
