@@ -127,8 +127,8 @@ def import_main_proof(big_proof_name='big_proof.pkl', proof_dir='../proofs/'):
 
     return Proof(headers_big, siblings_big)
 
-def import_fork_proof(small_proof_name='small_proof.pkl', proof_dir='../proofs/'):
-    proof_small = import_proof(proof_dir+small_proof_name)
+def import_fork_proof(small_proof_name='small_proof.pkl'):
+    proof_small = import_proof(small_proof_name)
     print('Small proof has lenght', len(proof_small))
     headers_small, siblings_small = extract_headers_siblings(proof_small)
 
@@ -153,11 +153,7 @@ def init_environment():
     fork_index= 50
     forkblocks= 30
     # create pkl files for big and small proof
-    create_mainproof_and_forkproof(mainblocks, fork_index, forkblocks)
-
-    # contruct the repsective file namse
-    big_proof_name = 'proof_'+str(mainblocks)+'.pkl'
-    small_proof_name = str(fork_index)+'_fork_of_proof_'+str(mainblocks)+'.pkl'
+    (big_proof_name, small_proof_name) = create_mainproof_and_forkproof(mainblocks, fork_index, forkblocks)
 
     # import big proof and register into global
     big = import_main_proof(big_proof_name)
@@ -168,10 +164,6 @@ def init_environment():
     small = import_fork_proof(small_proof_name)
     small_proof.headers = small.headers
     small_proof.siblings = small.siblings
-
-    # create a even bigger proof
-    bigger = get_proof(mainblocks+int(mainblocks/2))
-    bigger_proof.headers, bigger_proof.siblings = extract_headers_siblings(bigger)
 
 def test_common_block(init_environment):
 

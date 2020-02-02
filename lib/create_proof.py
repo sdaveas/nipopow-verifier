@@ -1,5 +1,8 @@
 import argparse
 
+def prefix():
+    return '../proofs/'
+
 def import_proof(filename='proof.pkl'):
     import pickle
     pickle_in = open(filename,'rb')
@@ -18,7 +21,10 @@ def create_proof(blocks=450000, filename='proof.pkl'):
     return proof
 
 def make_proof_file_name(blocks):
-    return str('../proofs/proof_'+str(blocks)+'.pkl')
+    return prefix() + 'proof_'+str(blocks)+'.pkl'
+
+def make_fork_proof_file_name(mainblocks, fork_index, forkblocks):
+    return prefix() + str(mainblocks) + '_-' + str(fork_index) + '_+' + str(forkblocks) + '.pkl'
 
 def get_proof(blocks):
     proof_file_name = make_proof_file_name(blocks)
@@ -38,26 +44,46 @@ def get_proof(blocks):
 
 def create_mainproof_and_forkproof(mainblocks, fork_index, forkblocks):
     import create_blockchain_new as blockchain_utils
-    header, headerMap, mapInterlink = blockchain_utils.create_blockchain(blocks=mainblocks)
+
+    header = None
+    headerMap = None
+    mapInterlink = None
+
+    proof_filename = make_proof_file_name(mainblocks)
+    fork_proof_filename = make_fork_proof_file_name(mainblocks, fork_index, forkblocks)
+
+    try:
+        open(fork_proof_filename)
+    except IOError:
+        header, headerMap, mapInterlink = blockchain_utils.create_blockchain(blocks=mainblocks)
+
     proof = get_proof(mainblocks)
-    header_f, headerMap_f, mapInterlink_f = blockchain_utils.create_fork(header,
-                                                     headerMap,
-                                                     mapInterlink,
-                                                     fork=fork_index,
-                                                     blocks=forkblocks)
 
-    proof_f = blockchain_utils.make_proof(header_f, headerMap_f, mapInterlink_f)
+    f = None
+    try:
+        f = open(fork_proof_filename)
+        print('File', fork_proof_filename, 'already exists. Importing...')
+        f.close()
+    except IOError:
+        print('File', fork_proof_filename, 'does not exist. Creating...')
+        header_f, headerMap_f, mapInterlink_f = blockchain_utils.create_fork(header,
+                                                         headerMap,
+                                                         mapInterlink,
+                                                         fork=fork_index,
+                                                         blocks=forkblocks)
 
-    import pickle
-    pickle_out = open(make_proof_file_name(mainblocks), 'wb')
-    pickle.dump(proof, pickle_out)
-    pickle_out.close()
+        proof_f = blockchain_utils.make_proof(header_f, headerMap_f, mapInterlink_f)
 
-    pickle_out = open('../proofs/'+str(fork_index)+'_fork_of_proof_'+str(mainblocks)+'.pkl', 'wb')
-    pickle.dump(proof_f, pickle_out)
-    pickle_out.close()
+        import pickle
+        pickle_out = open(fork_proof_filename, 'wb')
+        pickle.dump(proof_f, pickle_out)
+        pickle_out.close()
+    finally:
+        print('...ok')
 
-    return proof, proof_f
+    print('Created fork at ' + fork_proof_filename)
+
+    return (make_proof_file_name(mainblocks), fork_proof_filename)
 
 def main():
     parser=argparse.ArgumentParser(description='Create and store proof from create_blockchain_new.py')
