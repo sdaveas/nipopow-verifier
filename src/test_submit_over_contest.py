@@ -111,7 +111,8 @@ def submit_contesting_proof(interface, proof, block_of_interest):
 
     receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
 
-    events = interface.get_contract().events.GasUsed().processReceipt(receipt)
+    # events = interface.get_contract().events.GasUsed().processReceipt(receipt)
+    events = None
 
     return {'result'        : res,
             'receipt'       : receipt,
@@ -251,9 +252,10 @@ def finalize_event(interface, block_of_interest):
 
     receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
 
-    events = interface.get_contract().events.get_block().processReceipt(receipt)
-    for e in events:
-        print(e['args'])
+    # events = interface.get_contract().events.get_block().processReceipt(receipt)
+    events = None
+    # for e in events:
+    #    print(e['args'])
 
     return {'result'        : res,
             'receipt'       : receipt,
