@@ -166,6 +166,14 @@ def init_environment():
     small_proof.headers = small.headers
     small_proof.siblings = small.siblings
 
+@pytest.fixture(scope='session', autouse=True)
+def my_cooler_session_finish(request):
+    yield
+    # you can access the session from the injected 'request':
+    session = request.session
+    interface = make_interface(backend)
+    interface.end()
+
 def test_common_block(init_environment):
 
     #   Block of interest contained in both chains

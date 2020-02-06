@@ -99,6 +99,9 @@ def run_nipopow(backend, proof):
     t = Timer()
     result = submit_event_proof(interface, proof)
     del t
+
+    interface.end()
+
     return result['events']
     # return {'gas_used' : result['receipt']['gasUsed'], result['backend'] : backend}
 

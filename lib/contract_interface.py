@@ -40,6 +40,11 @@ class ContractInterface:
         self.compile_contracts()
         self.deploy_contracts()
 
+    def end(self):
+        # Stop mining geth
+        if self.backend == 'geth':
+            self.w3.geth.miner.stop()
+
     @staticmethod
     def available_backends():
         return list(ContractInterface.backends_to_inits.keys())
@@ -75,6 +80,7 @@ class ContractInterface:
         self.w3 = Web3(Web3.HTTPProvider(url+':'+port))
         if not self.w3.isConnected():
             raise RuntimeError('Cannot connect to '+url+':'+port+'. Is '+self.backend+' up?')
+        self.w3.geth.miner.start(4)
 
     @staticmethod
     def xprint(message, fill='='):
