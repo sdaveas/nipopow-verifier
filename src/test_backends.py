@@ -73,6 +73,7 @@ def submit_event_proof(interface, proof):
                                                         'value': collateral})
 
     receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
+    print(tx_hash.hex())
     events = interface.get_contract().events.GasUsed().processReceipt(receipt)
 
     return {'result'        : res,
