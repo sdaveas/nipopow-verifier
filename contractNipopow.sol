@@ -1,4 +1,4 @@
-pragma solidity ^0.5.13;
+pragma solidity ^0.6.2;
 
 //import "strings.sol";
 
@@ -98,7 +98,7 @@ contract Crosschain {
   // pop() is not implemented in solidity.
   function stack_pop (bytes32[] storage stack) internal {
     require(stack.length > 0);
-    stack.length--;
+    stack.pop();
   }
 
   function add_proof_to_dag(Nipopow storage nipopow,
