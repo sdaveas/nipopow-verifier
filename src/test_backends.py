@@ -74,6 +74,7 @@ def submit_event_proof(interface, proof):
 
     receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
     print(tx_hash.hex())
+    interface.run_gas_profiler(tx_hash)
     events = interface.get_contract().events.GasUsed().processReceipt(receipt)
 
     return {'result'        : res,

@@ -117,6 +117,51 @@ class ContractInterface:
 
         # print("Compiled contract(s): ", len(self.compiled_contracts))
 
+
+    @staticmethod
+    def create_sourcemap(contract_path, sourcemap_path):
+        import subprocess
+        subprocess.Popen([
+            'solc',
+            '--combined-json',
+            'srcmap-runtime',
+            '--overwrite',
+            contract_path,
+            '-o',
+            '.'
+        ])
+
+    # Salute to https://github.com/yushih/solidity-gas-profiler
+    def run_gas_profiler(self, tx_hash):
+        if self.backend != 'geth':
+            return
+
+        executable = 'node'
+        # TODO: Let the user provide the path of the profiler
+        profiler = '/home/stelios/Projects/solidity-gas-profiler/profile.js'
+        rpc = 'http://127.0.0.1:8545'
+        contract_path = self.contract_path_list[0]
+        sourcemap_path = 'combined.json'
+        self.create_sourcemap(contract_path, sourcemap_path)
+        output_file = 'gas_profile.txt'
+
+        import subprocess
+        process = subprocess.Popen([
+            executable,
+            profiler,
+            rpc,
+            tx_hash.hex(),
+            contract_path,
+            sourcemap_path,
+            ],
+            stdout = subprocess.PIPE)
+        (process_output,  error) = process.communicate()
+        file = open(output_file, "+wb")
+        file.write(process_output)
+        file.close()
+
+        print('Gas profing saved to', output_file)
+
     def deploy_contracts(self):
         deployed_contracts = []
 
