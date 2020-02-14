@@ -74,7 +74,8 @@ def submit_event_proof(interface, proof):
 
     receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
     print(tx_hash.hex())
-    interface.run_gas_profiler(tx_hash)
+    print('Running with profiler:', profiler)
+    interface.run_gas_profiler(profiler, tx_hash)
     events = interface.get_contract().events.GasUsed().processReceipt(receipt)
 
     return {'result'        : res,
@@ -108,17 +109,20 @@ def run_nipopow(backend, proof):
     # return {'gas_used' : result['receipt']['gasUsed'], result['backend'] : backend}
 
 def main():
+    global profiler
 
     available_backends = contract_interface.ContractInterface.available_backends()
     parser = argparse.ArgumentParser(description='Benchmark Py-EVM, Ganache and Geth')
     parser.add_argument('--backend', choices=available_backends+['all'], required=True, type=str, help='The name of the EVM')
     parser.add_argument('--blocks', required=True, type=int, help='Number of blocks')
     parser.add_argument('--timer', action='store_true', help='Enable timers')
+    parser.add_argument('--profiler', required=False, type=str, help='Path to https://github.com/yushih/solidity-gas-profiler')
 
     args = parser.parse_args()
     backend = args.backend
     blocks = args.blocks
     timer = args.timer
+    profiler = args.profiler
 
     if (backend=='all'):
         backend=available_backends

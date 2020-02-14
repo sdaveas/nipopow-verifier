@@ -132,13 +132,12 @@ class ContractInterface:
         ])
 
     # Salute to https://github.com/yushih/solidity-gas-profiler
-    def run_gas_profiler(self, tx_hash):
+    def run_gas_profiler(self, profiler, tx_hash):
         if self.backend != 'geth':
             return
 
         executable = 'node'
         # TODO: Let the user provide the path of the profiler
-        profiler = '/home/stelios/Projects/solidity-gas-profiler/profile.js'
         rpc = 'http://127.0.0.1:8545'
         contract_path = self.contract_path_list[0]
         sourcemap_path = 'combined.json'
