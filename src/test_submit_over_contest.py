@@ -317,4 +317,4 @@ def test_submit_after_finalize(init_environment):
     res = event_exists(interface, block_of_interest)
     assert res==True, 'event should exist'
     res = submit_event_proof(interface, big_proof, block_of_interest)
-    assert res==False, 'stronger proof should not be accepted because the time expired'
+    assert res['result']==False, 'stronger proof should not be accepted because the time expired'
