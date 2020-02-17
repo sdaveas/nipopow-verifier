@@ -9,46 +9,53 @@ import contract_interface
 from create_proof import import_proof, create_mainproof_and_forkproof
 import pytest
 
+
 class Proof:
-    def __init__(
-            self,
-            headers=None,
-            siblings=None
-            ):
-        self.headers=headers
-        self.siblings=siblings
+    def __init__(self):
+        self.name = ""
+        self.proof = []
+        self.headers = []
+        self.siblings = []
+        self.size = 0
 
-# proof data manipulation
-def str_to_bytes32(s):
-    r = []
-    for start in range(0,len(s),32):
-        r.append(s[start:start+32])
-    return r
+    @staticmethod
+    def str_to_bytes32(s):
+        r = []
+        for start in range(0,len(s),32):
+            r.append(s[start:start+32])
+        return r
 
-def extract_headers_siblings(proof):
-    headers = []
-    hashed_headers = []
-    siblings = []
-    # mp stands for merkle proof
-    # hs stands for headers.
-    for p in proof:
-        hs = p[0]
-        mp = p[1]
-        # Copy the header to an array of 4 bytes32
-        header = str_to_bytes32(hs)
-        # Encode the Merkle bits (mu) in the largest byte
-        # Encode the mp size in the next largest byte
-        assert 0 <= len(mp) < 256
-        mu = sum(bit << i for (i,(bit,_)) in enumerate(mp[::-1]))
-        assert 0 <= mu < 256
-        #header[3] = chr(len(mp)) + chr(mu) + header[3][2:]
-        header[3] = header[3] + ('\x00'*14).encode() + bytes([len(mp)]) + bytes([mu])
-        headers.append(header)
+    @staticmethod
+    def extract_headers_siblings(proof):
+        headers = []
+        hashed_headers = []
+        siblings = []
+        # mp stands for merkle proof
+        # hs stands for headers.
+        for p in proof:
+            hs = p[0]
+            mp = p[1]
+            # Copy the header to an array of 4 bytes32
+            header = Proof.str_to_bytes32(hs)
+            # Encode the Merkle bits (mu) in the largest byte
+            # Encode the mp size in the next largest byte
+            assert 0 <= len(mp) < 256
+            mu = sum(bit << i for (i,(bit,_)) in enumerate(mp[::-1]))
+            assert 0 <= mu < 256
+            #header[3] = chr(len(mp)) + chr(mu) + header[3][2:]
+            header[3] = header[3] + ('\x00'*14).encode() + bytes([len(mp)]) + bytes([mu])
+            headers.append(header)
 
-        for (_,sibling) in mp:
-            siblings.append(sibling)
+            for (_,sibling) in mp:
+                siblings.append(sibling)
 
-    return headers, siblings
+        return headers, siblings
+
+    def set(self, proof, proof_name):
+        self.proof = proof
+        self.name = proof_name
+        self.headers, self.siblings = self.extract_headers_siblings(self.proof)
+        self.size = len(self.proof)
 
 def submit_event_proof(interface, proof, block_of_interest):
 
@@ -121,20 +128,6 @@ def submit_contesting_proof(interface, proof, block_of_interest):
             'backend'       : interface.backend,
             'events'        : events}
 
-def import_main_proof(big_proof_name='big_proof.pkl', proof_dir='../proofs/'):
-    proof_big = import_proof(proof_dir+big_proof_name)
-    print('Big proof has length', len(proof_big))
-    headers_big, siblings_big = extract_headers_siblings(proof_big)
-
-    return Proof(headers_big, siblings_big)
-
-def import_fork_proof(small_proof_name='small_proof.pkl'):
-    proof_small = import_proof(small_proof_name)
-    print('Small proof has lenght', len(proof_small))
-    headers_small, siblings_small = extract_headers_siblings(proof_small)
-
-    return Proof(headers_small, siblings_small)
-
 def make_interface(backend):
     return contract_interface.ContractInterface("../contractNipopow.sol",
                                                 backend=backend,
@@ -155,15 +148,8 @@ def init_environment():
     # create pkl files for big and small proof
     (big_proof_name, small_proof_name) = create_mainproof_and_forkproof(mainblocks, fork_index, forkblocks)
 
-    # import big proof and register into global
-    big = import_main_proof(big_proof_name)
-    big_proof.headers = big.headers
-    big_proof.siblings = big.siblings
-
-    # import small proof and register into global
-    small = import_fork_proof(small_proof_name)
-    small_proof.headers = small.headers
-    small_proof.siblings = small.siblings
+    big_proof.set(import_proof(big_proof_name), big_proof_name)
+    small_proof.set(import_proof(small_proof_name), small_proof_name)
 
 @pytest.fixture(scope='session', autouse=True)
 def finish_session(request):
