@@ -166,7 +166,7 @@ def init_environment():
     small_proof.siblings = small.siblings
 
 @pytest.fixture(scope='session', autouse=True)
-def my_cooler_session_finish(request):
+def finish_session(request):
     yield
     # you can access the session from the injected 'request':
     session = request.session
