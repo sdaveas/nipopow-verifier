@@ -167,12 +167,15 @@ def test_common_block(init_environment):
     #           +--->       Cb
 
     block_of_interest = big_proof.headers[-1]
+
+    # First Ca, then Cb
     interface=make_interface(backend)
     res = submit_event_proof(interface, big_proof, block_of_interest)
     assert res['result']==True, 'submit big proof should be True'
     res = submit_contesting_proof(interface, small_proof, block_of_interest)
     assert res['result']==False, 'contest small proof should be False'
 
+    ## First Cb, then Ca
     interface=make_interface(backend)
     res = submit_event_proof(interface, small_proof, block_of_interest)
     assert res['result']==True, 'submit small proof should be True'
@@ -186,6 +189,7 @@ def test_block_in_big_chain(init_environment):
     #           |
     #           +--->       Cb
 
+    # First Ca, then Cb
     block_of_interest = big_proof.headers[0]
     interface=make_interface(backend)
     res = submit_event_proof(interface, big_proof, block_of_interest)
@@ -193,6 +197,7 @@ def test_block_in_big_chain(init_environment):
     res = submit_contesting_proof(interface, small_proof, block_of_interest)
     assert res['result']==False, 'contest small proof should be False'
 
+    # First Cb, then Ca
     interface=make_interface(backend)
     res = submit_event_proof(interface, small_proof, block_of_interest)
     assert res['result']==False, 'submit small proof should be True'
@@ -206,6 +211,7 @@ def test_block_in_small_chain(init_environment):
     #           |
     #           +--x2-->      Cb
 
+    # First Ca, then Cb
     block_of_interest = small_proof.headers[0]
     interface=make_interface(backend)
     res = submit_event_proof(interface, big_proof, block_of_interest)
@@ -213,6 +219,7 @@ def test_block_in_small_chain(init_environment):
     res = submit_contesting_proof(interface, small_proof, block_of_interest)
     assert res['result']==False, 'submit small proof should be False'
 
+    # First Cb, then Ca
     interface=make_interface(backend)
     res = submit_event_proof(interface, small_proof, block_of_interest)
     assert res['result']==True, 'submit small proof should be True'
