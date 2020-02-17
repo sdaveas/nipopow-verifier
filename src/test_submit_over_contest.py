@@ -244,6 +244,7 @@ def test_event_exists(init_environment):
     res = event_exists(interface, block_of_interest)
     assert res==True, 'event should now exist'
 
+# TODO: see why this fails with k = 1
 def test_event_not_exist(init_environment):
     k = 6
     interface=make_interface(backend)
