@@ -49,26 +49,28 @@ def extract_headers_siblings(proof):
 def submit_event_proof(interface, proof):
     headers, siblings = extract_headers_siblings(proof)
 
+    block_of_interest = headers[0]
+
     my_contract = interface.get_contract()
     from_address = interface.w3.eth.accounts[0]
     collateral = pow(10, 17)
     estimated_gas = my_contract.functions.submit_event_proof(
                                             headers,
                                             siblings,
-                                            headers[-1],
+                                            block_of_interest
                                             ).estimateGas()
 
     res = my_contract.functions.submit_event_proof(
                                             headers,
                                             siblings,
-                                            headers[-1],
+                                            block_of_interest
                                             ).call({'from' : from_address,
                                                     'value': collateral})
 
     tx_hash = my_contract.functions.submit_event_proof(
                                             headers,
                                             siblings,
-                                            headers[-1],
+                                            block_of_interest
                                             ).transact({'from' : from_address,
                                                         'value': collateral})
 
