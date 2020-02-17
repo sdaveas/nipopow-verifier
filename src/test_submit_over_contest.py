@@ -213,10 +213,7 @@ def finalize_event(interface, block_of_interest):
 
     receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
 
-    # events = interface.get_contract().events.get_block().processReceipt(receipt)
     events = None
-    # for e in events:
-    #    print(e['args'])
 
     return {'result'        : res,
             'receipt'       : receipt,
