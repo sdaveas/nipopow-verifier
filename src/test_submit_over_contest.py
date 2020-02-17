@@ -146,7 +146,6 @@ def make_interface(backend):
 backend = 'geth'
 big_proof = Proof()
 small_proof = Proof()
-bigger_proof = Proof()
 
 @pytest.fixture
 def init_environment():
