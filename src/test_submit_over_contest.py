@@ -6,7 +6,7 @@
 import sys
 sys.path.append('../lib/')
 import contract_interface
-from create_proof import import_proof, create_proof, make_proof_file_name, get_proof, create_mainproof_and_forkproof
+from create_proof import import_proof, create_mainproof_and_forkproof
 import pytest
 
 class Proof:
