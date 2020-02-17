@@ -91,12 +91,18 @@ def make_interface(backend):
                                                                     },
                                                 )
 
-backend = 'geth'
-big_proof = Proof()
-small_proof = Proof()
 
 @pytest.fixture
 def init_environment():
+
+    global backend
+    global big_proof
+    global small_proof
+
+    backend = 'geth'
+    big_proof = Proof()
+    small_proof = Proof()
+
     mainblocks=100
     fork_index= 50
     forkblocks= 30
