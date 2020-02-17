@@ -1,4 +1,6 @@
 import argparse
+import pickle
+import create_blockchain_new as blockchain_utils
 
 """
 This file contains useful functions to export and import proofs.
@@ -46,7 +48,6 @@ def prefix():
 Loads a prook from a pkl file
 """
 def import_proof(filename):
-    import pickle
     pickle_in = open(filename,'rb')
     proof = pickle.load(pickle_in)
     return proof
@@ -55,8 +56,6 @@ def import_proof(filename):
 Stores a proof to a pkl file
 """
 def create_proof(blocks, filename):
-    import pickle
-    import create_blockchain_new as blockchain_utils
     header, headerMap, mapInterlink = blockchain_utils.create_blockchain(blocks=blocks)
     proof = blockchain_utils.make_proof(header, headerMap, mapInterlink)
     pickle_out = open(filename, 'wb')
@@ -121,7 +120,6 @@ If either of the two proofs does not exist, it is created with the known name co
 See documentation of 'make_fork_proof_file_name()'
 """
 def create_mainproof_and_forkproof(mainblocks, fork_index, forkblocks):
-    import create_blockchain_new as blockchain_utils
 
     header = None
     headerMap = None
@@ -152,7 +150,6 @@ def create_mainproof_and_forkproof(mainblocks, fork_index, forkblocks):
 
         proof_f = blockchain_utils.make_proof(header_f, headerMap_f, mapInterlink_f)
 
-        import pickle
         pickle_out = open(fork_proof_filename, 'wb')
         pickle.dump(proof_f, pickle_out)
         pickle_out.close()
