@@ -122,15 +122,15 @@ def finish_session(request):
 
 def test_common_block(init_environment):
 
+    block_of_interest = big_proof.headers[-1]
+    interface=make_interface(backend)
+
     #   Block of interest contained in both chains
     #   ---x0---+-------->  Ca
     #           |
     #           +--->       Cb
 
-    block_of_interest = big_proof.headers[-1]
-
     # First Ca, then Cb
-    interface=make_interface(backend)
     res = submit_event_proof(interface, big_proof, block_of_interest)
     assert res['result']==True, 'submit big proof should be True'
     res = submit_contesting_proof(interface, small_proof, block_of_interest)
@@ -145,14 +145,15 @@ def test_common_block(init_environment):
 
 def test_block_in_big_chain(init_environment):
 
+    block_of_interest = big_proof.headers[0]
+    interface=make_interface(backend)
+
     #   Block of interest contained only in Ca
     #   --------+---x1--->  Ca
     #           |
     #           +--->       Cb
 
     # First Ca, then Cb
-    block_of_interest = big_proof.headers[0]
-    interface=make_interface(backend)
     res = submit_event_proof(interface, big_proof, block_of_interest)
     assert res['result']==True, 'submit big proof should be True'
     res = submit_contesting_proof(interface, small_proof, block_of_interest)
@@ -167,14 +168,15 @@ def test_block_in_big_chain(init_environment):
 
 def test_block_in_small_chain(init_environment):
 
+    block_of_interest = small_proof.headers[0]
+    interface=make_interface(backend)
+
     #   Block of interest contained only in Cb
     #   --------+---------->  Ca
     #           |
     #           +--x2-->      Cb
 
     # First Ca, then Cb
-    block_of_interest = small_proof.headers[0]
-    interface=make_interface(backend)
     res = submit_event_proof(interface, big_proof, block_of_interest)
     assert res['result']==False, 'submit big proof should be False'
     res = submit_contesting_proof(interface, small_proof, block_of_interest)
