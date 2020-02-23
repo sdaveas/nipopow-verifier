@@ -238,7 +238,7 @@ def test_event_exists(init_environment):
     assert res['result']==False, 'contest big proof should be False'
     res = event_exists(interface, block_of_interest)
     assert res==False, 'event should exist yet'
-    # Spare k rounds. Then the finalize even should be exepted
+    # Spare k rounds. Then the finalize even should be accepted
     for i in range(k):
         finalize_event(interface, block_of_interest)
     res = event_exists(interface, block_of_interest)
@@ -253,6 +253,7 @@ def test_event_not_exist(init_environment):
     assert res['result']==True, 'submit small proof should be True'
     res = submit_contesting_proof(interface, big_proof, block_of_interest)
     assert res['result']==True, 'submit big proof should be True'
+    # Spare k rounds. Then the finalize even should be accepted
     for i in range(k):
         finalize_event(interface, block_of_interest)
     res = event_exists(interface, block_of_interest)
@@ -263,6 +264,7 @@ def test_submit_after_finalize(init_environment):
     interface = make_interface(backend)
     block_of_interest = small_proof.headers[0]
     res = submit_event_proof(interface, small_proof, block_of_interest)
+    # Spare k rounds. Then the finalize even should be accepted
     for i in range(k):
         finalize_event(interface, block_of_interest)
     res = event_exists(interface, block_of_interest)
