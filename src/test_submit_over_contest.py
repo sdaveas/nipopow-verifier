@@ -72,6 +72,8 @@ def submit_contesting_proof(interface, proof, block_of_interest):
 
     receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
 
+    # interface.run_gas_profiler(profiler, tx_hash)
+
     return {'result'        : res,
             'receipt'       : receipt,
             'estimated_gas' : estimated_gas,
