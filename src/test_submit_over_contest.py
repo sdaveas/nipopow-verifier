@@ -39,14 +39,12 @@ def submit_event_proof(interface, proof, block_of_interest):
 
     receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
 
-    events = interface.get_contract().events.GasUsed().processReceipt(receipt)
 
     return {'result'        : res,
             'receipt'       : receipt,
             'estimated_gas' : estimated_gas,
             'from'          : from_address,
-            'backend'       : interface.backend,
-            'events'        : events}
+            'backend'       : interface.backend}
 
 def submit_contesting_proof(interface, proof, block_of_interest):
 
@@ -73,15 +71,11 @@ def submit_contesting_proof(interface, proof, block_of_interest):
 
     receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
 
-    # events = interface.get_contract().events.GasUsed().processReceipt(receipt)
-    events = None
-
     return {'result'        : res,
             'receipt'       : receipt,
             'estimated_gas' : estimated_gas,
             'from'          : from_address,
-            'backend'       : interface.backend,
-            'events'        : events}
+            'backend'       : interface.backend}
 
 def make_interface(backend):
     return contract_interface.ContractInterface("../contractNipopow.sol",
@@ -221,8 +215,7 @@ def finalize_event(interface, block_of_interest):
             'receipt'       : receipt,
             'estimated_gas' : estimated_gas,
             'from'          : from_address,
-            'backend'       : interface.backend,
-            'events'        : events}
+            'backend'       : interface.backend}
 
 def event_exists(interface, block_of_interest):
     contract = interface.get_contract()

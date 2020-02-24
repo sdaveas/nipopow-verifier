@@ -4,25 +4,6 @@ pragma solidity ^0.6.2;
 
 contract Crosschain {
 
-  // -----------------------
-  uint constant size = 1<<15;
-
-  mapping(string => uint256) gases;
-
-  event GasUsed(uint size, uint gas_used, string tag);
-
-  uint256 start_gas = 0;
-
-  function measure_gas_start(string memory tag) private {
-      gases[tag] = gasleft();
-  }
-
-  function measure_gas_stop(string memory tag) private {
-      emit GasUsed(size, gases[tag] - gasleft(), tag);
-  }
-
-  // -----------------------
-
   //using strings for *;
 
   // TODO: Set the genesis_block. Is it going to be constant?
@@ -339,8 +320,6 @@ contract Crosschain {
   function submit_event_proof(bytes32[4][] memory headers, bytes32[] memory siblings,
     bytes32[4] memory block_of_interest) public payable returns(bool) {
 
-    measure_gas_start("submit_event_proof");
-
     bytes32 hashed_block = hash_header(block_of_interest);
 
     if (msg.value < z) {
@@ -355,11 +334,9 @@ contract Crosschain {
       events[hashed_block].expire = block.number + k;
       events[hashed_block].author = msg.sender;
 
-      measure_gas_stop("submit_event_proof");
       return true;
     }
 
-    measure_gas_stop("submit_event_proof");
     return false;
   }
 

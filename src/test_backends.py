@@ -78,14 +78,12 @@ def submit_event_proof(interface, proof):
     print(tx_hash.hex())
     print('Running with profiler:', profiler)
     interface.run_gas_profiler(profiler, tx_hash)
-    events = interface.get_contract().events.GasUsed().processReceipt(receipt)
 
     return {'result'        : res,
             'estemated gas' : estimated_gas,
             'receipt'       : receipt,
             'from'          : from_address,
-            'backend'       : interface.backend,
-            'events'        : events}
+            'backend'       : interface.backend}
 
 def run_nipopow(backend, proof):
 
@@ -107,8 +105,7 @@ def run_nipopow(backend, proof):
 
     interface.end()
 
-    return result['events']
-    # return {'gas_used' : result['receipt']['gasUsed'], result['backend'] : backend}
+    return result['result']
 
 def main():
     global profiler
@@ -137,10 +134,7 @@ def main():
     for b in backend:
         print('Testing', b)
         res = run_nipopow(backend=b, proof=proof)
-        for e in res:
-            print(e['args']['tag'], end=' ')
-            print('\t', end=' ')
-            print(e['args']['gas_used'])
+        print('Result:', res)
 
 if __name__ == "__main__":
     main()
