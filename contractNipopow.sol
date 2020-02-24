@@ -76,12 +76,6 @@ contract Crosschain {
 
   }
 
-  // pop() is not implemented in solidity.
-  function stack_pop (bytes32[] storage stack) internal {
-    require(stack.length > 0);
-    stack.pop();
-  }
-
   function add_proof_to_dag(Nipopow storage nipopow,
     bytes32[] memory proof) internal {
     for (uint i = 1; i < proof.length; i++) {
@@ -102,7 +96,8 @@ contract Crosschain {
 
       nipopow.visitedBlock[current_block] = true;
       nipopow.ancestors.push(current_block);
-      stack_pop(nipopow.traversal_stack);
+      require(nipopow.traversal_stack.length > 0);
+      nipopow.traversal_stack.pop();
 
       for (uint i = 0; i < nipopow.blockDAG[current_block].length; i++) {
         if (!nipopow.visitedBlock[nipopow.blockDAG[current_block][i]]) {
