@@ -3,6 +3,7 @@ import bitcoin
 from bitcoin.core import CBlockHeader, CheckProofOfWork, CheckBlockHeader, CheckProofOfWorkError, _SelectCoreParams, uint256_from_compact, Hash, uint256_from_str
 _SelectCoreParams('regtest')
 from bitcoin.core import coreparams
+from tqdm import tqdm
 
 ###
 # Block header object
@@ -172,7 +173,7 @@ def create_blockchain(genesis=None, blocks=450000, headerMap=None, mapInterlink=
         listInterlink = mapInterlink[genesis.GetHash()]
 
     header = None
-    for i in range(blocks):
+    for i in tqdm(range(blocks), desc='Creating blockchain'):
         vInterlink = list_flatten(listInterlink)
         if header is None:
             header = genesis
@@ -190,8 +191,8 @@ def create_blockchain(genesis=None, blocks=450000, headerMap=None, mapInterlink=
 
         #print header.GetHash()[::-1].encode('hex')
         #print header.compute_level()
-        if i % 10000 == 0:
-            print('*'*(header.compute_level()+1))
+        # if i % 10000 == 0:
+        #     print('*'*(header.compute_level()+1))
         #print [h[::-1][:3].encode('hex') for h in vInterlink]
 
     return header, headerMap, mapInterlink
