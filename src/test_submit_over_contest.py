@@ -11,6 +11,7 @@ from create_proof import import_proof, create_mainproof_and_forkproof
 import pytest
 
 
+profiler = '/home/stelios/Projects/solidity-gas-profiler/profile.js'
 
 def submit_event_proof(interface, proof, block_of_interest):
 
