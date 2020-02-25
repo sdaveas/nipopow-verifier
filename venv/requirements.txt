@@ -6,3 +6,4 @@ py-evm
 python-bitcoinlib
 pytest
 pytest-xdist
+tqdm
