@@ -15,6 +15,8 @@ def benchmark(backend):
     from_address = interface.w3.eth.accounts[0]
     result = callback().call({'from':from_address})
 
+    interface.end()
+
     return result
 
 def main():
