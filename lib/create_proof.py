@@ -45,7 +45,7 @@ def prefix():
     return '../proofs/'
 
 """
-Loads a prook from a pkl file
+Loads a proof from a pkl file
 """
 def import_proof(filename):
     pickle_in = open(filename,'rb')
@@ -55,13 +55,19 @@ def import_proof(filename):
 """
 Stores a proof to a pkl file
 """
-def create_proof(blocks, filename):
-    header, headerMap, mapInterlink = blockchain_utils.create_blockchain(blocks=blocks)
-    proof = blockchain_utils.make_proof(header, headerMap, mapInterlink)
+def export_proof(proof, filename):
     pickle_out = open(filename, 'wb')
     pickle.dump(proof, pickle_out)
     pickle_out.close()
     print("Proof was written in " + filename)
+
+"""
+Craete a proof and stores it to a pkl file
+"""
+def create_proof(blocks, filename):
+    header, headerMap, mapInterlink = blockchain_utils.create_blockchain(blocks=blocks)
+    proof = blockchain_utils.make_proof(header, headerMap, mapInterlink)
+    export_proof(proof)
     return proof
 
 """
