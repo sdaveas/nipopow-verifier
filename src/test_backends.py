@@ -113,13 +113,16 @@ def main():
     available_backends = contract_interface.ContractInterface.available_backends()
     parser = argparse.ArgumentParser(description='Benchmark Py-EVM, Ganache and Geth')
     parser.add_argument('--backend', choices=available_backends+['all'], required=True, type=str, help='The name of the EVM')
-    parser.add_argument('--blocks', required=True, type=int, help='Number of blocks')
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--blocks', help='Number of blocks')
+    group.add_argument('--proof', help='Name of proof')
     parser.add_argument('--timer', action='store_true', help='Enable timers')
     parser.add_argument('--profiler', required=False, type=str, help='Path to https://github.com/yushih/solidity-gas-profiler')
 
     args = parser.parse_args()
     backend = args.backend
     blocks = args.blocks
+    proof_name = args.proof
     timer = args.timer
     profiler = args.profiler
 
@@ -128,7 +131,13 @@ def main():
     else:
         backend=[backend]
 
-    proof = get_proof(blocks=blocks)
+    if blocks != None:
+        print(blocks)
+        proof = get_proof(blocks=blocks)
+    elif proof_name != None:
+        print(proof_name)
+        proof = import_proof(proof_name)
+
     print("Proof lenght:", len(proof))
 
     for b in backend:
