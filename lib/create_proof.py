@@ -62,12 +62,12 @@ def export_proof(proof, filename):
     print("Proof was written in " + filename)
 
 """
-Craete a proof and stores it to a pkl file
+Create a proof and stores it to a pkl file
 """
 def create_proof(blocks, filename):
     header, headerMap, mapInterlink = blockchain_utils.create_blockchain(blocks=blocks)
     proof = blockchain_utils.make_proof(header, headerMap, mapInterlink)
-    export_proof(proof)
+    export_proof(proof, filename)
     return proof
 
 """
