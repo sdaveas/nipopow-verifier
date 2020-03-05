@@ -41,7 +41,7 @@ class Proof:
 
         return headers, siblings
 
-    def set(self, proof, proof_name):
+    def set(self, proof, proof_name=''):
         self.proof = proof
         self.name = proof_name
         self.headers, self.siblings = self.extract_headers_siblings(self.proof)
