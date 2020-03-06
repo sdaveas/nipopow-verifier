@@ -12,6 +12,7 @@ from edit_chain import *
 import web3
 
 import pytest
+import errors
 
 def submit_event_proof(interface, proof, block_of_interest):
 
