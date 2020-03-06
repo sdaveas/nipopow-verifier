@@ -7,7 +7,7 @@ import sys
 sys.path.append('../lib/')
 import contract_interface
 from proof import Proof
-from create_proof import get_proof
+from create_proof import get_proof, import_proof
 from edit_chain import *
 import web3
 
@@ -18,11 +18,6 @@ def submit_event_proof(interface, proof, block_of_interest):
     my_contract = interface.get_contract()
     from_address = interface.w3.eth.accounts[0]
     collateral = pow(10, 17)
-    estimated_gas = my_contract.functions.submit_event_proof(
-                                            proof.headers,
-                                            proof.siblings,
-                                            block_of_interest,
-                                            ).estimateGas()
 
     res = my_contract.functions.submit_event_proof(
                                             proof.headers,
