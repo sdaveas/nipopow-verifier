@@ -96,7 +96,7 @@ contract Crosschain {
 
       nipopow.visitedBlock[current_block] = true;
       nipopow.ancestors.push(current_block);
-      require(nipopow.traversal_stack.length > 0);
+      require(nipopow.traversal_stack.length > 0, 'Stack length <= 0');
       nipopow.traversal_stack.pop();
 
       for (uint i = 0; i < nipopow.blockDAG[current_block].length; i++) {
@@ -252,7 +252,7 @@ contract Crosschain {
       }
       mu >>= 1;
     }
-    require(h == roothash);
+    require(h == roothash, 'Merkle verification failed');
   }
 
   // shift bits to the most segnificant byte (256-8 = 248)
@@ -271,8 +271,8 @@ contract Crosschain {
       uint8 branch_length = b32_to_uint8((headers[i][3] >> 8) & bytes32(uint(0xff)));
       uint8 merkle_index  = b32_to_uint8((headers[i][3] >> 0) & bytes32(uint(0xff)));
 
-      require(branch_length <= 5);
-      require(merkle_index <= 32);
+      require(branch_length <= 5, 'Branch length too big');
+      require(merkle_index <= 32, 'Merkle index too big');
 
       // Copy siblings.
       bytes32[] memory _siblings = new bytes32[](branch_length);
