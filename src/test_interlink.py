@@ -76,7 +76,8 @@ def init_environment():
     global proof
     global changed_interlink_proof
     global missing_blocks_proof
-    backend = 'geth'
+    global replaced_blocks_proof
+    backend = 'ganache'
     proof = Proof()
     changed_interlink_proof = Proof()
     missing_blocks_proof = Proof()
