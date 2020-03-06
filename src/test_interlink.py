@@ -79,6 +79,7 @@ def init_environment():
     proof = Proof()
     changed_interlink_proof = Proof()
     missing_blocks_proof = Proof()
+    replaced_blocks_proof = Proof()
 
     blocks=10
     original_proof = get_proof(blocks)
@@ -90,6 +91,9 @@ def init_environment():
     _missing_blocks_proof = original_proof.copy()
     _missing_blocks_proof = skip_blocks(_missing_blocks_proof, -3)
     missing_blocks_proof.set(_missing_blocks_proof)
+
+    _replaced_blocks_proof = import_proof('../proofs/removed_block_proof.pkl')
+    replaced_blocks_proof.set(_replaced_blocks_proof)
 
 @pytest.fixture(scope='session', autouse=True)
 def finish_session(request):
@@ -153,7 +157,22 @@ def test_revert_on_missing_blocks_contest(init_environment):
     try:
         res = submit_cont_proof(interface, missing_blocks_proof, block_of_interest)
         assert res == True
-    except ValueError:
+    except Exception as e:
+        print(e)
+        transaction_failed = True
+    finally:
+        assert transaction_failed == True
+
+def test_replaced_block(init_environment):
+
+    block_of_interest = proof.headers[0]
+    interface = make_interface(backend)
+
+    transaction_failed = False
+    try:
+        res = submit_event_proof(interface, replaced_blocks_proof, block_of_interest)
+    except Exception as e:
+        print(e)
         transaction_failed = True
     finally:
         assert transaction_failed == True
