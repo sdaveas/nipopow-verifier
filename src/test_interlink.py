@@ -110,43 +110,31 @@ def test_revert_on_submit(init_environment):
     block_of_interest = proof.headers[-1]
     interface=make_interface(backend)
 
-    transaction_failed = False
-    try:
+    with pytest.raises(Exception) as e:
         res = submit_event_proof(interface, changed_interlink_proof, block_of_interest)
-    except web3.exceptions.BadFunctionCallOutput:
-        transaction_failed = True
-    finally:
-        assert transaction_failed == True
+    assert errors.extract_message_from_error(e) == errors.errors['merkle']
 
 def test_revert_on_contest(init_environment):
 
-    block_of_interest = proof.headers[-1]
+    block_of_interest = proof.headers[0]
     interface=make_interface(backend)
 
     res = submit_event_proof(interface, proof, block_of_interest)
     assert res['result'] == True
 
-    transaction_failed = False
-    try:
+    with pytest.raises(Exception) as e:
         res = submit_cont_proof(interface, changed_interlink_proof, block_of_interest)
-    except ValueError:
-        transaction_failed = True
-    finally:
-        assert transaction_failed == True
+    assert errors.extract_message_from_error(e) == errors.errors['merkle']
 
 def test_revert_on_missing_blocks_submit(init_environment):
 
     block_of_interest = proof.headers[-3]
     interface=make_interface(backend)
 
-    transaction_failed = False
-    try:
+    with pytest.raises(Exception) as e:
         res = submit_event_proof(interface, missing_blocks_proof, block_of_interest)
-    except web3.exceptions.BadFunctionCallOutput:
-        transaction_failed = True
-    finally:
-        assert transaction_failed == True
 
+    # assert errors.extract_message_from_error(e) == errors.errors['merkle']
 
 def test_revert_on_missing_blocks_contest(init_environment):
 
@@ -155,15 +143,9 @@ def test_revert_on_missing_blocks_contest(init_environment):
 
     res = submit_event_proof(interface, proof, block_of_interest)
 
-    transaction_failed = False
-    try:
+    with pytest.raises(Exception) as e:
         res = submit_cont_proof(interface, missing_blocks_proof, block_of_interest)
-        assert res == True
-    except Exception as e:
-        print(e)
-        transaction_failed = True
-    finally:
-        assert transaction_failed == True
+    assert errors.extract_message_from_error(e) == errors.errors['merkle']
 
 def test_replaced_block(init_environment):
 
