@@ -169,11 +169,9 @@ def test_replaced_block(init_environment):
     block_of_interest = proof.headers[0]
     interface = make_interface(backend)
 
-    transaction_failed = False
-    try:
+    print(replaced_blocks_proof.proof[52][0][:32].hex())
+
+    with pytest.raises(Exception) as e:
         res = submit_event_proof(interface, replaced_blocks_proof, block_of_interest)
-    except Exception as e:
-        print(e)
-        transaction_failed = True
-    finally:
-        assert transaction_failed == True
+
+    assert errors.extract_message_from_error(e) == errors.errors['merkle']
