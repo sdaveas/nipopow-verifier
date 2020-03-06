@@ -83,7 +83,7 @@ def init_environment():
     missing_blocks_proof = Proof()
     replaced_blocks_proof = Proof()
 
-    blocks=10
+    blocks=100
     original_proof = get_proof(blocks)
     proof.set(original_proof)
 
