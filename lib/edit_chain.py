@@ -1,7 +1,7 @@
 import sys
 sys.path.append('../')
 
-from create_blockchain_new import create_blockchain, bits_to_target, list_flatten, hash_interlink, make_proof, CBlockHeaderPopow
+from create_blockchain_new import create_blockchain, bits_to_target, list_flatten, hash_interlink, make_proof, CBlockHeaderPopow, mine_block, list_flatten
 from create_proof import export_proof
 from bitcoin.core import uint256_from_str
 
@@ -115,6 +115,15 @@ def skip_blocks(proof, block_index, skipped_blocks=1):
 
     return proof
 
+def replace_block(proof, headers_map, interlink_map, block_index):
+    prevous_block = proof[block_index-1][0]
+    block_hash = prevous_block[36:68]
+    block = headers_map[block_hash]
+    interlink = list_flatten(interlink_map[block.GetHash()])
+
+    block_2 = mine_block(block.hashPrevBlock, block.nBits-1, interlink, hashMerkleRoot=b'\x00'*32)
+    return proof[0:block_index] + [[block_2.serialize(), proof[block_index][1]]] + proof[block_index+1:]
+
 def main():
     parser=argparse.ArgumentParser(description='Prints the contents of a NiPoPoW')
     parser.add_argument('--blocks', required=True, type=int, help='Number of blocks')
@@ -132,12 +141,14 @@ def main():
 
     # Create proof
     proof = make_proof(header, headers_map, interlink_map)
-    print_proof(proof, headers_map)
+    # print_proof(proof, headers_map)
 
     """ Start spoiling proof """
     # remove_genesis(proof)
     # proof = change_interlink_hash(proof, 0)
     # proof = skip_blocks(proof, -2)
+    # block_index = int(len(proof)/2)
+    # proof = replace_block(proof, headers_map, interlink_map, int(len(proof)/2))
     """ Stop spoiling proof """
 
     export_proof(proof, output)
