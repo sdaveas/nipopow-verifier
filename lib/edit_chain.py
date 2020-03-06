@@ -140,8 +140,6 @@ def main():
     # proof = skip_blocks(proof, -2)
     """ Stop spoiling proof """
 
-    print_proof(proof, headers_map)
-
     export_proof(proof, output)
 
 if __name__ == '__main__':
