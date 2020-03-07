@@ -4,11 +4,11 @@
 #########################
 
 import sys
-sys.path.append('../src/nterface/')
+sys.path.append('../src/interface/')
 import contract_interface
 sys.path.append('../src/proof/')
 from proof import Proof
-from create_proof import fetch_proof, create_mainproof_and_forkproof
+from create_proof import ProofTool
 import pytest
 
 
@@ -101,14 +101,16 @@ def init_environment():
     big_proof = Proof()
     small_proof = Proof()
 
+    pt = ProofTool('../data/proofs/')
+
     mainblocks=100
     fork_index= 50
     forkblocks= 30
     # create pkl files for big and small proof
-    (big_proof_name, small_proof_name) = create_mainproof_and_forkproof(mainblocks, fork_index, forkblocks)
+    (big_proof_name, small_proof_name) = pt.create_mainproof_and_forkproof(mainblocks, fork_index, forkblocks)
 
-    big_proof.set(fetch_proof(big_proof_name), big_proof_name)
-    small_proof.set(fetch_proof(small_proof_name), small_proof_name)
+    big_proof.set(pt.fetch_proof(big_proof_name), big_proof_name)
+    small_proof.set(pt.fetch_proof(small_proof_name), small_proof_name)
 
 @pytest.fixture(scope='session', autouse=True)
 def finish_session(request):

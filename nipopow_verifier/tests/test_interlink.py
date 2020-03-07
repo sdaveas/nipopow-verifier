@@ -8,8 +8,8 @@ sys.path.append('../src/interface/')
 import contract_interface
 sys.path.append('../src/proof/')
 from proof import Proof
-from create_proof import fetch_proof
-from edit_chain import *
+from create_proof import ProofTool
+from edit_chain import change_interlink_hash, skip_blocks
 import web3
 
 import pytest
@@ -84,8 +84,10 @@ def init_environment():
     missing_blocks_proof = Proof()
     replaced_blocks_proof = Proof()
 
+    pt = ProofTool('../data/proofs/')
+
     blocks=100
-    original_proof = fetch_proof(blocks)
+    original_proof = pt.fetch_proof(blocks)
     proof.set(original_proof)
 
     _changed_interlink_proof = change_interlink_hash(original_proof, -1)
@@ -95,7 +97,7 @@ def init_environment():
     _missing_blocks_proof = skip_blocks(_missing_blocks_proof, -3)
     missing_blocks_proof.set(_missing_blocks_proof)
 
-    _replaced_blocks_proof = fetch_proof('../../proofs/removed_block_proof.pkl')
+    _replaced_blocks_proof = pt.fetch_proof('../data/proofs/proof_100_replaced_mid_block.pkl')
     replaced_blocks_proof.set(_replaced_blocks_proof)
 
 @pytest.fixture(scope='session', autouse=True)
@@ -154,9 +156,8 @@ def test_replaced_block(init_environment):
     block_of_interest = proof.headers[0]
     interface = make_interface(backend)
 
-    print(replaced_blocks_proof.proof[52][0][:32].hex())
+    # print(replaced_blocks_proof.proof[52][0][:32].hex())
 
     with pytest.raises(Exception) as e:
         res = submit_event_proof(interface, replaced_blocks_proof, block_of_interest)
-
     assert errors.extract_message_from_error(e) == errors.errors['merkle']

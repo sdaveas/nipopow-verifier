@@ -12,7 +12,7 @@ import contract_interface
 from timer import Timer
 
 sys.path.append('../src/proof/')
-from create_proof import fetch_proof
+from create_proof import ProofTool
 
 import argparse
 
@@ -133,10 +133,12 @@ def main():
     else:
         backend=[backend]
 
+    proof_tool = ProofTool('../data/proofs')
+
     if blocks != None:
-        proof = fetch_proof(blocks)
+        proof = proof_tool.fetch_proof(blocks)
     elif proof_name != None:
-        proof = fetch_proof(proof_name)
+        proof = proof_tool.fetch_proof(proof_name)
     else:
         print('You need to provice --blocks of --proof')
 

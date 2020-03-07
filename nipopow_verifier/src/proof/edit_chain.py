@@ -1,5 +1,5 @@
 from create_blockchain_new import create_blockchain, bits_to_target, list_flatten, hash_interlink, make_proof, CBlockHeaderPopow, mine_block, list_flatten
-from create_proof import export_proof
+from create_proof import ProofTool
 from bitcoin.core import uint256_from_str
 
 import argparse
@@ -144,11 +144,11 @@ def main():
     # remove_genesis(proof)
     # proof = change_interlink_hash(proof, 0)
     # proof = skip_blocks(proof, -2)
-    # block_index = int(len(proof)/2)
-    # proof = replace_block(proof, headers_map, interlink_map, int(len(proof)/2))
+    proof = replace_block(proof, headers_map, interlink_map, int(len(proof)/2))
     """ Stop spoiling proof """
 
-    export_proof(proof, output)
+    pt = ProofTool('../../data/proofs/')
+    pt.export_proof(proof, output)
 
 if __name__ == '__main__':
     main()

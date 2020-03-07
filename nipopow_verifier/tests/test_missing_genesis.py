@@ -8,8 +8,8 @@ sys.path.append('../src/interface/')
 import contract_interface
 sys.path.append('../src/proof/')
 from proof import Proof
-from create_proof import fetch_proof
-from edit_chain import *
+from create_proof import ProofTool
+from edit_chain import remove_genesis
 
 import pytest
 
@@ -71,7 +71,7 @@ def submit_cont_proof(interface, proof, block_of_interest):
     return {'result': res}
 
 def make_interface(backend):
-    return contract_interface.ContractInterface("../contractNipopow.sol", backend=backend)
+    return contract_interface.ContractInterface("../../contractNipopow.sol", backend=backend)
 
 @pytest.fixture
 def init_environment():
@@ -83,8 +83,10 @@ def init_environment():
     proof = Proof()
     headless_proof = Proof()
 
+    pt = ProofTool('../data/proofs/')
+
     blocks=10
-    original_proof = fetch_proof(blocks)
+    original_proof = pt.fetch_proof(blocks)
     proof.set(original_proof)
 
     _headless_proof = original_proof.copy()
@@ -113,6 +115,7 @@ def test_genesis_block_contest(init_environment):
     interface=make_interface(backend)
 
     res = submit_event_proof(interface, headless_proof, block_of_interest)
+    # This fails
     assert res['result']==False
     res =  submit_cont_proof(interface, proof, block_of_interest)
     assert res['result']==True

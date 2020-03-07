@@ -4,11 +4,11 @@
 #########################
 
 import sys
-sys.path.append('../lib/')
+sys.path.append('../src/interface/')
 import contract_interface
+sys.path.append('../src/proof/')
 from proof import Proof
-from create_proof import fetch_proof
-from edit_chain import *
+from create_proof import ProofTool
 
 import pytest
 import web3
@@ -77,8 +77,10 @@ def make_interface(backend):
 @pytest.fixture
 def init_environment():
 
+    global pt
     global backend
     backend = 'ganache'
+    pt = ProofTool('../data/proofs/')
 
 @pytest.fixture(scope='session', autouse=True)
 def finish_session(request):
@@ -91,7 +93,7 @@ def finish_session(request):
 def test_smaller_m(init_environment):
 
     proof = Proof()
-    _proof = fetch_proof('../../proofs/proof_100_m1_k16.pkl')
+    _proof = pt.fetch_proof('../data/proofs/proof_100_m1_k15.pkl')
     proof.set(_proof)
 
     block_of_interest = proof.headers[0]
@@ -103,7 +105,7 @@ def test_smaller_m(init_environment):
 def test_smaller_k(init_environment):
 
     proof = Proof()
-    _proof = fetch_proof('../../proofs/proof_100_m16_k1.pkl')
+    _proof = pt.fetch_proof('../data/proofs/proof_100_m15_k1.pkl')
     proof.set(_proof)
 
     block_of_interest = proof.headers[0]

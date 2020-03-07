@@ -9,7 +9,7 @@ import contract_interface
 
 sys.path.append('../src/proof/')
 from proof import Proof
-from create_proof import fetch_proof
+from create_proof import ProofTool
 
 import pytest
 
@@ -100,8 +100,11 @@ def init_environment():
     backend = 'ganache'
     proof = Proof()
 
+    pt = ProofTool('../data/proofs/')
+
     blocks=10
-    _proof = fetch_proof(blocks)
+
+    _proof = pt.fetch_proof(blocks)
     proof.set(_proof)
 
 @pytest.fixture(scope='session', autouse=True)
