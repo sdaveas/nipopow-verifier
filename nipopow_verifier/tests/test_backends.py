@@ -7,10 +7,12 @@
 # 6.~Provide thorough unit tests
 
 import sys
-sys.path.append('../lib/')
+sys.path.append('../src/interface/')
 import contract_interface
-from create_proof import import_proof, create_proof, make_proof_file_name, get_proof
 from timer import Timer
+
+sys.path.append('../src/proof/')
+from create_proof import fetch_proof
 
 import argparse
 
@@ -88,7 +90,7 @@ def submit_event_proof(interface, proof):
 def run_nipopow(backend, proof):
 
     interface=contract_interface.ContractInterface(
-                                    "../contractNipopow.sol",
+                                    "../../contractNipopow.sol",
                                     backend=backend,
                                     genesis_overrides={
                                                         'gas_limit': 67219750
@@ -114,8 +116,8 @@ def main():
     parser = argparse.ArgumentParser(description='Benchmark Py-EVM, Ganache and Geth')
     parser.add_argument('--backend', choices=available_backends+['all'], required=True, type=str, help='The name of the EVM')
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--blocks', help='Number of blocks')
-    group.add_argument('--proof', help='Name of proof')
+    group.add_argument('--blocks', type=int, help='Number of blocks')
+    group.add_argument('--proof', type=str, help='Name of proof')
     parser.add_argument('--timer', action='store_true', help='Enable timers')
     parser.add_argument('--profiler', required=False, type=str, help='Path to https://github.com/yushih/solidity-gas-profiler')
 
@@ -132,11 +134,11 @@ def main():
         backend=[backend]
 
     if blocks != None:
-        print(blocks)
-        proof = get_proof(blocks=blocks)
+        proof = fetch_proof(blocks)
     elif proof_name != None:
-        print(proof_name)
-        proof = import_proof(proof_name)
+        proof = fetch_proof(proof_name)
+    else:
+        print('You need to provice --blocks of --proof')
 
     print("Proof lenght:", len(proof))
 
