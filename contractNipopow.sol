@@ -285,6 +285,9 @@ contract Crosschain {
     }
   }
 
+  // contesting_proof -> contesting_proof_hashed_headers
+  // headers -> contesting proof headers
+  // headers -> contesting proof headers
   function verify(Nipopow storage proof, bytes32[4][] memory headers,
     bytes32[] memory siblings, bytes32[4] memory block_of_interest) internal returns(bool) {
 
