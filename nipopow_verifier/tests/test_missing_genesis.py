@@ -4,10 +4,11 @@
 #########################
 
 import sys
-sys.path.append('../lib/')
+sys.path.append('../src/interface/')
 import contract_interface
+sys.path.append('../src/proof/')
 from proof import Proof
-from create_proof import get_proof
+from create_proof import fetch_proof
 from edit_chain import *
 
 import pytest
@@ -83,7 +84,7 @@ def init_environment():
     headless_proof = Proof()
 
     blocks=10
-    original_proof = get_proof(blocks)
+    original_proof = fetch_proof(blocks)
     proof.set(original_proof)
 
     _headless_proof = original_proof.copy()
