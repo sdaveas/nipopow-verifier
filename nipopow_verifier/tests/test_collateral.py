@@ -4,10 +4,12 @@
 #########################
 
 import sys
-sys.path.append('../lib/')
+sys.path.append('../src/interface/')
 import contract_interface
+
+sys.path.append('../src/proof/')
 from proof import Proof
-from create_proof import get_proof
+from create_proof import fetch_proof
 
 import pytest
 
@@ -88,7 +90,7 @@ def finalize_event(interface, block_of_interest):
     return {'result': res}
 
 def make_interface(backend):
-    return contract_interface.ContractInterface("../contractNipopow.sol", backend=backend)
+    return contract_interface.ContractInterface("../../contractNipopow.sol", backend=backend)
 
 @pytest.fixture
 def init_environment():
@@ -99,7 +101,7 @@ def init_environment():
     proof = Proof()
 
     blocks=10
-    _proof = get_proof(blocks)
+    _proof = fetch_proof(blocks)
     proof.set(_proof)
 
 @pytest.fixture(scope='session', autouse=True)
