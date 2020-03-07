@@ -75,7 +75,7 @@ def create_proof(blocks, filename):
 """
 Returns the name of the proof name with regard to the size of the underlying chain
 """
-def make_proof_file_name(blocks):
+def make_proof_filename(blocks):
     return prefix() + 'proof_'+str(blocks)+'.pkl'
 
 """
@@ -101,7 +101,7 @@ fork chain: proof_100_-50_+20.pkl
 For the above example, this would return:
 proof_100_-50_+20.pkl
 """
-def make_fork_proof_file_name(mainblocks, fork_index, forkblocks):
+def make_fork_proof_filename(mainblocks, fork_index, forkblocks):
     return prefix() + str(mainblocks) + '_-' + str(fork_index) + '_+' + str(forkblocks) + '.pkl'
 
 """
@@ -110,16 +110,16 @@ If the proof doesn't exist, it will be created according to the name convension
 If the proof exists, it will be imported from the proof directory
 """
 def get_proof(blocks):
-    proof_file_name = make_proof_file_name(blocks)
+    proof_filename = make_proof_filename(blocks)
     f = None
     try:
-        f = open(proof_file_name)
-        print('File', proof_file_name, 'already exists. Importing...')
-        proof = import_proof(proof_file_name)
+        f = open(proof_filename)
+        print('File', proof_filename, 'already exists. Importing...')
+        proof = import_proof(proof_filename)
         f.close()
     except IOError:
-        print('File', proof_file_name, 'does not exist. Creating...')
-        proof = create_proof(blocks, proof_file_name)
+        print('File', proof_filename, 'does not exist. Creating...')
+        proof = create_proof(blocks, proof_filename)
     finally:
         print('...ok')
 
@@ -136,8 +136,8 @@ def create_mainproof_and_forkproof(mainblocks, fork_index, forkblocks):
     headerMap = None
     mapInterlink = None
 
-    proof_filename = make_proof_file_name(mainblocks)
-    fork_proof_filename = make_fork_proof_file_name(mainblocks, fork_index, forkblocks)
+    proof_filename = make_proof_filename(mainblocks)
+    fork_proof_filename = make_fork_proof_filename(mainblocks, fork_index, forkblocks)
 
     try:
         open(fork_proof_filename)
@@ -168,7 +168,7 @@ def create_mainproof_and_forkproof(mainblocks, fork_index, forkblocks):
     finally:
         print('...ok')
 
-    return (make_proof_file_name(mainblocks), fork_proof_filename)
+    return (make_proof_filename(mainblocks), fork_proof_filename)
 
 """
 Test for creating proofs
