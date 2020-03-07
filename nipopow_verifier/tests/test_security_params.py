@@ -7,7 +7,7 @@ import sys
 sys.path.append('../lib/')
 import contract_interface
 from proof import Proof
-from create_proof import get_proof, import_proof
+from create_proof import fetch_proof
 from edit_chain import *
 
 import pytest
@@ -72,7 +72,7 @@ def submit_cont_proof(interface, proof, block_of_interest):
     return {'result': res}
 
 def make_interface(backend):
-    return contract_interface.ContractInterface("../contractNipopow.sol", backend=backend)
+    return contract_interface.ContractInterface("../../contractNipopow.sol", backend=backend)
 
 @pytest.fixture
 def init_environment():
@@ -91,7 +91,7 @@ def finish_session(request):
 def test_smaller_m(init_environment):
 
     proof = Proof()
-    _proof = import_proof('../proofs/proof_100_m1_k16.pkl')
+    _proof = fetch_proof('../../proofs/proof_100_m1_k16.pkl')
     proof.set(_proof)
 
     block_of_interest = proof.headers[0]
@@ -103,7 +103,7 @@ def test_smaller_m(init_environment):
 def test_smaller_k(init_environment):
 
     proof = Proof()
-    _proof = import_proof('../proofs/proof_100_m16_k1.pkl')
+    _proof = fetch_proof('../../proofs/proof_100_m16_k1.pkl')
     proof.set(_proof)
 
     block_of_interest = proof.headers[0]
