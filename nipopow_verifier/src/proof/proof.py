@@ -1,4 +1,7 @@
-from create_proof import import_proof, create_mainproof_and_forkproof
+"""
+Class to store a proof.
+The proof must be already exist. Once the Proof() object is created, call .set(proof) to initialize it
+"""
 
 class Proof:
     def __init__(self):
