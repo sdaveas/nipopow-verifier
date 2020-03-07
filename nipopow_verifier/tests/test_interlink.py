@@ -4,10 +4,11 @@
 #########################
 
 import sys
-sys.path.append('../lib/')
+sys.path.append('../src/interface/')
 import contract_interface
+sys.path.append('../src/proof/')
 from proof import Proof
-from create_proof import get_proof, import_proof
+from create_proof import fetch_proof
 from edit_chain import *
 import web3
 
@@ -67,7 +68,7 @@ def submit_cont_proof(interface, proof, block_of_interest):
     return {'result': res}
 
 def make_interface(backend):
-    return contract_interface.ContractInterface("../contractNipopow.sol", backend=backend)
+    return contract_interface.ContractInterface("../../contractNipopow.sol", backend=backend)
 
 @pytest.fixture
 def init_environment():
@@ -77,14 +78,14 @@ def init_environment():
     global changed_interlink_proof
     global missing_blocks_proof
     global replaced_blocks_proof
-    backend = 'ganache'
+    backend = 'geth'
     proof = Proof()
     changed_interlink_proof = Proof()
     missing_blocks_proof = Proof()
     replaced_blocks_proof = Proof()
 
     blocks=100
-    original_proof = get_proof(blocks)
+    original_proof = fetch_proof(blocks)
     proof.set(original_proof)
 
     _changed_interlink_proof = change_interlink_hash(original_proof, -1)
@@ -94,7 +95,7 @@ def init_environment():
     _missing_blocks_proof = skip_blocks(_missing_blocks_proof, -3)
     missing_blocks_proof.set(_missing_blocks_proof)
 
-    _replaced_blocks_proof = import_proof('../proofs/removed_block_proof.pkl')
+    _replaced_blocks_proof = fetch_proof('../../proofs/removed_block_proof.pkl')
     replaced_blocks_proof.set(_replaced_blocks_proof)
 
 @pytest.fixture(scope='session', autouse=True)
@@ -124,6 +125,7 @@ def test_revert_on_contest(init_environment):
 
     with pytest.raises(Exception) as e:
         res = submit_cont_proof(interface, changed_interlink_proof, block_of_interest)
+    print(e.value)
     assert errors.extract_message_from_error(e) == errors.errors['merkle']
 
 def test_revert_on_missing_blocks_submit(init_environment):
