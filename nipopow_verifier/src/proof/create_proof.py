@@ -42,7 +42,7 @@ b: Fork blocks: The number of block included only to the forked chain
 Returns the path of the proof folder
 """
 def prefix():
-    return '../proofs/'
+    return '../../data/proofs/'
 
 """
 Loads a proof from a pkl file

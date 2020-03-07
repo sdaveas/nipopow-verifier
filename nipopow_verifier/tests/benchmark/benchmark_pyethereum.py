@@ -1,3 +1,6 @@
+"""
+Caution! This code is for python2
+"""
 import ethereum.config as config
 from ethereum.tools import tester
 from ethereum import utils

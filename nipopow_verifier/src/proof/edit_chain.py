@@ -1,6 +1,3 @@
-import sys
-sys.path.append('../')
-
 from create_blockchain_new import create_blockchain, bits_to_target, list_flatten, hash_interlink, make_proof, CBlockHeaderPopow, mine_block, list_flatten
 from create_proof import export_proof
 from bitcoin.core import uint256_from_str
