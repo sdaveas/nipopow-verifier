@@ -4,10 +4,10 @@
 #########################
 
 import sys
-sys.path.append('../src/interface/')
+sys.path.append('../tools/interface/')
 import contract_interface
 
-sys.path.append('../src/proof/')
+sys.path.append('../tools/proof/')
 from proof import Proof
 from create_proof import ProofTool
 

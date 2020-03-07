@@ -7,11 +7,11 @@
 # 6.~Provide thorough unit tests
 
 import sys
-sys.path.append('../src/interface/')
+sys.path.append('../tools/interface/')
 import contract_interface
 from timer import Timer
 
-sys.path.append('../src/proof/')
+sys.path.append('../tools/proof/')
 from create_proof import ProofTool
 
 import argparse

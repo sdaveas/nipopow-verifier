@@ -4,9 +4,9 @@
 #########################
 
 import sys
-sys.path.append('../src/interface/')
+sys.path.append('../tools/interface/')
 import contract_interface
-sys.path.append('../src/proof/')
+sys.path.append('../tools/proof/')
 from proof import Proof
 from create_proof import ProofTool
 import pytest
@@ -19,11 +19,6 @@ def submit_event_proof(interface, proof, block_of_interest):
     my_contract = interface.get_contract()
     from_address = interface.w3.eth.accounts[0]
     collateral = pow(10, 17)
-    estimated_gas = my_contract.functions.submit_event_proof(
-                                            proof.headers,
-                                            proof.siblings,
-                                            block_of_interest,
-                                            ).estimateGas()
 
     res = my_contract.functions.submit_event_proof(
                                             proof.headers,
@@ -42,22 +37,13 @@ def submit_event_proof(interface, proof, block_of_interest):
     receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
 
 
-    return {'result'        : res,
-            'receipt'       : receipt,
-            'estimated_gas' : estimated_gas,
-            'from'          : from_address,
-            'backend'       : interface.backend}
+    return {'result': res}
 
 def submit_contesting_proof(interface, proof, block_of_interest):
 
     my_contract = interface.get_contract()
     from_address = interface.w3.eth.accounts[0]
     collateral = pow(10, 17)
-    estimated_gas = my_contract.functions.submit_contesting_proof(
-                                            proof.headers,
-                                            proof.siblings,
-                                            block_of_interest,
-                                            ).estimateGas()
 
     res = my_contract.functions.submit_contesting_proof(
                                             proof.headers,
@@ -75,11 +61,7 @@ def submit_contesting_proof(interface, proof, block_of_interest):
 
     # interface.run_gas_profiler(profiler, tx_hash)
 
-    return {'result'        : res,
-            'receipt'       : receipt,
-            'estimated_gas' : estimated_gas,
-            'from'          : from_address,
-            'backend'       : interface.backend}
+    return {'result': res}
 
 def make_interface(backend):
     return contract_interface.ContractInterface("../../contractNipopow.sol",
@@ -201,9 +183,6 @@ def finalize_event(interface, block_of_interest):
     my_contract = interface.get_contract()
     from_address = interface.w3.eth.accounts[0]
     collateral = pow(10, 17)
-    estimated_gas = my_contract.functions.finalize_event(
-                                            block_of_interest,
-                                            ).estimateGas()
 
     res = my_contract.functions.finalize_event(
                                             block_of_interest
@@ -217,11 +196,7 @@ def finalize_event(interface, block_of_interest):
 
     events = None
 
-    return {'result'        : res,
-            'receipt'       : receipt,
-            'estimated_gas' : estimated_gas,
-            'from'          : from_address,
-            'backend'       : interface.backend}
+    return {'result' : res}
 
 def event_exists(interface, block_of_interest):
     contract = interface.get_contract()

@@ -4,7 +4,7 @@
 #########################
 
 import sys
-sys.path.append('../src/interface/')
+sys.path.append('../tools/interface/')
 import contract_interface
 
 import pytest
