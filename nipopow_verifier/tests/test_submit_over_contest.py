@@ -4,10 +4,11 @@
 #########################
 
 import sys
-sys.path.append('../lib/')
+sys.path.append('../src/nterface/')
 import contract_interface
+sys.path.append('../src/proof/')
 from proof import Proof
-from create_proof import import_proof, create_mainproof_and_forkproof
+from create_proof import fetch_proof, create_mainproof_and_forkproof
 import pytest
 
 
@@ -81,7 +82,7 @@ def submit_contesting_proof(interface, proof, block_of_interest):
             'backend'       : interface.backend}
 
 def make_interface(backend):
-    return contract_interface.ContractInterface("../contractNipopow.sol",
+    return contract_interface.ContractInterface("../../contractNipopow.sol",
                                                 backend=backend,
                                                 genesis_overrides={
                                                                     'gas_limit': 67219750
@@ -106,8 +107,8 @@ def init_environment():
     # create pkl files for big and small proof
     (big_proof_name, small_proof_name) = create_mainproof_and_forkproof(mainblocks, fork_index, forkblocks)
 
-    big_proof.set(import_proof(big_proof_name), big_proof_name)
-    small_proof.set(import_proof(small_proof_name), small_proof_name)
+    big_proof.set(fetch_proof(big_proof_name), big_proof_name)
+    small_proof.set(fetch_proof(small_proof_name), small_proof_name)
 
 @pytest.fixture(scope='session', autouse=True)
 def finish_session(request):
