@@ -124,7 +124,7 @@ def replace_block(proof, headers_map, interlink_map, block_index):
 def main():
     parser=argparse.ArgumentParser(description='Prints the contents of a NiPoPoW')
     parser.add_argument('--blocks', required=True, type=int, help='Number of blocks')
-    parser.add_argument('--output', default='messed_up_proof.pkl', type=str, help='Name of exported proof')
+    parser.add_argument('--output', default='proof.pkl', type=str, help='Name of exported proof')
     args=parser.parse_args()
     blocks=args.blocks
     output=args.output
