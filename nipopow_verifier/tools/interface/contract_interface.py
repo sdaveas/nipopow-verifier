@@ -20,6 +20,7 @@ class ContractInterface:
             backend='ganache',
             genesis_overrides={'gas_limit':3141592000},
             precompiled_contract={},
+            constructor_arguments=[]
             ):
 
         self.solc_version=solc_version
@@ -28,6 +29,7 @@ class ContractInterface:
         self.backend=backend
         self.compiled_contracts = {}
         self.contract_instances = []
+        self.constructor_arguments = constructor_arguments
 
         self.genesis_overrides=genesis_overrides
 
@@ -176,7 +178,7 @@ class ContractInterface:
                                     # abi=open('./Crosschain.abi').read(),
                                     # bytecode=open('./Crosschain.bin').read()
                                 )
-            my_contract = self.deployed_contract.constructor()
+            my_contract = self.deployed_contract.constructor(*self.constructor_arguments)
 
             gas_estimate = my_contract.estimateGas()
             tx_hash = my_contract.transact({'from': self.w3.eth.accounts[0]})
