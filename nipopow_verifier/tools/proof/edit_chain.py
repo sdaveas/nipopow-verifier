@@ -140,7 +140,9 @@ def main():
 
     # Create proof
     proof = make_proof(header, headers_map, interlink_map)
-    # print_proof(proof, headers_map)
+    print_proof(proof, headers_map)
+
+    verify_proof(Hash(proof[0][0]), proof)
 
     """ Start spoiling proof """
     # remove_genesis(proof)
