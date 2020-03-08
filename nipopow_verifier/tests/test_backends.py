@@ -10,10 +10,10 @@ import sys
 sys.path.append('../tools/interface/')
 import contract_interface
 from timer import Timer
-
 sys.path.append('../tools/proof/')
 from create_proof import ProofTool
 
+from config import genesis
 import argparse
 
 # proof data manipulation
@@ -52,6 +52,9 @@ def submit_event_proof(interface, proof):
     headers, siblings = extract_headers_siblings(proof)
 
     block_of_interest = headers[0]
+
+    print(proof[-1][0].hex())
+    return({'result':True})
 
     my_contract = interface.get_contract()
     from_address = interface.w3.eth.accounts[0]
@@ -99,6 +102,7 @@ def run_nipopow(backend, proof):
                                     #                     'abi':'./Crosschain.abi',
                                     #                     'bin':'./Crosschain.bin'
                                     #                     }
+                                    constructor_arguments=[genesis]
                                     )
 
     t = Timer()

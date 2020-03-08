@@ -11,6 +11,8 @@ from proof import Proof
 from create_proof import ProofTool
 from edit_chain import remove_genesis
 
+from config import errors, extract_message_from_error, genesis
+
 import pytest
 
 def submit_event_proof(interface, proof, block_of_interest):
@@ -71,7 +73,9 @@ def submit_cont_proof(interface, proof, block_of_interest):
     return {'result': res}
 
 def make_interface(backend):
-    return contract_interface.ContractInterface("../../contractNipopow.sol", backend=backend)
+    return contract_interface.ContractInterface("../../contractNipopow.sol",
+                                                backend=backend,
+                                                constructor_arguments=[genesis])
 
 @pytest.fixture
 def init_environment():
@@ -79,13 +83,13 @@ def init_environment():
     global backend
     global proof
     global headless_proof
-    backend = 'geth'
+    backend = 'ganache'
     proof = Proof()
     headless_proof = Proof()
 
     pt = ProofTool('../data/proofs/')
 
-    blocks=10
+    blocks=100
     original_proof = pt.fetch_proof(blocks)
     proof.set(original_proof)
 
@@ -106,16 +110,17 @@ def test_missing_genesis_submit(init_environment):
     block_of_interest = proof.headers[-1]
     interface=make_interface(backend)
 
-    res = submit_event_proof(interface, headless_proof, block_of_interest)
-    assert res['result']==False
+    with pytest.raises(Exception) as e:
+        res = submit_event_proof(interface, headless_proof, block_of_interest)
+    assert extract_message_from_error(e) == errors['genesis']
 
 def test_genesis_block_contest(init_environment):
 
     block_of_interest = proof.headers[-2]
     interface=make_interface(backend)
 
-    res = submit_event_proof(interface, headless_proof, block_of_interest)
-    # This fails
-    assert res['result']==False
-    res =  submit_cont_proof(interface, proof, block_of_interest)
+    res = submit_event_proof(interface, proof, block_of_interest)
     assert res['result']==True
+    with pytest.raises(Exception) as e:
+        res = submit_cont_proof(interface, headless_proof, block_of_interest)
+    assert extract_message_from_error(e) == errors['genesis']

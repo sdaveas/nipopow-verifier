@@ -13,7 +13,7 @@ from edit_chain import change_interlink_hash, skip_blocks
 import web3
 
 import pytest
-import errors
+from config import errors, extract_message_from_error, genesis
 
 def submit_event_proof(interface, proof, block_of_interest):
 
@@ -68,7 +68,9 @@ def submit_cont_proof(interface, proof, block_of_interest):
     return {'result': res}
 
 def make_interface(backend):
-    return contract_interface.ContractInterface("../../contractNipopow.sol", backend=backend)
+    return contract_interface.ContractInterface("../../contractNipopow.sol",
+                                                backend=backend,
+                                                constructor_arguments=[genesis])
 
 @pytest.fixture
 def init_environment():
@@ -90,7 +92,7 @@ def init_environment():
     original_proof = pt.fetch_proof(blocks)
     proof.set(original_proof)
 
-    _changed_interlink_proof = change_interlink_hash(original_proof, -1)
+    _changed_interlink_proof = change_interlink_hash(original_proof, int(changed_interlink_proof.size/2))
     changed_interlink_proof.set(_changed_interlink_proof)
 
     _missing_blocks_proof = original_proof.copy()
@@ -110,12 +112,12 @@ def finish_session(request):
 
 def test_revert_on_submit(init_environment):
 
-    block_of_interest = proof.headers[-1]
+    block_of_interest = proof.headers[-2]
     interface=make_interface(backend)
 
     with pytest.raises(Exception) as e:
         res = submit_event_proof(interface, changed_interlink_proof, block_of_interest)
-    assert errors.extract_message_from_error(e) == errors.errors['merkle']
+    assert extract_message_from_error(e) == errors['merkle']
 
 def test_revert_on_contest(init_environment):
 
@@ -128,7 +130,7 @@ def test_revert_on_contest(init_environment):
     with pytest.raises(Exception) as e:
         res = submit_cont_proof(interface, changed_interlink_proof, block_of_interest)
     print(e.value)
-    assert errors.extract_message_from_error(e) == errors.errors['merkle']
+    assert extract_message_from_error(e) == errors['merkle']
 
 def test_revert_on_missing_blocks_submit(init_environment):
 
@@ -138,7 +140,7 @@ def test_revert_on_missing_blocks_submit(init_environment):
     with pytest.raises(Exception) as e:
         res = submit_event_proof(interface, missing_blocks_proof, block_of_interest)
 
-    # assert errors.extract_message_from_error(e) == errors.errors['merkle']
+    # assert extract_message_from_error(e) == errors['merkle']
 
 def test_revert_on_missing_blocks_contest(init_environment):
 
@@ -149,7 +151,7 @@ def test_revert_on_missing_blocks_contest(init_environment):
 
     with pytest.raises(Exception) as e:
         res = submit_cont_proof(interface, missing_blocks_proof, block_of_interest)
-    assert errors.extract_message_from_error(e) == errors.errors['merkle']
+    assert extract_message_from_error(e) == errors['merkle']
 
 def test_replaced_block(init_environment):
 
@@ -160,4 +162,4 @@ def test_replaced_block(init_environment):
 
     with pytest.raises(Exception) as e:
         res = submit_event_proof(interface, replaced_blocks_proof, block_of_interest)
-    assert errors.extract_message_from_error(e) == errors.errors['merkle']
+    assert extract_message_from_error(e) == errors['merkle']

@@ -11,6 +11,7 @@ from proof import Proof
 from create_proof import ProofTool
 import pytest
 
+from config import genesis
 
 profiler = '/home/stelios/Projects/solidity-gas-profiler/profile.js'
 
@@ -69,6 +70,7 @@ def make_interface(backend):
                                                 genesis_overrides={
                                                                     'gas_limit': 67219750
                                                                     },
+                                                constructor_arguments=[genesis]
                                                 )
 
 

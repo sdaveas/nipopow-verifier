@@ -11,6 +11,8 @@ sys.path.append('../tools/proof/')
 from proof import Proof
 from create_proof import ProofTool
 
+from config import genesis
+
 import pytest
 
 def submit_event_proof(interface, proof, block_of_interest, collateral, from_address):
@@ -90,7 +92,9 @@ def finalize_event(interface, block_of_interest):
     return {'result': res}
 
 def make_interface(backend):
-    return contract_interface.ContractInterface("../../contractNipopow.sol", backend=backend)
+    return contract_interface.ContractInterface("../../contractNipopow.sol",
+                                                backend=backend,
+                                                constructor_arguments=[genesis])
 
 @pytest.fixture
 def init_environment():

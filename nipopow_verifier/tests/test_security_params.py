@@ -12,7 +12,7 @@ from create_proof import ProofTool
 
 import pytest
 import web3
-import errors
+from config import errors, genesis
 
 def submit_event_proof(interface, proof, block_of_interest):
 
@@ -72,7 +72,9 @@ def submit_cont_proof(interface, proof, block_of_interest):
     return {'result': res}
 
 def make_interface(backend):
-    return contract_interface.ContractInterface("../../contractNipopow.sol", backend=backend)
+    return contract_interface.ContractInterface("../../contractNipopow.sol",
+                                                backend=backend,
+                                                constructor_arguments=[genesis])
 
 @pytest.fixture
 def init_environment():

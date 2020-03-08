@@ -9,7 +9,7 @@ import contract_interface
 
 import pytest
 import web3
-import errors
+from config import errors, extract_message_from_error, genesis
 from eth_tester.exceptions import TransactionNotFound
 
 @pytest.fixture(scope='session', autouse=True)
@@ -21,7 +21,7 @@ def finish_session(request):
 def test_fail_pyevm():
 
     contract_path = './contracts/fail_on_require.sol'
-    interface = contract_interface.ContractInterface(contract_path, backend='Py-EVM')
+    interface = contract_interface.ContractInterface(contract_path, backend='Py-EVM', constructor_arguments=genesis)
     my_contract = interface.get_contract()
     from_address = interface.w3.eth.accounts[0]
 
@@ -36,7 +36,7 @@ def test_fail_pyevm():
 def test_fail_geth():
 
     contract_path = './contracts/fail_on_require.sol'
-    interface = contract_interface.ContractInterface(contract_path, backend='geth')
+    interface = contract_interface.ContractInterface(contract_path, backend='geth', constructor_arguments=genesis)
     my_contract = interface.get_contract()
     from_address = interface.w3.eth.accounts[0]
 
@@ -50,7 +50,8 @@ def test_fail_geth():
 def test_fail_ganache():
 
     contract_path = './contracts/fail_on_require.sol'
-    interface = contract_interface.ContractInterface(contract_path, backend='ganache')
+    interface = contract_interface.ContractInterface(contract_path, backend='ganache', constructor_arguments=genesis)
+
     my_contract = interface.get_contract()
     from_address = interface.w3.eth.accounts[0]
 
@@ -59,4 +60,4 @@ def test_fail_ganache():
         tx_hash = my_contract.functions.fail().transact({'from':from_address})
         receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
     interface.end()
-    assert errors.extract_message_from_error(e) == 'test failed successfully'
+    assert extract_message_from_error(e) == 'test failed successfully'
