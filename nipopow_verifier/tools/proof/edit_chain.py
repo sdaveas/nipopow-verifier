@@ -50,7 +50,9 @@ def print_proof(proof, headers_map):
     print('\nProof')
     for p in proof:
         header_hash, interlink_flatten = p
-        print_proof_element(header_hash.hex())
+        element = header_hash.hex()
+        print('Previous block hash:\t', element[ 72:136])
+        print('Interlink hash:\t\t',    element[  0: 64])
         print()
     print('Chain length:', len(headers_map))
     print('Proof length:', len(proof))
@@ -94,7 +96,7 @@ header indicated by the block_index parameter
 """
 def change_interlink_hash(proof, block_index):
     block_of_interest = proof[block_index][0]
-    changed_block = swap_byte(block_of_interest, 36)
+    changed_block = swap_byte(block_of_interest, 0)
     changed_proof = proof[0:block_index] + [(changed_block, proof[block_index][1])] + proof[block_index+1:]
     return changed_proof
 
