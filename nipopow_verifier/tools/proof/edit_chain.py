@@ -48,8 +48,12 @@ def print_proof_element(element):
 
 def print_proof(proof, headers_map):
     print('\nProof')
-    for p in proof:
-        header_hash, interlink_flatten = p
+    for i in range(len(proof)):
+        if (i == 0):
+            print('Header:\t\t\t', 'We dont know yet')
+        else:
+            print('Header:\t\t\t', proof[i-1][0][36:68])
+        header_hash, interlink_flatten = proof[i]
         element = header_hash.hex()
         print('Previous block hash:\t', element[ 72:136])
         print('Interlink hash:\t\t',    element[  0: 64])
