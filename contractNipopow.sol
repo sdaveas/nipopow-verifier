@@ -4,7 +4,9 @@ pragma solidity ^0.6.2;
 
 contract Crosschain {
 
-  //using strings for *;
+  constructor(bytes32 _genesis) public {
+      genesis_block = _genesis;
+  }
 
   // TODO: Set the genesis_block. Is it going to be constant?
   bytes32 genesis_block;
@@ -285,11 +287,18 @@ contract Crosschain {
     }
   }
 
+  // Genesis is the last element of headers at index headers[headers.length-1].
+  function verify_genesis(bytes32 _genesis) internal view {
+    require(genesis_block == _genesis, "Invalid genesis");
+  }
+
   // contesting_proof -> contesting_proof_hashed_headers
   // headers -> contesting proof headers
   // headers -> contesting proof headers
   function verify(Nipopow storage proof, bytes32[4][] memory headers,
     bytes32[] memory siblings, bytes32[4] memory block_of_interest) internal returns(bool) {
+
+    verify_genesis(headers[headers.length-1][0]);
 
     bytes32[] memory contesting_proof = new bytes32[](headers.length);
     for (uint i = 0; i < headers.length; i++) {
