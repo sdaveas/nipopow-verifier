@@ -145,6 +145,9 @@ def main():
     # proof = change_interlink_hash(proof, 0)
     # proof = skip_blocks(proof, -2)
     # proof = replace_block(proof, headers_map, interlink_map, int(len(proof)/2))
+
+    # print_proof(proof, headers_map)
+    # verify_proof(Hash(proof[0][0]), proof)
     """ Stop spoiling proof """
 
     pt = ProofTool('../../data/proofs/')
