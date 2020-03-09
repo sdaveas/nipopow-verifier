@@ -1,12 +1,9 @@
-import argparse
-import pickle
-import create_blockchain_new as blockchain_utils
-
 """
 This file contains useful functions to export and import proofs.
 The proofs are stored to and imported from .pkl files.
 The names of the proofs are refering to the chain they were created by.
-For example, proof_100.pkl contains a proof created by a 100-sized Blockchain. Notice that the size of the proof is different.
+For example, proof_100.pkl contains a proof created by a 100-sized Blockchain.
+Notice that the size of the proof is different.
 
 The iteration of the proofs behins from the last block.
 
@@ -21,7 +18,8 @@ The iteration of the proofs behins from the last block.
 
 ------------------------------------------------------------------------------------------
 
-It is possible to generate fork proofs. That is, proofs of a chain that has a common ancestor with another one.
+It is possible to generate fork proofs. That is, proofs of a chain that has a
+common ancestor with another one.
 
 
  Block of interest contained in both chains
@@ -29,191 +27,247 @@ It is possible to generate fork proofs. That is, proofs of a chain that has a co
          |
          +--->       Pb
 
-The name of the fok chain is proof_<B>_-<f>_<b>
+The name of the fok chain is proof_<B>_-<>_<b>
 
 Where
 B: Size:        The nuumber of blocks of the original chain
-f: Fork index:  The index of the common ancestor of the two chains
+: Fork index:  The index of the common ancestor of the two chains
 b: Fork blocks: The number of block included only to the forked chain
 
 """
 
+import sys
+import argparse
+import pickle
+import create_blockchain_new as blockchain_utils
+
+
 class ProofTool:
-
-    def __init__(self, dir='../data/proofs/'):
-        self.dir = dir
-
     """
-    Returns the path of the proof folder
+    pt = ProofTool("proof.pkl")
+    pt.fetch_proof()
     """
+
+    def __init__(self, proofs_dir="../data/proofs/"):
+        self.dir = proofs_dir
+
     def proof_dir(self):
+        """
+        Returns the path of the proof folder
+        """
         return self.dir
 
-    """
-    Returns the name of the proof name with regard to the size of the underlying chain
-    """
     def make_proof_filename(self, blocks):
-        return self.proof_dir() + 'proof_'+str(blocks)+'.pkl'
+        """
+        Returns the name of the proof name with regard to the size of the underlying chain
+        """
+        return self.proof_dir() + "proof_" + str(blocks) + ".pkl"
 
-    """
-    Loads a proof from a .pkl file. The file must exist.
-    """
     def import_proof(self, blocks=None, filename=None):
-        if blocks==None and filename==None:
-            raise NameError('You need to provide number of blocks or filename for proof')
-        if filename==None:
+        """
+        Loads a proof from a .pkl file. The file must exist.
+        """
+        if blocks is None and filename is None:
+            raise NameError(
+                "You need to provide number of blocks or filename for proof"
+            )
+        if filename is None:
             filename = self.make_proof_filename(blocks)
-        pickle_in = open(filename,'rb')
+        pickle_in = open(filename, "rb")
         proof = pickle.load(pickle_in)
         print("Proof loaded from " + filename)
         return proof
 
-    """
-    Stores a proof to a .pkl file. If exists, the file is overridden
-    """
-    def export_proof(self, proof, filename):
-        pickle_out = open(filename, 'wb')
+    @staticmethod
+    def export_proof(proof, filename):
+        """
+        Stores a proof to a .pkl file. If exists, the file is overridden
+        """
+        pickle_out = open(filename, "wb")
         pickle.dump(proof, pickle_out)
         pickle_out.close()
         print("Proof was written in " + filename)
 
-    """
-    Creates a chain with the given block number, constracts the corresponding proof
-    and stores the proof in a .pkl file
-    """
     def create_proof(self, blocks, filename=None):
-        header, headerMap, mapInterlink = blockchain_utils.create_blockchain(blocks=blocks)
-        proof = blockchain_utils.make_proof(header, headerMap, mapInterlink)
-        if filename==None:
+        """
+        Creates a chain with the given block number, constracts the
+        corresponding proof and stores the proof in a .pkl file
+        """
+        header, header_map, interlink_map = blockchain_utils.create_blockchain(
+            blocks=blocks
+        )
+        proof = blockchain_utils.make_proof(header, header_map, interlink_map)
+        if filename is None:
             filename = self.make_proof_filename(blocks)
         self.export_proof(proof, filename)
         return proof
 
-    """
-    Returns the name of the proof name with regard to the size of the underlying main chain and fork chain
-
-    Genesis
-    |
-    v
-    --------+----------->   Main proof (size 100)
-            |
-    ^       +----->     ^   Fork proof (size  70)
-    |                   |
-    |       ^     ^     |
-    |       |     |     |
-    100    50    20     0   Main fork index
-
-    <---size 70--->
-    <------size 100----->
-
-    main proof: proof_100.pkl
-    fork chain: proof_100_-50_+20.pkl
-
-    For the above example, this would return:
-    proof_100_-50_+20.pkl
-    """
     def make_fork_proof_filename(self, mainblocks, fork_index, forkblocks):
-        return self.proof_dir() + str(mainblocks) + '_-' + str(fork_index) + '_+' + str(forkblocks) + '.pkl'
+        """
+        Returns the name of the proof name with regard to the size of the
+        underlying main chain and fork chain
 
-    """
-    Returns a proof generated by a chain of the size of the given number of blocks
-    If the proof doesn't exist, it will be created according to the name convension
-    If the proof exists, it will be imported from the proof directory
-    """
+        Genesis
+        |
+        v
+        --------+----------->   Main proof (size 100)
+                |
+        ^       +----->     ^   Fork proof (size  70)
+        |                   |
+        |       ^     ^     |
+        |       |     |     |
+        100    50    20     0   Main fork index
+
+        <---size 70--->
+        <------size 100----->
+
+        main proof: proof_100.pkl
+        fork chain: proof_100_-50_+20.pkl
+
+        For the above example, this would return:
+        proof_100_-50_+20.pkl
+        """
+        return (
+            self.proof_dir()
+            + str(mainblocks)
+            + "_-"
+            + str(fork_index)
+            + "_+"
+            + str(forkblocks)
+            + ".pkl"
+        )
+
     def fetch_proof_by_blocks(self, blocks):
+        """
+        Returns a proof generated by a chain of the size of the given number
+        of blocks If the proof doesn't exist, it will be created according to
+        the name convension If the proof exists, it will be imported from the
+        proof directory
+        """
+
         try:
             proof = self.import_proof(blocks)
         except IOError:
             filename = self.make_proof_filename(blocks)
-            print('File', filename, 'does not exist. Creating...')
+            print("File", filename, "does not exist. Creating...")
             proof = self.create_proof(blocks)
-        except NameError as e:
-            raise e
+        except NameError as err:
+            raise err
         finally:
-            print('...ok')
+            print("...ok")
 
         return proof
 
     def fetch_proof_by_name(self, filename):
+        """
+        Returns a proof with the provided name
+        """
+
         return self.import_proof(blocks=None, filename=filename)
 
     def fetch_proof(self, arg):
-        if type(arg) == str:
-            return self.fetch_proof_by_name(arg)
-        elif type(arg) == int:
-            return self.fetch_proof_by_blocks(arg)
+        """
+        if arg is an int, returns a proof which was created by this amount of
+        blocks
+        if arg is string, returns a proof with that name
+        """
+
+        proof = []
+        if isinstance(arg, str):
+            proof = self.fetch_proof_by_name(arg)
+        elif isinstance(arg, int):
+            proof = self.fetch_proof_by_blocks(arg)
         else:
-            raise ValueError('Argument must be either int or str')
+            raise ValueError("Argument must be either int or str")
 
-    """
-    Returns the names of a mainchain proof and a forkchain proof.
-    If either of the two proofs does not exist, it is created with the known name convension
-    See documentation of 'make_fork_proof_filename()'
-    """
+        return proof
+
     def create_mainproof_and_forkproof(self, mainblocks, fork_index, forkblocks):
+        """
+        Returns the names of a mainchain proof and a forkchain proof.
+        If either of the two proofs does not exist, it is created with the known name convension
+        See documentation of 'make_fork_proof_filename()'
+        """
 
-        header = None
-        headerMap = None
-        mapInterlink = None
+        chain_header = None
+        header_map = None
+        interlink_map = None
 
-        proof_filename = self.make_proof_filename(mainblocks)
-        fork_proof_filename = self.make_fork_proof_filename(mainblocks, fork_index, forkblocks)
+        self.make_proof_filename(mainblocks)
+        fork_proof_filename = self.make_fork_proof_filename(
+            mainblocks, fork_index, forkblocks
+        )
 
         try:
             open(fork_proof_filename)
         except IOError:
-            header, headerMap, mapInterlink = blockchain_utils.create_blockchain(blocks=mainblocks)
+            (
+                chain_header,
+                header_map,
+                interlink_map,
+            ) = blockchain_utils.create_blockchain(blocks=mainblocks)
 
-        proof = self.fetch_proof(mainblocks)
-
-        f = None
+        proof_file = None
         try:
-            f = open(fork_proof_filename)
-            print('File', fork_proof_filename, 'already exists. Importing...')
-            f.close()
+            proof_file = open(fork_proof_filename)
+            print("File", fork_proof_filename, "already exists. Importing...")
+            proof_file.close()
         except IOError:
-            print('File', fork_proof_filename, 'does not exist. Creating...')
-            header_f, headerMap_f, mapInterlink_f = blockchain_utils.create_fork(header,
-                                                             headerMap,
-                                                             mapInterlink,
-                                                             fork=fork_index,
-                                                             blocks=forkblocks)
+            print("File", fork_proof_filename, "does not exist. Creating...")
+            (
+                fork_header,
+                fork_header_map,
+                fork_map_interlink,
+            ) = blockchain_utils.create_fork(
+                chain_header,
+                header_map,
+                interlink_map,
+                fork=fork_index,
+                blocks=forkblocks,
+            )
 
-            proof_f = blockchain_utils.make_proof(header_f, headerMap_f, mapInterlink_f)
+            proof_f = blockchain_utils.make_proof(
+                fork_header, fork_header_map, fork_map_interlink
+            )
 
-            pickle_out = open(fork_proof_filename, 'wb')
+            pickle_out = open(fork_proof_filename, "wb")
             pickle.dump(proof_f, pickle_out)
             pickle_out.close()
-            print('Created fork at ' + fork_proof_filename)
+            print("Created fork at " + fork_proof_filename)
         finally:
-            print('...ok')
+            print("...ok")
 
         return (self.make_proof_filename(mainblocks), fork_proof_filename)
 
-"""
-Test for creating proofs
-"""
-def main():
-    parser=argparse.ArgumentParser(description='Create and store proof from create_blockchain_new.py')
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('--blocks', type=int, help='Number of blocks')
-    group.add_argument('--proof', type=str, help='Name of proof')
-    args=parser.parse_args()
-    blocks=args.blocks
-    proof_name=args.proof
 
-    proof_tool = ProofTool('../../data/proofs/')
+def main():
+    """
+    Test for creating proofs
+    """
+
+    parser = argparse.ArgumentParser(
+        description="Create and store proof from create_blockchain_new.py"
+    )
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--blocks", type=int, help="Number of blocks")
+    group.add_argument("--proof", type=str, help="Name of proof")
+    args = parser.parse_args()
+    blocks = args.blocks
+    proof_name = args.proof
+
+    proof_tool = ProofTool("../../data/proofs/")
 
     proof = []
-    if blocks!=None:
-        proof=proof_tool.fetch_proof(blocks)
-    elif proof_name!=None:
-        proof=proof_tool.fetch_proof(proof_name)
+    if blocks is None:
+        proof = proof_tool.fetch_proof(blocks)
+    elif proof_name is None:
+        proof = proof_tool.fetch_proof(proof_name)
     else:
-        print('Provide --blocks or --proof argument')
-        exit()
+        print("Provide --blocks or --proof argument")
+        sys.exit()
 
-    print('Proof size:', len(proof))
+    print("Proof size:", len(proof))
+
 
 if __name__ == "__main__":
     main()

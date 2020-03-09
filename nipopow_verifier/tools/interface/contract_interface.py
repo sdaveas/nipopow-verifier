@@ -8,6 +8,7 @@ from web3 import Web3, EthereumTesterProvider, contract
 import eth_tester
 from eth_tester import EthereumTester, PyEVMBackend
 
+
 class ContractInterface:
 
     backends_to_inits = {'Py-EVM': None, 'ganache': None, 'geth': None}
@@ -33,9 +34,11 @@ class ContractInterface:
 
         self.genesis_overrides=genesis_overrides
 
-        self.backends_to_inits['Py-EVM']  = self.init_backend_pyevm
+        self.backends_to_inits['Py-EVM'] = self.init_backend_pyevm
         self.backends_to_inits['ganache'] = self.init_backend_ganache
-        self.backends_to_inits['geth']    = self.init_backend_geth
+        self.backends_to_inits['geth'] = self.init_backend_geth
+
+        self.w3 = Web3()
 
         self.init_backend()
 
@@ -56,11 +59,12 @@ class ContractInterface:
         # backend -> 'Py-EVM', override_params -> {'gas_limit': block_gas_limit}
         # backend -> 'ganache'
         # backend -> 'geth'
+        print(self.backend)
         if self.backend in list(self.backends_to_inits.keys()):
             self.backends_to_inits[self.backend]()
         else:
             print("Error: unknown backend '"+self.backend+"'). Available backends:")
-            print(available_backends)
+            print(self.available_backends())
             exit()
 
     def init_backend_pyevm(self):
@@ -84,17 +88,10 @@ class ContractInterface:
             raise RuntimeError('Cannot connect to '+url+':'+port+'. Is '+self.backend+' up?')
         self.w3.geth.miner.start(4)
 
-    @staticmethod
-    def xprint(message, fill='='):
-        message_length = len(message)
-        print(fill * message_length)
-        print(message)
-        print(fill * message_length)
-
     def compile_contracts(self):
         try:
             solcx.set_solc_version(self.solc_version)
-        except:
+        except Exception as e:
             print("Solidity version " + self.solc_version +
                   " does not exist in your system")
             print("Installing now ...")
@@ -104,8 +101,6 @@ class ContractInterface:
 
         if not isinstance(self.contract_path_list, list):
             self.contract_path_list = [self.contract_path_list]
-        # self.xprint("Compiling with solidity " +
-        #                  str(solcx.get_solc_version()))
 
         if len(self.precompiled_contract) == 0:
             self.compiled_contracts = compile_files(self.contract_path_list)
