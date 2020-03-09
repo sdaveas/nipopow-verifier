@@ -71,5 +71,5 @@ def test_genesis_block_contest(init_environment):
     res = submit_event_proof(interface, proof, block_of_interest)
     assert res['result'] == True
     with pytest.raises(Exception) as ex:
-        submit_cont_proof(interface, headless_proof, block_of_interest)
+        submit_contesting_proof(interface, headless_proof, block_of_interest)
     assert extract_message_from_error(ex) == errors['genesis']
