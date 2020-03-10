@@ -111,17 +111,14 @@ contract Crosschain {
 
   function predicate(Nipopow storage proof, bytes32 block_of_interest) private
     returns (bool) {
+
     bool _predicate = false;
-    for (uint i = 0; i < proof.ancestors.length; i++) {
-      if (proof.ancestors[i] == block_of_interest) {
-        _predicate = true;
-      }
-      // Clean the stored memory.
-      proof.visitedBlock[proof.ancestors[i]] = false;
+    for (uint i = 0; i < proof.best_proof.length; i++) {
+        if (proof.best_proof[i] == block_of_interest) {
+            _predicate = true;
+            break;
+        }
     }
-
-    delete proof.ancestors;
-
     return _predicate;
   }
 
