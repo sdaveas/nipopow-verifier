@@ -109,7 +109,7 @@ contract Crosschain {
     }
   }
 
-  function predicate(Nipopow storage proof, bytes32 block_of_interest) private
+  function predicate(Nipopow storage proof, bytes32 block_of_interest) internal view
     returns (bool) {
 
     bool _predicate = false;
@@ -271,6 +271,33 @@ contract Crosschain {
     require(genesis_block == _genesis, "Invalid genesis");
   }
 
+  mapping(bytes32=>bool) contesting_proof_map;
+  function subset_proof(
+      bytes32[] memory existing_proof, uint existing_proof_lca,
+      bytes32[] memory contesting_proof, uint contesting_proof_lca
+  ) internal returns(bool)
+  {
+
+    if (existing_proof.length == 0 && contesting_proof.length != 0) {
+        return true;
+    }
+
+    for (uint i=contesting_proof_lca; i<contesting_proof.length; i++) {
+        contesting_proof_map[contesting_proof[i]] = true;
+    }
+
+    bool _subset = true;
+
+
+    for (uint i=existing_proof_lca; i<existing_proof.length; i++) {
+        if (contesting_proof_map[existing_proof[i]] == false) {
+            _subset = false;
+            break;
+        }
+    }
+    return _subset;
+  }
+
   // contesting_proof -> contesting_proof_hashed_headers
   // headers -> contesting proof headers
   // headers -> contesting proof headers
@@ -288,9 +315,16 @@ contract Crosschain {
     validate_interlink(headers, contesting_proof, siblings);
 
     if (compare_proofs(proof, contesting_proof)) {
+      uint existing_lca;
+      uint contesting_lca;
+      (existing_lca, contesting_lca) = get_lca(proof, contesting_proof);
+
+      if (subset_proof(proof.best_proof, existing_lca, contesting_proof, contesting_lca) == false) {
+        return false;
+      }
+      // require(subset_proof(proof.best_proof, p_lca, contesting_proof, c_lca), "Subset");
+
       proof.best_proof = contesting_proof;
-      // Only when we get the "best" we add them to the DAG.
-      add_proof_to_dag(proof, contesting_proof);
     }
     else {
         return true;
