@@ -17,18 +17,6 @@ contract Crosschain {
   struct Nipopow {
     mapping (bytes32 => bool) curProofMap;
     mapping (uint => uint) levelCounter;
-    // Stores the block precedence in the proofs.
-    // For example: Given proof [1, 2, 3] we have 3 -> 2, 2 -> 1.
-    // Used for preventing filling the blockDAG with duplicates.
-    mapping (bytes32 => mapping(bytes32 => bool)) blockPrecedence;
-    // Stores DAG of blocks.
-    mapping (bytes32 => bytes32[]) blockDAG;
-    // Stores the hashes of the block headers of the best proof.
-
-    mapping (bytes32 => bool) visitedBlock;
-
-    bytes32[] traversal_stack;
-    bytes32[] ancestors;
     bytes32[] best_proof;
   }
 
@@ -76,37 +64,6 @@ contract Crosschain {
     memcpy(sptr, hptr, 112);
     return sha256(abi.encodePacked(sha256(abi.encodePacked(s))));
 
-  }
-
-  function add_proof_to_dag(Nipopow storage nipopow,
-    bytes32[] memory proof) internal {
-    for (uint i = 1; i < proof.length; i++) {
-      if (!nipopow.blockPrecedence[proof[i - 1]][proof[i]]) {
-        nipopow.blockPrecedence[proof[i - 1]][proof[i]] = true;
-        nipopow.blockDAG[proof[i - 1]].push(proof[i]);
-      }
-    }
-  }
-
-  function find_ancestors(Nipopow storage nipopow,
-    bytes32 last_block) internal {
-    nipopow.traversal_stack.push(last_block);
-
-    while(nipopow.traversal_stack.length != 0) {
-      bytes32 current_block =
-      nipopow.traversal_stack[nipopow.traversal_stack.length - 1];
-
-      nipopow.visitedBlock[current_block] = true;
-      nipopow.ancestors.push(current_block);
-      require(nipopow.traversal_stack.length > 0, 'Stack length <= 0');
-      nipopow.traversal_stack.pop();
-
-      for (uint i = 0; i < nipopow.blockDAG[current_block].length; i++) {
-        if (!nipopow.visitedBlock[nipopow.blockDAG[current_block][i]]) {
-          nipopow.traversal_stack.push(nipopow.blockDAG[current_block][i]);
-        }
-      }
-    }
   }
 
   function predicate(Nipopow storage proof, bytes32 block_of_interest) internal view
@@ -300,7 +257,6 @@ contract Crosschain {
 
   // contesting_proof -> contesting_proof_hashed_headers
   // headers -> contesting proof headers
-  // headers -> contesting proof headers
   function verify(Nipopow storage proof, bytes32[4][] memory headers,
     bytes32[] memory siblings, bytes32[4] memory block_of_interest) internal returns(bool) {
 
@@ -330,7 +286,6 @@ contract Crosschain {
         return true;
     }
 
-    find_ancestors(proof, proof.best_proof[0]);
     return predicate(proof, hash_header(block_of_interest));
   }
 
