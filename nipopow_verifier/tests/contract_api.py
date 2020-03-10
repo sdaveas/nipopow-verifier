@@ -47,13 +47,15 @@ def submit_event_proof(
         proof.headers, proof.siblings, block_of_interest
     ).transact({"from": from_address, "value": collateral})
 
-    interface.w3.eth.waitForTransactionReceipt(tx_hash)
+    receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
 
     if profile is True:
         filename = str(int(time())) + ".txt"
         interface.run_gas_profiler(profiler, tx_hash, filename)
 
-    return {"result": res}
+    print(receipt['gasUsed'])
+
+    return {"result": res, 'gas_used': receipt['gasUsed']}
 
 
 def submit_contesting_proof(
@@ -75,13 +77,15 @@ def submit_contesting_proof(
         proof.headers, proof.siblings, block_of_interest
     ).transact({"from": from_address})
 
-    interface.w3.eth.waitForTransactionReceipt(tx_hash)
+    receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
 
     if profile is True:
         filename = str(int(time())) + ".txt"
         interface.run_gas_profiler(profiler, tx_hash, filename)
 
-    return {"result": res}
+    print(receipt['gasUsed'])
+
+    return {"result": res, 'gas_used': receipt['gasUsed']}
 
 
 def finalize_event(interface, block_of_interest, from_address=None):
