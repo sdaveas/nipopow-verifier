@@ -304,7 +304,7 @@ contract Crosschain {
   function verify(Nipopow storage proof, bytes32[4][] memory headers,
     bytes32[] memory siblings, bytes32[4] memory block_of_interest) internal returns(bool) {
 
-    verify_genesis(headers[headers.length-1][0]);
+    // verify_genesis(headers[headers.length-1][0]);
 
     bytes32[] memory contesting_proof = new bytes32[](headers.length);
     for (uint i = 0; i < headers.length; i++) {
