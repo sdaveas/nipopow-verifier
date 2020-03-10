@@ -3,8 +3,9 @@ API for NiPoPoW verifier smart contract
 """
 
 import sys
+from time import time
 
-from config import genesis
+from config import profiler, genesis
 
 sys.path.append("../tools/interface/")
 import contract_interface
@@ -23,7 +24,12 @@ def make_interface(backend):
 
 
 def submit_event_proof(
-    interface, proof, block_of_interest, collateral=pow(10, 17), from_address=None
+    interface,
+    proof,
+    block_of_interest,
+    collateral=pow(10, 17),
+    from_address=None,
+    profile=False,
 ):
     """
     Call submit_event_proof of the verifier
@@ -43,12 +49,16 @@ def submit_event_proof(
 
     interface.w3.eth.waitForTransactionReceipt(tx_hash)
 
-    # interface.run_gas_profiler(profiler, tx_hash)
+    if profile is True:
+        filename = str(int(time())) + ".txt"
+        interface.run_gas_profiler(profiler, tx_hash, filename)
 
     return {"result": res}
 
 
-def submit_contesting_proof(interface, proof, block_of_interest, from_address=None):
+def submit_contesting_proof(
+    interface, proof, block_of_interest, from_address=None, profile=False
+):
     """
     Calls contest_event_proof of the verifier
     """
@@ -67,7 +77,9 @@ def submit_contesting_proof(interface, proof, block_of_interest, from_address=No
 
     interface.w3.eth.waitForTransactionReceipt(tx_hash)
 
-    # interface.run_gas_profiler(profiler, tx_hash)
+    if profile is True:
+        filename = str(int(time())) + ".txt"
+        interface.run_gas_profiler(profiler, tx_hash, filename)
 
     return {"result": res}
 

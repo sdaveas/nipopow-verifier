@@ -129,7 +129,7 @@ class ContractInterface:
         ])
 
     # Salute to https://github.com/yushih/solidity-gas-profiler
-    def run_gas_profiler(self, profiler, tx_hash):
+    def run_gas_profiler(self, profiler, tx_hash, filename="gas_profile.txt"):
 
         if self.backend != 'geth':
             return
@@ -141,7 +141,7 @@ class ContractInterface:
             contract_path = self.contract_path_list[0]
             sourcemap_path = 'combined.json'
             self.create_sourcemap(contract_path, sourcemap_path)
-            output_file = 'gas_profile.txt'
+            output_file = filename
 
             import subprocess
             process = subprocess.Popen([

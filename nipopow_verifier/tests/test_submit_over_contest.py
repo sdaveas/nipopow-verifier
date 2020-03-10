@@ -31,7 +31,7 @@ def init_environment():
     global big_proof
     global small_proof
 
-    backend = "ganache"
+    backend = "geth"
     big_proof = Proof()
     small_proof = Proof()
 
@@ -74,16 +74,16 @@ def test_common_block(init_environment):
 
     # First Ca, then Cb
     interface = make_interface(backend)
-    res = submit_event_proof(interface, big_proof, block_of_interest)
+    res = submit_event_proof(interface, big_proof, block_of_interest, profile=True)
     assert res["result"] == True, "submit big proof should be True"
-    res = submit_contesting_proof(interface, small_proof, block_of_interest)
+    res = submit_contesting_proof(interface, small_proof, block_of_interest, profile=True)
     assert res["result"] == False, "contest small proof should be False"
 
     ## First Cb, then Ca
     interface = make_interface(backend)
-    res = submit_event_proof(interface, small_proof, block_of_interest)
+    res = submit_event_proof(interface, small_proof, block_of_interest, profile=True)
     assert res["result"] == True, "submit small proof should be True"
-    res = submit_contesting_proof(interface, big_proof, block_of_interest)
+    res = submit_contesting_proof(interface, big_proof, block_of_interest, profile=True)
     assert res["result"] == False, "contest big proof should be False"
 
 
