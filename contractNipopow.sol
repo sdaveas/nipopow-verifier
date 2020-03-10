@@ -109,24 +109,6 @@ contract Crosschain {
     }
   }
 
-  /*function ancestors_traversal(Nipopow storage nipopow,
-    bytes32 current_block, bytes32 block_of_interest) internal returns(bool) {
-    if (current_block == block_of_interest) {
-      return true;
-    }
-    // The graph is a DAG so we can do DFS without worrying about cycles.
-    // We do keep a visited array because it is more expensive in terms of gas.
-    // TODO: Depends on how expensive is the predicate evaluation which could
-    // cost a lot of gas. Consider the gas trade-offs.
-    bool predicate_value = false;
-    for (uint i = 0; i < nipopow.blockDAG[current_block].length; i++) {
-      predicate_value = ancestors_traversal(nipopow,
-        blockDAG[current_block][i],
-        block_of_interest) || predicate_value;
-    }
-    return predicate_value;
-  }*/
-
   function predicate(Nipopow storage proof, bytes32 block_of_interest) private
     returns (bool) {
     bool _predicate = false;
