@@ -14,7 +14,7 @@ from proof import Proof
 from create_proof import ProofTool
 
 from contract_api import submit_event_proof, submit_contesting_proof, make_interface
-from config import genesis
+from config import extract_message_from_error, genesis
 
 import argparse
 
@@ -28,7 +28,12 @@ def run_nipopow(backend, proof):
     block_of_interest = proof.headers[0]
     interface = make_interface(backend)
     _t = Timer()
-    result = submit_event_proof(interface, proof, block_of_interest)
+    try:
+        result = submit_event_proof(interface, proof, block_of_interest)
+    except Exception as ex:
+        print(ex)
+
+        result = {"result": extract_message_from_error(ex)}
     del _t
 
     interface.end()
