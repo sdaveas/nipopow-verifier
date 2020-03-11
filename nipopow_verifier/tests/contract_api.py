@@ -23,6 +23,7 @@ def make_interface(backend):
     )
 
 
+# TODO: This is sode duplidation with the below function
 def submit_event_proof(
     interface,
     proof,
@@ -49,15 +50,25 @@ def submit_event_proof(
 
     receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
 
+    try:
+        debug_events = my_contract.events.debug().processReceipt(receipt)
+    except Exception as ex:
+        debug_events = {}
+    if len(debug_events) > 0:
+        for e in debug_events:
+            log = dict(e)['args']
+            print(log['tag'],"\t", log['value'])
+
     if profile is True:
         filename = str(int(time())) + ".txt"
         interface.run_gas_profiler(profiler, tx_hash, filename)
 
     print(receipt['gasUsed'])
 
-    return {"result": res, 'gas_used': receipt['gasUsed']}
+    return {"result": res, 'gas_used': receipt['gasUsed'], 'debug': debug_events}
 
 
+# TODO: This is sode duplidation with the above function
 def submit_contesting_proof(
     interface, proof, block_of_interest, from_address=None, profile=False
 ):
@@ -78,6 +89,15 @@ def submit_contesting_proof(
     ).transact({"from": from_address})
 
     receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
+    try:
+        debug_events = my_contract.events.debug().processReceipt(receipt)
+    except Exception as ex:
+        debug_events = {}
+    if len(debug_events) > 0:
+        print("Contest::")
+        for e in debug_events:
+            log = dict(e)['args']
+            print(log['tag'],"\t", log['value'])
 
     if profile is True:
         filename = str(int(time())) + ".txt"
@@ -85,7 +105,7 @@ def submit_contesting_proof(
 
     print(receipt['gasUsed'])
 
-    return {"result": res, 'gas_used': receipt['gasUsed']}
+    return {"result": res, 'gas_used': receipt['gasUsed'], 'debug': debug_events}
 
 
 def finalize_event(interface, block_of_interest, from_address=None):
