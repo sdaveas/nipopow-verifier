@@ -59,7 +59,7 @@ class ContractInterface:
         # backend -> 'Py-EVM', override_params -> {'gas_limit': block_gas_limit}
         # backend -> 'ganache'
         # backend -> 'geth'
-        print(self.backend)
+        # print(self.backend)
         if self.backend in list(self.backends_to_inits.keys()):
             self.backends_to_inits[self.backend]()
         else:
