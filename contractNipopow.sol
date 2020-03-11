@@ -228,31 +228,32 @@ contract Crosschain {
     require(genesis_block == _genesis, "Invalid genesis");
   }
 
-  mapping(bytes32=>bool) contesting_proof_map;
+  // If existing_proof[ex_lca:] is subset of contesting_proof[cont_lca:]
+  // returns true, false otherwise
   function subset_proof(
-      bytes32[] memory existing_proof, uint existing_proof_lca,
-      bytes32[] memory contesting_proof, uint contesting_proof_lca
-  ) internal returns(bool)
+      bytes32[] memory existing, uint existing_lca,
+      bytes32[] memory contesting, uint contesting_lca
+  ) internal pure returns(bool)
   {
-
-    if (existing_proof.length == 0 && contesting_proof.length != 0) {
+    // If existing proof does not yet exists, return true
+    if (existing.length == 0 && contesting.length != 0) {
         return true;
     }
 
-    for (uint i=contesting_proof_lca; i<contesting_proof.length; i++) {
-        contesting_proof_map[contesting_proof[i]] = true;
-    }
+    bool subset = true;
+    uint j = contesting_lca;
 
-    bool _subset = true;
-
-
-    for (uint i=existing_proof_lca; i<existing_proof.length; i++) {
-        if (contesting_proof_map[existing_proof[i]] == false) {
-            _subset = false;
-            break;
+    for (uint i = existing_lca; subset == true && i < existing.length; i++) {
+        while (existing[i] != contesting[j]) {
+            j++;
+            if (j >= contesting.length) {
+                subset = false;
+                break;
+            }
         }
     }
-    return _subset;
+
+    return subset;
   }
 
   // contesting_proof -> contesting_proof_hashed_headers
