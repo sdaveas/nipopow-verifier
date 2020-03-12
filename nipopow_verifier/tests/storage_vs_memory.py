@@ -4,39 +4,29 @@ $ pytest -v -s test_storage_vs_memory.py
 """
 
 """
-Output was:
-[Storage]  0 ->    22254
-[Memory]   0 ->    21736
+output:
 
-[Storage] 10 ->   154994
-[Memory]  10 ->   151556
-
-[Storage] 20 ->   293867
-[Memory]  20 ->   530776
-
-[Storage] 30 ->   435237
-[Memory]  30 ->  1159396
-
-[Storage] 40 ->   576607
-[Memory]  40 ->  2037416
-
-[Storage] 50 ->   717977
-[Memory]  50 ->  3164836
-
-[Storage] 60 ->   859347
-[Memory]  60 ->  4541656
-
-[Storage] 70 ->  1000717
-[Memory]  70 ->  6167876
-
-[Storage] 80 ->  1142087
-[Memory]  80 ->  8043496
-
-[Storage] 90 ->  1283457
-[Memory]  90 -> 10168516
-
+[Storage] 0 -> 22449
+[Memory]  0 -> 22341
+[Storage] 10 -> 145097
+[Memory]  10 -> 45446
+[Storage] 20 -> 278919
+[Memory]  20 -> 104449
+[Storage] 30 -> 412741
+[Memory]  30 -> 199453
+[Storage] 40 -> 546564
+[Memory]  40 -> 330459
+[Storage] 50 -> 680388
+[Memory]  50 -> 497467
+[Storage] 60 -> 814212
+[Memory]  60 -> 700476
+[Storage] 70 -> 948038
+[Memory]  70 -> 939487
+[Storage] 80 -> 1081864
+[Memory]  80 -> 1214499
+[Storage] 90 -> 1215691
+[Memory]  90 -> 1525513
 """
-
 
 import sys
 
@@ -63,6 +53,9 @@ def call(function_name, function_args=[], constructor_arguments=[]):
     return {"result": res, "gas": receipt["gasUsed"]}
 
 
-for i in range(0, 100, 10):
-    print("[Storage]", i, "->", call("with_storage", constructor_arguments=[i])["gas"])
-    print("[Memory] ", i, "->", call("with_memory", constructor_arguments=[i])["gas"])
+
+print("[Storage]", call("with_storage", constructor_arguments=[1000])["gas"])
+
+# for i in range(0, 100, 10):
+#     print("[Storage]", i, "->", call("with_storage", constructor_arguments=[i])["gas"])
+#     print("[Memory] ", i, "->", call("with_memory", constructor_arguments=[i])["gas"])
