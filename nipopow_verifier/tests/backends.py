@@ -29,7 +29,7 @@ def run_nipopow(backend, proof):
     interface = make_interface(backend)
     _t = Timer()
     try:
-        result = submit_event_proof(interface, proof, block_of_interest)
+        result = submit_event_proof(interface, proof, block_of_interest, profile=True)
     except Exception as ex:
         print(ex)
 
