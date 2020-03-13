@@ -11,6 +11,7 @@ from create_blockchain_new import (
     mine_block,
     verify_proof,
     Hash,
+    CBlockHeaderPopow
 )
 from create_proof import ProofTool
 
@@ -85,7 +86,7 @@ def print_proof(proof, headers_map):
         if i == 0:
             print("Header:\t\t\t", "We dont know yet")
         else:
-            print("Header:\t\t\t", proof[i - 1][0][36:68].hex())
+            print("Header:\t\t\t", CBlockHeaderPopow.deserialize(proof[i][0]).GetHash().hex())
         header_hash, _ = proof[i]
         element = header_hash.hex()
         print("Previous block hash:\t", element[72:136])
@@ -207,9 +208,9 @@ def main():
 
     # Create proof
     proof = make_proof(header, headers_map, interlink_map)
+    verify_proof(Hash(proof[0][0]), proof)
     print_proof(proof, headers_map)
 
-    verify_proof(Hash(proof[0][0]), proof)
 
     ### Start spoiling proof
 
