@@ -5,11 +5,11 @@ pragma solidity ^0.6.2;
 contract Crosschain {
 
   constructor(bytes32 _genesis) public {
-      genesis_block = _genesis;
+    genesis_block_hash = _genesis;
   }
 
-  // TODO: Set the genesis_block. Is it going to be constant?
-  bytes32 genesis_block;
+  // The genesis block hash
+  bytes32 genesis_block_hash;
   // Collateral to pay.
   uint constant z = 100000000000000000; // 0.1 eth
 
@@ -225,7 +225,7 @@ contract Crosschain {
 
   // Genesis is the last element of headers at index headers[headers.length-1].
   function verify_genesis(bytes32 _genesis) internal view {
-    require(genesis_block == _genesis, "Invalid genesis");
+    require(genesis_block_hash == _genesis, "Invalid genesis");
   }
 
   // If existing_proof[ex_lca:] is subset of contesting_proof[cont_lca:]
@@ -261,7 +261,7 @@ contract Crosschain {
   function verify(Nipopow storage proof, bytes32[4][] memory headers,
     bytes32[] memory siblings, bytes32[4] memory block_of_interest) internal returns(bool) {
 
-    // verify_genesis(headers[headers.length-1][0]);
+    verify_genesis(hash_header(headers[headers.length-1]));
 
     bytes32[] memory contesting_proof = new bytes32[](headers.length);
     for (uint i = 0; i < headers.length; i++) {
