@@ -236,7 +236,7 @@ def make_proof(header, headerMap, mapInterlink, m=15, k=15):
         mp = prove_interlink(vInterlink, mu)
         header = headerMap[vInterlink[mu]]
 
-        _mu = verify_interlink(header.GetHash(), hash_interlink(vInterlink), mp)
+        verify_interlink(header.GetHash(), hash_interlink(vInterlink), mp)
 
         vInterlink = list_flatten(mapInterlink[header.GetHash()])
 
