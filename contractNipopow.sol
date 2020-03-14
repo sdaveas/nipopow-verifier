@@ -1,9 +1,9 @@
 pragma solidity ^0.6.2;
 
+
 //import "strings.sol";
 
 contract Crosschain {
-
     constructor(bytes32 genesis) public {
         genesisBlockHash = genesis;
     }
@@ -11,33 +11,33 @@ contract Crosschain {
     // The genesis block hash
     bytes32 genesisBlockHash;
     // Collateral to pay.
-    uint constant z = 100000000000000000; // 0.1 eth
+    uint256 constant z = 100000000000000000; // 0.1 eth
 
     // Nipopow proof.
     struct Nipopow {
-        mapping (bytes32 => bool) curProofMap;
-        mapping (uint => uint) levelCounter;
+        mapping(bytes32 => bool) curProofMap;
+        mapping(uint256 => uint256) levelCounter;
         bytes32[] bestProof;
     }
 
     struct Event {
         address payable author;
-        uint expire;
+        uint256 expire;
         Nipopow proof;
     }
 
     // The key is the key value used for the predicate. In our case
     // the block header hash.
-    mapping (bytes32 => Event) events;
-    mapping (bytes32 => bool) finalizedEvents;
+    mapping(bytes32 => Event) events;
+    mapping(bytes32 => bool) finalizedEvents;
 
     // Security parameters.
-    uint constant m = 15;
-    uint constant k = 6; // Should be bigger.
+    uint256 constant m = 15;
+    uint256 constant k = 6; // Should be bigger.
 
-    function memcpy(uint dest, uint src, uint len) private pure {
+    function memcpy(uint256 dest, uint256 src, uint256 len) private pure {
         // Copy word-length chunks while possible
-        for(; len >= 32; len -= 32) {
+        for (; len >= 32; len -= 32) {
             assembly {
                 mstore(dest, mload(src))
             }
@@ -45,7 +45,7 @@ contract Crosschain {
             src += 32;
         }
         // Copy remaining bytes.
-        uint mask = 256 ** (32 - len) - 1;
+        uint256 mask = 256**(32 - len) - 1;
         assembly {
             let srcpart := and(mload(src), not(mask))
             let destpart := and(mload(dest), mask)
@@ -54,34 +54,31 @@ contract Crosschain {
     }
 
     // Hash the header using double SHA256
-    function hashHeader(
-        bytes32[4] memory header
-    )
+    function hashHeader(bytes32[4] memory header)
         internal
         pure
-        returns(bytes32)
+        returns (bytes32)
     {
         // Compute the hash of 112-byte header.
         string memory s = new string(112);
-        uint sptr;
-        uint hptr;
-        assembly { sptr := add(s, 32) }
-        assembly { hptr := add(header, 0) }
+        uint256 sptr;
+        uint256 hptr;
+        assembly {
+            sptr := add(s, 32)
+        }
+        assembly {
+            hptr := add(header, 0)
+        }
         memcpy(sptr, hptr, 112);
         return sha256(abi.encodePacked(sha256(abi.encodePacked(s))));
-
     }
 
-    function predicate(
-        Nipopow storage proof,
-        bytes32 blockOfInterest
-    )
+    function predicate(Nipopow storage proof, bytes32 blockOfInterest)
         internal
         view
         returns (bool)
     {
-
-        for (uint i = 0; i < proof.bestProof.length; i++) {
+        for (uint256 i = 0; i < proof.bestProof.length; i++) {
             if (proof.bestProof[i] == blockOfInterest) {
                 return true;
             }
@@ -89,23 +86,19 @@ contract Crosschain {
         return false;
     }
 
-    function getLca(
-        Nipopow storage nipopow,
-        bytes32[] memory cProof
-    )
+    function getLca(Nipopow storage nipopow, bytes32[] memory cProof)
         internal
-        returns(uint, uint)
+        returns (uint256, uint256)
     {
-
-        for (uint i = 0; i < cProof.length; i++) {
+        for (uint256 i = 0; i < cProof.length; i++) {
             nipopow.curProofMap[cProof[i]] = true;
         }
 
         bytes32 lcaHash;
 
-        uint bLca = 0;
-        uint cLca = 0;
-        for (uint i = 0; i < nipopow.bestProof.length; i++) {
+        uint256 bLca = 0;
+        uint256 cLca = 0;
+        for (uint256 i = 0; i < nipopow.bestProof.length; i++) {
             if (nipopow.curProofMap[nipopow.bestProof[i]]) {
                 bLca = i;
                 lcaHash = nipopow.bestProof[i];
@@ -114,7 +107,7 @@ contract Crosschain {
         }
 
         // Get the index of lca in the currentProof.
-        for (uint i = 0; i < cProof.length; i++) {
+        for (uint256 i = 0; i < cProof.length; i++) {
             if (lcaHash == cProof[i]) {
                 cLca = i;
                 break;
@@ -122,7 +115,7 @@ contract Crosschain {
         }
 
         // Clear the map. We don't need it anymore.
-        for (uint i = 0; i < cProof.length; i++) {
+        for (uint256 i = 0; i < cProof.length; i++) {
             nipopow.curProofMap[cProof[i]] = false;
         }
 
@@ -130,19 +123,13 @@ contract Crosschain {
     }
 
     // TODO: Implement the O(log(maxLevel)) algorithm.
-    function getLevel(
-        bytes32 hashedHeader
-    )
-        internal
-        pure
-        returns(uint256)
-    {
+    function getLevel(bytes32 hashedHeader) internal pure returns (uint256) {
         uint256 hash = uint256(hashedHeader);
 
-        for (uint i = 0; i <= 255; i++) {
+        for (uint256 i = 0; i <= 255; i++) {
             // Change endianess.
-            uint pow = (i/8) * 8 + 8 - (i % 8) - 1;
-            uint256 mask = 2 ** pow;
+            uint256 pow = (i / 8) * 8 + 8 - (i % 8) - 1;
+            uint256 mask = 2**pow;
             if ((hash & mask) != 0) {
                 return uint8(i);
             }
@@ -153,20 +140,18 @@ contract Crosschain {
     function bestArg(
         Nipopow storage nipopow,
         bytes32[] memory proof,
-        uint alIndex
-    )
-        internal returns(uint256)
-    {
-        uint maxLevel = 0;
+        uint256 alIndex
+    ) internal returns (uint256) {
+        uint256 maxLevel = 0;
         uint256 maxScore = 0;
-        uint curLevel = 0;
+        uint256 curLevel = 0;
 
         // Count the frequency of the levels.
-        for (uint i = 0; i < alIndex; i++) {
+        for (uint256 i = 0; i < alIndex; i++) {
             curLevel = getLevel(proof[i]);
 
             // Superblocks of level m are also superblocks of level m - 1.
-            for (uint j  = 0; j <= curLevel; j++) {
+            for (uint256 j = 0; j <= curLevel; j++) {
                 nipopow.levelCounter[j]++;
             }
 
@@ -175,10 +160,10 @@ contract Crosschain {
             }
         }
 
-        for (uint i = 0; i <= maxLevel; i++) {
-            uint256 curScore = uint256(nipopow.levelCounter[i] * 2 ** i);
+        for (uint256 i = 0; i <= maxLevel; i++) {
+            uint256 curScore = uint256(nipopow.levelCounter[i] * 2**i);
             if (nipopow.levelCounter[i] >= m && curScore > maxScore) {
-                maxScore = nipopow.levelCounter[i] * 2 ** i;
+                maxScore = nipopow.levelCounter[i] * 2**i;
             }
             // clear the map.
             nipopow.levelCounter[i] = 0;
@@ -190,19 +175,16 @@ contract Crosschain {
     function compareProofs(
         Nipopow storage nipopow,
         bytes32[] memory contestingProof
-    )
-        internal
-        returns(bool)
-    {
+    ) internal returns (bool) {
         if (nipopow.bestProof.length == 0) {
             return true;
         }
-        uint proofLcaIndex;
-        uint contestingLcaIndex;
-        (proofLcaIndex, contestingLcaIndex)
-        = getLca(nipopow, contestingProof);
-        return bestArg(nipopow, contestingProof, contestingLcaIndex) >
-        bestArg(nipopow, nipopow.bestProof, proofLcaIndex);
+        uint256 proofLcaIndex;
+        uint256 contestingLcaIndex;
+        (proofLcaIndex, contestingLcaIndex) = getLca(nipopow, contestingProof);
+        return
+            bestArg(nipopow, contestingProof, contestingLcaIndex) >
+            bestArg(nipopow, nipopow.bestProof, proofLcaIndex);
     }
 
     function verifyMerkle(
@@ -210,58 +192,75 @@ contract Crosschain {
         bytes32 leaf,
         uint8 mu,
         bytes32[] memory siblings
-    )
-        pure
-        internal
-    {
+    ) internal pure {
         bytes32 h = leaf;
-        for (uint i = 0; i < siblings.length; i++) {
+        for (uint256 i = 0; i < siblings.length; i++) {
             uint8 bit = mu & 0x1;
             if (bit == 1) {
-                h = sha256(abi.encodePacked(
-                    sha256(abi.encodePacked(siblings[siblings.length-i-1], h)
-                          )));
+                h = sha256(
+                    abi.encodePacked(
+                        sha256(
+                            abi.encodePacked(
+                                siblings[siblings.length - i - 1],
+                                h
+                            )
+                        )
+                    )
+                );
             } else {
-                h = sha256(abi.encodePacked(
-                    sha256(abi.encodePacked(h, siblings[siblings.length-i-1])
-                          )));
+                h = sha256(
+                    abi.encodePacked(
+                        sha256(
+                            abi.encodePacked(
+                                h,
+                                siblings[siblings.length - i - 1]
+                            )
+                        )
+                    )
+                );
             }
             mu >>= 1;
         }
-        require(h == roothash, 'Merkle verification failed');
+        require(h == roothash, "Merkle verification failed");
     }
 
     // shift bits to the most segnificant byte (256-8 = 248)
     // and cast it to a 8-bit uint
     function b32ToUint8(bytes32 b) private pure returns (uint8) {
-        return uint8(byte(b << 248));
+        return uint8(bytes1(b << 248));
     }
 
     function validateInterlink(
         bytes32[4][] memory headers,
         bytes32[] memory hashedHeaders,
         bytes32[] memory siblings
-    )
-        internal
-        pure
-    {
-        uint ptr = 0; // Index of the current sibling
-        for (uint i = 1; i < headers.length; i++) {
+    ) internal pure {
+        uint256 ptr = 0; // Index of the current sibling
+        for (uint256 i = 1; i < headers.length; i++) {
             // hold the 3rd and 4th least significant bytes
-            uint8 branchLength = b32ToUint8((headers[i][3] >> 8) & bytes32(uint(0xff)));
-            uint8 merkleIndex  = b32ToUint8((headers[i][3] >> 0) & bytes32(uint(0xff)));
+            uint8 branchLength = b32ToUint8(
+                (headers[i][3] >> 8) & bytes32(uint256(0xff))
+            );
+            uint8 merkleIndex = b32ToUint8(
+                (headers[i][3] >> 0) & bytes32(uint256(0xff))
+            );
 
-            require(branchLength <= 5, 'Branch length too big');
-            require(merkleIndex <= 32, 'Merkle index too big');
+            require(branchLength <= 5, "Branch length too big");
+            require(merkleIndex <= 32, "Merkle index too big");
 
             // Copy siblings.
             bytes32[] memory reversedSiblings = new bytes32[](branchLength);
-            for (uint8 j = 0; j < branchLength; j++) reversedSiblings[j] = siblings[ptr+j];
+            for (uint8 j = 0; j < branchLength; j++)
+                reversedSiblings[j] = siblings[ptr + j];
             ptr += branchLength;
 
             // Verify the merkle tree proof
-            verifyMerkle(headers[i - 1][0], hashedHeaders[i],
-                          merkleIndex, reversedSiblings);
+            verifyMerkle(
+                headers[i - 1][0],
+                hashedHeaders[i],
+                merkleIndex,
+                reversedSiblings
+            );
         }
     }
 
@@ -273,19 +272,24 @@ contract Crosschain {
     // If existingProof[exLca:] is subset of contestingProof[contLca:]
     // returns true, false otherwise
     function subsetProof(
-        bytes32[] memory existing, uint existingLca,
-        bytes32[] memory contesting, uint contestingLca
-    ) internal pure returns(bool)
-    {
+        bytes32[] memory existing,
+        uint256 existingLca,
+        bytes32[] memory contesting,
+        uint256 contestingLca
+    ) internal pure returns (bool) {
         // If existing proof does not yet exists, return true
         if (existing.length == 0 && contesting.length != 0) {
             return true;
         }
 
         bool subset = true;
-        uint j = contestingLca;
+        uint256 j = contestingLca;
 
-        for (uint i = existingLca; subset == true && i < existing.length; i++) {
+        for (
+            uint256 i = existingLca;
+            subset == true && i < existing.length;
+            i++
+        ) {
             while (existing[i] != contesting[j]) {
                 j++;
                 if (j >= contesting.length) {
@@ -305,15 +309,11 @@ contract Crosschain {
         bytes32[4][] memory headers,
         bytes32[] memory siblings,
         bytes32[4] memory blockOfInterest
-    )
-        internal
-        returns(bool)
-    {
-
-        verifyGenesis(hashHeader(headers[headers.length-1]));
+    ) internal returns (bool) {
+        verifyGenesis(hashHeader(headers[headers.length - 1]));
 
         bytes32[] memory contestingProof = new bytes32[](headers.length);
-        for (uint i = 0; i < headers.length; i++) {
+        for (uint256 i = 0; i < headers.length; i++) {
             contestingProof[i] = hashHeader(headers[i]);
         }
 
@@ -321,18 +321,24 @@ contract Crosschain {
         validateInterlink(headers, contestingProof, siblings);
 
         if (compareProofs(proof, contestingProof)) {
-            uint existingLca;
-            uint contestingLca;
+            uint256 existingLca;
+            uint256 contestingLca;
             (existingLca, contestingLca) = getLca(proof, contestingProof);
 
-            if (subsetProof(proof.bestProof, existingLca, contestingProof, contestingLca) == false) {
+            if (
+                subsetProof(
+                    proof.bestProof,
+                    existingLca,
+                    contestingProof,
+                    contestingLca
+                ) == false
+            ) {
                 return false;
             }
             // require(subsetProof(proof.bestProof, pLca, contestingProof, cLca), "Subset");
 
             proof.bestProof = contestingProof;
-        }
-        else {
+        } else {
             return true;
         }
 
@@ -346,12 +352,7 @@ contract Crosschain {
         bytes32[4][] memory headers,
         bytes32[] memory siblings,
         bytes32[4] memory blockOfInterest
-    )
-        public
-        payable
-        returns(bool)
-    {
-
+    ) public payable returns (bool) {
         bytes32 hashedBlocks = hashHeader(blockOfInterest);
 
         if (msg.value < z) {
@@ -359,28 +360,35 @@ contract Crosschain {
         }
 
         // No proof for that event for the moment.
-        if (events[hashedBlocks].expire == 0
-            && events[hashedBlocks].proof.bestProof.length == 0
-        && verify(events[hashedBlocks].proof, headers,
-                  siblings, blockOfInterest)) {
-                      events[hashedBlocks].expire = block.number + k;
-                      events[hashedBlocks].author = msg.sender;
+        if (
+            events[hashedBlocks].expire == 0 &&
+            events[hashedBlocks].proof.bestProof.length == 0 &&
+            verify(
+                events[hashedBlocks].proof,
+                headers,
+                siblings,
+                blockOfInterest
+            )
+        ) {
+            events[hashedBlocks].expire = block.number + k;
+            events[hashedBlocks].author = msg.sender;
 
-                      return true;
-                  }
+            return true;
+        }
 
-                  return false;
+        return false;
     }
 
-    function finalizeEvent(
-        bytes32[4] memory blockOfInterest
-    ) public
-        returns(bool)
+    function finalizeEvent(bytes32[4] memory blockOfInterest)
+        public
+        returns (bool)
     {
         bytes32 hashedBlocks = hashHeader(blockOfInterest);
 
-        if (events[hashedBlocks].expire == 0 ||
-            block.number < events[hashedBlocks].expire) {
+        if (
+            events[hashedBlocks].expire == 0 ||
+            block.number < events[hashedBlocks].expire
+        ) {
             return false;
         }
         finalizedEvents[hashedBlocks] = true;
@@ -390,38 +398,37 @@ contract Crosschain {
         return true;
     }
 
-
     function submitContestingProof(
         bytes32[4][] memory headers,
         bytes32[] memory siblings,
         bytes32[4] memory blockOfInterest
-    )
-        public
-        returns(bool)
-    {
+    ) public returns (bool) {
         bytes32 hashedBlocks = hashHeader(blockOfInterest);
 
         if (events[hashedBlocks].expire <= block.number) {
             return false;
         }
 
+        if (
+            !verify(
+                events[hashedBlocks].proof,
+                headers,
+                siblings,
+                blockOfInterest
+            )
+        ) {
+            events[hashedBlocks].expire = 0;
+            msg.sender.transfer(z);
+            return true;
+        }
 
-        if (!verify(events[hashedBlocks].proof, headers,
-                    siblings, blockOfInterest)) {
-                        events[hashedBlocks].expire = 0;
-                        msg.sender.transfer(z);
-                        return true;
-                    }
-
-                    return false;
+        return false;
     }
 
-    function eventExists(
-        bytes32[4] memory blockHeader
-    )
+    function eventExists(bytes32[4] memory blockHeader)
         public
         view
-        returns(bool)
+        returns (bool)
     {
         bytes32 hashedBlocks = hashHeader(blockHeader);
         return finalizedEvents[hashedBlocks];
