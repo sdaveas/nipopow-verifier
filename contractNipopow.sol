@@ -373,9 +373,6 @@ contract Crosschain {
         return predicate(proof, hashHeader(blockOfInterest));
     }
 
-    // TODO: Deleting a mapping is impossible without knowing
-    // beforehand all the keys of the mapping. That costs gas
-    // and it may be in our favor to never delete this stored memory.
     function hashProof(bytes32[4][] memory headers)
         public
         payable
