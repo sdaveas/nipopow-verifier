@@ -376,6 +376,14 @@ contract Crosschain {
     // TODO: Deleting a mapping is impossible without knowing
     // beforehand all the keys of the mapping. That costs gas
     // and it may be in our favor to never delete this stored memory.
+    function hashProof(bytes32[4][] memory headers)
+        public
+        payable
+        returns (bytes32)
+    {
+        return sha256(abi.encodePacked(headers[0]));
+    }
+
     function submitEventProof(
         bytes32[4][] memory headers,
         bytes32[] memory siblings,
