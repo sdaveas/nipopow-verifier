@@ -40,11 +40,11 @@ def submit_event_proof(
     if from_address is None:
         from_address = interface.w3.eth.accounts[0]
 
-    res = my_contract.functions.submit_event_proof(
+    res = my_contract.functions.submitEventProof(
         proof.headers, proof.siblings, block_of_interest
     ).call({"from": from_address, "value": collateral})
 
-    tx_hash = my_contract.functions.submit_event_proof(
+    tx_hash = my_contract.functions.submitEventProof(
         proof.headers, proof.siblings, block_of_interest
     ).transact({"from": from_address, "value": collateral})
 
@@ -80,11 +80,11 @@ def submit_contesting_proof(
     if from_address is None:
         from_address = interface.w3.eth.accounts[0]
 
-    res = my_contract.functions.submit_contesting_proof(
+    res = my_contract.functions.submitContestingProof(
         proof.headers, proof.siblings, block_of_interest
     ).call({"from": from_address})
 
-    tx_hash = my_contract.functions.submit_contesting_proof(
+    tx_hash = my_contract.functions.submitContestingProof(
         proof.headers, proof.siblings, block_of_interest
     ).transact({"from": from_address})
 
@@ -117,11 +117,11 @@ def finalize_event(interface, block_of_interest, from_address=None):
     if from_address is None:
         from_address = interface.w3.eth.accounts[0]
 
-    res = my_contract.functions.finalize_event(block_of_interest).call(
+    res = my_contract.functions.finalizeEvent(block_of_interest).call(
         {"from": from_address}
     )
 
-    tx_hash = my_contract.functions.finalize_event(block_of_interest).transact(
+    tx_hash = my_contract.functions.finalizeEvent(block_of_interest).transact(
         {"from": from_address}
     )
 
@@ -136,5 +136,5 @@ def event_exists(interface, block_of_interest):
     """
 
     contract = interface.get_contract()
-    res = contract.functions.event_exists(block_of_interest).call()
+    res = contract.functions.eventExists(block_of_interest).call()
     return res
