@@ -353,7 +353,7 @@ contract Crosschain {
         bytes32[] memory siblings,
         bytes32[4] memory blockOfInterest
     ) public payable returns (bool) {
-        bytes32 hashedBlocks = hashHeader(blockOfInterest);
+        bytes32 hashedBlock = hashHeader(blockOfInterest);
 
         if (msg.value < z) {
             return false;
@@ -361,17 +361,17 @@ contract Crosschain {
 
         // No proof for that event for the moment.
         if (
-            events[hashedBlocks].expire == 0 &&
-            events[hashedBlocks].proof.bestProof.length == 0 &&
+            events[hashedBlock].expire == 0 &&
+            events[hashedBlock].proof.bestProof.length == 0 &&
             verify(
-                events[hashedBlocks].proof,
+                events[hashedBlock].proof,
                 headers,
                 siblings,
                 blockOfInterest
             )
         ) {
-            events[hashedBlocks].expire = block.number + k;
-            events[hashedBlocks].author = msg.sender;
+            events[hashedBlock].expire = block.number + k;
+            events[hashedBlock].author = msg.sender;
 
             return true;
         }
@@ -383,17 +383,17 @@ contract Crosschain {
         public
         returns (bool)
     {
-        bytes32 hashedBlocks = hashHeader(blockOfInterest);
+        bytes32 hashedBlock = hashHeader(blockOfInterest);
 
         if (
-            events[hashedBlocks].expire == 0 ||
-            block.number < events[hashedBlocks].expire
+            events[hashedBlock].expire == 0 ||
+            block.number < events[hashedBlock].expire
         ) {
             return false;
         }
-        finalizedEvents[hashedBlocks] = true;
-        events[hashedBlocks].expire = 0;
-        events[hashedBlocks].author.transfer(z);
+        finalizedEvents[hashedBlock] = true;
+        events[hashedBlock].expire = 0;
+        events[hashedBlock].author.transfer(z);
 
         return true;
     }
@@ -403,21 +403,21 @@ contract Crosschain {
         bytes32[] memory siblings,
         bytes32[4] memory blockOfInterest
     ) public returns (bool) {
-        bytes32 hashedBlocks = hashHeader(blockOfInterest);
+        bytes32 hashedBlock = hashHeader(blockOfInterest);
 
-        if (events[hashedBlocks].expire <= block.number) {
+        if (events[hashedBlock].expire <= block.number) {
             return false;
         }
 
         if (
             !verify(
-                events[hashedBlocks].proof,
+                events[hashedBlock].proof,
                 headers,
                 siblings,
                 blockOfInterest
             )
         ) {
-            events[hashedBlocks].expire = 0;
+            events[hashedBlock].expire = 0;
             msg.sender.transfer(z);
             return true;
         }
@@ -430,7 +430,7 @@ contract Crosschain {
         view
         returns (bool)
     {
-        bytes32 hashedBlocks = hashHeader(blockHeader);
-        return finalizedEvents[hashedBlocks];
+        bytes32 hashedBlock = hashHeader(blockHeader);
+        return finalizedEvents[hashedBlock];
     }
 }
