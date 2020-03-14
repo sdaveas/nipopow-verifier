@@ -98,6 +98,19 @@ contract Crosschain {
         return false;
     }
 
+    function predicateMemory(bytes32[] memory proof, bytes32 blockOfInterest)
+        internal
+        pure
+        returns (bool)
+    {
+        for (uint256 i = 0; i < proof.length; i++) {
+            if (proof[i] == blockOfInterest) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function getLca(Nipopow storage nipopow, bytes32[] memory cProof)
         internal
         returns (uint256, uint256)
