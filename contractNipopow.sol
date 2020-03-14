@@ -389,28 +389,39 @@ contract Crosschain {
     ) public payable returns (bool) {
         bytes32 hashedBlock = hashHeader(blockOfInterest);
 
-        if (msg.value < z) {
-            return false;
+        require(msg.value >= z, "insufficient collateral");
+        require(
+            events[hashedBlock].expire == 0,
+            "The submission period has expired"
+        );
+        require(
+            events[hashedBlock].proofHash == 0,
+            "A proof regarding this evens has allready been submitted"
+        );
+        require(
+            verifyGenesis(hashHeader(headers[headers.length - 1])),
+            "Proof does not include the genesis block"
+        );
+
+        // Is there any prettier way to do this?
+        bytes32[] memory hashedHeaders = new bytes32[](headers.length);
+        for (uint256 i = 0; i < headers.length; i++) {
+            hashedHeaders[i] = hashHeader(headers[i]);
         }
 
-        // No proof for that event for the moment.
-        if (
-            events[hashedBlock].expire == 0 &&
-            events[hashedBlock].proof.bestProof.length == 0 &&
-            verify(
-                events[hashedBlock].proof,
-                headers,
-                siblings,
-                blockOfInterest
-            )
-        ) {
-            events[hashedBlock].expire = block.number + k;
-            events[hashedBlock].author = msg.sender;
+        // This throws on failure
+        validateInterlink(headers, hashedHeaders, siblings);
 
-            return true;
-        }
+        require(
+            predicateMemory(hashedHeaders, hashHeader(blockOfInterest)),
+            "Block of interest was included in the submitted proof"
+        );
 
-        return false;
+        events[hashedBlock].proofHash = hashProof(headers);
+        events[hashedBlock].expire = block.number + k;
+        events[hashedBlock].author = msg.sender;
+
+        return true;
     }
 
     function finalizeEvent(bytes32[4] memory blockOfInterest)
