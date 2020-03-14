@@ -290,8 +290,8 @@ contract Crosschain {
     }
 
     // Genesis is the last element of headers at index headers[headers.length-1].
-    function verifyGenesis(bytes32 genesis) internal view {
-        require(genesisBlockHash == genesis, "Invalid genesis");
+    function verifyGenesis(bytes32 genesis) internal view returns (bool) {
+        return genesisBlockHash == genesis;
     }
 
     // If existingProof[exLca:] is subset of contestingProof[contLca:]
@@ -335,7 +335,10 @@ contract Crosschain {
         bytes32[] memory siblings,
         bytes32[4] memory blockOfInterest
     ) internal returns (bool) {
-        verifyGenesis(hashHeader(headers[headers.length - 1]));
+        require(
+            verifyGenesis(hashHeader(headers[headers.length - 1])),
+            "Genesis"
+        );
 
         bytes32[] memory contestingProof = new bytes32[](headers.length);
         for (uint256 i = 0; i < headers.length; i++) {
