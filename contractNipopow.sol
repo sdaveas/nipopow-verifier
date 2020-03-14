@@ -24,6 +24,7 @@ contract Crosschain {
         address payable author;
         uint256 expire;
         Nipopow proof;
+        bytes32 proofHash;
     }
 
     // The key is the key value used for the predicate. In our case
