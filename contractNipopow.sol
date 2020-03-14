@@ -4,8 +4,8 @@ pragma solidity ^0.6.2;
 
 contract Crosschain {
 
-    constructor(bytes32 _genesis) public {
-        genesis_block_hash = _genesis;
+    constructor(bytes32 genesis) public {
+        genesis_block_hash = genesis;
     }
 
     // The genesis block hash
@@ -54,7 +54,13 @@ contract Crosschain {
     }
 
     // Hash the header using double SHA256
-    function hash_header(bytes32[4] memory header) internal pure returns(bytes32) {
+    function hash_header(
+        bytes32[4] memory header
+    )
+        internal
+        pure
+        returns(bytes32)
+    {
         // Compute the hash of 112-byte header.
         string memory s = new string(112);
         uint sptr;
@@ -66,8 +72,14 @@ contract Crosschain {
 
     }
 
-    function predicate(Nipopow storage proof, bytes32 block_of_interest) internal view
-    returns (bool) {
+    function predicate(
+        Nipopow storage proof,
+        bytes32 block_of_interest
+    )
+        internal
+        view
+        returns (bool)
+    {
 
         bool _predicate = false;
         for (uint i = 0; i < proof.best_proof.length; i++) {
@@ -79,8 +91,13 @@ contract Crosschain {
         return _predicate;
     }
 
-    function get_lca(Nipopow storage nipopow, bytes32[] memory c_proof)
-    internal returns(uint, uint) {
+    function get_lca(
+        Nipopow storage nipopow,
+        bytes32[] memory c_proof
+    )
+        internal
+        returns(uint, uint)
+    {
 
         for (uint i = 0; i < c_proof.length; i++) {
             nipopow.curProofMap[c_proof[i]] = true;
@@ -115,7 +132,13 @@ contract Crosschain {
     }
 
     // TODO: Implement the O(log(max_level)) algorithm.
-    function get_level(bytes32 hashed_header) internal pure returns(uint256) {
+    function get_level(
+        bytes32 hashed_header
+    )
+        internal
+        pure
+        returns(uint256)
+    {
         uint256 hash = uint256(hashed_header);
 
         for (uint i = 0; i <= 255; i++) {
@@ -129,8 +152,13 @@ contract Crosschain {
         return 0;
     }
 
-    function best_arg(Nipopow storage nipopow, bytes32[] memory proof, uint al_index)
-    internal returns(uint256) {
+    function best_arg(
+        Nipopow storage nipopow,
+        bytes32[] memory proof,
+        uint al_index
+    )
+        internal returns(uint256)
+    {
         uint max_level = 0;
         uint256 max_score = 0;
         uint cur_level = 0;
@@ -161,7 +189,13 @@ contract Crosschain {
         return max_score;
     }
 
-    function compare_proofs(Nipopow storage nipopow, bytes32[] memory contesting_proof) internal returns(bool) {
+    function compare_proofs(
+        Nipopow storage nipopow,
+        bytes32[] memory contesting_proof
+    )
+        internal
+        returns(bool)
+    {
         if (nipopow.best_proof.length == 0) {
             return true;
         }
@@ -173,7 +207,15 @@ contract Crosschain {
         best_arg(nipopow, nipopow.best_proof, proof_lca_index);
     }
 
-    function verify_merkle(bytes32 roothash, bytes32 leaf, uint8 mu, bytes32[] memory siblings) pure internal {
+    function verify_merkle(
+        bytes32 roothash,
+        bytes32 leaf,
+        uint8 mu,
+        bytes32[] memory siblings
+    )
+        pure
+        internal
+    {
         bytes32 h = leaf;
         for (uint i = 0; i < siblings.length; i++) {
             uint8 bit = mu & 0x1;
@@ -197,7 +239,14 @@ contract Crosschain {
         return uint8(byte(_b << 248));
     }
 
-    function validate_interlink(bytes32[4][] memory headers, bytes32[] memory hashed_headers, bytes32[] memory siblings) internal pure {
+    function validate_interlink(
+        bytes32[4][] memory headers,
+        bytes32[] memory hashed_headers,
+        bytes32[] memory siblings
+    )
+        internal
+        pure
+    {
         uint ptr = 0; // Index of the current sibling
         for (uint i = 1; i < headers.length; i++) {
             // hold the 3rd and 4th least significant bytes
@@ -251,9 +300,17 @@ contract Crosschain {
         return subset;
     }
 
-  // contesting_proof -> contesting_proof_hashed_headers
-  // headers -> contesting proof headers
-    function verify(Nipopow storage proof, bytes32[4][] memory headers, bytes32[] memory siblings, bytes32[4] memory block_of_interest) internal returns(bool) {
+    // contesting_proof -> contesting_proof_hashed_headers
+    // headers -> contesting proof headers
+    function verify(
+        Nipopow storage proof,
+        bytes32[4][] memory headers,
+        bytes32[] memory siblings,
+        bytes32[4] memory block_of_interest
+    )
+        internal
+        returns(bool)
+    {
 
         verify_genesis(hash_header(headers[headers.length-1]));
 
@@ -287,7 +344,15 @@ contract Crosschain {
     // TODO: Deleting a mapping is impossible without knowing
     // beforehand all the keys of the mapping. That costs gas
     // and it may be in our favor to never delete this stored memory.
-    function submit_event_proof(bytes32[4][] memory headers, bytes32[] memory siblings, bytes32[4] memory block_of_interest) public payable returns(bool) {
+    function submit_event_proof(
+        bytes32[4][] memory headers,
+        bytes32[] memory siblings,
+        bytes32[4] memory block_of_interest
+    )
+        public
+        payable
+        returns(bool)
+    {
 
         bytes32 hashed_block = hash_header(block_of_interest);
 
@@ -309,7 +374,11 @@ contract Crosschain {
                   return false;
     }
 
-    function finalize_event(bytes32[4] memory block_of_interest) public returns(bool) {
+    function finalize_event(
+        bytes32[4] memory block_of_interest
+    ) public
+        returns(bool)
+    {
         bytes32 hashed_block = hash_header(block_of_interest);
 
         if (events[hashed_block].expire == 0 ||
@@ -324,7 +393,14 @@ contract Crosschain {
     }
 
 
-    function submit_contesting_proof(bytes32[4][] memory headers, bytes32[] memory siblings, bytes32[4] memory block_of_interest) public returns(bool) {
+    function submit_contesting_proof(
+        bytes32[4][] memory headers,
+        bytes32[] memory siblings,
+        bytes32[4] memory block_of_interest
+    )
+        public
+        returns(bool)
+    {
         bytes32 hashed_block = hash_header(block_of_interest);
 
         if (events[hashed_block].expire <= block.number) {
@@ -342,7 +418,13 @@ contract Crosschain {
                     return false;
     }
 
-    function event_exists(bytes32[4] memory block_header) public view returns(bool) {
+    function event_exists(
+        bytes32[4] memory block_header
+    )
+        public
+        view
+        returns(bool)
+    {
         bytes32 hashed_block = hash_header(block_header);
         return finalized_events[hashed_block];
     }
