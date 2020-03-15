@@ -479,6 +479,23 @@ contract Crosschain {
         return true;
     }
 
+    // This will may be expensive. Check if a memory mapping is required
+    // Check if all blocks of existing[lca+1:] are different from contesting[1:]
+    function allDifferent(
+        bytes32[] memory existing,
+        bytes32[] memory contesting,
+        uint256 lca
+    ) internal pure returns (bool) {
+        for (uint256 i = lca + 1; i < existing.length; i++) {
+            for (uint256 j = 1; j < contesting.length; j++) {
+                if (existing[i] == contesting[j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     function submitContestingProof(
         bytes32[4][] memory headers,
         bytes32[] memory siblings,
