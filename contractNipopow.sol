@@ -332,14 +332,6 @@ contract Crosschain {
             "Wrong existing proof"
         );
 
-        // get existing hashed headers
-        bytes32[] memory existingHeadersHashed = new bytes32[](
-            existingHeaders.length
-        );
-        for (uint256 i = 0; i < existingHeaders.length; i++) {
-            existingHeadersHashed[i] = hashHeader(existingHeaders[i]);
-        }
-
         // get contesting hashed headers
         bytes32[] memory contestingHeadersHashed = new bytes32[](
             contestingHeaders.length
@@ -353,6 +345,13 @@ contract Crosschain {
             contestingSiblings
         );
 
+        // get existing hashed headers
+        bytes32[] memory existingHeadersHashed = new bytes32[](
+            existingHeaders.length
+        );
+        for (uint256 i = 0; i < existingHeaders.length; i++) {
+            existingHeadersHashed[i] = hashHeader(existingHeaders[i]);
+        }
         require(
             existingHeadersHashed[lca] ==
                 contestingHeadersHashed[contestingHeadersHashed.length - 1],
