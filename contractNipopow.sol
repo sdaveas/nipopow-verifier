@@ -232,7 +232,7 @@ contract Crosschain {
         payable
         returns (bytes32)
     {
-        return sha256(abi.encodePacked(headers[0]));
+        return sha256(abi.encodePacked(headers));
     }
 
     function submitEventProof(
