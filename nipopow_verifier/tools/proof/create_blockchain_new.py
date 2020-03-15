@@ -5,7 +5,7 @@ _SelectCoreParams('regtest')
 from bitcoin.core import coreparams
 from tqdm import tqdm
 
-genesis = b"\xf3\x0cF\xbe\xc5B\xa3t9\x95.\x0f\xfe\x0ea\r\xbb\xcd\xad\x97\xee\xd9\xba\x94U\xdc\x90\x05\xcbW\xfcR"
+GENESIS = b"\xf3\x0cF\xbe\xc5B\xa3t9\x95.\x0f\xfe\x0ea\r\xbb\xcd\xad\x97\xee\xd9\xba\x94U\xdc\x90\x05\xcbW\xfcR"
 
 ###
 # Block header object
@@ -185,7 +185,7 @@ def create_blockchain(genesis=None, blocks=450000, headerMap=None, mapInterlink=
 
     header = None
     for i in tqdm(range(blocks), desc='Creating blockchain'):
-        listInterlink = add_genesis_to_interlink(listInterlink, genesis.GetHash())
+        listInterlink = add_genesis_to_interlink(listInterlink, GENESIS)
         vInterlink = list_flatten(listInterlink)
         if header is None:
             header = genesis
@@ -254,7 +254,7 @@ def make_proof(header, headerMap, mapInterlink, m=15, k=15):
         vInterlink = list_flatten(mapInterlink[header.GetHash()])
 
     # Iterate the rest of the proof at the maximum level of each block until genesis
-    while header.GetHash() != genesis:
+    while header.GetHash() != GENESIS:
         genesis_level = len(list_flatten(mapInterlink[header.GetHash()])) - 1
         mp = prove_interlink(vInterlink, genesis_level)
         header = headerMap[vInterlink[-1]]
