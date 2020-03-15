@@ -287,7 +287,7 @@ def verify_proof(h, proof):
         hashInterlink = header.hashInterlink
         header = CBlockHeaderPopow.deserialize(hs)
         # Check hash matches
-        mu = verify_interlink(header.GetHash(), hashInterlink, merkle_proof)
+        verify_interlink(header.GetHash(), hashInterlink, merkle_proof)
 
 ###
 # Graphing
