@@ -29,6 +29,7 @@ contract Crosschain {
     uint256 constant m = 15;
     uint256 constant k = 6; // Should be bigger.
 
+    //TOOO: Move this to another file
     function memcpy(uint256 dest, uint256 src, uint256 len) private pure {
         // Copy word-length chunks while possible
         for (; len >= 32; len -= 32) {
@@ -47,6 +48,7 @@ contract Crosschain {
         }
     }
 
+    // TODO: move this to another file
     // Hash the header using double SHA256
     function hashHeader(bytes32[4] memory header)
         internal
