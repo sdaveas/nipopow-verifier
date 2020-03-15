@@ -497,30 +497,71 @@ contract Crosschain {
     }
 
     function submitContestingProof(
-        bytes32[4][] memory headers,
-        bytes32[] memory siblings,
-        bytes32[4] memory blockOfInterest
+        bytes32[4][] memory existingHeaders,
+        uint256 lca,
+        bytes32[4][] memory contestingHeaders,
+        bytes32[] memory contestingSiblings,
+        bytes32[4] memory blockOfInterest,
+        uint256 blockOfInterestIndex
     ) public returns (bool) {
-        bytes32 hashedBlock = hashHeader(blockOfInterest);
+        bytes32 blockOfInterestHash = hashHeader(blockOfInterest);
 
-        if (events[hashedBlock].expire <= block.number) {
-            return false;
+        require(
+            events[blockOfInterestHash].expire > block.number,
+            "C0ntesting period has expired"
+        );
+        require(
+            events[blockOfInterestHash].proofHash == hashProof(existingHeaders),
+            "The submitted original proof does not match with the existing one"
+        );
+
+        // get existing hashed headers
+        bytes32[] memory hashedExistingHeaders = new bytes32[](
+            existingHeaders.length
+        );
+        for (uint256 i = 0; i < existingHeaders.length; i++) {
+            hashedExistingHeaders[i] = hashHeader(existingHeaders[i]);
         }
 
-        if (
-            !verify(
-                events[hashedBlock].proof,
-                headers,
-                siblings,
-                blockOfInterest
-            )
-        ) {
-            events[hashedBlock].expire = 0;
-            msg.sender.transfer(z);
-            return true;
+        // get contesting hashed headers
+        bytes32[] memory hashedContestingHeaders = new bytes32[](
+            contestingHeaders.length
+        );
+        for (uint256 i = 0; i < contestingHeaders.length; i++) {
+            hashedContestingHeaders[i] = hashHeader(contestingHeaders[i]);
         }
+        validateInterlink(
+            contestingHeaders,
+            hashedContestingHeaders,
+            contestingSiblings
+        );
 
-        return false;
+        require(
+            hashedExistingHeaders[lca] ==
+                hashedContestingHeaders[hashedContestingHeaders.length - 1],
+            "Wrong lca"
+        );
+
+        // We can ask the caller to provide the level for best arg
+        require(
+            bestArgMemory(hashedExistingHeaders, lca + 1) <
+                bestArgMemory(hashedContestingHeaders, 1),
+            "Existing proof has greater score"
+        );
+        require(
+            hashedContestingHeaders[blockOfInterestIndex] ==
+                blockOfInterestHash,
+            "Block of interest does not belong in the contesting proof"
+        );
+        require(
+            allDifferent(hashedExistingHeaders, hashedContestingHeaders, lca),
+            "Contesting proof[1:] is not different from existing[lca+1:]"
+        );
+
+        // If you get here, contesting was successful
+        events[blockOfInterestHash].expire = 0;
+        msg.sender.transfer(z);
+        return true;
     }
 
     function eventExists(bytes32[4] memory blockHeader)
