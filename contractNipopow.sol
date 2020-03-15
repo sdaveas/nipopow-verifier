@@ -11,7 +11,7 @@ contract Crosschain {
     // The genesis block hash
     bytes32 genesisBlockHash;
     // Collateral to pay.
-    uint256 constant z = 100000000000000000; // 0.1 eth
+    uint256 constant z = 0.1 ether;
 
     // Nipopow proof.
     struct Nipopow {
