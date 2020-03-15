@@ -319,7 +319,7 @@ contract Crosschain {
         bytes32[4][] memory contestingHeaders,
         bytes32[] memory contestingSiblings,
         bytes32[4] memory blockOfInterest,
-        uint256 blockOfInterestIndex
+        uint256 boiExistingIndex
     ) public returns (bool) {
         bytes32 blockOfInterestHash = hashHeader(blockOfInterest);
 
@@ -327,6 +327,15 @@ contract Crosschain {
             events[blockOfInterestHash].expire > block.number,
             "Contesting period has expired"
         );
+
+        require(
+            existingHeaders.length > lca, "Lca out of range"
+        );
+
+        require(
+            lca > boiExistingIndex, "Block of interest exists in sub-chain"
+        );
+
         require(
             events[blockOfInterestHash].proofHash == hashProof(existingHeaders),
             "Wrong existing proof"
