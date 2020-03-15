@@ -13,17 +13,10 @@ contract Crosschain {
     // Collateral to pay.
     uint256 constant z = 0.1 ether;
 
-    // Nipopow proof.
-    struct Nipopow {
-        mapping(bytes32 => bool) curProofMap;
-        mapping(uint256 => uint256) levelCounter;
-        bytes32[] bestProof;
-    }
 
     struct Event {
         address payable author;
         uint256 expire;
-        Nipopow proof;
         bytes32 proofHash;
     }
 
@@ -86,20 +79,7 @@ contract Crosschain {
         return hashedHeaders;
     }
 
-    function predicate(Nipopow storage proof, bytes32 blockOfInterest)
-        internal
-        view
-        returns (bool)
-    {
-        for (uint256 i = 0; i < proof.bestProof.length; i++) {
-            if (proof.bestProof[i] == blockOfInterest) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    function predicateMemory(bytes32[] memory proof, bytes32 blockOfInterest)
+    function predicate(bytes32[] memory proof, bytes32 blockOfInterest)
         internal
         pure
         returns (bool)
@@ -112,41 +92,6 @@ contract Crosschain {
         return false;
     }
 
-    function getLca(Nipopow storage nipopow, bytes32[] memory cProof)
-        internal
-        returns (uint256, uint256)
-    {
-        for (uint256 i = 0; i < cProof.length; i++) {
-            nipopow.curProofMap[cProof[i]] = true;
-        }
-
-        bytes32 lcaHash;
-
-        uint256 bLca = 0;
-        uint256 cLca = 0;
-        for (uint256 i = 0; i < nipopow.bestProof.length; i++) {
-            if (nipopow.curProofMap[nipopow.bestProof[i]]) {
-                bLca = i;
-                lcaHash = nipopow.bestProof[i];
-                break;
-            }
-        }
-
-        // Get the index of lca in the currentProof.
-        for (uint256 i = 0; i < cProof.length; i++) {
-            if (lcaHash == cProof[i]) {
-                cLca = i;
-                break;
-            }
-        }
-
-        // Clear the map. We don't need it anymore.
-        for (uint256 i = 0; i < cProof.length; i++) {
-            nipopow.curProofMap[cProof[i]] = false;
-        }
-
-        return (bLca, cLca);
-    }
 
     // TODO: Implement the O(log(maxLevel)) algorithm.
     function getLevel(bytes32 hashedHeader) internal pure returns (uint256) {
@@ -164,8 +109,7 @@ contract Crosschain {
     }
 
     mapping(uint256 => uint256) levelCounter;
-
-    function bestArgMemory(bytes32[] memory proof, uint256 lca)
+    function bestArg(bytes32[] memory proof, uint256 lca)
         internal
         returns (uint256)
     {
@@ -197,56 +141,6 @@ contract Crosschain {
         }
 
         return maxScore;
-    }
-
-    function bestArg(
-        Nipopow storage nipopow,
-        bytes32[] memory proof,
-        uint256 alIndex
-    ) internal returns (uint256) {
-        uint256 maxLevel = 0;
-        uint256 maxScore = 0;
-        uint256 curLevel = 0;
-
-        // Count the frequency of the levels.
-        for (uint256 i = 0; i < alIndex; i++) {
-            curLevel = getLevel(proof[i]);
-
-            // Superblocks of level m are also superblocks of level m - 1.
-            for (uint256 j = 0; j <= curLevel; j++) {
-                nipopow.levelCounter[j]++;
-            }
-
-            if (maxLevel < curLevel) {
-                maxLevel = curLevel;
-            }
-        }
-
-        for (uint256 i = 0; i <= maxLevel; i++) {
-            uint256 curScore = uint256(nipopow.levelCounter[i] * 2**i);
-            if (nipopow.levelCounter[i] >= m && curScore > maxScore) {
-                maxScore = nipopow.levelCounter[i] * 2**i;
-            }
-            // clear the map.
-            nipopow.levelCounter[i] = 0;
-        }
-
-        return maxScore;
-    }
-
-    function compareProofs(
-        Nipopow storage nipopow,
-        bytes32[] memory contestingProof
-    ) internal returns (bool) {
-        if (nipopow.bestProof.length == 0) {
-            return true;
-        }
-        uint256 proofLcaIndex;
-        uint256 contestingLcaIndex;
-        (proofLcaIndex, contestingLcaIndex) = getLca(nipopow, contestingProof);
-        return
-            bestArg(nipopow, contestingProof, contestingLcaIndex) >
-            bestArg(nipopow, nipopow.bestProof, proofLcaIndex);
     }
 
     function verifyMerkle(
@@ -331,85 +225,6 @@ contract Crosschain {
         return genesisBlockHash == genesis;
     }
 
-    // If existingProof[exLca:] is subset of contestingProof[contLca:]
-    // returns true, false otherwise
-    function subsetProof(
-        bytes32[] memory existing,
-        uint256 existingLca,
-        bytes32[] memory contesting,
-        uint256 contestingLca
-    ) internal pure returns (bool) {
-        // If existing proof does not yet exists, return true
-        if (existing.length == 0 && contesting.length != 0) {
-            return true;
-        }
-
-        bool subset = true;
-        uint256 j = contestingLca;
-
-        for (
-            uint256 i = existingLca;
-            subset == true && i < existing.length;
-            i++
-        ) {
-            while (existing[i] != contesting[j]) {
-                j++;
-                if (j >= contesting.length) {
-                    subset = false;
-                    break;
-                }
-            }
-        }
-
-        return subset;
-    }
-
-    // contestingProof -> contestingProofHashedHeaders
-    // headers -> contesting proof headers
-    function verify(
-        Nipopow storage proof,
-        bytes32[4][] memory headers,
-        bytes32[] memory siblings,
-        bytes32[4] memory blockOfInterest
-    ) internal returns (bool) {
-        require(
-            verifyGenesis(hashHeader(headers[headers.length - 1])),
-            "Genesis"
-        );
-
-        bytes32[] memory contestingProof = new bytes32[](headers.length);
-        for (uint256 i = 0; i < headers.length; i++) {
-            contestingProof[i] = hashHeader(headers[i]);
-        }
-
-        // Throws if invalid.
-        validateInterlink(headers, contestingProof, siblings);
-
-        if (compareProofs(proof, contestingProof)) {
-            uint256 existingLca;
-            uint256 contestingLca;
-            (existingLca, contestingLca) = getLca(proof, contestingProof);
-
-            if (
-                subsetProof(
-                    proof.bestProof,
-                    existingLca,
-                    contestingProof,
-                    contestingLca
-                ) == false
-            ) {
-                return false;
-            }
-            // require(subsetProof(proof.bestProof, pLca, contestingProof, cLca), "Subset");
-
-            proof.bestProof = contestingProof;
-        } else {
-            return true;
-        }
-
-        return predicate(proof, hashHeader(blockOfInterest));
-    }
-
     function hashProof(bytes32[4][] memory headers)
         public
         payable
@@ -449,7 +264,7 @@ contract Crosschain {
         validateInterlink(headers, hashedHeaders, siblings);
 
         require(
-            predicateMemory(hashedHeaders, hashHeader(blockOfInterest)),
+            predicate(hashedHeaders, hashHeader(blockOfInterest)),
             "Block of interest was included in the submitted proof"
         );
 
@@ -544,8 +359,8 @@ contract Crosschain {
 
         // We can ask the caller to provide the level for best arg
         require(
-            bestArgMemory(hashedExistingHeaders, lca + 1) <
-                bestArgMemory(hashedContestingHeaders, 1),
+            bestArg(hashedExistingHeaders, lca + 1) <
+                bestArg(hashedContestingHeaders, 1),
             "Existing proof has greater score"
         );
         require(
