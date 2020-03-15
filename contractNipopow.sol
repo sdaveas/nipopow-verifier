@@ -95,7 +95,6 @@ contract Crosschain {
         return false;
     }
 
-
     // TODO: Implement the O(log(maxLevel)) algorithm.
     function getLevel(bytes32 hashedHeader) internal pure returns (uint256) {
         uint256 hash = uint256(hashedHeader);
@@ -239,7 +238,7 @@ contract Crosschain {
         bytes32[4][] memory headers,
         bytes32[] memory siblings,
         bytes32[4] memory blockOfInterest,
-        uint blockOfInterestIndex
+        uint256 blockOfInterestIndex
     ) public payable returns (bool) {
         bytes32 hashedBlock = hashHeader(blockOfInterest);
 
@@ -249,7 +248,8 @@ contract Crosschain {
             "The submission period has expired"
         );
         require(
-            events[hashedBlock].proofHash == 0, "A proof with this evens exists"
+            events[hashedBlock].proofHash == 0,
+            "A proof with this evens exists"
         );
         require(
             verifyGenesis(hashHeader(headers[headers.length - 1])),
@@ -328,12 +328,11 @@ contract Crosschain {
             "Contesting period has expired"
         );
 
-        require(
-            existingHeaders.length > lca, "Lca out of range"
-        );
+        require(existingHeaders.length > lca, "Lca out of range");
 
         require(
-            lca > boiExistingIndex, "Block of interest exists in sub-chain"
+            lca > boiExistingIndex,
+            "Block of interest exists in sub-chain"
         );
 
         require(
@@ -371,13 +370,15 @@ contract Crosschain {
             allDifferent(existingHeadersHashed, contestingHeadersHashed, lca),
             "Contesting proof[1:] is not different from existing[lca+1:]"
         );
+
+        // We can ask the caller to provide the level for their proof
         require(
             bestArg(existingHeadersHashed, lca + 1) <
                 bestArg(contestingHeadersHashed, 1),
             "Existing proof has greater score"
         );
 
-        // If you get here, contesting was successful
+        // If you reached this point, contesting was successful
         events[blockOfInterestHash].expire = 0;
         msg.sender.transfer(z);
         return true;
