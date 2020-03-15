@@ -238,7 +238,8 @@ contract Crosschain {
     function submitEventProof(
         bytes32[4][] memory headers,
         bytes32[] memory siblings,
-        bytes32[4] memory blockOfInterest
+        bytes32[4] memory blockOfInterest,
+        uint blockOfInterestIndex
     ) public payable returns (bool) {
         bytes32 hashedBlock = hashHeader(blockOfInterest);
 
@@ -265,7 +266,7 @@ contract Crosschain {
         validateInterlink(headers, hashedHeaders, siblings);
 
         require(
-            predicate(hashedHeaders, hashHeader(blockOfInterest)),
+            hashedHeaders[blockOfInterestIndex] == hashHeader(blockOfInterest),
             "Block of interest was not included in the submitted proof"
         );
 
