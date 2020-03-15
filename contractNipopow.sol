@@ -366,11 +366,6 @@ contract Crosschain {
             "Existing proof has greater score"
         );
         require(
-            contestingHeadersHashed[blockOfInterestIndex] ==
-                blockOfInterestHash,
-            "Block of interest not in contesting proof"
-        );
-        require(
             allDifferent(existingHeadersHashed, contestingHeadersHashed, lca),
             "Contesting proof[1:] is not different from existing[lca+1:]"
         );
