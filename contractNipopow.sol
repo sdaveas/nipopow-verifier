@@ -13,6 +13,7 @@ contract Crosschain {
     // Collateral to pay.
     uint256 constant z = 0.1 ether;
 
+    mapping(uint256 => uint256) levelCounter;
 
     struct Event {
         address payable author;
@@ -110,7 +111,6 @@ contract Crosschain {
         return 0;
     }
 
-    mapping(uint256 => uint256) levelCounter;
     function bestArg(bytes32[] memory proof, uint256 lca)
         internal
         returns (uint256)
