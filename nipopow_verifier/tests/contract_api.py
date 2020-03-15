@@ -23,11 +23,12 @@ def make_interface(backend):
     )
 
 
-# TODO: This is sode duplidation with the below function
+# TODO: This is code duplidation with the below function
 def submit_event_proof(
     interface,
     proof,
     block_of_interest,
+    block_of_interest_index,
     collateral=pow(10, 17),
     from_address=None,
     profile=False,
@@ -40,13 +41,15 @@ def submit_event_proof(
     if from_address is None:
         from_address = interface.w3.eth.accounts[0]
 
-    res = my_contract.functions.submitEventProof(
-        proof.headers, proof.siblings, block_of_interest
-    ).call({"from": from_address, "value": collateral})
+    my_function = my_contract.functions.submitEventProof(
+        proof.headers, proof.siblings, block_of_interest, block_of_interest_index
+    )
 
-    tx_hash = my_contract.functions.submitEventProof(
-        proof.headers, proof.siblings, block_of_interest
-    ).transact({"from": from_address, "value": collateral})
+    res = my_function.call({"from": from_address, "value": collateral})
+
+    tx_hash = my_function.transact(
+        {"from": from_address, "value": collateral}
+    )
 
     receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
 
@@ -56,19 +59,77 @@ def submit_event_proof(
         debug_events = {}
     if len(debug_events) > 0:
         for e in debug_events:
-            log = dict(e)['args']
-            print(log['tag'],"\t", log['value'])
+            log = dict(e)["args"]
+            print(log["tag"], "\t", log["value"])
 
     if profile is True:
         filename = str(int(time())) + ".txt"
         interface.run_gas_profiler(profiler, tx_hash, filename)
 
-    print(receipt['gasUsed'])
+    print(receipt["gasUsed"])
 
-    return {"result": res, 'gas_used': receipt['gasUsed'], 'debug': debug_events}
+    return {"result": res, "gas_used": receipt["gasUsed"], "debug": debug_events}
 
 
-# TODO: This is sode duplidation with the above function
+# bytes32[4][] memory existingHeaders,
+# uint256 lca,
+# bytes32[4][] memory contestingHeaders,
+# bytes32[] memory contestingSiblings,
+# bytes32[4] memory blockOfInterest,
+
+# TODO: This is code duplidation with the above function
+def submit_contesting_proof_new(
+    interface,
+    existing,
+    lca,
+    contesting,
+    block_of_interest,
+    block_of_interest_index,
+    from_address=None,
+    profile=False,
+):
+    """
+    Calls contest_event_proof of the verifier
+    """
+
+    my_contract = interface.get_contract()
+    if from_address is None:
+        from_address = interface.w3.eth.accounts[0]
+
+    my_function = my_contract.functions.submitContestingProof(
+        existing.headers,
+        lca,
+        contesting.headers,
+        contesting.siblings,
+        block_of_interest,
+        block_of_interest_index,
+    )
+
+    res = my_function.call({"from": from_address})
+
+    tx_hash = my_function.transact({"from": from_address})
+
+    receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
+    try:
+        debug_events = my_contract.events.debug().processReceipt(receipt)
+    except Exception as ex:
+        debug_events = {}
+    if len(debug_events) > 0:
+        print("Contest::")
+        for e in debug_events:
+            log = dict(e)["args"]
+            print(log["tag"], "\t", log["value"])
+
+    if profile is True:
+        filename = str(int(time())) + ".txt"
+        interface.run_gas_profiler(profiler, tx_hash, filename)
+
+    print(receipt["gasUsed"])
+
+    return {"result": res, "gas_used": receipt["gasUsed"], "debug": debug_events}
+
+
+# TODO: This is code duplidation with the above function
 def submit_contesting_proof(
     interface, proof, block_of_interest, from_address=None, profile=False
 ):
@@ -96,16 +157,16 @@ def submit_contesting_proof(
     if len(debug_events) > 0:
         print("Contest::")
         for e in debug_events:
-            log = dict(e)['args']
-            print(log['tag'],"\t", log['value'])
+            log = dict(e)["args"]
+            print(log["tag"], "\t", log["value"])
 
     if profile is True:
         filename = str(int(time())) + ".txt"
         interface.run_gas_profiler(profiler, tx_hash, filename)
 
-    print(receipt['gasUsed'])
+    print(receipt["gasUsed"])
 
-    return {"result": res, 'gas_used': receipt['gasUsed'], 'debug': debug_events}
+    return {"result": res, "gas_used": receipt["gasUsed"], "debug": debug_events}
 
 
 def finalize_event(interface, block_of_interest, from_address=None):
