@@ -13,12 +13,15 @@ from contract_api import (
     make_interface,
     submit_event_proof,
     submit_contesting_proof,
+    submit_contesting_proof_new,
     finalize_event,
     event_exists,
 )
 from config import genesis
 
 import pytest
+
+backend = "ganache"
 
 
 @pytest.fixture
@@ -31,7 +34,7 @@ def init_environment():
     global big_proof
     global small_proof
 
-    backend = "geth"
+    backend = "ganache"
     big_proof = Proof()
     small_proof = Proof()
 
@@ -60,6 +63,33 @@ def finish_session(request):
     session = request.session
     interface = make_interface(backend)
     interface.end()
+
+
+def test_submit_contest():
+    interface = make_interface(backend)
+
+    pt = ProofTool("../data/proofs/")
+    submit_proof = Proof()
+    contest_proof = Proof()
+    submit_proof.set(pt.fetch_proof("../data/proofs/proof_200.pkl"))
+    contest_proof.set(pt.fetch_proof("../data/proofs/proof_200-100+50.pkl"))
+
+    lca = 55
+    block_of_interest_index = 0
+    block_of_interest = submit_proof.headers[block_of_interest_index]
+
+    res = submit_event_proof(interface, submit_proof, block_of_interest, block_of_interest_index, profile=True)
+    assert res["result"] == True
+    res = submit_contesting_proof_new(
+        interface,
+        submit_proof,
+        lca,
+        contest_proof,
+        block_of_interest,
+        block_of_interest_index,
+        profile=True,
+    )
+    # assert res['result'] == False
 
 
 def test_common_block(init_environment):
