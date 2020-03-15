@@ -248,8 +248,7 @@ contract Crosschain {
             "The submission period has expired"
         );
         require(
-            events[hashedBlock].proofHash == 0,
-            "A proof regarding this evens has allready been submitted"
+            events[hashedBlock].proofHash == 0, "A proof with this evens exists"
         );
         require(
             verifyGenesis(hashHeader(headers[headers.length - 1])),
@@ -267,7 +266,7 @@ contract Crosschain {
 
         require(
             predicate(hashedHeaders, hashHeader(blockOfInterest)),
-            "Block of interest was included in the submitted proof"
+            "Block of interest was not included in the submitted proof"
         );
 
         events[hashedBlock].proofHash = hashProof(headers);
@@ -325,11 +324,11 @@ contract Crosschain {
 
         require(
             events[blockOfInterestHash].expire > block.number,
-            "C0ntesting period has expired"
+            "Contesting period has expired"
         );
         require(
             events[blockOfInterestHash].proofHash == hashProof(existingHeaders),
-            "The submitted original proof does not match with the existing one"
+            "Wrong existing proof"
         );
 
         // get existing hashed headers
