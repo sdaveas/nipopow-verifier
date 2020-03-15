@@ -163,6 +163,42 @@ contract Crosschain {
         return 0;
     }
 
+    mapping(uint256 => uint256) levelCounter;
+
+    function bestArgMemory(bytes32[] memory proof, uint256 lca)
+        internal
+        returns (uint256)
+    {
+        uint256 maxLevel = 0;
+        uint256 maxScore = 0;
+        uint256 curLevel = 0;
+
+        // Count the frequency of the levels.
+        for (uint256 i = 0; i < lca; i++) {
+            curLevel = getLevel(proof[i]);
+
+            // Superblocks of level m are also superblocks of level m - 1.
+            for (uint256 j = 0; j <= curLevel; j++) {
+                levelCounter[j]++;
+            }
+
+            if (maxLevel < curLevel) {
+                maxLevel = curLevel;
+            }
+        }
+
+        for (uint256 i = 0; i <= maxLevel; i++) {
+            uint256 curScore = uint256(levelCounter[i] * 2**i);
+            if (levelCounter[i] >= m && curScore > maxScore) {
+                maxScore = levelCounter[i] * 2**i;
+            }
+            // clear the map.
+            levelCounter[i] = 0;
+        }
+
+        return maxScore;
+    }
+
     function bestArg(
         Nipopow storage nipopow,
         bytes32[] memory proof,
