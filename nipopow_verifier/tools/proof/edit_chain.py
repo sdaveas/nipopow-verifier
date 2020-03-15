@@ -10,13 +10,14 @@ from create_blockchain_new import (
     make_proof,
     mine_block,
     verify_proof,
+    create_fork,
     Hash,
-    CBlockHeaderPopow
+    CBlockHeaderPopow,
 )
 from create_proof import ProofTool
 
 
-def print_headers(headers_map):
+def print_headers(headers_map, fork=False):
     """
     Prints a chain iterating its headers
     """
@@ -24,6 +25,9 @@ def print_headers(headers_map):
     print("\nHeaders")
     for header_hash in list(headers_map.keys()):
         header = headers_map[header_hash]
+        if fork and header.hashMerkleRoot != b'\xcc'*32:
+            continue
+
         print("header hash:\t\t", header.GetHash().hex())
         print()
         print("prev block hash:\t", header.hashPrevBlock.hex())
@@ -84,9 +88,12 @@ def print_proof(proof, headers_map):
     print("\nProof")
     for i, _ in enumerate(proof):
         if i == 0:
-            print("Header:\t\t\t", "We dont know yet")
+            print(i, "Header:\t\t\t", "We dont know yet")
         else:
-            print("Header:\t\t\t", CBlockHeaderPopow.deserialize(proof[i][0]).GetHash().hex())
+            print(
+                i, "Header:\t\t\t",
+                CBlockHeaderPopow.deserialize(proof[i][0]).GetHash().hex(),
+            )
         header_hash, _ = proof[i]
         element = header_hash.hex()
         print("Previous block hash:\t", element[72:136])
@@ -208,23 +215,72 @@ def main():
 
     # Create proof
     proof = make_proof(header, headers_map, interlink_map)
-    verify_proof(Hash(proof[0][0]), proof)
     print_proof(proof, headers_map)
-
 
     ### Start spoiling proof
 
     # remove_genesis(proof)
     # proof = change_interlink_hash(proof, 0)
     # proof = skip_blocks(proof, -2)
-    proof = replace_block(proof, headers_map, interlink_map, int(len(proof)/2))
+    # proof = replace_block(proof, headers_map, interlink_map, int(len(proof)/2))
     # print_proof(proof, headers_map)
     # verify_proof(Hash(proof[0][0]), proof)
 
     ### Stop spoiling proof
 
+    n_header = header
+    fork_headers, fork_headers_map, fork_interlink_map = create_fork(
+        n_header, headers_map.copy(), interlink_map.copy(), fork=100, blocks=50
+    )
+    fork_proof = make_proof(fork_headers, fork_headers_map, fork_interlink_map)
+
+    # print_headers(fork_headers_map, True)
+    # print_proof(fork_proof, fork_headers_map)
+
+    # print_interlinks(headers_map, interlink_map)
+    # print_interlinks(fork_headers_map, fork_interlink_map)
+
+    verify_proof(Hash(proof[0][0]), proof)
+    print()
+    verify_proof(Hash(fork_proof[0][0]), fork_proof)
+
+    print("Existing proof lenght:", len(proof))
+    print("Contesting proof lenght:", len(fork_proof))
+
+    fork_proof_lca = 0
+    proof_lca = 0
+    contesting = []
+    for i, fp in enumerate(fork_proof):
+        if fp in proof:
+            fork_proof_lca = i - 1
+            break
+        contesting.append(fp)
+
+    for i, p in enumerate(proof):
+        if p[0] == contesting[-1][0]:
+            proof_lca = i
+            break
+
+    print(" 0:", proof[0][0].hex())
+    print("-1:", proof[-1][0].hex())
+    print(" 0:", fork_proof[0][0].hex())
+    print("-1:", fork_proof[-1][0].hex())
+    print(" 0", contesting[0][0].hex())
+    print("-1", contesting[-1][0].hex())
+
+    print("lca in proof is", proof_lca)
+    print("lca in fork proof is", fork_proof_lca)
+    print("Contesting length:", len(contesting))
+    print(proof[proof_lca][0].hex())
+    print(fork_proof[fork_proof_lca][0].hex())
+    print(contesting[-1][0].hex())
+
+    # print_proof(contesting, fork_interlink_map)
+
+    verify_proof(Hash(contesting[0][0]), contesting)
+
     proof_tool = ProofTool("../../data/proofs/")
-    proof_tool.export_proof(proof, output)
+    proof_tool.export_proof(contesting, output)
 
 
 if __name__ == "__main__":
