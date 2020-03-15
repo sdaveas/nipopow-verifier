@@ -332,45 +332,45 @@ contract Crosschain {
         );
 
         // get existing hashed headers
-        bytes32[] memory hashedExistingHeaders = new bytes32[](
+        bytes32[] memory existingHeadersHashed = new bytes32[](
             existingHeaders.length
         );
         for (uint256 i = 0; i < existingHeaders.length; i++) {
-            hashedExistingHeaders[i] = hashHeader(existingHeaders[i]);
+            existingHeadersHashed[i] = hashHeader(existingHeaders[i]);
         }
 
         // get contesting hashed headers
-        bytes32[] memory hashedContestingHeaders = new bytes32[](
+        bytes32[] memory contestingHeadersHashed = new bytes32[](
             contestingHeaders.length
         );
         for (uint256 i = 0; i < contestingHeaders.length; i++) {
-            hashedContestingHeaders[i] = hashHeader(contestingHeaders[i]);
+            contestingHeadersHashed[i] = hashHeader(contestingHeaders[i]);
         }
         validateInterlink(
             contestingHeaders,
-            hashedContestingHeaders,
+            contestingHeadersHashed,
             contestingSiblings
         );
 
         require(
-            hashedExistingHeaders[lca] ==
-                hashedContestingHeaders[hashedContestingHeaders.length - 1],
+            existingHeadersHashed[lca] ==
+                contestingHeadersHashed[contestingHeadersHashed.length - 1],
             "Wrong lca"
         );
 
         // We can ask the caller to provide the level for best arg
         require(
-            bestArg(hashedExistingHeaders, lca + 1) <
-                bestArg(hashedContestingHeaders, 1),
+            bestArg(existingHeadersHashed, lca + 1) <
+                bestArg(contestingHeadersHashed, 1),
             "Existing proof has greater score"
         );
         require(
-            hashedContestingHeaders[blockOfInterestIndex] ==
+            contestingHeadersHashed[blockOfInterestIndex] ==
                 blockOfInterestHash,
-            "Block of interest does not belong in the contesting proof"
+            "Block of interest not in contesting proof"
         );
         require(
-            allDifferent(hashedExistingHeaders, hashedContestingHeaders, lca),
+            allDifferent(existingHeadersHashed, contestingHeadersHashed, lca),
             "Contesting proof[1:] is not different from existing[lca+1:]"
         );
 
