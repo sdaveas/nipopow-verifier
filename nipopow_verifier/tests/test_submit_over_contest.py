@@ -106,7 +106,9 @@ def test_common_block(init_environment):
     interface = make_interface(backend)
     res = submit_event_proof(interface, big_proof, block_of_interest, profile=True)
     assert res["result"] == True, "submit big proof should be True"
-    res = submit_contesting_proof(interface, small_proof, block_of_interest, profile=True)
+    res = submit_contesting_proof(
+        interface, small_proof, block_of_interest, profile=True
+    )
     assert res["result"] == False, "contest small proof should be False"
 
     ## First Cb, then Ca
