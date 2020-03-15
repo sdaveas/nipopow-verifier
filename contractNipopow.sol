@@ -359,15 +359,14 @@ contract Crosschain {
             "Wrong lca"
         );
 
-        // We can ask the caller to provide the level for best arg
+        require(
+            allDifferent(existingHeadersHashed, contestingHeadersHashed, lca),
+            "Contesting proof[1:] is not different from existing[lca+1:]"
+        );
         require(
             bestArg(existingHeadersHashed, lca + 1) <
                 bestArg(contestingHeadersHashed, 1),
             "Existing proof has greater score"
-        );
-        require(
-            allDifferent(existingHeadersHashed, contestingHeadersHashed, lca),
-            "Contesting proof[1:] is not different from existing[lca+1:]"
         );
 
         // If you get here, contesting was successful
