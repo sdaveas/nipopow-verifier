@@ -196,11 +196,6 @@ contract Crosschain {
         }
     }
 
-    // Genesis is the last element of headers at index headers[headers.length-1].
-    function verifyGenesis(bytes32 genesis) internal view returns (bool) {
-        return genesisBlockHash == genesis;
-    }
-
     function hashProof(bytes32[4][] memory headers)
         public
         payable
@@ -230,7 +225,7 @@ contract Crosschain {
             "A proof with this evens exists"
         );
         require(
-            verifyGenesis(hashHeader(headers[headers.length - 1])),
+            hashHeader(headers[headers.length - 1]) == genesisBlockHash,
             "Proof does not include the genesis block"
         );
 
