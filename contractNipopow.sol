@@ -21,7 +21,6 @@ contract Crosschain {
         bytes32 proofHash;
     }
 
-    // The key is the key value used for the predicate. In our case
     // the block header hash.
     mapping(bytes32 => Event) events;
     mapping(bytes32 => bool) finalizedEvents;
@@ -235,7 +234,7 @@ contract Crosschain {
             hashedHeaders[i] = hashHeader(headers[i]);
         }
 
-        // This throws on failure
+        // Throws on failure
         validateInterlink(headers, hashedHeaders, siblings);
 
         events[hashedBlock].proofHash = hashProof(headers);
