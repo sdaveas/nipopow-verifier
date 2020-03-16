@@ -70,19 +70,6 @@ contract Crosschain {
         return sha256(abi.encodePacked(sha256(abi.encodePacked(s))));
     }
 
-    function predicate(bytes32[] memory proof, bytes32 blockOfInterest)
-        internal
-        pure
-        returns (bool)
-    {
-        for (uint256 i = 0; i < proof.length; i++) {
-            if (proof[i] == blockOfInterest) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     // TODO: Implement the O(log(maxLevel)) algorithm.
     function getLevel(bytes32 hashedHeader) internal pure returns (uint256) {
         uint256 hash = uint256(hashedHeader);
