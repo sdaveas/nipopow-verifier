@@ -78,14 +78,19 @@ def test_submit_contest():
     block_of_interest_index = 0
     block_of_interest = submit_proof.headers[block_of_interest_index]
 
-    res = submit_event_proof(interface, submit_proof, block_of_interest, block_of_interest_index, profile=True)
+    res = submit_event_proof(
+        interface,
+        submit_proof,
+        block_of_interest_index,
+        profile=True
+    )
+
     assert res["result"] == True
     res = submit_contesting_proof_new(
         interface,
         submit_proof,
         lca,
         contest_proof,
-        block_of_interest,
         block_of_interest_index,
         profile=True,
     )

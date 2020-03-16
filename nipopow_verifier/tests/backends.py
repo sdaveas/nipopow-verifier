@@ -25,11 +25,11 @@ def run_nipopow(backend, proof):
     The block of interest is the last block of the chain.
     """
 
-    block_of_interest = proof.headers[0]
+    block_of_interest_index = 0
     interface = make_interface(backend)
     _t = Timer()
     try:
-        result = submit_event_proof(interface, proof, block_of_interest, profile=True)
+        result = submit_event_proof(interface, proof, block_of_interest_index, profile=True)
     except Exception as ex:
         print(ex)
 

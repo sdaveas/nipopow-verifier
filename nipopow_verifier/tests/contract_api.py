@@ -27,7 +27,6 @@ def make_interface(backend):
 def submit_event_proof(
     interface,
     proof,
-    block_of_interest,
     block_of_interest_index,
     collateral=pow(10, 17),
     from_address=None,
@@ -42,7 +41,7 @@ def submit_event_proof(
         from_address = interface.w3.eth.accounts[0]
 
     my_function = my_contract.functions.submitEventProof(
-        proof.headers, proof.siblings, block_of_interest, block_of_interest_index
+        proof.headers, proof.siblings, block_of_interest_index
     )
 
     res = my_function.call({"from": from_address, "value": collateral})
@@ -83,7 +82,6 @@ def submit_contesting_proof_new(
     existing,
     lca,
     contesting,
-    block_of_interest,
     block_of_interest_index,
     from_address=None,
     profile=False,
@@ -101,7 +99,6 @@ def submit_contesting_proof_new(
         lca,
         contesting.headers,
         contesting.siblings,
-        block_of_interest,
         block_of_interest_index,
     )
 

@@ -225,12 +225,15 @@ contract Crosschain {
     function submitEventProof(
         bytes32[4][] memory headers,
         bytes32[] memory siblings,
-        bytes32[4] memory blockOfInterest,
         uint256 blockOfInterestIndex
     ) public payable returns (bool) {
-        bytes32 hashedBlock = hashHeader(blockOfInterest);
-
         require(msg.value >= z, "insufficient collateral");
+        require(
+            headers.length > blockOfInterestIndex && blockOfInterestIndex >= 0,
+            "Block of interest index out of range"
+        );
+
+        bytes32 hashedBlock = hashHeader(headers[blockOfInterestIndex]);
         require(
             events[hashedBlock].expire == 0,
             "The submission period has expired"
@@ -252,11 +255,6 @@ contract Crosschain {
 
         // This throws on failure
         validateInterlink(headers, hashedHeaders, siblings);
-
-        require(
-            hashedHeaders[blockOfInterestIndex] == hashHeader(blockOfInterest),
-            "Block of interest was not included in the submitted proof"
-        );
 
         events[hashedBlock].proofHash = hashProof(headers);
         events[hashedBlock].expire = block.number + k;
@@ -306,10 +304,17 @@ contract Crosschain {
         uint256 lca,
         bytes32[4][] memory contestingHeaders,
         bytes32[] memory contestingSiblings,
-        bytes32[4] memory blockOfInterest,
-        uint256 boiExistingIndex
+        uint256 blockOfInterestIndex
     ) public returns (bool) {
-        bytes32 blockOfInterestHash = hashHeader(blockOfInterest);
+        require(
+            existingHeaders.length > blockOfInterestIndex &&
+                blockOfInterestIndex >= 0,
+            "Block of interest index is out of range"
+        );
+
+        bytes32 blockOfInterestHash = hashHeader(
+            existingHeaders[blockOfInterestIndex]
+        );
 
         require(
             events[blockOfInterestHash].expire > block.number,
@@ -319,7 +324,7 @@ contract Crosschain {
         require(existingHeaders.length > lca, "Lca out of range");
 
         require(
-            lca > boiExistingIndex,
+            lca > blockOfInterestIndex,
             "Block of interest exists in sub-chain"
         );
 
