@@ -70,18 +70,6 @@ contract Crosschain {
         return sha256(abi.encodePacked(sha256(abi.encodePacked(s))));
     }
 
-    function hashHeaders(bytes32[4][] memory headers)
-        internal
-        pure
-        returns (bytes32[] memory)
-    {
-        bytes32[] memory hashedHeaders = new bytes32[](headers.length);
-        for (uint256 i = 0; i < headers.length; i++) {
-            hashedHeaders[i] = hashHeader(headers[i]);
-        }
-        return hashedHeaders;
-    }
-
     function predicate(bytes32[] memory proof, bytes32 blockOfInterest)
         internal
         pure
