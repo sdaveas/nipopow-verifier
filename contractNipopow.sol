@@ -278,7 +278,7 @@ contract Crosschain {
         return true;
     }
 
-    // This will may be expensive. Check if a memory mapping is required
+    // If this will be expensive, check memory mapping
     // Check if all blocks of existing[lca+1:] are different from contesting[1:]
     function allDifferent(
         bytes32[] memory existing,
@@ -329,7 +329,6 @@ contract Crosschain {
             "Wrong existing proof"
         );
 
-        // get contesting hashed headers
         bytes32[] memory contestingHeadersHashed = new bytes32[](
             contestingHeaders.length
         );
