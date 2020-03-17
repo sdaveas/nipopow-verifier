@@ -185,62 +185,97 @@ class ProofTool:
 
         return proof
 
-    def create_mainproof_and_forkproof(self, mainblocks, fork_index, forkblocks):
+    def create_fixed_fork_proof(self, proof, fork_proof):
+        """
+        Creates the subset of the fork_proof which different than the original
+        """
+
+        lca = 0
+        fixed_fork_proof = []
+
+        for fp in fork_proof:
+            try:
+                lca = proof.index(fp)
+                break
+            except ValueError as e:
+                fixed_fork_proof.append(fp)
+                continue
+
+        return fixed_fork_proof, lca - 1
+
+    def create_proof_and_forkproof(self, mainblocks, fork_index, forkblocks):
         """
         Returns the names of a mainchain proof and a forkchain proof.
         If either of the two proofs does not exist, it is created with the known name convension
         See documentation of 'make_fork_proof_filename()'
         """
 
-        chain_header = None
+        # Initial blockchain
+        header = None
         header_map = None
         interlink_map = None
+        blockchain_name = self.proof_dir() + "blockchain_" + str(mainblocks) + ".pkl"
+        try:
+            open(blockchain_name)
+            header, header_map, interlink_map = blockchain_utils.load_blockchain(
+                blockchain_name
+            )
+        except Exception:
+            (header, header_map, interlink_map) = blockchain_utils.create_blockchain(
+                blocks=mainblocks
+            )
+            blockchain_utils.save_blockchain(
+                blockchain_name, header, header_map, interlink_map
+            )
+        # Initial proof
+        proof = []
+        proof_name = self.make_proof_filename(mainblocks)
+        proof = blockchain_utils.make_proof(header, header_map, interlink_map)
 
-        self.make_proof_filename(mainblocks)
-        fork_proof_filename = self.make_fork_proof_filename(
-            mainblocks, fork_index, forkblocks
+        # Fork blockchain
+        fork_header = None
+        fork_header_map = None
+        fork_interlink_map = None
+        f_header = header
+        fork_blockchain_name = (
+            self.proof_dir()
+            + "blockchain_"
+            + str(mainblocks)
+            + "-"
+            + str(fork_index)
+            + "+"
+            + str(forkblocks)
+            + ".pkl"
         )
 
-        try:
-            open(fork_proof_filename)
-        except IOError:
-            (
-                chain_header,
-                header_map,
-                interlink_map,
-            ) = blockchain_utils.create_blockchain(blocks=mainblocks)
+        # TODO: Chech if the fork blockchain can be exported as well
+        (
+            fork_header,
+            fork_header_map,
+            fork_interlink_map,
+        ) = blockchain_utils.create_fork(
+            f_header,
+            header_map.copy(),
+            interlink_map.copy(),
+            fork=fork_index,
+            blocks=forkblocks,
+        )
+        blockchain_utils.save_blockchain(
+            fork_blockchain_name, fork_header, fork_header_map, fork_interlink_map
+        )
+        # Fork proof
+        fork_proof = []
+        fork_proof_name = self.make_fork_proof_filename(
+            mainblocks, fork_index, forkblocks
+        )
+        fork_proof = blockchain_utils.make_proof(
+            fork_header, fork_header_map, fork_interlink_map
+        )
 
-        proof_file = None
-        try:
-            proof_file = open(fork_proof_filename)
-            print("File", fork_proof_filename, "already exists. Importing...")
-            proof_file.close()
-        except IOError:
-            print("File", fork_proof_filename, "does not exist. Creating...")
-            (
-                fork_header,
-                fork_header_map,
-                fork_map_interlink,
-            ) = blockchain_utils.create_fork(
-                chain_header,
-                header_map,
-                interlink_map,
-                fork=fork_index,
-                blocks=forkblocks,
-            )
+        fixed_fork_proof, lca = self.create_fixed_fork_proof(proof, fork_proof)
+        self.export_proof(fixed_fork_proof, fork_proof_name)
 
-            proof_f = blockchain_utils.make_proof(
-                fork_header, fork_header_map, fork_map_interlink
-            )
-
-            pickle_out = open(fork_proof_filename, "wb")
-            pickle.dump(proof_f, pickle_out)
-            pickle_out.close()
-            print("Created fork at " + fork_proof_filename)
-        finally:
-            print("...ok")
-
-        return (self.make_proof_filename(mainblocks), fork_proof_filename)
+        return (proof_name, fork_proof_name, lca)
 
 
 def main():
