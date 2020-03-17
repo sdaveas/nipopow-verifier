@@ -135,8 +135,6 @@ class ProofTool:
             + str(fork_index)
             + "_+"
             + str(forkblocks)
-            + "_+"
-            + str(lca)
             + ".pkl"
         )
 
