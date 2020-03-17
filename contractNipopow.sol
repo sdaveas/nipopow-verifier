@@ -335,8 +335,8 @@ contract Crosschain {
             existingHeadersHashed[i] = hashHeader(existingHeaders[i]);
         }
         require(
-            existingHeadersHashed[lca] ==
-                contestingHeadersHashed[contestingHeadersHashed.length - 1],
+            existingHeaders[lca][0] ==
+                contestingHeaders[contestingHeaders.length - 1][0],
             "Wrong lca"
         );
 
