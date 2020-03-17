@@ -13,7 +13,18 @@ errors = {
     "stack": "Stack length <= 0",
     "branch": "Branch length too big",
     "merkle_index": "Merkle index too big",
-    "genesis": "Invalid genesis",
+    "ante up": "insufficient collateral",
+    "boi not exist": "Block of interest index out of range",
+    "period expired": "The submission period has expired",
+    "proof exists": "A proof with this evens exists",
+    "genesis": "Proof does not include the genesis block",
+    "expire": "Contesting period has expired",
+    "lca": "Lca out of range",
+    "boi in sub-chain": "Block of interest exists in sub-chain",
+    "existing proof": "Wrong existing proof",
+    "wrong lca": "Wrong lca",
+    "same proofs": "Contesting proof[1:] is not different from existing[lca+1:]",
+    "low score": "Existing proof has greater score",
 }
 
 
