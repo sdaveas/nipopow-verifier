@@ -69,20 +69,20 @@ def test_submit_contest():
     interface = make_interface(backend)
 
     pt = ProofTool("../data/proofs/")
+    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
+        500000, 200, 500
+    )
     submit_proof = Proof()
     contest_proof = Proof()
-    submit_proof.set(pt.fetch_proof("../data/proofs/proof_200.pkl"))
-    contest_proof.set(pt.fetch_proof("../data/proofs/proof_200-100+50.pkl"))
+    submit_proof.set(pt.fetch_proof(submit_proof_name))
+    contest_proof.set(pt.fetch_proof(contest_proof_name))
 
-    lca = 55
+    print("lca:", lca)
+
     block_of_interest_index = 0
-    block_of_interest = submit_proof.headers[block_of_interest_index]
 
     res = submit_event_proof(
-        interface,
-        submit_proof,
-        block_of_interest_index,
-        profile=True
+        interface, submit_proof, block_of_interest_index, profile=True
     )
 
     assert res["result"] == True
