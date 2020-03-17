@@ -347,8 +347,8 @@ contract Crosschain {
 
         // We can ask the caller to provide the level for their proof
         require(
-            bestArg(existingHeadersHashed, lca + 1) <
-                bestArg(contestingHeadersHashed, 1),
+            bestArg(existingHeadersHashed, lca) <
+                bestArg(contestingHeadersHashed, contestingHeaders.length - 1),
             "Existing proof has greater score"
         );
 
