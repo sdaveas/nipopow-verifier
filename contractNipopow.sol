@@ -84,6 +84,9 @@ contract Crosschain {
         return 0;
     }
 
+    // TODO: lca can be very close to the tip of submited proof so that
+    // score(existing[lca:]) < score(contesting[lca:]) because
+    // |existing[:lca]| < m
     function bestArg(bytes32[] memory proof, uint256 lca)
         internal
         returns (uint256)
@@ -106,6 +109,7 @@ contract Crosschain {
             }
         }
 
+        // TODO: This becomes 0 for i=0
         for (uint256 i = 0; i <= maxLevel; i++) {
             uint256 curScore = uint256(levelCounter[i] * 2**i);
             if (levelCounter[i] >= m && curScore > maxScore) {
@@ -335,6 +339,7 @@ contract Crosschain {
             existingHeadersHashed[i] = hashHeader(existingHeaders[i]);
         }
         require(
+            // TODO: Do we need contestingHeaders.length[x][] of contestingHeadersHased[x]
             existingHeaders[lca][0] ==
                 contestingHeaders[contestingHeaders.length - 1][0],
             "Wrong lca"
