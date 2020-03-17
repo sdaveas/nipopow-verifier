@@ -25,7 +25,7 @@ def print_headers(headers_map, fork=False):
     print("\nHeaders")
     for header_hash in list(headers_map.keys()):
         header = headers_map[header_hash]
-        if fork and header.hashMerkleRoot != b'\xcc'*32:
+        if fork and header.hashMerkleRoot != b"\xcc" * 32:
             continue
 
         print("header hash:\t\t", header.GetHash().hex())
@@ -91,7 +91,8 @@ def print_proof(proof, headers_map):
             print(i, "Header:\t\t\t", "We dont know yet")
         else:
             print(
-                i, "Header:\t\t\t",
+                i,
+                "Header:\t\t\t",
                 CBlockHeaderPopow.deserialize(proof[i][0]).GetHash().hex(),
             )
         header_hash, _ = proof[i]
@@ -228,59 +229,15 @@ def main():
 
     ### Stop spoiling proof
 
-    n_header = header
-    fork_headers, fork_headers_map, fork_interlink_map = create_fork(
-        n_header, headers_map.copy(), interlink_map.copy(), fork=100, blocks=50
-    )
-    fork_proof = make_proof(fork_headers, fork_headers_map, fork_interlink_map)
-
-    # print_headers(fork_headers_map, True)
-    # print_proof(fork_proof, fork_headers_map)
-
-    # print_interlinks(headers_map, interlink_map)
-    # print_interlinks(fork_headers_map, fork_interlink_map)
-
-    verify_proof(Hash(proof[0][0]), proof)
-    print()
-    verify_proof(Hash(fork_proof[0][0]), fork_proof)
-
-    print("Existing proof lenght:", len(proof))
-    print("Contesting proof lenght:", len(fork_proof))
-
-    fork_proof_lca = 0
-    proof_lca = 0
-    contesting = []
-    for i, fp in enumerate(fork_proof):
-        if fp in proof:
-            fork_proof_lca = i - 1
-            break
-        contesting.append(fp)
-
-    for i, p in enumerate(proof):
-        if p[0] == contesting[-1][0]:
-            proof_lca = i
-            break
-
-    print(" 0:", proof[0][0].hex())
-    print("-1:", proof[-1][0].hex())
-    print(" 0:", fork_proof[0][0].hex())
-    print("-1:", fork_proof[-1][0].hex())
-    print(" 0", contesting[0][0].hex())
-    print("-1", contesting[-1][0].hex())
-
-    print("lca in proof is", proof_lca)
-    print("lca in fork proof is", fork_proof_lca)
-    print("Contesting length:", len(contesting))
-    print(proof[proof_lca][0].hex())
-    print(fork_proof[fork_proof_lca][0].hex())
-    print(contesting[-1][0].hex())
-
-    # print_proof(contesting, fork_interlink_map)
-
-    verify_proof(Hash(contesting[0][0]), contesting)
-
     proof_tool = ProofTool("../../data/proofs/")
-    proof_tool.export_proof(contesting, output)
+    p, f, lca = proof_tool.create_proof_and_forkproof(blocks, forkindex, forkblocks)
+    print(p, f, lca)
+
+    fixed_fork_proof = proof_tool.fetch_proof(f)
+    verify_proof(Hash(fixed_fork_proof[0][0]), fixed_fork_proof)
+
+    # proof_tool = ProofTool("../../data/proofs/")
+    # proof_tool.export_proof(fixed_fork_proof, f)
 
 
 if __name__ == "__main__":
