@@ -211,7 +211,7 @@ contract Crosschain {
         require(msg.value >= z, "insufficient collateral");
         require(
             headers.length > blockOfInterestIndex && blockOfInterestIndex >= 0,
-            "Block of interest index out of range"
+            "Block of interest index is out of range"
         );
 
         bytes32 hashedBlock = hashHeader(headers[blockOfInterestIndex]);

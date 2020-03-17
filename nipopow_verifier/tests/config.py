@@ -14,7 +14,7 @@ errors = {
     "branch": "Branch length too big",
     "merkle_index": "Merkle index too big",
     "ante up": "insufficient collateral",
-    "boi not exist": "Block of interest index out of range",
+    "boi not exist": "Block of interest index is out of range",
     "period expired": "The submission period has expired",
     "proof exists": "A proof with this evens exists",
     "genesis": "Proof does not include the genesis block",
