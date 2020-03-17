@@ -129,11 +129,14 @@ class ProofTool:
         """
         return (
             self.proof_dir()
+            + "proof_"
             + str(mainblocks)
             + "_-"
             + str(fork_index)
             + "_+"
             + str(forkblocks)
+            + "_+"
+            + str(lca)
             + ".pkl"
         )
 
