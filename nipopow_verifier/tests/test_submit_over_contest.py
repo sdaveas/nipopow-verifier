@@ -17,7 +17,7 @@ from contract_api import (
     finalize_event,
     event_exists,
 )
-from config import genesis
+from config import errors, extract_message_from_error, genesis
 
 import pytest
 
@@ -65,27 +65,68 @@ def finish_session(request):
     interface.end()
 
 
-def test_submit_contest():
+def test_boi_in_large():
+    """
+    Block of interest contained in both chains
+    --------+---x---->  Ca
+            |
+            +--->       Cb
+    """
+    block_of_interest_index = 0
+    pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
 
-    pt = ProofTool("../data/proofs/")
     submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
-        500000, 200, 500
+        1000, 200, 100
     )
     submit_proof = Proof()
     contest_proof = Proof()
     submit_proof.set(pt.fetch_proof(submit_proof_name))
     contest_proof.set(pt.fetch_proof(contest_proof_name))
 
-    print("lca:", lca)
-
-    block_of_interest_index = 0
-
     res = submit_event_proof(
         interface, submit_proof, block_of_interest_index, profile=True
     )
 
     assert res["result"] == True
+
+    with pytest.raises(Exception) as ex:
+        res = submit_contesting_proof_new(
+            interface,
+            submit_proof,
+            lca,
+            contest_proof,
+            block_of_interest_index,
+            profile=True,
+        )
+    assert extract_message_from_error(ex) == errors["low score"]
+
+
+def test_boi_in_small():
+    """
+    Block of interest contained in both chains
+    --------+--x-->  Ca
+            |
+            +-------->  Cb
+    """
+
+    block_of_interest_index = 0
+    pt = ProofTool("../data/proofs/")
+    interface = make_interface(backend)
+
+    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
+        1000, 100, 200
+    )
+    submit_proof = Proof()
+    contest_proof = Proof()
+    submit_proof.set(pt.fetch_proof(submit_proof_name))
+    contest_proof.set(pt.fetch_proof(contest_proof_name))
+
+    res = submit_event_proof(
+        interface, submit_proof, block_of_interest_index, profile=True
+    )
+    assert res["result"] == True
+
     res = submit_contesting_proof_new(
         interface,
         submit_proof,
@@ -94,144 +135,241 @@ def test_submit_contest():
         block_of_interest_index,
         profile=True,
     )
-    # assert res['result'] == False
+    assert res["result"] == True
 
 
-def test_common_block(init_environment):
+def test_boi_in_common_submit_small():
     """
     Block of interest contained in both chains
-    ---x0---+-------->  Ca
+    ----x---+---->  Ca
             |
-            +--->       Cb
+            +------->  Cb
     """
 
-    block_of_interest = big_proof.headers[-1]
-
-    # First Ca, then Cb
+    pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
-    res = submit_event_proof(interface, big_proof, block_of_interest, profile=True)
-    assert res["result"] == True, "submit big proof should be True"
-    res = submit_contesting_proof(
-        interface, small_proof, block_of_interest, profile=True
+
+    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
+        1000, 100, 200
     )
-    assert res["result"] == False, "contest small proof should be False"
+    submit_proof = Proof()
+    contest_proof = Proof()
+    submit_proof.set(pt.fetch_proof(submit_proof_name))
+    contest_proof.set(pt.fetch_proof(contest_proof_name))
 
-    ## First Cb, then Ca
-    interface = make_interface(backend)
-    res = submit_event_proof(interface, small_proof, block_of_interest, profile=True)
-    assert res["result"] == True, "submit small proof should be True"
-    res = submit_contesting_proof(interface, big_proof, block_of_interest, profile=True)
-    assert res["result"] == False, "contest big proof should be False"
+    block_of_interest_index = submit_proof.size - 1
+
+    res = submit_event_proof(
+        interface, submit_proof, block_of_interest_index, profile=True
+    )
+    assert res["result"] == True
+
+    with pytest.raises(Exception) as ex:
+        res = submit_contesting_proof_new(
+            interface,
+            submit_proof,
+            lca,
+            contest_proof,
+            block_of_interest_index,
+            profile=True,
+        )
+    assert extract_message_from_error(ex) == errors["boi in sub-chain"]
 
 
-def test_block_in_big_chain(init_environment):
+def test_boi_in_common_submit_big():
     """
-    Block of interest contained only in Ca
-    --------+---x1--->  Ca
+    Block of interest contained in both chains
+    ----x---+------->  Ca
             |
-            +--->       Cb
+            +---->  Cb
     """
 
-    block_of_interest = big_proof.headers[0]
-
-    # First Ca, then Cb
+    pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
-    res = submit_event_proof(interface, big_proof, block_of_interest)
-    assert res["result"] == True, "submit big proof should be True"
-    res = submit_contesting_proof(interface, small_proof, block_of_interest)
-    assert res["result"] == False, "contest small proof should be False"
 
-    # First Cb, then Ca
-    interface = make_interface(backend)
-    res = submit_event_proof(interface, small_proof, block_of_interest)
-    assert res["result"] == False, "submit small proof should be True"
-    res = submit_contesting_proof(interface, big_proof, block_of_interest)
-    assert res["result"] == False, "contest big proof should be True"
+    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
+        1000, 200, 100
+    )
+    submit_proof = Proof()
+    contest_proof = Proof()
+    submit_proof.set(pt.fetch_proof(submit_proof_name))
+    contest_proof.set(pt.fetch_proof(contest_proof_name))
+
+    block_of_interest_index = submit_proof.size - 1
+
+    res = submit_event_proof(
+        interface, submit_proof, block_of_interest_index, profile=True
+    )
+    assert res["result"] == True
+
+    with pytest.raises(Exception) as ex:
+        res = submit_contesting_proof_new(
+            interface,
+            submit_proof,
+            lca,
+            contest_proof,
+            block_of_interest_index,
+            profile=True,
+        )
+    assert extract_message_from_error(ex) == errors["boi in sub-chain"]
 
 
-def test_block_in_small_chain(init_environment):
+def test_boi_out_of_index():
     """
-    Block of interest contained only in Cb
-    --------+---------->  Ca
-            |
-            +--x2-->      Cb
-    """
-
-    block_of_interest = small_proof.headers[0]
-
-    # First Ca, then Cb
-    interface = make_interface(backend)
-    res = submit_event_proof(interface, big_proof, block_of_interest)
-    assert res["result"] == False, "submit big proof should be False"
-    res = submit_contesting_proof(interface, small_proof, block_of_interest)
-    assert res["result"] == False, "submit small proof should be False"
-
-    # First Cb, then Ca
-    interface = make_interface(backend)
-    res = submit_event_proof(interface, small_proof, block_of_interest)
-    assert res["result"] == True, "submit small proof should be True"
-    res = submit_contesting_proof(interface, big_proof, block_of_interest)
-    assert res["result"] == True, "contest big proof should be True"
-
-
-def test_submit_proof_twice(init_environment):
-    """
-    Test double submission
+    Block of interest contained in both chains
+    ---------------->  Ca    x
     """
 
-    block_of_interest = big_proof.headers[0]
+    pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
-    res = submit_event_proof(interface, big_proof, block_of_interest)
-    assert res["result"] == True, "submit proof should be True"
-    res = submit_event_proof(interface, big_proof, block_of_interest)
-    assert res["result"] == False, "submit same proof again should be False"
+
+    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
+        1000, 200, 100
+    )
+    submit_proof = Proof()
+    contest_proof = Proof()
+    submit_proof.set(pt.fetch_proof(submit_proof_name))
+    contest_proof.set(pt.fetch_proof(contest_proof_name))
+
+    block_of_interest_index = submit_proof.size
+
+    with pytest.raises(Exception) as ex:
+        res = submit_event_proof(
+            interface, submit_proof, block_of_interest_index, profile=True
+        )
+    assert extract_message_from_error(ex) == errors["boi not exist"]
 
 
-def test_event_exists(init_environment):
+def test_boi_out_of_index_contest():
+    """
+    Block of interest is in submit but not in contest proof
+    """
 
-    k = 6
-    block_of_interest = big_proof.headers[-1]
+    pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
-    res = submit_event_proof(interface, small_proof, block_of_interest)
-    assert res["result"] == True, "submit small proof should be True"
-    res = submit_contesting_proof(interface, big_proof, block_of_interest)
-    assert res["result"] == False, "contest big proof should be False"
-    res = event_exists(interface, block_of_interest)
-    assert res == False, "event should exist yet"
-    # Spare k rounds. Then the finalize even should be accepted
-    for i in range(k):
-        finalize_event(interface, block_of_interest)
-    res = event_exists(interface, block_of_interest)
-    assert res == True, "event should now exist"
+
+    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
+        1000, 200, 100
+    )
+    submit_proof = Proof()
+    contest_proof = Proof()
+    submit_proof.set(pt.fetch_proof(submit_proof_name))
+    contest_proof.set(pt.fetch_proof(contest_proof_name))
+
+    block_of_interest_index = submit_proof.size - 1
+
+    res = submit_event_proof(
+        interface, submit_proof, block_of_interest_index, profile=True
+    )
+    assert res["result"] == True
+
+    with pytest.raises(Exception) as ex:
+        res = submit_contesting_proof_new(
+            interface,
+            submit_proof,
+            lca,
+            contest_proof,
+            submit_proof.size,  # This is out of range
+            profile=True,
+        )
+    assert extract_message_from_error(ex) == errors["boi not exist"]
 
 
-# TODO: see why this fails with k = 1
-def test_event_not_exist(init_environment):
-    k = 6
+def test_same_proofs():
+    """
+    Submit proof is the same as contest proof
+    """
+
+    pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
-    block_of_interest = small_proof.headers[0]
-    res = submit_event_proof(interface, small_proof, block_of_interest)
-    assert res["result"] == True, "submit small proof should be True"
-    res = submit_contesting_proof(interface, big_proof, block_of_interest)
-    assert res["result"] == True, "submit big proof should be True"
-    # Spare k rounds. Then the finalize even should be accepted
-    for i in range(k):
-        finalize_event(interface, block_of_interest)
-    res = event_exists(interface, block_of_interest)
-    assert res == False, "event should still not exist"
+
+    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
+        1000, 200, 100
+    )
+    submit_proof = Proof()
+    contest_proof = Proof()
+    submit_proof.set(pt.fetch_proof(submit_proof_name))
+    contest_proof.set(pt.fetch_proof(contest_proof_name))
+
+    block_of_interest_index = submit_proof.size - 1
+
+    res = submit_event_proof(
+        interface, submit_proof, block_of_interest_index, profile=True
+    )
+    assert res["result"] == True
+
+    with pytest.raises(Exception) as ex:
+        res = submit_contesting_proof_new(
+            interface,
+            submit_proof,
+            lca,
+            submit_proof,
+            block_of_interest_index,
+            profile=True,
+        )
+    assert extract_message_from_error(ex) == errors["boi in sub-chain"]
 
 
-def test_submit_after_finalize(init_environment):
-    k = 6
+def test_wrong_lca():
+    """
+    Contest proof lies about lca
+    """
+
+    pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
-    block_of_interest = small_proof.headers[0]
-    res = submit_event_proof(interface, small_proof, block_of_interest)
-    # Spare k rounds. Then the finalize even should be accepted
-    for _ in range(k):
-        finalize_event(interface, block_of_interest)
-    res = event_exists(interface, block_of_interest)
-    assert res == True, "event should exist"
-    res = submit_event_proof(interface, big_proof, block_of_interest)
-    assert (
-        res["result"] == False
-    ), "stronger proof should not be accepted because the time expired"
+
+    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
+        1000, 200, 100
+    )
+    submit_proof = Proof()
+    contest_proof = Proof()
+    submit_proof.set(pt.fetch_proof(submit_proof_name))
+    contest_proof.set(pt.fetch_proof(contest_proof_name))
+
+    block_of_interest_index = 0
+
+    res = submit_event_proof(
+        interface, submit_proof, block_of_interest_index, profile=True
+    )
+    assert res["result"] == True
+
+    with pytest.raises(Exception) as ex:
+        res = submit_contesting_proof_new(
+            interface,
+            submit_proof,
+            lca - 1,  # this is wrong
+            contest_proof,
+            block_of_interest_index,
+            profile=True,
+        )
+    assert extract_message_from_error(ex) == errors["wrong lca"]
+
+
+def test_proof_exists():
+    """
+    Contest proof lies about lca
+    """
+
+    pt = ProofTool("../data/proofs/")
+    interface = make_interface(backend)
+
+    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
+        1000, 200, 100
+    )
+    submit_proof = Proof()
+    contest_proof = Proof()
+    submit_proof.set(pt.fetch_proof(submit_proof_name))
+    contest_proof.set(pt.fetch_proof(contest_proof_name))
+
+    block_of_interest_index = 0
+
+    res = submit_event_proof(
+        interface, submit_proof, block_of_interest_index, profile=True
+    )
+    assert res["result"] == True
+
+    with pytest.raises(Exception) as ex:
+        res = submit_event_proof(
+            interface, submit_proof, block_of_interest_index, profile=True
+        )
+    assert extract_message_from_error(ex) == errors["period expired"]
