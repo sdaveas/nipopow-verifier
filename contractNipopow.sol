@@ -19,6 +19,7 @@ contract Crosschain {
         address payable author;
         uint256 expire;
         bytes32 proofHash;
+        bytes32 hashedProofHash;
     }
 
     // the block header hash.
@@ -165,14 +166,18 @@ contract Crosschain {
         return uint8(bytes1(b << 248));
     }
 
+    // This is ugly
+    bytes32 hashedProofHash;
+
     function validateInterlink(
         bytes32[4][] memory headers,
         bytes32[] memory siblings
-    ) internal pure returns (bool) {
+    ) internal returns (bool) {
         bytes32[] memory hashedHeaders = new bytes32[](headers.length);
         for (uint256 i = 0; i < headers.length; i++) {
             hashedHeaders[i] = hashHeader(headers[i]);
         }
+        hashedProofHash = sha256(abi.encodePacked(hashedHeaders));
         return validateInterlink(headers, hashedHeaders, siblings);
     }
 
@@ -253,6 +258,7 @@ contract Crosschain {
         );
 
         events[hashedBlock].proofHash = hashProof(headers);
+        events[hashedBlock].hashedProofHash = hashedProofHash;
         events[hashedBlock].expire = block.number + k;
         events[hashedBlock].author = msg.sender;
 
