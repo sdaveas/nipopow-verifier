@@ -50,11 +50,18 @@ Describe infix proofs
 Soft, hard and velvet fork
 
 \section{Implementation}
-Describe the deliverable
-\subsection{Motivation}
-Why we do this
-\subsection{Methodology}
-How we do this
+In this section, the implementation steps are described. We also outline the difficulties we faced.
+
+\subsection{Setting up test environment}
+A testing environment is a setup of software to execute test cases. Test bed or test environment is configured as per the need of the application under test. Setting up a right test environment ensures software testing success.
+
+In the case of solidity applications, smart contracts are deployed on the EVM. The functionality of the deployed application is tested by making calls to the contract's functions and asserting the correctness of the results. In order to ensure that the contract always operates appropriately, all test-cases must be covered. A common practice for developers is to create a local, in-memory blockchain to deploy and test applications.
+
+There is variety of EVMs one can use. We experimented with are Ganache,Geth and Py-EVM.
+
+\subsubsection{Ganache}
+\subsubsection{Geth}
+\subsubsection{Py-EVM}
 
 \section{Results}
 \section{Conclusion}
