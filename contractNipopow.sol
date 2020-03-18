@@ -302,38 +302,39 @@ contract Crosschain {
     }
 
     function submitContestingProof(
-        bytes32[4][] memory existingHeaders,
+        bytes32[] memory existingHeadersHashed,
         uint256 lca,
         bytes32[4][] memory contestingHeaders,
         bytes32[] memory contestingSiblings,
         uint256 blockOfInterestIndex
     ) public returns (bool) {
         require(
-            existingHeaders.length > blockOfInterestIndex &&
+            existingHeadersHashed.length > blockOfInterestIndex &&
                 blockOfInterestIndex >= 0,
             "Block of interest index is out of range"
         );
 
-        bytes32 blockOfInterestHash = hashHeader(
-            existingHeaders[blockOfInterestIndex]
-        );
+
+            bytes32 blockOfInterestHash
+         = existingHeadersHashed[blockOfInterestIndex];
 
         require(
             events[blockOfInterestHash].expire > block.number,
             "Contesting period has expired"
         );
 
-        require(existingHeaders.length > lca, "Lca out of range");
+        require(existingHeadersHashed.length > lca, "Lca out of range");
 
         require(
             lca > blockOfInterestIndex,
             "Block of interest exists in sub-chain"
         );
 
-        require(
-            events[blockOfInterestHash].proofHash == hashProof(existingHeaders),
-            "Wrong existing proof"
-        );
+        // TODO check hash of hashed existing. How do I do the following line from python
+        // require(
+        //     events[blockOfInterestHash].hashProofHash == hashProof(existingHeadersHash),
+        //     "Wrong existing proof"
+        // );
 
         bytes32[] memory contestingHeadersHashed = new bytes32[](
             contestingHeaders.length
@@ -351,17 +352,10 @@ contract Crosschain {
             "Merkle verification failed"
         );
 
-        // get existing hashed headers
-        bytes32[] memory existingHeadersHashed = new bytes32[](
-            existingHeaders.length
-        );
-        for (uint256 i = 0; i < existingHeaders.length; i++) {
-            existingHeadersHashed[i] = hashHeader(existingHeaders[i]);
-        }
         require(
             // TODO: Do we need contestingHeaders.length[x][] of contestingHeadersHased[x]
-            existingHeaders[lca][0] ==
-                contestingHeaders[contestingHeaders.length - 1][0],
+            existingHeadersHashed[lca] ==
+                contestingHeadersHashed[contestingHeaders.length - 1],
             "Wrong lca"
         );
 
@@ -373,7 +367,10 @@ contract Crosschain {
         // We can ask the caller to provide the level for their proof
         require(
             bestArg(existingHeadersHashed, lca) <
-                bestArg(contestingHeadersHashed, contestingHeaders.length - 1),
+                bestArg(
+                    contestingHeadersHashed,
+                    contestingHeadersHashed.length - 1
+                ),
             "Existing proof has greater score"
         );
 
