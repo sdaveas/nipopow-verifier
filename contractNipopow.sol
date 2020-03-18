@@ -166,21 +166,6 @@ contract Crosschain {
         return uint8(bytes1(b << 248));
     }
 
-    // This is ugly
-    bytes32 hashedProofHash;
-
-    function validateInterlink(
-        bytes32[4][] memory headers,
-        bytes32[] memory siblings
-    ) internal returns (bool) {
-        bytes32[] memory hashedHeaders = new bytes32[](headers.length);
-        for (uint256 i = 0; i < headers.length; i++) {
-            hashedHeaders[i] = hashHeader(headers[i]);
-        }
-        hashedProofHash = sha256(abi.encodePacked(hashedHeaders));
-        return validateInterlink(headers, hashedHeaders, siblings);
-    }
-
     function validateInterlink(
         bytes32[4][] memory headers,
         bytes32[] memory hashedHeaders,
@@ -252,13 +237,21 @@ contract Crosschain {
             hashHeader(headers[headers.length - 1]) == genesisBlockHash,
             "Proof does not include the genesis block"
         );
+
+        bytes32[] memory hashedHeaders = new bytes32[](headers.length);
+        for (uint256 i = 0; i < headers.length; i++) {
+            hashedHeaders[i] = hashHeader(headers[i]);
+        }
+
         require(
-            validateInterlink(headers, siblings),
+            validateInterlink(headers, hashedHeaders, siblings),
             "Merkle verification failed"
         );
 
         events[hashedBlock].proofHash = hashProof(headers);
-        events[hashedBlock].hashedProofHash = hashedProofHash;
+        events[hashedBlock].hashedProofHash = sha256(
+            abi.encodePacked(hashedHeaders)
+        );
         events[hashedBlock].expire = block.number + k;
         events[hashedBlock].author = msg.sender;
 
