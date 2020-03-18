@@ -31,7 +31,13 @@ Describe the use of solidity language
 \subsubsection{Smark contracts}
 Describe the use of smart contracts
 \subsubsection{Ethereum Virtual Machine}
-Describe the usage of EVM, difference between memory and storage, what is gas, provide benchmarks of memory vs storage usage
+The Ethereum Virtual Machine (EVM) is a sandboxed virtual stack embedded within each full Ethereum node, responsible for executing contract bytecode. Contracts are typically written in higher level languages, like Solidity, then compiled to EVM bytecode.
+
+This means that the machine code is completely isolated from the network, filesystem or any processes of the host computer. Every node in the Ethereum network runs an EVM instance which allows them to agree on executing the same instructions. The EVM is Turing complete, which refers to a system capable of performing any logical step of a computational function. JavaScript, the programming language which powers the worldwide web, widely uses Turing completeness.
+
+Ethereum Virtual Machines have been successfully implemented in various programming languages including C++, Java, JavaScript, Python, Ruby, and many others.
+
+The EVM is essential to the Ethereum Protocol and is instrumental to the consensus engine of the Ethereum system. It allows anyone to execute code in a trustless ecosystem in which the outcome of an execution can be guaranteed and is fully deterministic (i.e.) executing smart contracts.
 \subsection{Non-Interactive Proofs Of Proof Of Work}
 Describe the rationale behind NIPoPoWs, what they provide
 \subsubsection{Prefix Proofs}
