@@ -18,7 +18,6 @@ contract Crosschain {
     struct Event {
         address payable author;
         uint256 expire;
-        bytes32 proofHash;
         bytes32 hashedProofHash;
     }
 
@@ -230,7 +229,7 @@ contract Crosschain {
             "The submission period has expired"
         );
         require(
-            events[hashedBlock].proofHash == 0,
+            events[hashedBlock].hashedProofHash == 0,
             "A proof with this evens exists"
         );
         require(
@@ -248,7 +247,6 @@ contract Crosschain {
             "Merkle verification failed"
         );
 
-        events[hashedBlock].proofHash = hashProof(headers);
         events[hashedBlock].hashedProofHash = sha256(
             abi.encodePacked(hashedHeaders)
         );
