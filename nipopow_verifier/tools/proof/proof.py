@@ -3,6 +3,7 @@ Store proofs to objects
 proof = Proof()
 proof.set(import_proof('myproof'))
 """
+from bitcoin.core import Hash
 
 
 class Proof:
@@ -16,6 +17,7 @@ class Proof:
         self.name = ""
         self.proof = []
         self.headers = []
+        self.hashed_headers = []
         self.siblings = []
         self.size = 0
 
@@ -68,4 +70,8 @@ class Proof:
         self.proof = proof
         self.name = proof_name
         self.headers, self.siblings = self.extract_headers_siblings(self.proof)
+
+        for i in range(len(self.headers)):
+            self.hashed_headers.append(Hash(self.proof[i][0]))
+
         self.size = len(self.proof)
