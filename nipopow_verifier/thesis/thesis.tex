@@ -72,6 +72,23 @@ There is variety of EVMs one can use. We experimented with are Ganache,Geth and 
 4. Profile contract gas usage
 5. Identify expensive operations
 
+\subsection{Restricting gas usage}
+
+Reconsider DAG and ancestors methodology and redesign submission and contest schema:
+
+A: the entity that submits P1
+B: the entity that contests with P2
+
+A doesn't need to save in the proof in storage. B can provide the existing proof during contesting.
+
+Use subset: P1{:lca} > P2{:lca}
+
+Realize that subset is not needed. The contesting proof cannot benefit from pre-lca malformed proof. If Pa is valid then we just need to check Pb[lca:]
+
+This is not vulnerable to DOS attacks
+
+Observer the network and contest with the appropriate proof if submitted is not correct.
+
 \section{Results}
 \section{Conclusion}
 \section{Future Work}
