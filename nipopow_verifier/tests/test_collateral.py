@@ -20,6 +20,8 @@ from contract_api import (
     finalize_event,
 )
 
+from config import errors, extract_message_from_error
+
 
 @pytest.fixture
 def init_environment():
@@ -60,9 +62,7 @@ def test_sufficient_collateral(init_environment):
     # Collateral defined in contract:
     # uint constant z = 100000000000000000; // 0.1 eth, 10^17
 
-    res = submit_event_proof(
-        interface, proof, proof.headers[-1], collateral=pow(10, 17)
-    )
+    res = submit_event_proof(interface, proof, proof.size - 1, collateral=pow(10, 17))
     assert res["result"] == True
 
 
@@ -77,8 +77,11 @@ def test_insufficient_collateral(init_environment):
     # uint constant z = 100000000000000000; // 0.1 eth, 10^17
 
     collateral = pow(10, 17) - 1
-    res = submit_event_proof(interface, proof, proof.headers[-2], collateral)
-    assert res["result"] == False
+
+    with pytest.raises(Exception) as ex:
+        submit_event_proof(interface, proof, proof.size - 1, collateral=collateral)
+    print(ex)
+    assert extract_message_from_error(ex) == errors["ante up"]
 
 
 def test_receive_collateral(init_environment):
@@ -91,10 +94,10 @@ def test_receive_collateral(init_environment):
     # Collateral defined in contract:
     # uint constant z = 100000000000000000; // 0.1 eth, 10^17
 
-    block_of_interest = proof.headers[-1]
+    block_of_interest_index = proof.size - 1
     collateral = pow(10, 17)
     res = submit_event_proof(
-        interface, proof, block_of_interest, collateral, from_address
+        interface, proof, block_of_interest_index, collateral, from_address
     )
     assert res["result"] == True
 
@@ -103,7 +106,7 @@ def test_receive_collateral(init_environment):
 
     k = 6
     for _ in range(k):
-        finalize_event(interface, block_of_interest)
+        finalize_event(interface, proof.headers[block_of_interest_index])
 
     after_finalize = interface.w3.eth.getBalance(from_address)
 
