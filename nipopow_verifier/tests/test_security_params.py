@@ -4,9 +4,11 @@ $ pytest -v -s test_security_params.py
 """
 
 import sys
-sys.path.append('../tools/interface/')
+
+sys.path.append("../tools/interface/")
 import contract_interface
-sys.path.append('../tools/proof/')
+
+sys.path.append("../tools/proof/")
 from proof import Proof
 from create_proof import ProofTool
 
@@ -14,6 +16,7 @@ from contract_api import make_interface, submit_event_proof, submit_contesting_p
 from config import errors, genesis
 
 import pytest
+
 
 @pytest.fixture
 def init_environment():
@@ -23,10 +26,11 @@ def init_environment():
 
     global pt
     global backend
-    backend = 'ganache'
-    pt = ProofTool('../data/proofs/')
+    backend = "ganache"
+    pt = ProofTool("../data/proofs/")
 
-@pytest.fixture(scope='session', autouse=True)
+
+@pytest.fixture(scope="session", autouse=True)
 def finish_session(request):
     """
     This runs after every test
@@ -38,19 +42,20 @@ def finish_session(request):
     interface = make_interface(backend)
     interface.end()
 
+
 def test_smaller_m(init_environment):
     """
     Submit a proof with mu=1
     """
 
     proof = Proof()
-    proof.set(pt.fetch_proof('../data/proofs/proof_100_m1_k15.pkl'))
+    proof.set(pt.fetch_proof("../data/proofs/proof_100_m1_k15.pkl"))
 
-    block_of_interest = proof.headers[0]
-    interface=make_interface(backend)
+    interface = make_interface(backend)
 
     with pytest.raises(Exception) as ex:
-        submit_event_proof(interface, proof, block_of_interest)
+        submit_event_proof(interface, proof, 0)
+
 
 def test_smaller_k(init_environment):
     """
@@ -58,10 +63,9 @@ def test_smaller_k(init_environment):
     """
 
     proof = Proof()
-    proof.set(pt.fetch_proof('../data/proofs/proof_100_m15_k1.pkl'))
+    proof.set(pt.fetch_proof("../data/proofs/proof_100_m15_k1.pkl"))
 
-    block_of_interest = proof.headers[0]
-    interface=make_interface(backend)
+    interface = make_interface(backend)
 
     with pytest.raises(Exception) as ex:
-        submit_event_proof(interface, proof, block_of_interest)
+        submit_event_proof(interface, proof, 0)
