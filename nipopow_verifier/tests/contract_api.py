@@ -46,9 +46,7 @@ def submit_event_proof(
 
     res = my_function.call({"from": from_address, "value": collateral})
 
-    tx_hash = my_function.transact(
-        {"from": from_address, "value": collateral}
-    )
+    tx_hash = my_function.transact({"from": from_address, "value": collateral})
 
     receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
 
@@ -196,3 +194,43 @@ def event_exists(interface, block_of_interest):
     contract = interface.get_contract()
     res = contract.functions.eventExists(block_of_interest).call()
     return res
+
+
+def validate_interlink(interface, proof, profile=True):
+    """
+    Calls validateInterlink of contract
+    """
+
+    my_contract = interface.get_contract()
+    from_address = interface.w3.eth.accounts[0]
+
+    my_function = my_contract.functions.validateInterlink(
+        proof.headers, proof.hashed_headers, proof.siblings
+    )
+
+    res = my_function.call({"from": from_address})
+
+    tx_hash = my_function.transact({"from": from_address})
+
+    receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
+
+    try:
+        debug_events = my_contract.events.debug().processReceipt(receipt)
+    except Exception as ex:
+        debug_events = {}
+    if len(debug_events) > 0:
+        for e in debug_events:
+            log = dict(e)["args"]
+            if isinstance(log["value"], bytes):
+                value = log["value"].hex()
+            else:
+                value = log["value"]
+            print(log["tag"], "\t", value)
+
+    if profile is True:
+        filename = str(int(time())) + ".txt"
+        interface.run_gas_profiler(profiler, tx_hash, filename)
+
+    print(receipt["gasUsed"])
+
+    return {"result": res, "gas_used": receipt["gasUsed"], "debug": debug_events}
