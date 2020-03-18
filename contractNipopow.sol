@@ -330,11 +330,11 @@ contract Crosschain {
             "Block of interest exists in sub-chain"
         );
 
-        // TODO check hash of hashed existing. How do I do the following line from python
-        // require(
-        //     events[blockOfInterestHash].hashProofHash == hashProof(existingHeadersHash),
-        //     "Wrong existing proof"
-        // );
+        require(
+            events[blockOfInterestHash].hashedProofHash ==
+                sha256(abi.encodePacked(existingHeadersHashed)),
+            "Wrong existing proof"
+        );
 
         bytes32[] memory contestingHeadersHashed = new bytes32[](
             contestingHeaders.length
