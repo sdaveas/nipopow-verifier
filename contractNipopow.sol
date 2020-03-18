@@ -353,7 +353,6 @@ contract Crosschain {
         );
 
         require(
-            // TODO: Do we need contestingHeaders.length[x][] of contestingHeadersHased[x]
             existingHeadersHashed[lca] ==
                 contestingHeadersHashed[contestingHeaders.length - 1],
             "Wrong lca"
