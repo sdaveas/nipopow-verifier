@@ -14,7 +14,12 @@ from create_proof import ProofTool
 from edit_chain import change_interlink_hash, skip_blocks
 import web3
 
-from contract_api import submit_event_proof, submit_contesting_proof, make_interface
+from contract_api import (
+    submit_event_proof,
+    submit_contesting_proof,
+    make_interface,
+    validate_interlink,
+)
 from config import errors, extract_message_from_error, genesis
 
 import pytest
@@ -74,28 +79,9 @@ def test_revert_on_submit(init_environment):
     Submits a proof with block with changed interlink
     """
 
-    block_of_interest = proof.headers[-2]
     interface = make_interface(backend)
-
-    with pytest.raises(Exception) as ex:
-        submit_event_proof(interface, changed_interlink_proof, block_of_interest)
-    assert extract_message_from_error(ex) == errors["merkle"]
-
-
-def test_revert_on_contest(init_environment):
-    """
-    Contests with a proof with a block with changed interlink
-    """
-
-    block_of_interest = proof.headers[0]
-    interface = make_interface(backend)
-
-    res = submit_event_proof(interface, proof, block_of_interest)
-    assert res["result"] == True
-
-    with pytest.raises(Exception) as ex:
-        submit_contesting_proof(interface, changed_interlink_proof, block_of_interest)
-    assert extract_message_from_error(ex) == errors["merkle"]
+    res = validate_interlink(interface, changed_interlink_proof)
+    assert res["result"] == False
 
 
 def test_revert_on_missing_blocks_submit(init_environment):
@@ -103,28 +89,10 @@ def test_revert_on_missing_blocks_submit(init_environment):
     Submits a proof with a missing block
     """
 
-    block_of_interest = proof.headers[-3]
     interface = make_interface(backend)
 
-    with pytest.raises(Exception) as ex:
-        submit_event_proof(interface, missing_blocks_proof, block_of_interest)
-    assert extract_message_from_error(ex) == errors["merkle"]
-
-
-def test_revert_on_missing_blocks_contest(init_environment):
-    """
-    Submits a contest with a proof with a missing block
-    """
-
-    block_of_interest = proof.headers[-3]
-    interface = make_interface(backend)
-
-    res = submit_event_proof(interface, proof, block_of_interest)
-    assert res["result"] == True
-
-    with pytest.raises(Exception) as ex:
-        submit_contesting_proof(interface, missing_blocks_proof, block_of_interest)
-    assert extract_message_from_error(ex) == errors["merkle"]
+    res = validate_interlink(interface, missing_blocks_proof)
+    assert res["result"] == False
 
 
 def test_replaced_block(init_environment):
@@ -132,9 +100,7 @@ def test_replaced_block(init_environment):
     Submits a proof with a replaced block
     """
 
-    block_of_interest = proof.headers[0]
     interface = make_interface(backend)
 
-    with pytest.raises(Exception) as ex:
-        submit_event_proof(interface, replaced_blocks_proof, block_of_interest)
-    assert extract_message_from_error(ex) == errors["merkle"]
+    res = validate_interlink(interface, replaced_blocks_proof)
+    assert res["result"] == False
