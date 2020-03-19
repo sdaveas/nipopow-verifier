@@ -86,6 +86,19 @@ class Proof:
         self.size = len(self.proof)
 
 
+def header_level(p):
+    """
+        Computes the level of a proof block
+        """
+
+    n_bits = p[0][104:108]
+    n_bits_int = int().from_bytes(n_bits, "little")
+    target = blockchain_utils.bits_to_target(n_bits_int)
+    hash = blockchain_utils.uint256_from_str(blockchain_utils.Hash(p[0]))
+    level = (int(target / hash)).bit_length() - 1
+    return level
+
+
 def best_level_and_score(proof):
     """
     Returns a proof's best level and its score
