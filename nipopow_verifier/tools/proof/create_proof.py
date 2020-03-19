@@ -294,9 +294,10 @@ def main():
     proof_tool = ProofTool("../../data/proofs/")
 
     proof = []
-    if blocks is None:
-        proof = proof_tool.fetch_proof(blocks)
-    elif proof_name is None:
+    if blocks is not None:
+        # proof = proof_tool.fetch_proof(blocks)
+        proof = proof_tool.create_proof(blocks)
+    elif proof_name is not None:
         proof = proof_tool.fetch_proof(proof_name)
     else:
         print("Provide --blocks or --proof argument")
