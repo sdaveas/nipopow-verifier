@@ -86,6 +86,32 @@ class Proof:
         self.size = len(self.proof)
 
 
+def best_level_and_score(proof):
+    """
+    Returns a proof's best level and its score
+    """
+
+    from collections import defaultdict
+
+    levels = defaultdict(lambda: 0)
+    for p in proof:
+        level = header_level(p)
+        levels[level] += 1
+        for l in range(level):
+            levels[l] += 1
+
+    max_score = 0
+    max_level = 0
+    curr_level = 0
+    for l in sorted(levels.keys(), reverse=True):
+        curr_score = levels[l] * pow(2, l)
+        if curr_score > max_score:
+            max_score = curr_score
+            max_level = l
+
+    return max_level, max_score
+
+
 def get_first_blocks_below_level(proof, max_level):
     """
     Return the first blocks that have level < max_level
