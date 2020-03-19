@@ -60,6 +60,19 @@ class Proof:
 
         return headers, siblings
 
+    @staticmethod
+    def _best_level_subproof(proof, max_level):
+        """
+        Returns all blocks of the indicated level
+        """
+
+        best_proof = []
+        for p in proof:
+            if header_level(p) == max_level:
+                best_proof.append(p)
+
+        return best_proof
+
     def set(self, proof, proof_name=""):
         """
         Registers a proof in the object
