@@ -20,6 +20,10 @@ class Proof:
         self.headers = []
         self.siblings = []
         self.size = 0
+        self.best_level = 0
+        self.best_score = 0
+        self.best_level_subproof = []
+        self.best_level_subproof_size = 0
 
     @staticmethod
     def str_to_bytes32(string):
@@ -84,6 +88,30 @@ class Proof:
         self.name = proof_name
         self.headers, self.siblings = self.extract_headers_siblings(self.proof)
         self.size = len(self.proof)
+        self.best_level, self.best_score = best_level_and_score(self.proof)
+        best_suffix = []
+        best_suffix = get_first_blocks_below_level(self.proof, self.best_level)
+        best_prefix = []
+        best_prefix = self._best_level_subproof(self.proof, self.best_level)
+
+        best_level_subproof = []
+
+        # for p in best_suffix:
+        #     best_level_subproof.append(p)
+        for p in best_prefix:
+            best_level_subproof.append(p)
+
+        print("Prefix size:", len(best_prefix))
+
+        blockchain_utils.verify_proof(blockchain_utils.Hash(proof[0][0]), proof)
+        print("---")
+
+        blockchain_utils.verify_proof(
+            blockchain_utils.Hash(best_prefix[0][0]), best_prefix
+        )
+
+        self.best_level_subproof = best_level_subproof
+        self.best_level_subproof_size = len(self.best_level_subproof)
 
 
 def header_level(p):
