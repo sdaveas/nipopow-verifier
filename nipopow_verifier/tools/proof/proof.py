@@ -84,3 +84,17 @@ class Proof:
         self.name = proof_name
         self.headers, self.siblings = self.extract_headers_siblings(self.proof)
         self.size = len(self.proof)
+
+
+def get_first_blocks_below_level(proof, max_level):
+    """
+    Return the first blocks that have level < max_level
+    """
+
+    suffix = []
+    for p in proof:
+        if header_level(p) >= max_level:
+            break
+        else:
+            suffix.append(p)
+    return suffix.reverse()
