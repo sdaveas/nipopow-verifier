@@ -18,7 +18,7 @@ contract Crosschain {
     struct Event {
         address payable author;
         uint256 expire;
-        bytes32 proofHash;
+        bytes32 hashedProofHash;
     }
 
     // the block header hash.
@@ -167,17 +167,6 @@ contract Crosschain {
 
     function validateInterlink(
         bytes32[4][] memory headers,
-        bytes32[] memory siblings
-    ) internal pure returns (bool) {
-        bytes32[] memory hashedHeaders = new bytes32[](headers.length);
-        for (uint256 i = 0; i < headers.length; i++) {
-            hashedHeaders[i] = hashHeader(headers[i]);
-        }
-        return validateInterlink(headers, hashedHeaders, siblings);
-    }
-
-    function validateInterlink(
-        bytes32[4][] memory headers,
         bytes32[] memory hashedHeaders,
         bytes32[] memory siblings
     ) internal pure returns (bool) {
@@ -240,19 +229,27 @@ contract Crosschain {
             "The submission period has expired"
         );
         require(
-            events[hashedBlock].proofHash == 0,
+            events[hashedBlock].hashedProofHash == 0,
             "A proof with this evens exists"
         );
         require(
             hashHeader(headers[headers.length - 1]) == genesisBlockHash,
             "Proof does not include the genesis block"
         );
+
+        bytes32[] memory hashedHeaders = new bytes32[](headers.length);
+        for (uint256 i = 0; i < headers.length; i++) {
+            hashedHeaders[i] = hashHeader(headers[i]);
+        }
+
         require(
-            validateInterlink(headers, siblings),
+            validateInterlink(headers, hashedHeaders, siblings),
             "Merkle verification failed"
         );
 
-        events[hashedBlock].proofHash = hashProof(headers);
+        events[hashedBlock].hashedProofHash = sha256(
+            abi.encodePacked(hashedHeaders)
+        );
         events[hashedBlock].expire = block.number + k;
         events[hashedBlock].author = msg.sender;
 
@@ -296,28 +293,28 @@ contract Crosschain {
     }
 
     function submitContestingProof(
-        bytes32[4][] memory existingHeaders,
+        bytes32[] memory existingHeadersHashed,
         uint256 lca,
         bytes32[4][] memory contestingHeaders,
         bytes32[] memory contestingSiblings,
         uint256 blockOfInterestIndex
     ) public returns (bool) {
         require(
-            existingHeaders.length > blockOfInterestIndex &&
+            existingHeadersHashed.length > blockOfInterestIndex &&
                 blockOfInterestIndex >= 0,
             "Block of interest index is out of range"
         );
 
-        bytes32 blockOfInterestHash = hashHeader(
-            existingHeaders[blockOfInterestIndex]
-        );
+
+            bytes32 blockOfInterestHash
+         = existingHeadersHashed[blockOfInterestIndex];
 
         require(
             events[blockOfInterestHash].expire > block.number,
             "Contesting period has expired"
         );
 
-        require(existingHeaders.length > lca, "Lca out of range");
+        require(existingHeadersHashed.length > lca, "Lca out of range");
 
         require(
             lca > blockOfInterestIndex,
@@ -325,7 +322,8 @@ contract Crosschain {
         );
 
         require(
-            events[blockOfInterestHash].proofHash == hashProof(existingHeaders),
+            events[blockOfInterestHash].hashedProofHash ==
+                sha256(abi.encodePacked(existingHeadersHashed)),
             "Wrong existing proof"
         );
 
@@ -345,17 +343,9 @@ contract Crosschain {
             "Merkle verification failed"
         );
 
-        // get existing hashed headers
-        bytes32[] memory existingHeadersHashed = new bytes32[](
-            existingHeaders.length
-        );
-        for (uint256 i = 0; i < existingHeaders.length; i++) {
-            existingHeadersHashed[i] = hashHeader(existingHeaders[i]);
-        }
         require(
-            // TODO: Do we need contestingHeaders.length[x][] of contestingHeadersHased[x]
-            existingHeaders[lca][0] ==
-                contestingHeaders[contestingHeaders.length - 1][0],
+            existingHeadersHashed[lca] ==
+                contestingHeadersHashed[contestingHeaders.length - 1],
             "Wrong lca"
         );
 
@@ -367,7 +357,10 @@ contract Crosschain {
         // We can ask the caller to provide the level for their proof
         require(
             bestArg(existingHeadersHashed, lca) <
-                bestArg(contestingHeadersHashed, contestingHeaders.length - 1),
+                bestArg(
+                    contestingHeadersHashed,
+                    contestingHeadersHashed.length - 1
+                ),
             "Existing proof has greater score"
         );
 
