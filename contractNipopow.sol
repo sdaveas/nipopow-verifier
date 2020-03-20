@@ -204,14 +204,6 @@ contract Crosschain {
         return true;
     }
 
-    function hashProof(bytes32[4][] memory headers)
-        public
-        payable
-        returns (bytes32)
-    {
-        return sha256(abi.encodePacked(headers));
-    }
-
     function submitEventProof(
         bytes32[4][] memory headers,
         bytes32[] memory siblings,
