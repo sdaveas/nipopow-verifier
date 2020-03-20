@@ -18,7 +18,9 @@ contract Crosschain {
     struct Event {
         address payable author;
         uint256 expire;
+        bytes32 proofHash;
         bytes32 hashedProofHash;
+        bytes32 siblingsHash;
     }
 
     // the block header hash.
@@ -241,9 +243,11 @@ contract Crosschain {
             hashedHeaders[i] = hashHeader(headers[i]);
         }
 
+        events[hashedBlock].proofHash = sha256(abi.encodePacked(headers));
         events[hashedBlock].hashedProofHash = sha256(
             abi.encodePacked(hashedHeaders)
         );
+        events[hashedBlock].siblingsHash = sha256(abi.encodePacked(siblings));
         events[hashedBlock].expire = block.number + k;
         events[hashedBlock].author = msg.sender;
 
