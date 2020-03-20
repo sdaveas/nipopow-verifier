@@ -1,4 +1,5 @@
 import create_blockchain_new as blockchain_utils
+from create_proof import ProofTool
 
 """
 Store proofs to objects
@@ -67,19 +68,89 @@ class Proof:
         return headers, siblings
 
     @staticmethod
-    def _best_level_subproof(proof, max_level):
+    def _best_level_subproof(proof, max_level, header_map, interlink_map):
         """
         Returns all blocks of the indicated level
         """
 
-        best_proof = []
+        best_headers = []
         for p in proof:
+            header, _ = p
             if header_level(p) == max_level:
-                best_proof.append(p)
+                best_headers.append(header)
+
+        interlink = interlink_map[blockchain_utils.Hash(best_headers[1])]
+
+        for i, p in enumerate(proof):
+            print("Adding header", p[0].hex()[:5])
+
+        print("---")
+        for i, p in enumerate(best_headers):
+            print("Adding header", p.hex()[:5])
+        print("---")
+
+        for i, p in enumerate(proof):
+            if p[0] == best_headers[-1]:
+                pos = i
+                break
+
+        start = []
+        for i in range(pos + 1, len(proof), 1):
+            start.append(proof[i][0])
+
+        for p in start:
+            print(p.hex()[:5])
+
+        print("---")
+
+        best_headers = best_headers + start
+
+        for p in best_headers:
+            print(p.hex()[:5])
+
+        for h in best_headers:
+            interlink = interlink_map[blockchain_utils.Hash(h)]
+            interlink_list = blockchain_utils.list_flatten(interlink)
+            print("Header", blockchain_utils.Hash(h).hex()[:5])
+            print("Interlinks:")
+            for i in interlink_list:
+                print(i.hex()[:5])
+            print("--")
+
+        print(blockchain_utils.Hash(best_headers[0]).hex())
+
+        merkle_proofs = []
+        for i in range(1, len(best_headers)):
+            h = best_headers[i]
+
+        merkle_proofs.append(blockchain_utils.prove_interlink([next_header_hash], 0))
+
+        best_proof = []
+        for i in range(len(best_headers)):
+            best_proof.append((best_headers[i], merkle_proofs[i]))
+
+        # print("Proof:")
+        # for p in proof:
+        #     print(p[0].hex()[:5])
+
+        # print("Best proof:")
+        # for i in range(len(best_proof)):
+        #     print(best_proof[i][0].hex()[:5])
+        #     print(best_proof[i][1])
+        #     print("-")
+
+        blockchain_utils.verify_proof(
+            blockchain_utils.Hash(best_proof[0][0]), best_proof
+        )
+
+        print("** OK")
+
+        print(len(best_headers))
+        print(len(merkle_proofs))
 
         return best_proof
 
-    def set(self, proof, proof_name=""):
+    def set(self, proof, proof_name="", header_map=None, interlink_map=None):
         """
         Registers a proof in the object
         """
@@ -88,30 +159,22 @@ class Proof:
         self.name = proof_name
         self.headers, self.siblings = self.extract_headers_siblings(self.proof)
         self.size = len(self.proof)
+
         self.best_level, self.best_score = best_level_and_score(self.proof)
-        best_suffix = []
-        best_suffix = get_first_blocks_below_level(self.proof, self.best_level)
-        best_prefix = []
-        best_prefix = self._best_level_subproof(self.proof, self.best_level)
+        print("Best level:", self.best_level)
+        print("Best score:", self.best_score)
 
-        best_level_subproof = []
+        if header_map is None or interlink_map is None:
+            print(" No interlink. Cannot create max level subproof.")
+            return
 
-        # for p in best_suffix:
-        #     best_level_subproof.append(p)
-        for p in best_prefix:
-            best_level_subproof.append(p)
-
-        print("Prefix size:", len(best_prefix))
-
-        blockchain_utils.verify_proof(blockchain_utils.Hash(proof[0][0]), proof)
-        print("---")
-
-        blockchain_utils.verify_proof(
-            blockchain_utils.Hash(best_prefix[0][0]), best_prefix
+        prefix = []
+        prefix = self._best_level_subproof(
+            self.proof, self.best_level, header_map, interlink_map
         )
 
-        self.best_level_subproof = best_level_subproof
-        self.best_level_subproof_size = len(self.best_level_subproof)
+        # self.best_level_subproof = best_level_subproof
+        # self.best_level_subproof_size = len(self.best_level_subproof)
 
 
 def header_level(p):
@@ -127,7 +190,7 @@ def header_level(p):
     return level
 
 
-def best_level_and_score(proof):
+def best_level_and_score(proof, m=1):
     """
     Returns a proof's best level and its score
     """
@@ -138,18 +201,25 @@ def best_level_and_score(proof):
     for p in proof:
         level = header_level(p)
         levels[level] += 1
-        for l in range(level):
-            levels[l] += 1
+        # for l in range(level):
+        #     levels[l] += 1
+
+    keys = sorted(levels.keys(), reverse=True)
+    for i in range(len(keys) - 1):
+        levels[keys[i + 1]] += levels[keys[i]]
 
     max_score = 0
     max_level = 0
     curr_level = 0
-    for l in sorted(levels.keys(), reverse=True):
+    for l in keys:
         curr_score = levels[l] * pow(2, l)
-        if curr_score > max_score:
+        if levels[l] > m and curr_score > max_score:
             max_score = curr_score
             max_level = l
 
+    print("Levels:", levels)
+    print("Level:", max_level)
+    print("Score:", max_score)
     return max_level, max_score
 
 
@@ -165,3 +235,78 @@ def get_first_blocks_below_level(proof, max_level):
         else:
             suffix.append(p)
     return suffix.reverse()
+
+
+def array_to_list(array):
+    if len(array) == 0:
+        return ()
+    return (array[0], array_to_list(array[1:]))
+
+
+def skip_headers_below_level(header, header_map, interlink_map, level):
+
+    header = header.GetHash()
+    interlink_list = blockchain_utils.list_flatten(interlink_map[header])
+    while len(interlink_list) >= level:
+        new_interlink_list = interlink_list
+
+        for i in range(level):
+            new_interlink_list[i] = interlink_list[level]
+
+        hashed_interlink = blockchain_utils.hash_interlink(new_interlink_list)
+        print(header_map[header].GetHash().hex())
+        print(header_map[header].hashInterlink.hex())
+        h = header_map[header]
+        header_map[header] = blockchain_utils.CBlockHeaderPopow(
+            nVersion=h.nVersion,
+            hashPrevBlock=h.hashPrevBlock,
+            nTime=h.nTime,
+            nBits=h.nBits,
+            nNonce=h.nNonce,
+            hashInterlink=h.hashInterlink,
+        )
+
+        interlink_map[header] = array_to_list(new_interlink_list)
+        prev_header = header
+        header = new_interlink_list[0]
+        print("Next", header_map[header].GetHash().hex())
+        interlink_list = blockchain_utils.list_flatten(interlink_map[header])
+
+    new_header = prev_header
+
+    return new_header, header_map, interlink_map
+
+
+def main():
+    pt = ProofTool()
+    (
+        proof_name,
+        fork_proof_name,
+        lca,
+        header,
+        header_map,
+        interlink_map,
+        fork_header_map,
+        fork_interlink_map,
+    ) = pt.create_proof_and_forkproof(3, 1, 1)
+
+    level = 3
+    new_header, new_header_map, new_interlink_map = skip_headers_below_level(
+        header, header_map, interlink_map, level
+    )
+
+    proof = blockchain_utils.make_proof(
+        header_map[new_header], new_header_map, new_interlink_map
+    )
+    print(len(proof))
+    blockchain_utils.verify_proof(blockchain_utils.Hash(proof[0][0]), proof)
+
+    # p = Proof()
+    # p.set(
+    #     pt.fetch_proof(proof_name), header_map=header_map, interlink_map=interlink_map
+    # )
+    # fp.set(pt.fetch_proof(fork_proof_name), interlink_map=fork_interlink_map)
+
+
+if __name__ == "__main__":
+    main()

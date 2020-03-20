@@ -48,7 +48,7 @@ class ProofTool:
     pt.fetch_proof()
     """
 
-    def __init__(self, proofs_dir="../data/proofs/"):
+    def __init__(self, proofs_dir="../../data/proofs/"):
         self.dir = proofs_dir
 
     def proof_dir(self):
@@ -273,7 +273,16 @@ class ProofTool:
         fixed_fork_proof, lca = self.create_fixed_fork_proof(proof, fork_proof)
         self.export_proof(fixed_fork_proof, fork_proof_name)
 
-        return (proof_name, fork_proof_name, lca)
+        return (
+            proof_name,
+            fork_proof_name,
+            lca,
+            header,
+            header_map,
+            interlink_map,
+            fork_header_map,
+            fork_interlink_map,
+        )
 
 
 def main():
