@@ -168,8 +168,10 @@ contract Crosschain {
     function validateInterlink(
         bytes32[4][] memory headers,
         bytes32[] memory hashedHeaders,
-        bytes32[] memory siblings
-    ) internal pure returns (bool) {
+        bytes32[] memory siblings,
+        uint256 startValidateIndex,
+        uint256 endValidateIndex
+    ) internal returns (bool) {
         uint256 ptr = 0; // Index of the current sibling
         for (uint256 i = 1; i < headers.length; i++) {
             // hold the 3rd and 4th least significant bytes
@@ -188,6 +190,11 @@ contract Crosschain {
             for (uint8 j = 0; j < branchLength; j++)
                 reversedSiblings[j] = siblings[ptr + j];
             ptr += branchLength;
+
+            // We only care to verify within our range
+            if (i < startValidateIndex || endValidateIndex < i) {
+                continue;
+            }
 
             // Verify the merkle tree proof
             if (
@@ -233,11 +240,6 @@ contract Crosschain {
         for (uint256 i = 0; i < headers.length; i++) {
             hashedHeaders[i] = hashHeader(headers[i]);
         }
-
-        require(
-            validateInterlink(headers, hashedHeaders, siblings),
-            "Merkle verification failed"
-        );
 
         events[hashedBlock].hashedProofHash = sha256(
             abi.encodePacked(hashedHeaders)
@@ -330,7 +332,9 @@ contract Crosschain {
             validateInterlink(
                 contestingHeaders,
                 contestingHeadersHashed,
-                contestingSiblings
+                contestingSiblings,
+                1,
+                contestingHeaders.length
             ),
             "Merkle verification failed"
         );
