@@ -269,7 +269,7 @@ contract Crosschain {
 
     // If this will be expensive, check memory mapping
     // Check if all blocks of existing[lca+1:] are different from contesting[1:]
-    function allDifferent(
+    function disjointProofs(
         bytes32[] memory existing,
         bytes32[] memory contesting,
         uint256 lca
@@ -342,7 +342,7 @@ contract Crosschain {
         );
 
         require(
-            allDifferent(existingHeadersHashed, contestingHeadersHashed, lca),
+            disjointProofs(existingHeadersHashed, contestingHeadersHashed, lca),
             "Contesting proof[1:] is not different from existing[lca+1:]"
         );
 
