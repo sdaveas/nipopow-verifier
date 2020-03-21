@@ -89,7 +89,7 @@ def test_dispute_invalid(init_environment):
         invalid_proof,
         block_of_interest_index,
         invalid_index_start=invalid_index,
-        invalid_index_stop=invalid_index,
+        invalid_index_stop=invalid_index + 1,
         profile=True,
     )
     assert res["result"] == True
