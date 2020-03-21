@@ -20,7 +20,7 @@ from config import errors, extract_message_from_error, genesis
 import pytest
 
 
-backend = "geth"
+backend = "ganache"
 
 
 @pytest.fixture
