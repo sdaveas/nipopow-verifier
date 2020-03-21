@@ -344,7 +344,7 @@ contract Crosschain {
                 disputeIndexStart,
                 disputeIndexStop
             ),
-            "Existing proof is valid at this index"
+            "Existing proof is valid in this range"
         );
 
         // If you reached this point, contesting was successful
