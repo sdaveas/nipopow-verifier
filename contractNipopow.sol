@@ -297,11 +297,6 @@ contract Crosschain {
         uint256 disputeIndexStart,
         uint256 disputeIndexStop
     ) public returns (bool) {
-        require(
-            existingHeaders.length > blockOfInterestIndex &&
-                blockOfInterestIndex >= 0,
-            "Block of interest index is out of range"
-        );
         bytes32 blockOfInterestHash = hashHeader(
             existingHeaders[blockOfInterestIndex]
         );
