@@ -25,6 +25,7 @@ errors = {
     "wrong lca": "Wrong lca",
     "same proofs": "Contesting proof[1:] is not different from existing[lca+1:]",
     "low score": "Existing proof has greater score",
+    "valid existing": "Existing proof is valid in this range",
 }
 
 
