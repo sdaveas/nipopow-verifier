@@ -316,11 +316,11 @@ contract Crosschain {
             "Wrong siblings"
         );
         require(
-            1 <= disputeIndexStart && disputeIndexStart <= disputeIndexStop,
+            1 <= disputeIndexStart && disputeIndexStart < disputeIndexStop,
             "Dispute start index out of range"
         );
         require(
-            1 <= disputeIndexStop && disputeIndexStop < existingHeaders.length,
+            1 <= disputeIndexStop && disputeIndexStop <= existingHeaders.length,
             "Dispute stop index out of range"
         );
 
