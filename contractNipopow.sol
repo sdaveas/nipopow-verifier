@@ -202,7 +202,7 @@ contract Crosschain {
             if (
                 !verifyMerkle(
                     headers[i - 1][0],
-                    hashedHeaders[i],
+                    hashedHeaders[i - startValidateIndex],
                     merkleIndex,
                     reversedSiblings
                 )
@@ -325,10 +325,12 @@ contract Crosschain {
         );
 
         bytes32[] memory existingHeadersHashed = new bytes32[](
-            existingHeaders.length
+            disputeIndexStop - disputeIndexStart + 1
         );
-        for (uint256 i = 0; i < existingHeadersHashed.length; i++) {
-            existingHeadersHashed[i] = hashHeader(existingHeaders[i]);
+        for (uint256 i = 0; i < disputeIndexStop - disputeIndexStart + 1; i++) {
+            existingHeadersHashed[i] = hashHeader(
+                existingHeaders[i + disputeIndexStart]
+            );
         }
 
         require(
