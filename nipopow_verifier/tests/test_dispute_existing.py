@@ -49,7 +49,7 @@ def test_dispute_valid(init_environment):
     block_of_interest_index = 0
     pt = ProofTool("../data/proofs/")
     proof = Proof()
-    proof.set(pt.fetch_proof(500000))
+    proof.set(pt.fetch_proof(500))
 
     interface = make_interface(backend)
 
