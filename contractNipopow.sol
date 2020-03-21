@@ -173,7 +173,7 @@ contract Crosschain {
         bytes32[] memory siblings,
         uint256 startValidateIndex,
         uint256 endValidateIndex
-    ) internal returns (bool) {
+    ) internal pure returns (bool) {
         uint256 ptr = 0; // Index of the current sibling
         for (uint256 i = 1; i < headers.length; i++) {
             // hold the 3rd and 4th least significant bytes
@@ -230,7 +230,7 @@ contract Crosschain {
             "The submission period has expired"
         );
         require(
-            events[hashedBlock].hashedProofHash == 0,
+            events[hashedBlock].proofHash == 0,
             "A proof with this evens exists"
         );
         require(
@@ -287,6 +287,69 @@ contract Crosschain {
                 }
             }
         }
+        return true;
+    }
+
+    function disputeExistingProof(
+        bytes32[4][] memory existingHeaders,
+        bytes32[] memory siblings,
+        uint256 blockOfInterestIndex,
+        uint256 disputeIndexStart,
+        uint256 disputeIndexStop
+    ) public returns (bool) {
+        require(
+            existingHeaders.length > blockOfInterestIndex &&
+                blockOfInterestIndex >= 0,
+            "Block of interest index is out of range"
+        );
+        bytes32 blockOfInterestHash = hashHeader(
+            existingHeaders[blockOfInterestIndex]
+        );
+
+        require(
+            events[blockOfInterestHash].expire > block.number,
+            "Contesting period has expired"
+        );
+        require(
+            events[blockOfInterestHash].proofHash ==
+                sha256(abi.encodePacked(existingHeaders)),
+            "Wrong existing proof"
+        );
+        require(
+            events[blockOfInterestHash].siblingsHash ==
+                sha256(abi.encodePacked(siblings)),
+            "Wrong siblings"
+        );
+        require(
+            1 <= disputeIndexStart && disputeIndexStart <= disputeIndexStop,
+            "Dispute start index out of range"
+        );
+        require(
+            1 <= disputeIndexStop && disputeIndexStop < existingHeaders.length,
+            "Dispute stop index out of range"
+        );
+
+        bytes32[] memory existingHeadersHashed = new bytes32[](
+            existingHeaders.length
+        );
+        for (uint256 i = 0; i < existingHeadersHashed.length; i++) {
+            existingHeadersHashed[i] = hashHeader(existingHeaders[i]);
+        }
+
+        require(
+            !validateInterlink(
+                existingHeaders,
+                existingHeadersHashed,
+                siblings,
+                disputeIndexStart,
+                disputeIndexStop
+            ),
+            "Existing proof is valid at this index"
+        );
+
+        // If you reached this point, contesting was successful
+        events[blockOfInterestHash].expire = 0;
+        msg.sender.transfer(z);
         return true;
     }
 
