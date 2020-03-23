@@ -182,10 +182,10 @@ def header_level(p):
         Computes the level of a proof block
         """
 
-    n_bits = p[0][104:108]
+    n_bits = p[104:108]
     n_bits_int = int().from_bytes(n_bits, "little")
     target = blockchain_utils.bits_to_target(n_bits_int)
-    hash = blockchain_utils.uint256_from_str(blockchain_utils.Hash(p[0]))
+    hash = blockchain_utils.uint256_from_str(blockchain_utils.Hash(p))
     level = (int(target / hash)).bit_length() - 1
     return level
 
@@ -275,6 +275,14 @@ def skip_headers_below_level(header, header_map, interlink_map, level):
     new_header = prev_header
 
     return new_header, header_map, interlink_map
+
+
+def change_interlink_bytes(header, new_interlink):
+    if new_interlink == []:
+        return header
+    hashed_interlink = blockchain_utils.hash_interlink(new_interlink)
+    new_header = hashed_interlink + header[32:]
+    return new_header
 
 
 def main():
