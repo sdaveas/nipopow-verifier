@@ -113,71 +113,32 @@ def header_level(header):
     return level
 
 
-def best_level_and_score(proof, m=1):
+def best_level_and_score(proof, miou=1):
     """
     Returns a proof's best level and its score
     """
 
-    from collections import defaultdict
-
     levels = defaultdict(lambda: 0)
-    for p in proof:
-        level = header_level(p)
+    for header, _ in proof:
+        level = header_level(header)
         levels[level] += 1
-        # for l in range(level):
-        #     levels[l] += 1
 
     keys = sorted(levels.keys(), reverse=True)
     for i in range(len(keys) - 1):
         levels[keys[i + 1]] += levels[keys[i]]
 
+    scores = defaultdict(lambda: 0)
+
     max_score = 0
     max_level = 0
-    curr_level = 0
-    for l in keys:
-        curr_score = levels[l] * pow(2, l)
-        if levels[l] > m and curr_score > max_score:
+    for level in keys:
+        curr_score = levels[level] * pow(2, level)
+        if levels[level] > miou and curr_score > max_score:
             max_score = curr_score
-            max_level = l
+            max_level = level
+        scores[level] = curr_score
 
-    print("Levels:", levels)
-    print("Level:", max_level)
-    print("Score:", max_score)
-    return max_level, max_score
-
-
-def skip_headers_below_level(header, header_map, interlink_map, level):
-
-    header = header.GetHash()
-    interlink_list = blockchain_utils.list_flatten(interlink_map[header])
-    while len(interlink_list) >= level:
-        new_interlink_list = interlink_list
-
-        for i in range(level):
-            new_interlink_list[i] = interlink_list[level]
-
-        hashed_interlink = blockchain_utils.hash_interlink(new_interlink_list)
-        print(header_map[header].GetHash().hex())
-        print(header_map[header].hashInterlink.hex())
-        h = header_map[header]
-        header_map[header] = blockchain_utils.CBlockHeaderPopow(
-            nVersion=h.nVersion,
-            hashPrevBlock=h.hashPrevBlock,
-            nTime=h.nTime,
-            nBits=h.nBits,
-            nNonce=h.nNonce,
-            hashInterlink=h.hashInterlink,
-        )
-
-        interlink_map[header] = array_to_list(new_interlink_list)
-        prev_header = header
-        header = new_interlink_list[0]
-        print("Next", header_map[header].GetHash().hex())
-        interlink_list = blockchain_utils.list_flatten(interlink_map[header])
-
-    new_header = prev_header
-
-    return new_header, header_map, interlink_map
+    return max_level, max_score, levels, scores
 
 
 def change_interlink_bytes(header, new_interlink):
