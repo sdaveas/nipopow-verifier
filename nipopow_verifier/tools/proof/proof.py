@@ -181,6 +181,11 @@ def skip_headers_below_level(header, header_map, interlink_map, level):
 
 
 def change_interlink_bytes(header, new_interlink):
+    """
+    Changes the header's bytes associated with a blocks's interlink hash.
+    Meaning the first 32
+    """
+
     if new_interlink == []:
         return header
     hashed_interlink = blockchain_utils.hash_interlink(new_interlink)
@@ -189,6 +194,9 @@ def change_interlink_bytes(header, new_interlink):
 
 
 def isolate_proof_level(proof, level):
+    """
+    Returns a valid proof consisted by blocks of a certain level and above
+    """
 
     isolated_proof = []
 
