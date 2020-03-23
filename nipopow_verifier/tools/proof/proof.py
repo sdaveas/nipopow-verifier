@@ -227,34 +227,17 @@ def isolate_proof_level(proof, level):
 
 
 def main():
-    pt = ProofTool()
-    (
-        proof_name,
-        fork_proof_name,
-        lca,
-        header,
-        header_map,
-        interlink_map,
-        fork_header_map,
-        fork_interlink_map,
-    ) = pt.create_proof_and_forkproof(3, 1, 1)
+    """
+    Test Proof
+    """
 
-    level = 3
-    new_header, new_header_map, new_interlink_map = skip_headers_below_level(
-        header, header_map, interlink_map, level
-    )
+    proof_tool = ProofTool()
+    _, fork_proof_name, _ = proof_tool.create_proof_and_forkproof(100, 2, 100)
 
-    proof = blockchain_utils.make_proof(
-        header_map[new_header], new_header_map, new_interlink_map
-    )
-    print(len(proof))
-    blockchain_utils.verify_proof(blockchain_utils.Hash(proof[0][0]), proof)
+    my_proof = Proof()
+    my_proof.set(proof_tool.fetch_proof(fork_proof_name))
 
-    # p = Proof()
-    # p.set(
-    #     pt.fetch_proof(proof_name), header_map=header_map, interlink_map=interlink_map
-    # )
-    # fp.set(pt.fetch_proof(fork_proof_name), interlink_map=fork_interlink_map)
+    print("Best proof has length", len(my_proof.best_level_subproof))
 
 
 if __name__ == "__main__":
