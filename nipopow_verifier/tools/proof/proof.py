@@ -146,26 +146,6 @@ def best_level_and_score(proof, m=1):
     return max_level, max_score
 
 
-def get_first_blocks_below_level(proof, max_level):
-    """
-    Return the first blocks that have level < max_level
-    """
-
-    suffix = []
-    for p in proof:
-        if header_level(p) >= max_level:
-            break
-        else:
-            suffix.append(p)
-    return suffix.reverse()
-
-
-def array_to_list(array):
-    if len(array) == 0:
-        return ()
-    return (array[0], array_to_list(array[1:]))
-
-
 def skip_headers_below_level(header, header_map, interlink_map, level):
 
     header = header.GetHash()
