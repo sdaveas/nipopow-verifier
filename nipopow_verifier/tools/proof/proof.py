@@ -1,11 +1,12 @@
-import create_blockchain_new as blockchain_utils
-from create_proof import ProofTool
-
 """
 Store proofs to objects
 proof = Proof()
 proof.set(import_proof('myproof'))
 """
+
+from collections import defaultdict
+import create_blockchain_new as blockchain_utils
+from create_proof import ProofTool
 
 
 class Proof:
