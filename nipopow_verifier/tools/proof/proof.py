@@ -285,6 +285,49 @@ def change_interlink_bytes(header, new_interlink):
     return new_header
 
 
+def isolate_proof_level(proof, level):
+
+    isolated_proof = []
+
+    rev_proof = proof[::-1]
+
+    start_index = None
+
+    for i, r in enumerate(rev_proof):
+        if header_level(r[0]) >= level:
+            start_index = i
+            break
+
+    if start_index is None:
+        return []
+
+    isolated_proof.append(rev_proof[start_index])
+    new_interlink = []
+
+    for i in range(start_index + 1, len(rev_proof)):
+
+        if header_level(rev_proof[i][0]) < level:
+            continue
+
+        new_header = change_interlink_bytes(rev_proof[i][0], new_interlink)
+        if new_interlink == []:
+            new_merkle_tree = rev_proof[i][1]
+        else:
+            new_merkle_tree = blockchain_utils.prove_interlink(new_interlink, 0)
+
+        isolated_proof.append((new_header, ()))
+
+        new_interlink = [blockchain_utils.Hash(new_header)]
+
+        # blockchain_utils.verify_interlink(
+        #     blockchain_utils.Hash(isolated_proof[-1][0]),
+        #     blockchain_utils.hash_interlink(new_interlink),
+        #     new_merkle_tree,
+        # )
+
+    return isolated_proof[::-1]
+
+
 def main():
     pt = ProofTool()
     (
