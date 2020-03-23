@@ -22,6 +22,8 @@ class Proof:
         self.headers = []
         self.siblings = []
         self.size = 0
+        self.levels = {}
+        self.scores = {}
         self.best_level = 0
         self.best_score = 0
         self.best_level_subproof = []
