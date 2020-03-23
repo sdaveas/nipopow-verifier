@@ -204,8 +204,9 @@ def isolate_proof_level(proof, level):
 
     start_index = None
 
-    for i, r in enumerate(rev_proof):
-        if header_level(r[0]) >= level:
+    for i, block in enumerate(rev_proof):
+        header, _ = block
+        if header_level(header) >= level:
             start_index = i
             break
 
