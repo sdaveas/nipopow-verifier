@@ -70,7 +70,7 @@ class Proof:
 
         return headers, siblings
 
-    def set(self, proof, proof_name="", header_map=None, interlink_map=None):
+    def set(self, proof, proof_name=""):
         """
         Registers a proof in the object
         """
@@ -80,21 +80,24 @@ class Proof:
         self.headers, self.siblings = self.extract_headers_siblings(self.proof)
         self.size = len(self.proof)
 
-        self.best_level, self.best_score = best_level_and_score(self.proof)
-        print("Best level:", self.best_level)
-        print("Best score:", self.best_score)
+        (
+            self.best_level,
+            self.best_score,
+            self.levels,
+            self.scores,
+        ) = best_level_and_score(self.proof)
 
-        if header_map is None or interlink_map is None:
-            print(" No interlink. Cannot create max level subproof.")
-            return
+        for level in sorted(self.levels.keys()):
+            print(
+                "Levle", level, "has", self.levels[level], "blocks with score", end=""
+            )
+            if level == self.best_level:
+                print(" " + str(self.best_score) + " <- best")
+            else:
+                print(" " + str(self.scores[level]))
 
-        prefix = []
-        prefix = self._best_level_subproof(
-            self.proof, self.best_level, header_map, interlink_map
-        )
-
-        # self.best_level_subproof = best_level_subproof
-        # self.best_level_subproof_size = len(self.best_level_subproof)
+        self.best_level_subproof = isolate_proof_level(proof, self.best_level)
+        self.best_level_subproof_size = len(self.best_level_subproof)
 
 
 def header_level(p):
