@@ -100,16 +100,16 @@ class Proof:
         self.best_level_subproof_size = len(self.best_level_subproof)
 
 
-def header_level(p):
+def header_level(header):
     """
-        Computes the level of a proof block
-        """
+    Computes the level of a proof block
+    """
 
-    n_bits = p[104:108]
+    n_bits = header[104:108]
     n_bits_int = int().from_bytes(n_bits, "little")
     target = blockchain_utils.bits_to_target(n_bits_int)
-    hash = blockchain_utils.uint256_from_str(blockchain_utils.Hash(p))
-    level = (int(target / hash)).bit_length() - 1
+    header_hash = blockchain_utils.uint256_from_str(blockchain_utils.Hash(header))
+    level = (int(target / header_hash)).bit_length() - 1
     return level
 
 
