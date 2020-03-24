@@ -159,7 +159,7 @@ def best_level_and_score(proof, miou=6):
     max_level = 0
     for level in keys:
         curr_score = levels[level] * pow(2, level)
-        if levels[level] > miou and curr_score > max_score:
+        if levels[level] >= miou and curr_score > max_score:
             max_score = curr_score
             max_level = level
         scores[level] = curr_score
