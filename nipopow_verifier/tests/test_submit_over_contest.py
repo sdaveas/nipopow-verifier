@@ -76,13 +76,23 @@ def test_boi_in_large():
     pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
 
-    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
-        1000, 200, 100
-    )
+    (
+        submit_proof_name,
+        contest_proof_name,
+        lca,
+        header,
+        header_map,
+        interlink_map,
+    ) = pt.create_proof_and_forkproof(1000, 200, 100)
     submit_proof = Proof()
     contest_proof = Proof()
     submit_proof.set(pt.fetch_proof(submit_proof_name))
-    contest_proof.set(pt.fetch_proof(contest_proof_name))
+    contest_proof.set(
+        pt.fetch_proof(contest_proof_name),
+        header=header,
+        header_map=header_map,
+        interlink_map=interlink_map,
+    )
 
     res = submit_event_proof(
         interface, submit_proof, block_of_interest_index, profile=True
@@ -121,7 +131,7 @@ def test_boi_in_small():
         fork_header,
         fork_header_map,
         fork_interlink_map,
-    ) = pt.create_proof_and_forkproof(100, 10, 20)
+    ) = pt.create_proof_and_forkproof(1000, 100, 200)
 
     submit_proof = Proof()
     contest_proof = Proof()
@@ -160,13 +170,24 @@ def test_boi_in_common_submit_small():
     pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
 
-    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
-        1000, 100, 200
-    )
+    (
+        submit_proof_name,
+        contest_proof_name,
+        lca,
+        header,
+        header_map,
+        interlink_map,
+    ) = pt.create_proof_and_forkproof(1000, 100, 200)
+
     submit_proof = Proof()
     contest_proof = Proof()
     submit_proof.set(pt.fetch_proof(submit_proof_name))
-    contest_proof.set(pt.fetch_proof(contest_proof_name))
+    contest_proof.set(
+        pt.fetch_proof(contest_proof_name),
+        header=header,
+        header_map=header_map,
+        interlink_map=interlink_map,
+    )
 
     block_of_interest_index = submit_proof.size - 1
 
@@ -198,13 +219,23 @@ def test_boi_in_common_submit_big():
     pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
 
-    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
-        1000, 200, 100
-    )
+    (
+        submit_proof_name,
+        contest_proof_name,
+        lca,
+        header,
+        header_map,
+        interlink_map,
+    ) = pt.create_proof_and_forkproof(1000, 200, 100)
     submit_proof = Proof()
     contest_proof = Proof()
     submit_proof.set(pt.fetch_proof(submit_proof_name))
-    contest_proof.set(pt.fetch_proof(contest_proof_name))
+    contest_proof.set(
+        pt.fetch_proof(contest_proof_name),
+        header=header,
+        header_map=header_map,
+        interlink_map=interlink_map,
+    )
 
     block_of_interest_index = submit_proof.size - 1
 
@@ -234,13 +265,23 @@ def test_boi_out_of_index():
     pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
 
-    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
-        1000, 200, 100
-    )
+    (
+        submit_proof_name,
+        contest_proof_name,
+        lca,
+        header,
+        header_map,
+        interlink_map,
+    ) = pt.create_proof_and_forkproof(1000, 200, 100)
     submit_proof = Proof()
     contest_proof = Proof()
     submit_proof.set(pt.fetch_proof(submit_proof_name))
-    contest_proof.set(pt.fetch_proof(contest_proof_name))
+    contest_proof.set(
+        pt.fetch_proof(contest_proof_name),
+        header=header,
+        header_map=header_map,
+        interlink_map=interlink_map,
+    )
 
     block_of_interest_index = submit_proof.size
 
@@ -259,13 +300,23 @@ def test_boi_out_of_index_contest():
     pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
 
-    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
-        1000, 200, 100
-    )
+    (
+        submit_proof_name,
+        contest_proof_name,
+        lca,
+        header,
+        header_map,
+        interlink_map,
+    ) = pt.create_proof_and_forkproof(1000, 200, 100)
     submit_proof = Proof()
     contest_proof = Proof()
     submit_proof.set(pt.fetch_proof(submit_proof_name))
-    contest_proof.set(pt.fetch_proof(contest_proof_name))
+    contest_proof.set(
+        pt.fetch_proof(contest_proof_name),
+        header=header,
+        header_map=header_map,
+        interlink_map=interlink_map,
+    )
 
     block_of_interest_index = submit_proof.size - 1
 
@@ -294,13 +345,23 @@ def test_same_proofs():
     pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
 
-    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
-        1000, 200, 100
-    )
+    (
+        submit_proof_name,
+        contest_proof_name,
+        lca,
+        header,
+        header_map,
+        interlink_map,
+    ) = pt.create_proof_and_forkproof(1000, 200, 100)
     submit_proof = Proof()
     contest_proof = Proof()
     submit_proof.set(pt.fetch_proof(submit_proof_name))
-    contest_proof.set(pt.fetch_proof(contest_proof_name))
+    contest_proof.set(
+        pt.fetch_proof(contest_proof_name),
+        header=header,
+        header_map=header_map,
+        interlink_map=interlink_map,
+    )
 
     block_of_interest_index = submit_proof.size - 1
 
@@ -329,13 +390,23 @@ def test_wrong_lca():
     pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
 
-    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
-        1000, 200, 100
-    )
+    (
+        submit_proof_name,
+        contest_proof_name,
+        lca,
+        header,
+        header_map,
+        interlink_map,
+    ) = pt.create_proof_and_forkproof(1000, 200, 100)
     submit_proof = Proof()
     contest_proof = Proof()
     submit_proof.set(pt.fetch_proof(submit_proof_name))
-    contest_proof.set(pt.fetch_proof(contest_proof_name))
+    contest_proof.set(
+        pt.fetch_proof(contest_proof_name),
+        header=header,
+        header_map=header_map,
+        interlink_map=interlink_map,
+    )
 
     block_of_interest_index = 0
 
@@ -364,13 +435,23 @@ def test_proof_exists():
     pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
 
-    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
-        1000, 200, 100
-    )
+    (
+        submit_proof_name,
+        contest_proof_name,
+        lca,
+        header,
+        header_map,
+        interlink_map,
+    ) = pt.create_proof_and_forkproof(1000, 200, 100)
     submit_proof = Proof()
     contest_proof = Proof()
     submit_proof.set(pt.fetch_proof(submit_proof_name))
-    contest_proof.set(pt.fetch_proof(contest_proof_name))
+    contest_proof.set(
+        pt.fetch_proof(contest_proof_name),
+        header=header,
+        header_map=header_map,
+        interlink_map=interlink_map,
+    )
 
     block_of_interest_index = 0
 
