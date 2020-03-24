@@ -134,7 +134,7 @@ def header_level(header):
 # Linter made me do it
 def best_level_and_score(proof, miou=6):
     """
-    Returns a proof's best level and its score
+    Returns a proof's best level and score
     """
 
     levels = defaultdict(lambda: 0)
