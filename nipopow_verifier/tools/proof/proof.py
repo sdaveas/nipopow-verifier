@@ -173,7 +173,7 @@ def change_interlink_bytes(header, new_interlink):
     return new_header
 
 
-def isolate_proof_level(proof, level):
+def _isolate_proof_level(proof, level, interlink_map):
     """
     Returns a valid proof consisted by blocks of a certain level and above
     """
@@ -184,8 +184,10 @@ def isolate_proof_level(proof, level):
 
     start_index = None
 
+    # Add the first block of the proof until the first of wanted level
     for i, block in enumerate(rev_proof):
         header, _ = block
+        isolated_proof.append(block)
         if header_level(header) >= level:
             start_index = i
             break
@@ -193,23 +195,14 @@ def isolate_proof_level(proof, level):
     if start_index is None:
         return []
 
-    for p in rev_proof:
-        isolated_proof.append(p)
-        if header_level(header) >= level:
-            break
-
-    new_interlink = []
-
     for i in range(start_index + 1, len(rev_proof)):
         if header_level(rev_proof[i][0]) < level:
             continue
-        new_header = change_interlink_bytes(rev_proof[i][0], new_interlink)
-        #        if new_interlink == []:
-        #            new_merkle_tree = rev_proof[i][1]
-        #        else:
-        #            new_merkle_tree = blockchain_utils.prove_interlink(new_interlink, 0)
-        isolated_proof.append((new_header, []))
-        new_interlink = [blockchain_utils.Hash(new_header)]
+        header = rev_proof[i][0]
+        header_hash = blockchain_utils.Hash(header)
+        interlink_array = blockchain_utils.list_flatten(interlink_map[header_hash])
+        new_merkle_proof = blockchain_utils.prove_interlink(interlink_array, level)
+        isolated_proof.append((header, new_merkle_proof))
 
     isolated_proof = isolated_proof[::-1]
     blockchain_utils.verify_proof(
@@ -219,21 +212,75 @@ def isolate_proof_level(proof, level):
     return isolated_proof
 
 
+def isolate_proof_level(level, fork_proof, header, header_map, interlink_map):
+    """
+    Returns a valid proof consisted by blocks of a certain level and above
+    """
+
+    start = []
+    for p in fork_proof[::-1]:
+        h, _ = p
+        if header_level(h) >= level:
+            break
+        start.append(p)
+
+    anchor = blockchain_utils.CBlockHeaderPopow.deserialize(h)
+
+    interlink = blockchain_utils.list_flatten(interlink_map[header.GetHash()])
+    proof = []
+    mp = []
+    print("--")
+    i = 0
+    while True:
+        proof.append((header.serialize(), mp))
+        if header == anchor or level >= len(interlink):
+            break
+        mp = blockchain_utils.prove_interlink(interlink, level)
+        header = header_map[interlink[level]]
+        blockchain_utils.verify_interlink(
+            header.GetHash(), blockchain_utils.hash_interlink(interlink), mp
+        )
+        interlink = blockchain_utils.list_flatten(interlink_map[header.GetHash()])
+
+    for s in start[::-1]:
+        proof.append(s)
+
+    blockchain_utils.verify_proof(blockchain_utils.Hash(proof[0][0]), proof)
+
+    return proof
+
+
 def main():
     """
     Test Proof
     """
 
     proof_tool = ProofTool()
-    proof_name, fork_proof_name, _ = proof_tool.create_proof_and_forkproof(10, 5, 10)
+    (
+        proof_name,
+        fork_proof_name,
+        lca,
+        fork_header,
+        fork_header_map,
+        fork_interlink_map,
+    ) = proof_tool.create_proof_and_forkproof(100, 10, 20)
 
     my_proof = Proof()
     my_proof.set(proof_tool.fetch_proof(proof_name))
     p = my_proof.best_level_subproof
 
     my_fork_proof = Proof()
-    my_fork_proof.set(proof_tool.fetch_proof(fork_proof_name))
+    my_fork_proof.set(
+        proof_tool.fetch_proof(fork_proof_name),
+        header=fork_header,
+        header_map=fork_header_map,
+        interlink_map=fork_interlink_map,
+    )
     pp = my_fork_proof.best_level_subproof
+
+    my_proof_tip = Proof()
+    my_proof_tip.set(my_proof.proof[:lca])
+
     print(blockchain_utils.Hash(my_fork_proof.proof[-1][0]).hex())
     print(blockchain_utils.Hash(pp[-1][0]).hex())
 
