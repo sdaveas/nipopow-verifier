@@ -91,7 +91,7 @@ class Proof:
 
         for level in sorted(self.levels.keys()):
             print(
-                "Levle", level, "has", self.levels[level], "blocks with score", end=""
+                "Level", level, "has", self.levels[level], "blocks with score", end=""
             )
             if level == self.best_level:
                 print(" " + str(self.best_score) + " <- best")
