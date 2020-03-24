@@ -79,7 +79,7 @@ contract Crosschain {
             uint256 pow = (i / 8) * 8 + 8 - (i % 8) - 1;
             uint256 mask = 2**pow;
             if ((hash & mask) != 0) {
-                return uint8(i);
+                return uint8(i) - 1;
             }
         }
         return 0;
