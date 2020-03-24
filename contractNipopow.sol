@@ -124,6 +124,12 @@ contract Crosschain {
             }
         }
 
+        for (uint l=0; l<maxLevel; l++) {
+            emit debug("Level", l);
+            emit debug("Conter", levelCounter[l]);
+            emit debug("----", 0);
+        }
+
         // TODO: This becomes 0 for i=0
         for (uint256 i = 0; i <= maxLevel; i++) {
             uint256 curScore = uint256(levelCounter[i] * 2**i);
@@ -380,18 +386,26 @@ contract Crosschain {
             "Contesting proof[1:] is not different from existing[lca+1:]"
         );
 
-        // We can ask the caller to provide the level for their proof
-        require(
-            bestArg(existingHeadersHashed, lca) <
-                bestArg(contestingHeadersHashed, contestingHeaders.length - 1),
-            "Existing proof has greater score"
-        );
+        uint256 e = bestArg(existingHeadersHashed, lca);
+        uint256 c = bestArgAtLevel(contestingHeadersHashed, bestLevel);
+
+        emit debug("Existing Score:", e);
+        emit debug("Contesting Score:", c);
+
+        // // We can ask the caller to provide the level for their proof
+        // require(
+        //     bestArg(existingHeadersHashed, lca) <
+        //         bestArgAtLevel(contestingHeadersHashed, bestLevel),
+        //     "Existing proof has greater score"
+        // );
 
         // If you reached this point, contesting was successful
         events[blockOfInterestHash].expire = 0;
         msg.sender.transfer(z);
         return true;
     }
+
+    event debug(string tag, uint256 value);
 
     function eventExists(bytes32[4] memory blockHeader)
         public
