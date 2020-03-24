@@ -26,7 +26,8 @@ contract Crosschain {
     mapping(bytes32 => bool) finalizedEvents;
 
     // Security parameters.
-    uint256 constant m = 15;
+    // Make tests easy, we'll come back on these two
+    uint256 constant m = 6;
     uint256 constant k = 6; // Should be bigger.
 
     //TOOO: Move this to another file
