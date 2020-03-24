@@ -57,7 +57,11 @@ def submit_event_proof(
     if len(debug_events) > 0:
         for e in debug_events:
             log = dict(e)["args"]
-            print(log["tag"], "\t", log["value"])
+            if isinstance(log["value"], bytes):
+                value = log["value"].hex()
+            else:
+                value = log["value"]
+            print(log["tag"], "\t", value)
 
     if profile is True:
         filename = str(int(time())) + ".txt"
@@ -93,7 +97,7 @@ def submit_contesting_proof_new(
         from_address = interface.w3.eth.accounts[0]
 
     my_function = my_contract.functions.submitContestingProof(
-        existing.headers,
+        existing.hashed_headers,
         lca,
         contesting.best_level_subproof_headers,
         contesting.best_level_subproof_siblings,
