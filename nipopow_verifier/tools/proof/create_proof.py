@@ -273,7 +273,14 @@ class ProofTool:
         fixed_fork_proof, lca = self.create_fixed_fork_proof(proof, fork_proof)
         self.export_proof(fixed_fork_proof, fork_proof_name)
 
-        return (proof_name, fork_proof_name, lca)
+        return (
+            proof_name,
+            fork_proof_name,
+            lca,
+            fork_header,
+            fork_header_map,
+            fork_interlink_map,
+        )
 
 
 def main():
