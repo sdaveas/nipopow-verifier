@@ -174,7 +174,11 @@ def isolate_proof_level(proof, level):
     if start_index is None:
         return []
 
-    isolated_proof.append(rev_proof[start_index])
+    for p in rev_proof:
+        isolated_proof.append(p)
+        if header_level(header) >= level:
+            break
+
     new_interlink = []
 
     for i in range(start_index + 1, len(rev_proof)):
@@ -193,7 +197,7 @@ def isolate_proof_level(proof, level):
         blockchain_utils.Hash(isolated_proof[0][0]), isolated_proof[:-1]
     )
 
-    return isolated_proof[:-1]
+    return isolated_proof
 
 
 def main():
