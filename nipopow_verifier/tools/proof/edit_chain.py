@@ -88,7 +88,11 @@ def print_proof(proof, headers_map):
     print("\nProof")
     for i, _ in enumerate(proof):
         if i == 0:
-            print(i, "Header:\t\t\t", "We dont know yet")
+            print(
+                i,
+                "Header:\t\t\t",
+                CBlockHeaderPopow.deserialize(proof[i][0]).GetHash().hex(),
+            )
         else:
             print(
                 i,
