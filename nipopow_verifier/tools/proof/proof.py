@@ -119,7 +119,8 @@ def header_level(header):
     return level
 
 
-def best_level_and_score(proof, miou=1):
+# Linter made me do it
+def best_level_and_score(proof, miou=6):
     """
     Returns a proof's best level and its score
     """
