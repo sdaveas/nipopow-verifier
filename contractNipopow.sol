@@ -84,6 +84,21 @@ contract Crosschain {
         return 0;
     }
 
+    function bestArgAtLevel(bytes32[] memory proof, uint256 level)
+        internal
+        returns (uint256)
+    {
+        uint bestLevelCounter = 0;
+        for (uint i=0; i<proof.length; i++) {
+            if (getLevel(proof[i]) >= level) {
+                bestLevelCounter++;
+            }
+        }
+        uint256 score = uint256(bestLevelCounter * 2**level);
+        emit debug("Score:", score);
+        return score;
+    }
+
     // TODO: lca can be very close to the tip of submited proof so that
     // score(existing[lca:]) < score(contesting[lca:]) because
     // |existing[:lca]| < m
