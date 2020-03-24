@@ -315,6 +315,7 @@ contract Crosschain {
         uint256 lca,
         bytes32[4][] memory contestingHeaders,
         bytes32[] memory contestingSiblings,
+        uint256 bestLevel,
         uint256 blockOfInterestIndex
     ) public returns (bool) {
         require(

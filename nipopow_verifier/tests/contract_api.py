@@ -97,6 +97,7 @@ def submit_contesting_proof_new(
         lca,
         contesting.best_level_subproof_headers,
         contesting.best_level_subproof_siblings,
+        contesting.best_level,
         block_of_interest_index,
     )
 
