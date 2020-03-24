@@ -142,6 +142,13 @@ def best_level_and_score(proof, miou=6):
         level = header_level(header)
         levels[level] += 1
 
+    top_level = max(levels.keys())
+
+    print("Top level is", top_level)
+    for l in range(top_level):
+        if levels[l] == 0:
+            levels[l] = 0
+
     keys = sorted(levels.keys(), reverse=True)
     for i in range(len(keys) - 1):
         levels[keys[i + 1]] += levels[keys[i]]
