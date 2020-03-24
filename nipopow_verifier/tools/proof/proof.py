@@ -212,12 +212,19 @@ def main():
     """
 
     proof_tool = ProofTool()
-    _, fork_proof_name, _ = proof_tool.create_proof_and_forkproof(100, 2, 100)
+    proof_name, fork_proof_name, _ = proof_tool.create_proof_and_forkproof(10, 5, 10)
 
     my_proof = Proof()
-    my_proof.set(proof_tool.fetch_proof(fork_proof_name))
+    my_proof.set(proof_tool.fetch_proof(proof_name))
+    p = my_proof.best_level_subproof
 
-    print("Best proof has length", len(my_proof.best_level_subproof))
+    my_fork_proof = Proof()
+    my_fork_proof.set(proof_tool.fetch_proof(fork_proof_name))
+    pp = my_fork_proof.best_level_subproof
+    print(blockchain_utils.Hash(my_fork_proof.proof[-1][0]).hex())
+    print(blockchain_utils.Hash(pp[-1][0]).hex())
+
+    print("Best proof has length", len(my_fork_proof.best_level_subproof))
 
 
 if __name__ == "__main__":
