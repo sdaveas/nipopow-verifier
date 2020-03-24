@@ -95,8 +95,8 @@ def submit_contesting_proof_new(
     my_function = my_contract.functions.submitContestingProof(
         existing.headers,
         lca,
-        contesting.headers,
-        contesting.siblings,
+        contesting.best_level_subproof_headers,
+        contesting.best_level_subproof_siblings,
         block_of_interest_index,
     )
 
