@@ -27,6 +27,8 @@ class Proof:
         self.best_level = 0
         self.best_score = 0
         self.best_level_subproof = []
+        self.best_level_subproof_headers = []
+        self.best_level_subproof_siblings = []
         self.best_level_subproof_size = 0
 
     @staticmethod
@@ -97,6 +99,10 @@ class Proof:
                 print(" " + str(self.scores[level]))
 
         self.best_level_subproof = isolate_proof_level(proof, self.best_level)
+        (
+            self.best_level_subproof_headers,
+            self.best_level_subproof_siblings,
+        ) = self.extract_headers_siblings(self.best_level_subproof)
         self.best_level_subproof_size = len(self.best_level_subproof)
 
 
