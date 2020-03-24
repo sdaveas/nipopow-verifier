@@ -89,8 +89,8 @@ contract Crosschain {
         internal
         returns (uint256)
     {
-        uint bestLevelCounter = 0;
-        for (uint i=0; i<proof.length; i++) {
+        uint256 bestLevelCounter = 0;
+        for (uint256 i = 0; i < proof.length; i++) {
             if (getLevel(proof[i]) >= level) {
                 bestLevelCounter++;
             }
