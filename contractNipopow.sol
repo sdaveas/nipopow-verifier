@@ -87,6 +87,7 @@ contract Crosschain {
 
     function bestArgAtLevel(bytes32[] memory proof, uint256 level)
         internal
+        pure
         returns (uint256)
     {
         uint256 bestLevelCounter = 0;
