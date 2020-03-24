@@ -114,13 +114,24 @@ def test_boi_in_small():
     pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
 
-    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
-        1000, 100, 200
-    )
+    (
+        submit_proof_name,
+        contest_proof_name,
+        lca,
+        fork_header,
+        fork_header_map,
+        fork_interlink_map,
+    ) = pt.create_proof_and_forkproof(100, 10, 20)
+
     submit_proof = Proof()
     contest_proof = Proof()
     submit_proof.set(pt.fetch_proof(submit_proof_name))
-    contest_proof.set(pt.fetch_proof(contest_proof_name))
+    contest_proof.set(
+        pt.fetch_proof(contest_proof_name),
+        header=fork_header,
+        header_map=fork_header_map,
+        interlink_map=fork_interlink_map,
+    )
 
     res = submit_event_proof(
         interface, submit_proof, block_of_interest_index, profile=True
