@@ -124,8 +124,6 @@ contract Crosschain {
             }
         }
 
-
-        // TODO: This becomes 0 for i=0
         for (uint256 i = 0; i <= maxLevel; i++) {
             uint256 curScore = uint256(levelCounter[i] * 2**i);
             if (levelCounter[i] >= m && curScore > maxScore) {
@@ -362,7 +360,6 @@ contract Crosschain {
             "Merkle verification failed"
         );
 
-        // get existing hashed headers
         bytes32[] memory existingHeadersHashed = new bytes32[](
             existingHeaders.length
         );
