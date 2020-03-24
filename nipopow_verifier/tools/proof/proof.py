@@ -72,7 +72,9 @@ class Proof:
 
         return headers, siblings
 
-    def set(self, proof, proof_name=""):
+    def set(
+        self, proof, proof_name="", header=None, header_map=None, interlink_map=None,
+    ):
         """
         Registers a proof in the object
         """
@@ -98,7 +100,17 @@ class Proof:
             else:
                 print(" " + str(self.scores[level]))
 
-        self.best_level_subproof = isolate_proof_level(proof, self.best_level)
+        if header is None or header_map is None or interlink_map is None:
+            print("No interlink provided")
+            return
+        else:
+            print(
+                "Interlink provided. Creating isolated proof at level", self.best_level
+            )
+
+        self.best_level_subproof = isolate_proof_level(
+            self.best_level, proof, header, header_map, interlink_map
+        )
         (
             self.best_level_subproof_headers,
             self.best_level_subproof_siblings,
