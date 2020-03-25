@@ -167,7 +167,6 @@ contract Crosschain {
         return uint8(bytes1(b << 248));
     }
 
-    function validateInterlink(
     function findSiblingsOffset(
         bytes32[4][] memory headers,
         bytes32[] memory siblings,
@@ -216,6 +215,8 @@ contract Crosschain {
                 reversedSiblings
             );
     }
+
+    function validateInterlinks(
         bytes32[4][] memory headers,
         bytes32[] memory hashedHeaders,
         bytes32[] memory siblings,
@@ -342,8 +343,7 @@ contract Crosschain {
         bytes32[4][] memory existingHeaders,
         bytes32[] memory siblings,
         uint256 blockOfInterestIndex,
-        uint256 disputeIndexStart,
-        uint256 disputeIndexStop
+        uint256 disputeIndex
     ) public returns (bool) {
         bytes32 blockOfInterestHash = hashHeader(
             existingHeaders[blockOfInterestIndex]
@@ -441,7 +441,7 @@ contract Crosschain {
         }
 
         require(
-            validateInterlink(
+            validateInterlinks(
                 contestingHeaders,
                 contestingHeadersHashed,
                 contestingSiblings,
