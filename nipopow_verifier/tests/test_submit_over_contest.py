@@ -180,7 +180,6 @@ def test_boi_in_common_submit_small(init_environment):
             block_of_interest_index,
             profile=True,
         )
-    print(ex)
     assert extract_message_from_error(ex) == errors["boi in sub-chain"]
 
 
