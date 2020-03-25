@@ -186,6 +186,36 @@ contract Crosschain {
 
         return ptr;
     }
+
+    function validateSingleInterlink(
+        bytes32[4][] memory headers,
+        bytes32[] memory siblings,
+        uint256 validateIndex
+    ) internal pure returns (bool) {
+        uint256 siblingsOffset = findSiblingsOffset(
+            headers,
+            siblings,
+            validateIndex
+        );
+
+        uint8 branchLength = b32ToUint8(
+            (headers[validateIndex][3] >> 8) & bytes32(uint256(0xff))
+        );
+        uint8 merkleIndex = b32ToUint8(
+            (headers[validateIndex][3] >> 0) & bytes32(uint256(0xff))
+        );
+        bytes32[] memory reversedSiblings = new bytes32[](branchLength);
+        for (uint8 j = 0; j < branchLength; j++)
+            reversedSiblings[j] = siblings[siblingsOffset + j];
+
+        return
+            verifyMerkle(
+                headers[validateIndex - 1][0],
+                hashHeader(headers[validateIndex]),
+                merkleIndex,
+                reversedSiblings
+            );
+    }
         bytes32[4][] memory headers,
         bytes32[] memory hashedHeaders,
         bytes32[] memory siblings,
