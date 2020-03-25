@@ -218,7 +218,7 @@ contract Crosschain {
         bytes32[4][] memory headers,
         bytes32[] memory hashedHeaders,
         bytes32[] memory siblings
-    ) internal returns (bool) {
+    ) internal pure returns (bool) {
         uint256 ptr = 0; // Index of the current sibling
         for (uint256 i = 1; i < headers.length; i++) {
             // hold the 3rd and 4th least significant bytes
