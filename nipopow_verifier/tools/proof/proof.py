@@ -213,9 +213,9 @@ def isolate_proof_level(level, fork_proof, header, header_map, interlink_map):
         )
         interlink = blockchain_utils.list_flatten(interlink_map[header.GetHash()])
 
-    for s in start[::-1]:
-        proof.append(s)
     proof.append((anchor.serialize(), mp))
+
+    proof.extend(start[::-1])
 
     blockchain_utils.verify_proof(blockchain_utils.Hash(proof[0][0]), proof)
 
