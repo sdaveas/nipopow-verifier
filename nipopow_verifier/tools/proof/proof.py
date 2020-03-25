@@ -138,7 +138,7 @@ def header_level(header):
 
 
 # Linter made me do it
-def best_level_and_score(proof, miou=6):
+def best_level_and_score(proof, m=6):
     """
     Returns a proof's best level and score
     """
@@ -165,7 +165,7 @@ def best_level_and_score(proof, miou=6):
     max_level = 0
     for level in keys:
         curr_score = levels[level] * pow(2, level)
-        if levels[level] >= miou and curr_score > max_score:
+        if levels[level] >= m and curr_score > max_score:
             max_score = curr_score
             max_level = level
         scores[level] = curr_score
@@ -186,38 +186,39 @@ def change_interlink_bytes(header, new_interlink):
     return new_header
 
 
-def isolate_proof_level(level, fork_proof, header, header_map, interlink_map):
+def isolate_proof_level(level, original_proof, chain_header, header_map, interlink_map):
     """
     Returns a valid proof consisted by blocks of a certain level and above
     """
 
-    start = []
-    for p in fork_proof[::-1]:
-        h, _ = p
-        if header_level(h) >= level:
+    proof_start = []
+    original_header = []
+    for block in original_proof[::-1]:
+        original_header, _ = block
+        if header_level(original_header) >= level:
             break
-        start.append(p)
+        proof_start.append(block)
 
-    anchor = blockchain_utils.CBlockHeaderPopow.deserialize(h)
+    anchor = blockchain_utils.CBlockHeaderPopow.deserialize(original_header)
 
-    interlink = blockchain_utils.list_flatten(interlink_map[header.GetHash()])
+    interlink = blockchain_utils.list_flatten(interlink_map[chain_header.GetHash()])
     proof = []
-    mp = []
+    merkle_proof = []
 
+    header = chain_header
     while header != anchor:
-        proof.append((header.serialize(), mp))
-        mp = blockchain_utils.prove_interlink(interlink, level)
+        proof.append((header.serialize(), merkle_proof))
+        merkle_proof = blockchain_utils.prove_interlink(interlink, level)
         header = header_map[interlink[level]]
         blockchain_utils.verify_interlink(
-            header.GetHash(), blockchain_utils.hash_interlink(interlink), mp
+            header.GetHash(), blockchain_utils.hash_interlink(interlink), merkle_proof
         )
         interlink = blockchain_utils.list_flatten(interlink_map[header.GetHash()])
 
-    proof.append((anchor.serialize(), mp))
-
-    proof.extend(start[::-1])
+    proof.append((anchor.serialize(), merkle_proof))
 
     blockchain_utils.verify_proof(blockchain_utils.Hash(proof[0][0]), proof)
+    proof.extend(proof_start[::-1])
 
     return proof
 
