@@ -168,6 +168,24 @@ contract Crosschain {
     }
 
     function validateInterlink(
+    function findSiblingsOffset(
+        bytes32[4][] memory headers,
+        bytes32[] memory siblings,
+        uint256 proofIndex
+    ) internal pure returns (uint256) {
+        uint256 ptr;
+
+        for (uint256 i = 1; i < proofIndex; i++) {
+            // hold the 3rd and 4th least significant bytes
+            uint8 branchLength = b32ToUint8(
+                (headers[i][3] >> 8) & bytes32(uint256(0xff))
+            );
+            require(branchLength <= 5, "Branch length too big");
+            ptr += branchLength;
+        }
+
+        return ptr;
+    }
         bytes32[4][] memory headers,
         bytes32[] memory hashedHeaders,
         bytes32[] memory siblings,
