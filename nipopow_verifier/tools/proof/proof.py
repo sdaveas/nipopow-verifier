@@ -186,45 +186,6 @@ def change_interlink_bytes(header, new_interlink):
     return new_header
 
 
-def _isolate_proof_level(proof, level, interlink_map):
-    """
-    Returns a valid proof consisted by blocks of a certain level and above
-    """
-
-    isolated_proof = []
-
-    rev_proof = proof[::-1]
-
-    start_index = None
-
-    # Add the first block of the proof until the first of wanted level
-    for i, block in enumerate(rev_proof):
-        header, _ = block
-        isolated_proof.append(block)
-        if header_level(header) >= level:
-            start_index = i
-            break
-
-    if start_index is None:
-        return []
-
-    for i in range(start_index + 1, len(rev_proof)):
-        if header_level(rev_proof[i][0]) < level:
-            continue
-        header = rev_proof[i][0]
-        header_hash = blockchain_utils.Hash(header)
-        interlink_array = blockchain_utils.list_flatten(interlink_map[header_hash])
-        new_merkle_proof = blockchain_utils.prove_interlink(interlink_array, level)
-        isolated_proof.append((header, new_merkle_proof))
-
-    isolated_proof = isolated_proof[::-1]
-    blockchain_utils.verify_proof(
-        blockchain_utils.Hash(isolated_proof[0][0]), isolated_proof[:-1]
-    )
-
-    return isolated_proof
-
-
 def isolate_proof_level(level, fork_proof, header, header_map, interlink_map):
     """
     Returns a valid proof consisted by blocks of a certain level and above
