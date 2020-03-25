@@ -321,6 +321,9 @@ contract Crosschain {
             "Block of interest index is out of range"
         );
 
+        require(
+            existingHeadersHashed.length >= m, "Security parameter m violated"
+        );
 
             bytes32 blockOfInterestHash
          = existingHeadersHashed[blockOfInterestIndex];
