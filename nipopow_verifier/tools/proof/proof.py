@@ -203,8 +203,6 @@ def isolate_proof_level(level, fork_proof, header, header_map, interlink_map):
     interlink = blockchain_utils.list_flatten(interlink_map[header.GetHash()])
     proof = []
     mp = []
-    print("--")
-    i = 0
     while True:
         proof.append((header.serialize(), mp))
         if header == anchor or level >= len(interlink):
