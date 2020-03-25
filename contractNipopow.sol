@@ -364,32 +364,12 @@ contract Crosschain {
             "Wrong siblings"
         );
         require(
-            1 <= disputeIndexStart && disputeIndexStart < disputeIndexStop,
-            "Dispute start index out of range"
+            1 <= disputeIndex && disputeIndex < existingHeaders.length,
+            "Dispute index out of range"
         );
         require(
-            1 <= disputeIndexStop && disputeIndexStop <= existingHeaders.length,
-            "Dispute stop index out of range"
-        );
-
-        bytes32[] memory existingHeadersHashed = new bytes32[](
-            disputeIndexStop - disputeIndexStart + 1
-        );
-        for (uint256 i = 0; i < disputeIndexStop - disputeIndexStart + 1; i++) {
-            existingHeadersHashed[i] = hashHeader(
-                existingHeaders[i + disputeIndexStart]
-            );
-        }
-
-        require(
-            !validateInterlink(
-                existingHeaders,
-                existingHeadersHashed,
-                siblings,
-                disputeIndexStart,
-                disputeIndexStop
-            ),
-            "Existing proof is valid in this range"
+            !validateSingleInterlink(existingHeaders, siblings, disputeIndex),
+            "Existing proof is valid at this index"
         );
 
         // If you reached this point, contesting was successful

@@ -57,7 +57,7 @@ def test_dispute_valid(init_environment):
 
     with pytest.raises(Exception) as ex:
         res = dispute_existing_proof(
-            interface, proof, block_of_interest_index, 1, proof.size - 1, profile=True
+            interface, proof, block_of_interest_index, 1, profile=True
         )
     assert extract_message_from_error(ex) == errors["valid existing"]
 
@@ -80,11 +80,6 @@ def test_dispute_invalid(init_environment):
     assert res["result"] == True
 
     res = dispute_existing_proof(
-        interface,
-        invalid_proof,
-        block_of_interest_index,
-        invalid_index_start=invalid_index,
-        invalid_index_stop=invalid_index + 1,
-        profile=True,
+        interface, invalid_proof, block_of_interest_index, invalid_index, profile=True,
     )
     assert res["result"] == True

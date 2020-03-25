@@ -73,30 +73,16 @@ def submit_event_proof(
 
 
 def dispute_existing_proof(
-    interface,
-    existing,
-    block_of_interest_index,
-    invalid_index_start=None,
-    invalid_index_stop=None,
-    profile=True,
+    interface, existing, block_of_interest_index, invalid_index, profile=True,
 ):
     """
     Calls disputeExistingProof(existingHeaders, existingHeadersHash, siblings)
     """
 
-    if invalid_index_start is None:
-        invalid_index_start = 1
-    if invalid_index_stop is None:
-        invalid_index_stop = existing.size
-
     my_contract = interface.get_contract()
     from_address = interface.w3.eth.accounts[0]
     my_function = my_contract.functions.disputeExistingProof(
-        existing.headers,
-        existing.siblings,
-        block_of_interest_index,
-        invalid_index_start,
-        invalid_index_stop,
+        existing.headers, existing.siblings, block_of_interest_index, invalid_index,
     )
 
     res = my_function.call({"from": from_address})
