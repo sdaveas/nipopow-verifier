@@ -169,7 +169,6 @@ contract Crosschain {
 
     function findSiblingsOffset(
         bytes32[4][] memory headers,
-        bytes32[] memory siblings,
         uint256 proofIndex
     ) internal pure returns (uint256) {
         uint256 ptr;
@@ -193,7 +192,6 @@ contract Crosschain {
     ) internal pure returns (bool) {
         uint256 siblingsOffset = findSiblingsOffset(
             headers,
-            siblings,
             validateIndex
         );
 
