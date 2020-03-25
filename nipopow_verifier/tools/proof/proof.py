@@ -217,7 +217,6 @@ def isolate_proof_level(level, original_proof, chain_header, header_map, interli
 
     proof.append((anchor.serialize(), merkle_proof))
 
-    blockchain_utils.verify_proof(blockchain_utils.Hash(proof[0][0]), proof)
     proof.extend(proof_start[::-1])
 
     return proof
