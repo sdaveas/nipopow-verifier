@@ -85,18 +85,18 @@ contract Crosschain {
         return 0;
     }
 
-    function bestArgAtLevel(bytes32[] memory proof, uint256 level)
+    function argAtLevel(bytes32[] memory proof, uint256 level)
         internal
         pure
         returns (uint256)
     {
-        uint256 bestLevelCounter = 0;
+        uint256 blocksOfLevel = 0;
         for (uint256 i = 0; i < proof.length; i++) {
             if (getLevel(proof[i]) >= level) {
-                bestLevelCounter++;
+                blocksOfLevel++;
             }
         }
-        uint256 score = uint256(bestLevelCounter * 2**level);
+        uint256 score = uint256(blocksOfLevel * 2**level);
         return score;
     }
 
@@ -375,7 +375,7 @@ contract Crosschain {
 
         require(
             bestArg(existingHeadersHashed, lca) <
-                bestArgAtLevel(contestingHeadersHashed, bestLevel),
+                argAtLevel(contestingHeadersHashed, bestLevel),
             "Existing proof has greater score"
         );
 
