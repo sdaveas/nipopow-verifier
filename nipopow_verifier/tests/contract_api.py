@@ -5,7 +5,7 @@ API for NiPoPoW verifier smart contract
 import sys
 from time import time
 
-from config import profiler, genesis
+from config import profiler, genesis, m, k
 
 sys.path.append("../tools/interface/")
 import contract_interface
@@ -19,7 +19,7 @@ def make_interface(backend):
         "../../contractNipopow.sol",
         backend=backend,
         genesis_overrides={"gas_limit": 67219750},
-        constructor_arguments=[genesis],
+        constructor_arguments=[genesis, m, k],
     )
 
 

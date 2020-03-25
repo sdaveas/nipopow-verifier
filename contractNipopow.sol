@@ -4,8 +4,10 @@ pragma solidity ^0.6.2;
 //import "strings.sol";
 
 contract Crosschain {
-    constructor(bytes32 genesis) public {
+    constructor(bytes32 genesis, uint _m, uint _k) public {
         genesisBlockHash = genesis;
+        m = _m;
+        k = _k;
     }
 
     // The genesis block hash
@@ -26,9 +28,8 @@ contract Crosschain {
     mapping(bytes32 => bool) finalizedEvents;
 
     // Security parameters.
-    // Make tests easy, we'll come back on these two
-    uint256 constant m = 6;
-    uint256 constant k = 6; // Should be bigger.
+    uint256 m;
+    uint256 k;
 
     //TOOO: Move this to another file
     function memcpy(uint256 dest, uint256 src, uint256 len) private pure {
