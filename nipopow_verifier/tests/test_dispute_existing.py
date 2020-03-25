@@ -21,11 +21,15 @@ import pytest
 
 
 backend = "ganache"
+proof = Proof()
 
 
 @pytest.fixture
 def init_environment():
-    pass
+    global backend
+    global proof
+    pt = ProofTool("../data/proofs/")
+    proof.set(pt.fetch_proof(500))
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -47,14 +51,8 @@ def test_dispute_valid(init_environment):
     """
 
     block_of_interest_index = 0
-    pt = ProofTool("../data/proofs/")
-    proof = Proof()
-    proof.set(pt.fetch_proof(500))
-
     interface = make_interface(backend)
-
     res = submit_event_proof(interface, proof, block_of_interest_index, profile=True)
-
     assert res["result"] == True
 
     with pytest.raises(Exception) as ex:
@@ -69,15 +67,12 @@ def test_dispute_invalid(init_environment):
     Try to dispute valid proof
     """
 
-    interface = make_interface(backend)
     block_of_interest_index = 0
-    pt = ProofTool("../data/proofs/")
-    original_proof = pt.fetch_proof(500)
+    interface = make_interface(backend)
+    invalid_index = int(proof.size / 2)
 
-    invalid_index = int(len(original_proof) / 2)
-    print("invalid index:", invalid_index)
     invalid_proof = Proof()
-    invalid_proof.set(change_interlink_hash(original_proof, invalid_index))
+    invalid_proof.set(change_interlink_hash(proof.proof, invalid_index))
 
     res = submit_event_proof(
         interface, invalid_proof, block_of_interest_index, profile=True
