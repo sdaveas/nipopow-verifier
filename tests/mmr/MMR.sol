@@ -19,6 +19,16 @@ contract MMR {
 
     Tree tree;
 
+    function testMMR(bytes memory data, uint256 times)
+        public
+        returns (bytes32)
+    {
+        for (uint256 i = 0; i < times; i++) {
+            append(data);
+        }
+        return tree.root;
+    }
+
     /**
      * @dev This only stores the hashed value of the leaf.
      *      If you need to retrieve the detail data later, use a map to store them.
