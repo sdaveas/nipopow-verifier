@@ -9,7 +9,6 @@ pragma solidity ^0.6.0;
  *      And it uses keccak256 for its hash function instead of blake2b
  */
 contract MMR {
-
     struct Tree {
         bytes32 root;
         uint256 size;
@@ -27,7 +26,7 @@ contract MMR {
     function append(bytes memory data) public {
         // Hash the leaf node first
         bytes32 dataHash = keccak256(data);
-        if(keccak256(tree.data[dataHash]) != dataHash) {
+        if (keccak256(tree.data[dataHash]) != dataHash) {
             tree.data[dataHash] = data;
         }
         bytes32 leaf = hashLeaf(tree.size + 1, dataHash);
@@ -40,7 +39,7 @@ contract MMR {
         tree.size = getSize(tree.width);
         // Starting from the left-most peak, get all peak hashes using _getOrCreateNode() function.
         bytes32[] memory peaks = new bytes32[](peakIndexes.length);
-        for (uint i = 0; i < peakIndexes.length; i++) {
+        for (uint256 i = 0; i < peakIndexes.length; i++) {
             peaks[i] = _getOrCreateNode(peakIndexes[i]);
         }
         // Create the root hash and update the tree
@@ -52,21 +51,21 @@ contract MMR {
         uint256[] memory peakNodeIndexes = getPeakIndexes(tree.width);
         // Starting from the left-most peak, get all peak hashes using _getOrCreateNode() function.
         peaks = new bytes32[](peakNodeIndexes.length);
-        for (uint i = 0; i < peakNodeIndexes.length; i++) {
+        for (uint256 i = 0; i < peakNodeIndexes.length; i++) {
             peaks[i] = tree.hashes[peakNodeIndexes[i]];
         }
         return peaks;
     }
 
-    function getLeafIndex(uint width) public pure returns (uint) {
-        if(width % 2 == 1) {
+    function getLeafIndex(uint256 width) public pure returns (uint256) {
+        if (width % 2 == 1) {
             return getSize(width);
         } else {
             return getSize(width - 1) + 1;
         }
     }
 
-    function getSize(uint width) public pure returns (uint256) {
+    function getSize(uint256 width) public pure returns (uint256) {
         return (width << 1) - numOfPeaks(width);
     }
 
@@ -94,12 +93,16 @@ contract MMR {
     /**
      * @dev It returns a merkle proof for a leaf. Note that the index starts from 1
      */
-    function getMerkleProof(uint256 index) public view returns (
-        bytes32 root,
-        uint256 width,
-        bytes32[] memory peakBagging,
-        bytes32[] memory siblings
-    ){
+    function getMerkleProof(uint256 index)
+        public
+        view
+        returns (
+            bytes32 root,
+            uint256 width,
+            bytes32[] memory peakBagging,
+            bytes32[] memory siblings
+        )
+    {
         require(index < tree.size, "Out of range");
         require(isLeaf(index), "Not a leaf");
 
@@ -110,7 +113,7 @@ contract MMR {
 
         peakBagging = new bytes32[](peaks.length);
         uint256 cursor;
-        for (uint i = 0; i < peaks.length; i++) {
+        for (uint256 i = 0; i < peaks.length; i++) {
             // Collect the hash of all peaks
             peakBagging[i] = tree.hashes[peaks[i]];
             // Find the peak which includes the target index
@@ -142,31 +145,48 @@ contract MMR {
         bytes32[] memory itemHashes
     ) public pure returns (bytes32 newRoot) {
         // Check the root equals the peak bagging hash
-        require(root == peakBagging(width, peaks), "Invalid root hash from the peaks");
-        uint tmpWidth = width;
+        require(
+            root == peakBagging(width, peaks),
+            "Invalid root hash from the peaks"
+        );
+        uint256 tmpWidth = width;
         bytes32[255] memory tmpPeakMap = peaksToPeakMap(width, peaks);
-        for (uint i = 0; i < itemHashes.length; i++) {
+        for (uint256 i = 0; i < itemHashes.length; i++) {
             tmpPeakMap = peakUpdate(tmpWidth, tmpPeakMap, itemHashes[i]);
             tmpWidth++;
         }
         return peakBagging(tmpWidth, peakMapToPeaks(tmpWidth, tmpPeakMap));
     }
 
-    function peakBagging(uint256 width, bytes32[] memory peaks) public pure returns (bytes32) {
-        uint size = getSize(width);
-        require(numOfPeaks(width) == peaks.length, "Received invalid number of peaks");
-        return keccak256(abi.encodePacked(size, keccak256(abi.encodePacked(size, peaks))));
+    function peakBagging(uint256 width, bytes32[] memory peaks)
+        public
+        pure
+        returns (bytes32)
+    {
+        uint256 size = getSize(width);
+        require(
+            numOfPeaks(width) == peaks.length,
+            "Received invalid number of peaks"
+        );
+        return
+            keccak256(
+                abi.encodePacked(size, keccak256(abi.encodePacked(size, peaks)))
+            );
     }
 
-    function peaksToPeakMap(uint width, bytes32[] memory peaks) public pure returns (bytes32[255] memory peakMap) {
-        uint bitIndex;
-        uint peakRef;
-        uint count = peaks.length;
-        for(uint height = 1; height <= 255; height++) {
+    function peaksToPeakMap(uint256 width, bytes32[] memory peaks)
+        public
+        pure
+        returns (bytes32[255] memory peakMap)
+    {
+        uint256 bitIndex;
+        uint256 peakRef;
+        uint256 count = peaks.length;
+        for (uint256 height = 1; height <= 255; height++) {
             // Index starts from the right most bit
             bitIndex = 255 - height;
             peakRef = 1 << (height - 1);
-            if((width & peakRef) != 0) {
+            if ((width & peakRef) != 0) {
                 peakMap[bitIndex] = peaks[--count];
             } else {
                 peakMap[bitIndex] = bytes32(0);
@@ -175,12 +195,16 @@ contract MMR {
         require(count == 0, "Invalid number of peaks");
     }
 
-    function peakMapToPeaks(uint width, bytes32[255] memory peakMap) public pure returns (bytes32[] memory peaks) {
-        uint arrLength = numOfPeaks(width);
+    function peakMapToPeaks(uint256 width, bytes32[255] memory peakMap)
+        public
+        pure
+        returns (bytes32[] memory peaks)
+    {
+        uint256 arrLength = numOfPeaks(width);
         peaks = new bytes32[](arrLength);
-        uint count = 0;
-        for(uint i = 0; i < 255; i++) {
-            if(peakMap[i] != bytes32(0)) {
+        uint256 count = 0;
+        for (uint256 i = 0; i < 255; i++) {
+            if (peakMap[i] != bytes32(0)) {
                 peaks[count++] = peakMap[i];
             }
         }
@@ -188,25 +212,23 @@ contract MMR {
     }
 
     function peakUpdate(
-        uint width,
+        uint256 width,
         bytes32[255] memory prevPeakMap,
         bytes32 itemHash
-    ) public pure returns (
-        bytes32[255] memory nextPeakMap
-    ) {
-        uint newWidth = width + 1;
-        uint cursorIndex = getLeafIndex(newWidth);
+    ) public pure returns (bytes32[255] memory nextPeakMap) {
+        uint256 newWidth = width + 1;
+        uint256 cursorIndex = getLeafIndex(newWidth);
         bytes32 cursorNode = hashLeaf(cursorIndex, itemHash);
-        uint bitIndex;
-        uint peakRef;
+        uint256 bitIndex;
+        uint256 peakRef;
         bool prevPeakExist;
         bool nextPeakExist;
         bool obtained;
 
-        for(uint height = 1; height <= 255; height++) {
+        for (uint256 height = 1; height <= 255; height++) {
             // Index starts from the right most bit
             bitIndex = 255 - height;
-            if(obtained) {
+            if (obtained) {
                 nextPeakMap[bitIndex] = prevPeakMap[bitIndex];
             } else {
                 peakRef = 1 << (height - 1);
@@ -215,13 +237,17 @@ contract MMR {
 
                 // Get new cursor node with hashing the peak and the current cursor
                 cursorIndex++;
-                if(prevPeakExist) {
-                    cursorNode = hashBranch(cursorIndex, prevPeakMap[bitIndex], cursorNode);
+                if (prevPeakExist) {
+                    cursorNode = hashBranch(
+                        cursorIndex,
+                        prevPeakMap[bitIndex],
+                        cursorNode
+                    );
                 }
                 // If new peak exists for the bit index
-                if(nextPeakExist) {
+                if (nextPeakExist) {
                     // If prev peak exists for the bit index
-                    if(prevPeakExist) {
+                    if (prevPeakExist) {
                         nextPeakMap[bitIndex] = prevPeakMap[bitIndex];
                     } else {
                         nextPeakMap[bitIndex] = cursorNode;
@@ -247,16 +273,25 @@ contract MMR {
         bytes32[] memory peaks,
         bytes32[] memory siblings
     ) public pure returns (bool) {
-        uint size = getSize(width);
+        uint256 size = getSize(width);
         require(size >= index, "Index is out of range");
         // Check the root equals the peak bagging hash
-        require(root == keccak256(abi.encodePacked(size, keccak256(abi.encodePacked(size, peaks)))), "Invalid root hash from the peaks");
+        require(
+            root ==
+                keccak256(
+                    abi.encodePacked(
+                        size,
+                        keccak256(abi.encodePacked(size, peaks))
+                    )
+                ),
+            "Invalid root hash from the peaks"
+        );
 
         // Find the mountain where the target index belongs to
         uint256 cursor;
         bytes32 targetPeak;
         uint256[] memory peakIndexes = getPeakIndexes(width);
-        for (uint i = 0; i < peakIndexes.length; i++) {
+        for (uint256 i = 0; i < peakIndexes.length; i++) {
             if (peakIndexes[i] >= index) {
                 targetPeak = peaks[i];
                 cursor = peakIndexes[i];
@@ -312,7 +347,11 @@ contract MMR {
      * @dev It returns the hash a parent node with hash(M | Left child | Right child)
      *      M is the index of the node
      */
-    function hashBranch(uint256 index, bytes32 left, bytes32 right) public pure returns (bytes32) {
+    function hashBranch(uint256 index, bytes32 left, bytes32 right)
+        public
+        pure
+        returns (bytes32)
+    {
         return keccak256(abi.encodePacked(index, left, right));
     }
 
@@ -320,7 +359,11 @@ contract MMR {
      * @dev it returns the hash of a leaf node with hash(M | DATA )
      *      M is the index of the node
      */
-    function hashLeaf(uint256 index, bytes32 dataHash) public pure returns (bytes32) {
+    function hashLeaf(uint256 index, bytes32 dataHash)
+        public
+        pure
+        returns (bytes32)
+    {
         return keccak256(abi.encodePacked(index, dataHash));
     }
 
@@ -361,7 +404,11 @@ contract MMR {
     /**
      * @dev It returns the children when it is a parent node
      */
-    function getChildren(uint256 index) public pure returns (uint256 left, uint256 right) {
+    function getChildren(uint256 index)
+        public
+        pure
+        returns (uint256 left, uint256 right)
+    {
         left = index - (uint256(1) << (heightAt(index) - 1));
         right = index - 1;
         require(left != right, "Not a parent");
@@ -371,12 +418,16 @@ contract MMR {
      * @dev It returns all peaks of the smallest merkle mountain range tree which includes
      *      the given index(size)
      */
-    function getPeakIndexes(uint256 width) public pure returns (uint256[] memory peakIndexes) {
+    function getPeakIndexes(uint256 width)
+        public
+        pure
+        returns (uint256[] memory peakIndexes)
+    {
         peakIndexes = new uint256[](numOfPeaks(width));
-        uint count;
-        uint size;
-        for(uint i = 255; i > 0; i--) {
-            if(width & (1 << (i - 1)) != 0) {
+        uint256 count;
+        uint256 size;
+        for (uint256 i = 255; i > 0; i--) {
+            if (width & (1 << (i - 1)) != 0) {
                 // peak exists
                 size = size + (1 << i) - 1;
                 peakIndexes[count++] = size;
@@ -385,10 +436,10 @@ contract MMR {
         require(count == peakIndexes.length, "Invalid bit calculation");
     }
 
-    function numOfPeaks(uint256 width) public pure returns (uint num) {
+    function numOfPeaks(uint256 width) public pure returns (uint256 num) {
         uint256 bits = width;
-        while(bits > 0) {
-            if(bits % 2 == 1) num++;
+        while (bits > 0) {
+            if (bits % 2 == 1) num++;
             bits = bits >> 1;
         }
         return num;
