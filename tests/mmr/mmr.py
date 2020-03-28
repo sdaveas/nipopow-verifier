@@ -1,6 +1,10 @@
 """
 run with
-$
+$ python mmr.py
+
+if everything works OK, root of
+10  should be ee943d2cc1a3b3728349c86d6a65a80bd4011f6e58c9c49772b9533ee2d6506d
+100 should be 37ff9d8ccc1acb194f8a56b06592bca6381260d6c44abe018795751bea43eddf
 """
 
 import sys
