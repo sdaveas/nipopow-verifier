@@ -6,7 +6,6 @@ contract MMR {
 
     struct Tree {
         bytes32 root;
-        mapping(uint256 => bytes32) hashes;
     }
 
     Tree tree;
@@ -17,8 +16,9 @@ contract MMR {
     {
         emit debug("Inside with", data.length);
 
+        bytes32[] memory hashes = new bytes32[](getSize(data.length) + 1);
         for (uint256 i = 0; i < data.length; i++) {
-             append(data[i], i);
+             append(data[i], i, hashes);
         }
         return tree.root;
     }
@@ -27,18 +27,18 @@ contract MMR {
      * @dev This only stores the hashed value of the leaf.
      *      If you need to retrieve the detail data later, use a map to store them.
      */
-    function append(bytes32 data, uint256 index) public {
+    function append(bytes32 data, uint256 index, bytes32[] memory hashes) public {
         // Hash the leaf node first
         bytes32 dataHash = sha256(abi.encodePacked(data));
         bytes32 leaf = hashLeaf(getSize(index) + 1, dataHash);
         // Put the hashed leaf to the map
-        tree.hashes[getSize(index) + 1] = leaf;
+        hashes[getSize(index) + 1] = leaf;
         // Find peaks for the enlarged tree
         uint256[] memory peakIndexes = getPeakIndexes(index+1);
         // Starting from the left-most peak, get all peak hashes using _getOrCreateNode() function.
         bytes32[] memory peaks = new bytes32[](peakIndexes.length);
         for (uint256 i = 0; i < peakIndexes.length; i++) {
-            peaks[i] = _getOrCreateNode(peakIndexes[i]);
+            peaks[i] = _getOrCreateNode(peakIndexes[i], hashes);
         }
         // Create the root hash and update the tree
         tree.root = peakBagging(index+1, peaks);
@@ -175,14 +175,15 @@ contract MMR {
      *      it computes hashes recursively downward.
      *      Only appending an item calls this function
      */
-    function _getOrCreateNode(uint256 index) private returns (bytes32) {
+    function _getOrCreateNode(uint256 index, bytes32[] memory hashes) private returns (bytes32) {
         require(index <= getSize(index), "Out of range");
-        if (tree.hashes[index] == bytes32(0)) {
+
+        if (hashes[index] == bytes32(0)) {
             (uint256 leftIndex, uint256 rightIndex) = getChildren(index);
-            bytes32 leftHash = _getOrCreateNode(leftIndex);
-            bytes32 rightHash = _getOrCreateNode(rightIndex);
-            tree.hashes[index] = hashBranch(index, leftHash, rightHash);
+            bytes32 leftHash = _getOrCreateNode(leftIndex, hashes);
+            bytes32 rightHash = _getOrCreateNode(rightIndex, hashes);
+            hashes[index] = hashBranch(index, leftHash, rightHash);
         }
-        return tree.hashes[index];
+        return hashes[index];
     }
 }
