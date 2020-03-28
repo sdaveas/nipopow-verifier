@@ -1,7 +1,7 @@
 pragma solidity ^0.6.0;
 
-contract MMR {
 
+contract MMR {
     event debug(string tag, uint256 value);
 
     struct Tree {
@@ -10,15 +10,14 @@ contract MMR {
 
     bytes32 root;
 
-    function testMMR(bytes32[] memory data)
-        public
-        returns (bytes32)
-    {
+    function testMMR(bytes32[] memory data) public returns (bytes32) {
         emit debug("Inside with", data.length);
 
         bytes32[] memory hashes = new bytes32[](getSize(data.length) + 1);
+        emit debug("Hashes have size", hashes.length);
+
         for (uint256 i = 0; i < data.length; i++) {
-             append(data[i], i, hashes);
+            append(data[i], i, hashes);
         }
         return root;
     }
@@ -27,21 +26,23 @@ contract MMR {
      * @dev This only stores the hashed value of the leaf.
      *      If you need to retrieve the detail data later, use a map to store them.
      */
-    function append(bytes32 data, uint256 index, bytes32[] memory hashes) public {
+    function append(bytes32 data, uint256 index, bytes32[] memory hashes)
+        public
+    {
         // Hash the leaf node first
         bytes32 dataHash = sha256(abi.encodePacked(data));
         bytes32 leaf = hashLeaf(getSize(index) + 1, dataHash);
         // Put the hashed leaf to the map
         hashes[getSize(index) + 1] = leaf;
         // Find peaks for the enlarged tree
-        uint256[] memory peakIndexes = getPeakIndexes(index+1);
+        uint256[] memory peakIndexes = getPeakIndexes(index + 1);
         // Starting from the left-most peak, get all peak hashes using _getOrCreateNode() function.
         bytes32[] memory peaks = new bytes32[](peakIndexes.length);
         for (uint256 i = 0; i < peakIndexes.length; i++) {
             peaks[i] = _getOrCreateNode(peakIndexes[i], hashes);
         }
         // Create the root hash and update the tree
-        root = peakBagging(index+1, peaks);
+        root = peakBagging(index + 1, peaks);
     }
 
     function getLeafIndex(uint256 width) public pure returns (uint256) {
@@ -175,7 +176,10 @@ contract MMR {
      *      it computes hashes recursively downward.
      *      Only appending an item calls this function
      */
-    function _getOrCreateNode(uint256 index, bytes32[] memory hashes) private returns (bytes32) {
+    function _getOrCreateNode(uint256 index, bytes32[] memory hashes)
+        private
+        returns (bytes32)
+    {
         require(index <= getSize(index), "Out of range");
 
         if (hashes[index] == bytes32(0)) {

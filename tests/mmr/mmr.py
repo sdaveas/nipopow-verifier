@@ -23,6 +23,7 @@ def deploy(constructor_arguments=[]):
 def finalize(interface):
     interface.end()
 
+
 def print_debug_events(contract, receipt):
     try:
         debug_events = contract.events.debug().processReceipt(receipt)
@@ -37,6 +38,7 @@ def print_debug_events(contract, receipt):
                 value = log["value"]
             print(log["tag"], "\t", value)
     return debug_events
+
 
 def call(interface, function_name, function_args=[]):
     """
