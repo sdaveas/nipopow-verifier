@@ -11,6 +11,7 @@ import contract_interface
 sys.path.append("..")
 from config import profiler
 
+
 def deploy(constructor_arguments=[]):
     contract_path = "./MMR.sol"
     interface = contract_interface.ContractInterface(
@@ -18,8 +19,10 @@ def deploy(constructor_arguments=[]):
     )
     return interface
 
+
 def finalize(interface):
     interface.end()
+
 
 def call(interface, function_name, function_args=[]):
     """
@@ -35,15 +38,15 @@ def call(interface, function_name, function_args=[]):
     interface.run_gas_profiler(profiler, tx_hash, function_name)
     return {"result": res, "gas": receipt["gasUsed"]}
 
-data = b'\xaa'*32
-times = 10
+
+data = b"\xaa" * 32
+times = 100
 
 interface = deploy()
 
 print("Appending ", data.hex(), times, "times")
 result = call(interface, "testMMR", function_args=[data, times])
-print("MMR root:", result['result'].hex())
-print("Gas used:", result['gas'])
+print("MMR root:", result["result"].hex())
+print("Gas used:", result["gas"])
 
 finalize(interface)
-
