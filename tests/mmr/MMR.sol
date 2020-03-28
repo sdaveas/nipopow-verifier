@@ -6,7 +6,6 @@ contract MMR {
 
     struct Tree {
         bytes32 root;
-        uint256 size;
         mapping(uint256 => bytes32) hashes;
         mapping(bytes32 => bytes) data;
     }
@@ -32,13 +31,11 @@ contract MMR {
     function append(bytes32 data, uint256 index) public {
         // Hash the leaf node first
         bytes32 dataHash = sha256(abi.encodePacked(data));
-        bytes32 leaf = hashLeaf(tree.size + 1, dataHash);
+        bytes32 leaf = hashLeaf(getSize(index) + 1, dataHash);
         // Put the hashed leaf to the map
-        tree.hashes[tree.size + 1] = leaf;
+        tree.hashes[getSize(index) + 1] = leaf;
         // Find peaks for the enlarged tree
         uint256[] memory peakIndexes = getPeakIndexes(index+1);
-        // The right most peak's value is the new size of the updated tree
-        tree.size = getSize(index+1);
         // Starting from the left-most peak, get all peak hashes using _getOrCreateNode() function.
         bytes32[] memory peaks = new bytes32[](peakIndexes.length);
         for (uint256 i = 0; i < peakIndexes.length; i++) {
@@ -180,7 +177,7 @@ contract MMR {
      *      Only appending an item calls this function
      */
     function _getOrCreateNode(uint256 index) private returns (bytes32) {
-        require(index <= tree.size, "Out of range");
+        require(index <= getSize(index), "Out of range");
         if (tree.hashes[index] == bytes32(0)) {
             (uint256 leftIndex, uint256 rightIndex) = getChildren(index);
             bytes32 leftHash = _getOrCreateNode(leftIndex);
