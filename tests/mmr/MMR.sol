@@ -40,11 +40,6 @@ contract MMR {
         // The right most peak's value is the new size of the updated tree
         tree.size = getSize(index+1);
         // Starting from the left-most peak, get all peak hashes using _getOrCreateNode() function.
-//        bytes32[] memory peaks = new bytes32[](peakIndexes.length);
-//        for (uint256 i = 0; i < peakIndexes.length; i++) {
-//            peaks[i] = _getOrCreateNode(peakIndexes[i]);
-//        }
-    }
 
     function getPeaks() public view returns (bytes32[] memory peaks) {
         // Find peaks for the enlarged tree
@@ -53,6 +48,9 @@ contract MMR {
         peaks = new bytes32[](peakNodeIndexes.length);
         for (uint256 i = 0; i < peakNodeIndexes.length; i++) {
             peaks[i] = tree.hashes[peakNodeIndexes[i]];
+        bytes32[] memory peaks = new bytes32[](peakIndexes.length);
+        for (uint256 i = 0; i < peakIndexes.length; i++) {
+            peaks[i] = _getOrCreateNode(peakIndexes[i]);
         }
         return peaks;
         // Create the root hash and update the tree
