@@ -20,7 +20,9 @@ contract Crosschain {
     struct Event {
         address payable author;
         uint256 expire;
+        bytes32 proofHash;
         bytes32 hashedProofHash;
+        bytes32 siblingsHash;
     }
 
     // the block header hash.
@@ -181,7 +183,54 @@ contract Crosschain {
         return uint8(bytes1(b << 248));
     }
 
-    function validateInterlink(
+    function findSiblingsOffset(
+        bytes32[4][] memory headers,
+        uint256 proofIndex
+    ) internal pure returns (uint256) {
+        uint256 ptr;
+
+        for (uint256 i = 1; i < proofIndex; i++) {
+            // hold the 3rd and 4th least significant bytes
+            uint8 branchLength = b32ToUint8(
+                (headers[i][3] >> 8) & bytes32(uint256(0xff))
+            );
+            require(branchLength <= 5, "Branch length too big");
+            ptr += branchLength;
+        }
+
+        return ptr;
+    }
+
+    function validateSingleInterlink(
+        bytes32[4][] memory headers,
+        bytes32[] memory siblings,
+        uint256 validateIndex
+    ) internal pure returns (bool) {
+        uint256 siblingsOffset = findSiblingsOffset(
+            headers,
+            validateIndex
+        );
+
+        uint8 branchLength = b32ToUint8(
+            (headers[validateIndex][3] >> 8) & bytes32(uint256(0xff))
+        );
+        uint8 merkleIndex = b32ToUint8(
+            (headers[validateIndex][3] >> 0) & bytes32(uint256(0xff))
+        );
+        bytes32[] memory reversedSiblings = new bytes32[](branchLength);
+        for (uint8 j = 0; j < branchLength; j++)
+            reversedSiblings[j] = siblings[siblingsOffset + j];
+
+        return
+            verifyMerkle(
+                headers[validateIndex - 1][0],
+                hashHeader(headers[validateIndex]),
+                merkleIndex,
+                reversedSiblings
+            );
+    }
+
+    function validateInterlinks(
         bytes32[4][] memory headers,
         bytes32[] memory hashedHeaders,
         bytes32[] memory siblings
@@ -205,6 +254,7 @@ contract Crosschain {
                 reversedSiblings[j] = siblings[ptr + j];
             ptr += branchLength;
 
+
             // Verify the merkle tree proof
             if (
                 !verifyMerkle(
@@ -218,14 +268,6 @@ contract Crosschain {
             }
         }
         return true;
-    }
-
-    function hashProof(bytes32[4][] memory headers)
-        public
-        payable
-        returns (bytes32)
-    {
-        return sha256(abi.encodePacked(headers));
     }
 
     function submitEventProof(
@@ -245,7 +287,7 @@ contract Crosschain {
             "The submission period has expired"
         );
         require(
-            events[hashedBlock].hashedProofHash == 0,
+            events[hashedBlock].proofHash == 0,
             "A proof with this evens exists"
         );
         require(
@@ -258,14 +300,11 @@ contract Crosschain {
             hashedHeaders[i] = hashHeader(headers[i]);
         }
 
-        require(
-            validateInterlink(headers, hashedHeaders, siblings),
-            "Merkle verification failed"
-        );
-
+        events[hashedBlock].proofHash = sha256(abi.encodePacked(headers));
         events[hashedBlock].hashedProofHash = sha256(
             abi.encodePacked(hashedHeaders)
         );
+        events[hashedBlock].siblingsHash = sha256(abi.encodePacked(siblings));
         events[hashedBlock].expire = block.number + k;
         events[hashedBlock].author = msg.sender;
 
@@ -293,7 +332,7 @@ contract Crosschain {
 
     // If this will be expensive, check memory mapping
     // Check if all blocks of existing[lca+1:] are different from contesting[1:]
-    function allDifferent(
+    function disjointProofs(
         bytes32[] memory existing,
         bytes32[] memory contesting,
         uint256 lca
@@ -305,6 +344,45 @@ contract Crosschain {
                 }
             }
         }
+        return true;
+    }
+
+    function disputeExistingProof(
+        bytes32[4][] memory existingHeaders,
+        bytes32[] memory siblings,
+        uint256 blockOfInterestIndex,
+        uint256 disputeIndex
+    ) public returns (bool) {
+        bytes32 blockOfInterestHash = hashHeader(
+            existingHeaders[blockOfInterestIndex]
+        );
+
+        require(
+            events[blockOfInterestHash].expire > block.number,
+            "Contesting period has expired"
+        );
+        require(
+            events[blockOfInterestHash].proofHash ==
+                sha256(abi.encodePacked(existingHeaders)),
+            "Wrong existing proof"
+        );
+        require(
+            events[blockOfInterestHash].siblingsHash ==
+                sha256(abi.encodePacked(siblings)),
+            "Wrong siblings"
+        );
+        require(
+            1 <= disputeIndex && disputeIndex < existingHeaders.length,
+            "Dispute index out of range"
+        );
+        require(
+            !validateSingleInterlink(existingHeaders, siblings, disputeIndex),
+            "Existing proof is valid at this index"
+        );
+
+        // If you reached this point, contesting was successful
+        events[blockOfInterestHash].expire = 0;
+        msg.sender.transfer(z);
         return true;
     }
 
@@ -355,7 +433,7 @@ contract Crosschain {
         }
 
         require(
-            validateInterlink(
+            validateInterlinks(
                 contestingHeaders,
                 contestingHeadersHashed,
                 contestingSiblings
@@ -370,7 +448,7 @@ contract Crosschain {
         );
 
         require(
-            allDifferent(existingHeadersHashed, contestingHeadersHashed, lca),
+            disjointProofs(existingHeadersHashed, contestingHeadersHashed, lca),
             "Contesting proof[1:] is not different from existing[lca+1:]"
         );
 

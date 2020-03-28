@@ -72,6 +72,42 @@ def submit_event_proof(
     return {"result": res, "gas_used": receipt["gasUsed"], "debug": debug_events}
 
 
+def dispute_existing_proof(
+    interface, existing, block_of_interest_index, invalid_index, profile=True,
+):
+    """
+    Calls disputeExistingProof(existingHeaders, existingHeadersHash, siblings)
+    """
+
+    my_contract = interface.get_contract()
+    from_address = interface.w3.eth.accounts[0]
+    my_function = my_contract.functions.disputeExistingProof(
+        existing.headers, existing.siblings, block_of_interest_index, invalid_index,
+    )
+
+    res = my_function.call({"from": from_address})
+
+    tx_hash = my_function.transact({"from": from_address})
+
+    receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
+    try:
+        debug_events = my_contract.events.debug().processReceipt(receipt)
+    except Exception as ex:
+        debug_events = {}
+    if len(debug_events) > 0:
+        for e in debug_events:
+            log = dict(e)["args"]
+            print(log["tag"], "\t", log["value"])
+
+    if profile is True:
+        filename = str(int(time())) + ".txt"
+        interface.run_gas_profiler(profiler, tx_hash, filename)
+
+    print(receipt["gasUsed"])
+
+    return {"result": res, "gas_used": receipt["gasUsed"], "debug": debug_events}
+
+
 # bytes32[4][] memory existingHeaders,
 # uint256 lca,
 # bytes32[4][] memory contestingHeaders,
