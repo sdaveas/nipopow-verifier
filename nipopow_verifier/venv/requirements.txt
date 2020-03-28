@@ -1,9 +1,0 @@
-# install with pip install -r requirements.txt
-py-solc-x
-web3
-eth-tester
-py-evm
-python-bitcoinlib
-pytest
-pytest-xdist
-tqdm

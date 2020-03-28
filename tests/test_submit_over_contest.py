@@ -44,7 +44,8 @@ def init_environment():
 
     backend = "ganache"
 
-    pt = ProofTool("../data/proofs/")
+    pt = ProofTool()
+    pt.fetch_proof(1000)
     (
         submit_proof_name,
         small_contest_proof_name,
@@ -161,7 +162,7 @@ def test_boi_in_common_submit_small(init_environment):
             +------->  Cb
     """
 
-    pt = ProofTool("../data/proofs/")
+    pt = ProofTool()
     interface = make_interface(backend)
 
     block_of_interest_index = submit_proof.size - 1

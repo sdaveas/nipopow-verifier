@@ -48,7 +48,7 @@ class ProofTool:
     pt.fetch_proof()
     """
 
-    def __init__(self, proofs_dir="../../data/proofs/"):
+    def __init__(self, proofs_dir="../data/proofs/"):
         self.dir = proofs_dir
 
     def proof_dir(self):
