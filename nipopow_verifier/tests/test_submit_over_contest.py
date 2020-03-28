@@ -22,6 +22,11 @@ from config import errors, extract_message_from_error, genesis
 import pytest
 
 backend = "ganache"
+submit_proof = Proof()
+small_contest_proof = Proof()
+large_contest_proof = Proof()
+small_lca = None
+large_lca = None
 
 
 @pytest.fixture
@@ -31,25 +36,50 @@ def init_environment():
     """
 
     global backend
-    global big_proof
-    global small_proof
+    global submit_proof
+    global small_contest_proof
+    global small_lca
+    global large_contest_proof
+    global large_lca
 
     backend = "ganache"
-    big_proof = Proof()
-    small_proof = Proof()
 
-    proof_tool = ProofTool("../data/proofs/")
+    pt = ProofTool("../data/proofs/")
+    (
+        submit_proof_name,
+        small_contest_proof_name,
+        small_lca,
+        small_header,
+        small_header_map,
+        small_interlink_map,
+    ) = pt.create_proof_and_forkproof(1000, 200, 100)
+    (
+        submit_proof_name,
+        large_contest_proof_name,
+        large_lca,
+        large_header,
+        large_header_map,
+        large_interlink_map,
+    ) = pt.create_proof_and_forkproof(1000, 100, 200)
 
-    mainblocks = 100
-    fork_index = 50
-    forkblocks = 30
-    # create pkl files for big and small proof
-    (big_proof_name, small_proof_name) = proof_tool.create_mainproof_and_forkproof(
-        mainblocks, fork_index, forkblocks
+    submit_proof = Proof()
+    submit_proof.set(pt.fetch_proof(submit_proof_name))
+
+    small_contest_proof = Proof()
+    small_contest_proof.set(
+        pt.fetch_proof(small_contest_proof_name),
+        header=small_header,
+        header_map=small_header_map,
+        interlink_map=small_interlink_map,
     )
 
-    big_proof.set(proof_tool.fetch_proof(big_proof_name), big_proof_name)
-    small_proof.set(proof_tool.fetch_proof(small_proof_name), small_proof_name)
+    large_contest_proof = Proof()
+    large_contest_proof.set(
+        pt.fetch_proof(large_contest_proof_name),
+        header=large_header,
+        header_map=large_header_map,
+        interlink_map=large_interlink_map,
+    )
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -65,7 +95,7 @@ def finish_session(request):
     interface.end()
 
 
-def test_boi_in_large():
+def test_boi_in_large(init_environment):
     """
     Block of interest contained in both chains
     --------+---x---->  Ca
@@ -73,16 +103,7 @@ def test_boi_in_large():
             +--->       Cb
     """
     block_of_interest_index = 0
-    pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
-
-    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
-        1000, 200, 100
-    )
-    submit_proof = Proof()
-    contest_proof = Proof()
-    submit_proof.set(pt.fetch_proof(submit_proof_name))
-    contest_proof.set(pt.fetch_proof(contest_proof_name))
 
     res = submit_event_proof(
         interface, submit_proof, block_of_interest_index, profile=True
@@ -94,15 +115,15 @@ def test_boi_in_large():
         res = submit_contesting_proof_new(
             interface,
             submit_proof,
-            lca,
-            contest_proof,
+            small_lca,
+            small_contest_proof,
             block_of_interest_index,
             profile=True,
         )
     assert extract_message_from_error(ex) == errors["low score"]
 
 
-def test_boi_in_small():
+def test_boi_in_small(init_environment):
     """
     Block of interest contained in both chains
     --------+--x-->  Ca
@@ -111,34 +132,28 @@ def test_boi_in_small():
     """
 
     block_of_interest_index = 0
-    pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
-
-    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
-        1000, 100, 200
-    )
-    submit_proof = Proof()
-    contest_proof = Proof()
-    submit_proof.set(pt.fetch_proof(submit_proof_name))
-    contest_proof.set(pt.fetch_proof(contest_proof_name))
 
     res = submit_event_proof(
         interface, submit_proof, block_of_interest_index, profile=True
     )
+
     assert res["result"] == True
+
+    return
 
     res = submit_contesting_proof_new(
         interface,
         submit_proof,
-        lca,
-        contest_proof,
+        large_lca,
+        large_contest_proof,
         block_of_interest_index,
         profile=True,
     )
     assert res["result"] == True
 
 
-def test_boi_in_common_submit_small():
+def test_boi_in_common_submit_small(init_environment):
     """
     Block of interest contained in both chains
     ----x---+---->  Ca
@@ -149,14 +164,6 @@ def test_boi_in_common_submit_small():
     pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
 
-    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
-        1000, 100, 200
-    )
-    submit_proof = Proof()
-    contest_proof = Proof()
-    submit_proof.set(pt.fetch_proof(submit_proof_name))
-    contest_proof.set(pt.fetch_proof(contest_proof_name))
-
     block_of_interest_index = submit_proof.size - 1
 
     res = submit_event_proof(
@@ -168,15 +175,15 @@ def test_boi_in_common_submit_small():
         res = submit_contesting_proof_new(
             interface,
             submit_proof,
-            lca,
-            contest_proof,
+            large_lca,
+            large_contest_proof,
             block_of_interest_index,
             profile=True,
         )
     assert extract_message_from_error(ex) == errors["boi in sub-chain"]
 
 
-def test_boi_in_common_submit_big():
+def test_boi_in_common_submit_big(init_environment):
     """
     Block of interest contained in both chains
     ----x---+------->  Ca
@@ -184,17 +191,7 @@ def test_boi_in_common_submit_big():
             +---->  Cb
     """
 
-    pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
-
-    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
-        1000, 200, 100
-    )
-    submit_proof = Proof()
-    contest_proof = Proof()
-    submit_proof.set(pt.fetch_proof(submit_proof_name))
-    contest_proof.set(pt.fetch_proof(contest_proof_name))
-
     block_of_interest_index = submit_proof.size - 1
 
     res = submit_event_proof(
@@ -206,31 +203,21 @@ def test_boi_in_common_submit_big():
         res = submit_contesting_proof_new(
             interface,
             submit_proof,
-            lca,
-            contest_proof,
+            small_lca,
+            small_contest_proof,
             block_of_interest_index,
             profile=True,
         )
     assert extract_message_from_error(ex) == errors["boi in sub-chain"]
 
 
-def test_boi_out_of_index():
+def test_boi_out_of_index(init_environment):
     """
     Block of interest contained in both chains
     ---------------->  Ca    x
     """
 
-    pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
-
-    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
-        1000, 200, 100
-    )
-    submit_proof = Proof()
-    contest_proof = Proof()
-    submit_proof.set(pt.fetch_proof(submit_proof_name))
-    contest_proof.set(pt.fetch_proof(contest_proof_name))
-
     block_of_interest_index = submit_proof.size
 
     with pytest.raises(Exception) as ex:
@@ -240,22 +227,12 @@ def test_boi_out_of_index():
     assert extract_message_from_error(ex) == errors["boi not exist"]
 
 
-def test_boi_out_of_index_contest():
+def test_boi_out_of_index_contest(init_environment):
     """
     Block of interest is in submit but not in contest proof
     """
 
-    pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
-
-    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
-        1000, 200, 100
-    )
-    submit_proof = Proof()
-    contest_proof = Proof()
-    submit_proof.set(pt.fetch_proof(submit_proof_name))
-    contest_proof.set(pt.fetch_proof(contest_proof_name))
-
     block_of_interest_index = submit_proof.size - 1
 
     res = submit_event_proof(
@@ -267,30 +244,20 @@ def test_boi_out_of_index_contest():
         res = submit_contesting_proof_new(
             interface,
             submit_proof,
-            lca,
-            contest_proof,
+            large_lca,
+            large_contest_proof,
             submit_proof.size,  # This is out of range
             profile=True,
         )
     assert extract_message_from_error(ex) == errors["boi not exist"]
 
 
-def test_same_proofs():
+def test_same_proofs(init_environment):
     """
     Submit proof is the same as contest proof
     """
 
-    pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
-
-    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
-        1000, 200, 100
-    )
-    submit_proof = Proof()
-    contest_proof = Proof()
-    submit_proof.set(pt.fetch_proof(submit_proof_name))
-    contest_proof.set(pt.fetch_proof(contest_proof_name))
-
     block_of_interest_index = submit_proof.size - 1
 
     res = submit_event_proof(
@@ -302,7 +269,7 @@ def test_same_proofs():
         res = submit_contesting_proof_new(
             interface,
             submit_proof,
-            lca,
+            0,
             submit_proof,
             block_of_interest_index,
             profile=True,
@@ -310,22 +277,12 @@ def test_same_proofs():
     assert extract_message_from_error(ex) == errors["boi in sub-chain"]
 
 
-def test_wrong_lca():
+def test_wrong_lca(init_environment):
     """
     Contest proof lies about lca
     """
 
-    pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
-
-    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
-        1000, 200, 100
-    )
-    submit_proof = Proof()
-    contest_proof = Proof()
-    submit_proof.set(pt.fetch_proof(submit_proof_name))
-    contest_proof.set(pt.fetch_proof(contest_proof_name))
-
     block_of_interest_index = 0
 
     res = submit_event_proof(
@@ -337,29 +294,20 @@ def test_wrong_lca():
         res = submit_contesting_proof_new(
             interface,
             submit_proof,
-            lca - 1,  # this is wrong
-            contest_proof,
+            large_lca - 1,  # this is wrong
+            large_contest_proof,
             block_of_interest_index,
             profile=True,
         )
     assert extract_message_from_error(ex) == errors["wrong lca"]
 
 
-def test_proof_exists():
+def test_proof_exists(init_environment):
     """
-    Contest proof lies about lca
+    Contest proof exists
     """
 
-    pt = ProofTool("../data/proofs/")
     interface = make_interface(backend)
-
-    submit_proof_name, contest_proof_name, lca = pt.create_proof_and_forkproof(
-        1000, 200, 100
-    )
-    submit_proof = Proof()
-    contest_proof = Proof()
-    submit_proof.set(pt.fetch_proof(submit_proof_name))
-    contest_proof.set(pt.fetch_proof(contest_proof_name))
 
     block_of_interest_index = 0
 

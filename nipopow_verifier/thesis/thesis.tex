@@ -2,7 +2,6 @@
 \usepackage[utf8]{inputenc}
 
 \title{A gas-efficient superlight Bitcoin client in Solidity}
-\author{Stelios Daveas}
 \begin{document}
 
 \maketitle
@@ -64,30 +63,37 @@ There is variety of EVMs one can use. We experimented with are Ganache,Geth and 
 \subsubsection{Py-EVM}
 
 \subsection{Targeting vulnerabilities and costly functionalities}
+\begin{itemize}
+\item 0. Knowledge that extensive gas usage is due to large storage allocation
+\item 1. Make old contract compatible with the last version of solidity compiler
+\item 2. Create tests for all functionalities
+\item 3. Identify and fix vulnerabilities
 
-0. Knowledge that extensive gas usage is due to large storage allocation
-1. Make old contract compatible with the last version of solidity compiler
-2. Create test for all functionalities
-3. Identify and fix vulnerabilities
-4. Profile contract gas usage
-5. Identify expensive operations
+Gas was very high due to storage variables
 
-\subsection{Restricting gas usage}
+Contract is vulnerable to premining
+\item 4. Profile contract gas usage
+\item 5. Identify expensive operations
+\end{itemize}
+\subsection{Fixing vulnerabilities and restricting gas usage}
 
-Reconsider DAG and ancestors methodology and redesign submission and contest schema:
+\begin{itemize}
 
-A: the entity that submits P1
-B: the entity that contests with P2
+\item Add verification of genesis
+\item Reconsider DAG and ancestors methodology and redesign submission and contest schema
+\item Submit doesn't need to save in the proof in storage. Contest can provide the existing proof during contesting.
 
-A doesn't need to save in the proof in storage. B can provide the existing proof during contesting.
+\item Use subset: P1\{:lca\} $>$ P2\{:lca\}, P1 is the existing, P2 is the contesting
 
-Use subset: P1{:lca} > P2{:lca}
+This prevents expensive storage for DAG and ancestors.
 
-Realize that subset is not needed. The contesting proof cannot benefit from pre-lca malformed proof. If Pa is valid then we just need to check Pb[lca:]
+\item Even the check of subset can be skipped. The contesting proof cannot benefit from pre-lca malformed proof. If Pa is valid, then we just need to check Pb[lca:]
 
-This is not vulnerable to DOS attacks
+\item This is not vulnerable to DOS attacks
 
-Observer the network and contest with the appropriate proof if submitted is not correct.
+\item Observe the network and contest with the appropriate proof if submitted is not correct.
+
+\end{itemize}
 
 \section{Results}
 \section{Conclusion}

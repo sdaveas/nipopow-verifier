@@ -4,8 +4,10 @@ pragma solidity ^0.6.2;
 //import "strings.sol";
 
 contract Crosschain {
-    constructor(bytes32 genesis) public {
+    constructor(bytes32 genesis, uint _m, uint _k) public {
         genesisBlockHash = genesis;
+        m = _m;
+        k = _k;
     }
 
     // The genesis block hash
@@ -26,8 +28,8 @@ contract Crosschain {
     mapping(bytes32 => bool) finalizedEvents;
 
     // Security parameters.
-    uint256 constant m = 15;
-    uint256 constant k = 6; // Should be bigger.
+    uint256 m;
+    uint256 k;
 
     //TOOO: Move this to another file
     function memcpy(uint256 dest, uint256 src, uint256 len) private pure {
@@ -78,10 +80,25 @@ contract Crosschain {
             uint256 pow = (i / 8) * 8 + 8 - (i % 8) - 1;
             uint256 mask = 2**pow;
             if ((hash & mask) != 0) {
-                return uint8(i);
+                return uint8(i) - 1;
             }
         }
         return 0;
+    }
+
+    function argAtLevel(bytes32[] memory proof, uint256 level)
+        internal
+        pure
+        returns (uint256)
+    {
+        uint256 blocksOfLevel = 0;
+        for (uint256 i = 0; i < proof.length; i++) {
+            if (getLevel(proof[i]) >= level) {
+                blocksOfLevel++;
+            }
+        }
+        uint256 score = uint256(blocksOfLevel * 2**level);
+        return score;
     }
 
     // TODO: lca can be very close to the tip of submited proof so that
@@ -109,7 +126,6 @@ contract Crosschain {
             }
         }
 
-        // TODO: This becomes 0 for i=0
         for (uint256 i = 0; i <= maxLevel; i++) {
             uint256 curScore = uint256(levelCounter[i] * 2**i);
             if (levelCounter[i] >= m && curScore > maxScore) {
@@ -297,6 +313,7 @@ contract Crosschain {
         uint256 lca,
         bytes32[4][] memory contestingHeaders,
         bytes32[] memory contestingSiblings,
+        uint256 bestLevel,
         uint256 blockOfInterestIndex
     ) public returns (bool) {
         require(
@@ -305,6 +322,9 @@ contract Crosschain {
             "Block of interest index is out of range"
         );
 
+        require(
+            existingHeadersHashed.length >= m, "Security parameter m violated"
+        );
 
             bytes32 blockOfInterestHash
          = existingHeadersHashed[blockOfInterestIndex];
@@ -354,13 +374,9 @@ contract Crosschain {
             "Contesting proof[1:] is not different from existing[lca+1:]"
         );
 
-        // We can ask the caller to provide the level for their proof
         require(
             bestArg(existingHeadersHashed, lca) <
-                bestArg(
-                    contestingHeadersHashed,
-                    contestingHeadersHashed.length - 1
-                ),
+                argAtLevel(contestingHeadersHashed, bestLevel),
             "Existing proof has greater score"
         );
 

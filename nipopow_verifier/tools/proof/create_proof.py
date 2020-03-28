@@ -48,7 +48,7 @@ class ProofTool:
     pt.fetch_proof()
     """
 
-    def __init__(self, proofs_dir="../data/proofs/"):
+    def __init__(self, proofs_dir="../../data/proofs/"):
         self.dir = proofs_dir
 
     def proof_dir(self):
@@ -273,7 +273,14 @@ class ProofTool:
         fixed_fork_proof, lca = self.create_fixed_fork_proof(proof, fork_proof)
         self.export_proof(fixed_fork_proof, fork_proof_name)
 
-        return (proof_name, fork_proof_name, lca)
+        return (
+            proof_name,
+            fork_proof_name,
+            lca,
+            fork_header,
+            fork_header_map,
+            fork_interlink_map,
+        )
 
 
 def main():
@@ -294,9 +301,10 @@ def main():
     proof_tool = ProofTool("../../data/proofs/")
 
     proof = []
-    if blocks is None:
-        proof = proof_tool.fetch_proof(blocks)
-    elif proof_name is None:
+    if blocks is not None:
+        # proof = proof_tool.fetch_proof(blocks)
+        proof = proof_tool.create_proof(blocks)
+    elif proof_name is not None:
         proof = proof_tool.fetch_proof(proof_name)
     else:
         print("Provide --blocks or --proof argument")
