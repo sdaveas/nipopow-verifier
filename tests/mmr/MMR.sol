@@ -8,7 +8,7 @@ contract MMR {
         bytes32 root;
     }
 
-    Tree tree;
+    bytes32 root;
 
     function testMMR(bytes32[] memory data)
         public
@@ -20,7 +20,7 @@ contract MMR {
         for (uint256 i = 0; i < data.length; i++) {
              append(data[i], i, hashes);
         }
-        return tree.root;
+        return root;
     }
 
     /**
@@ -41,7 +41,7 @@ contract MMR {
             peaks[i] = _getOrCreateNode(peakIndexes[i], hashes);
         }
         // Create the root hash and update the tree
-        tree.root = peakBagging(index+1, peaks);
+        root = peakBagging(index+1, peaks);
     }
 
     function getLeafIndex(uint256 width) public pure returns (uint256) {
