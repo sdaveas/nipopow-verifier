@@ -24,12 +24,14 @@ contract MMR {
 
     Tree tree;
 
-    function testMMR(bytes memory data, uint256 times)
+    function testMMR(bytes32[] memory data)
         public
         returns (bytes32)
     {
-        for (uint256 i = 0; i < times; i++) {
-            append(data);
+        emit debug("Inside with", data.length);
+
+        for (uint256 i = 0; i < data.length; i++) {
+             append(data[i]);
         }
         return tree.root;
     }
@@ -38,7 +40,7 @@ contract MMR {
      * @dev This only stores the hashed value of the leaf.
      *      If you need to retrieve the detail data later, use a map to store them.
      */
-    function append(bytes memory data) public {
+    function append(bytes32 data) public {
         // Hash the leaf node first
         bytes32 dataHash = sha256(abi.encodePacked(data));
         bytes32 leaf = hashLeaf(tree.size + 1, dataHash);

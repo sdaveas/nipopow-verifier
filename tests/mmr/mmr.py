@@ -39,13 +39,12 @@ def call(interface, function_name, function_args=[]):
     return {"result": res, "gas": receipt["gasUsed"]}
 
 
-data = b"\xaa" * 32
-times = 100
+size = 10
+data = [b"\xaa" * 32] * size
 
 interface = deploy()
 
-print("Appending ", data.hex(), times, "times")
-result = call(interface, "testMMR", function_args=[data, times])
+result = call(interface, "testMMR", function_args=[data])
 print("MMR root:", result["result"].hex())
 print("Gas used:", result["gas"])
 
