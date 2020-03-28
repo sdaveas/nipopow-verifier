@@ -11,46 +11,31 @@ contract MMR {
     bytes32 root;
 
     function testMMR(bytes32[] memory data) public returns (bytes32) {
-        emit debug("Inside with", data.length);
 
+        // Create array for hashes of leafs and internal nodes
         bytes32[] memory hashes = new bytes32[](getSize(data.length) + 1);
-        emit debug("Hashes have size", hashes.length);
 
-        for (uint256 i = 0; i < data.length; i++) {
-            append(data[i], i, hashes);
+        // Populate hashes with leafs
+        for (uint256 index = 0; index < data.length; index++) {
+            // Hash the data of the node
+            bytes32 dataHash = sha256(abi.encodePacked(data[index]));
+            // Create leaf
+            bytes32 leaf = hashLeaf(getSize(index) + 1, dataHash);
+            // Put the hashed leaf to the array
+            hashes[getSize(index) + 1] = leaf;
         }
-        return root;
-    }
 
-    /**
-     * @dev This only stores the hashed value of the leaf.
-     *      If you need to retrieve the detail data later, use a map to store them.
-     */
-    function append(bytes32 data, uint256 index, bytes32[] memory hashes)
-        public
-    {
-        // Hash the leaf node first
-        bytes32 dataHash = sha256(abi.encodePacked(data));
-        bytes32 leaf = hashLeaf(getSize(index) + 1, dataHash);
-        // Put the hashed leaf to the map
-        hashes[getSize(index) + 1] = leaf;
-        // Find peaks for the enlarged tree
-        uint256[] memory peakIndexes = getPeakIndexes(index + 1);
+        // Find peaks for the tree
+        uint256[] memory peakIndexes = getPeakIndexes(data.length);
         // Starting from the left-most peak, get all peak hashes using _getOrCreateNode() function.
         bytes32[] memory peaks = new bytes32[](peakIndexes.length);
         for (uint256 i = 0; i < peakIndexes.length; i++) {
             peaks[i] = _getOrCreateNode(peakIndexes[i], hashes);
         }
-        // Create the root hash and update the tree
-        root = peakBagging(index + 1, peaks);
-    }
+        emit debug("> Calling root with", data.length);
+        root = peakBagging(data.length, peaks);
 
-    function getLeafIndex(uint256 width) public pure returns (uint256) {
-        if (width % 2 == 1) {
-            return getSize(width);
-        } else {
-            return getSize(width - 1) + 1;
-        }
+        return root;
     }
 
     function getSize(uint256 width) public pure returns (uint256) {
