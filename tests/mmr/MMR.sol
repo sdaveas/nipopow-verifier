@@ -6,9 +6,14 @@ pragma solidity ^0.6.0;
  * @title Merkle Mountain Range solidity library
  *
  * @dev The index of this MMR implementation starts from 1 not 0.
- *      And it uses keccak256 for its hash function instead of blake2b
+ *      And it uses sha256 for its hash function instead of blake2b
  */
+
+
 contract MMR {
+
+    event debug(string tag, uint256 value);
+
     struct Tree {
         bytes32 root;
         uint256 size;
@@ -35,10 +40,10 @@ contract MMR {
      */
     function append(bytes memory data) public {
         // Hash the leaf node first
-        bytes32 dataHash = keccak256(data);
         if (keccak256(tree.data[dataHash]) != dataHash) {
             tree.data[dataHash] = data;
         }
+        bytes32 dataHash = sha256(abi.encodePacked(data));
         bytes32 leaf = hashLeaf(tree.size + 1, dataHash);
         // Put the hashed leaf to the map
         tree.hashes[tree.size + 1] = leaf;
@@ -46,14 +51,14 @@ contract MMR {
         // Find peaks for the enlarged tree
         uint256[] memory peakIndexes = getPeakIndexes(tree.width);
         // The right most peak's value is the new size of the updated tree
-        tree.size = getSize(tree.width);
+//        tree.size = getSize(tree.width);
         // Starting from the left-most peak, get all peak hashes using _getOrCreateNode() function.
-        bytes32[] memory peaks = new bytes32[](peakIndexes.length);
-        for (uint256 i = 0; i < peakIndexes.length; i++) {
-            peaks[i] = _getOrCreateNode(peakIndexes[i]);
-        }
-        // Create the root hash and update the tree
-        tree.root = peakBagging(tree.width, peaks);
+//        bytes32[] memory peaks = new bytes32[](peakIndexes.length);
+//        for (uint256 i = 0; i < peakIndexes.length; i++) {
+//            peaks[i] = _getOrCreateNode(peakIndexes[i]);
+//        }
+//        // Create the root hash and update the tree
+//        tree.root = peakBagging(tree.width, peaks);
     }
 
     function getPeaks() public view returns (bytes32[] memory peaks) {
@@ -179,8 +184,8 @@ contract MMR {
             "Received invalid number of peaks"
         );
         return
-            keccak256(
-                abi.encodePacked(size, keccak256(abi.encodePacked(size, peaks)))
+            sha256(
+                abi.encodePacked(size, sha256(abi.encodePacked(size, peaks)))
             );
     }
 
@@ -288,10 +293,10 @@ contract MMR {
         // Check the root equals the peak bagging hash
         require(
             root ==
-                keccak256(
+                sha256(
                     abi.encodePacked(
                         size,
-                        keccak256(abi.encodePacked(size, peaks))
+                        sha256(abi.encodePacked(size, peaks))
                     )
                 ),
             "Invalid root hash from the peaks"
@@ -336,7 +341,7 @@ contract MMR {
             cursor = path[height];
             if (height == 0) {
                 // cursor is on the leaf
-                node = hashLeaf(cursor, keccak256(value));
+                node = hashLeaf(cursor, sha256(value));
             } else if (cursor - 1 == path[height - 1]) {
                 // cursor is on a parent and a sibling is on the left
                 node = hashBranch(cursor, siblings[height - 1], node);
@@ -362,7 +367,7 @@ contract MMR {
         pure
         returns (bytes32)
     {
-        return keccak256(abi.encodePacked(index, left, right));
+        return sha256(abi.encodePacked(index, left, right));
     }
 
     /**
@@ -374,7 +379,7 @@ contract MMR {
         pure
         returns (bytes32)
     {
-        return keccak256(abi.encodePacked(index, dataHash));
+        return sha256(abi.encodePacked(index, dataHash));
     }
 
     /**
