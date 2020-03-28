@@ -26,7 +26,7 @@ def finalize(interface):
 
 def call(interface, function_name, function_args=[]):
     """
-    Deploys the contract with contructor_arguments and runs a function with function_args
+    Runs a function with function_args
     """
 
     my_contract = interface.get_contract()
