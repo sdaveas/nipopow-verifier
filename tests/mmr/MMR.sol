@@ -40,9 +40,6 @@ contract MMR {
      */
     function append(bytes memory data) public {
         // Hash the leaf node first
-        if (keccak256(tree.data[dataHash]) != dataHash) {
-            tree.data[dataHash] = data;
-        }
         bytes32 dataHash = sha256(abi.encodePacked(data));
         bytes32 leaf = hashLeaf(tree.size + 1, dataHash);
         // Put the hashed leaf to the map
