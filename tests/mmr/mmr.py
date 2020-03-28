@@ -43,9 +43,9 @@ def call(interface, function_name, function_args=[]):
     Runs a function with function_args
     """
 
-    my_contract = interface.get_contract()
+    contract = interface.get_contract()
     from_address = interface.w3.eth.accounts[0]
-    function = my_contract.get_function_by_name(function_name)(*function_args)
+    function = contract.get_function_by_name(function_name)(*function_args)
     res = function.call({"from": from_address})
     tx_hash = function.transact({"from": from_address})
     receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
