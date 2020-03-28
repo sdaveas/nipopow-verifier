@@ -7,7 +7,6 @@ contract MMR {
     struct Tree {
         bytes32 root;
         mapping(uint256 => bytes32) hashes;
-        mapping(bytes32 => bytes) data;
     }
 
     Tree tree;
