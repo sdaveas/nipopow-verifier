@@ -15,7 +15,7 @@ from config import profiler
 def deploy(constructor_arguments=[]):
     contract_path = "./MMR.sol"
     interface = contract_interface.ContractInterface(
-        contract_path, backend="ganache", constructor_arguments=constructor_arguments
+        contract_path, backend="geth", constructor_arguments=constructor_arguments
     )
     return interface
 
