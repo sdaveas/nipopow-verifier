@@ -7,7 +7,6 @@ contract MMR {
     struct Tree {
         bytes32 root;
         uint256 size;
-        uint256 width;
         mapping(uint256 => bytes32) hashes;
         mapping(bytes32 => bytes) data;
     }
@@ -21,7 +20,7 @@ contract MMR {
         emit debug("Inside with", data.length);
 
         for (uint256 i = 0; i < data.length; i++) {
-             append(data[i]);
+             append(data[i], i);
         }
         return tree.root;
     }
@@ -30,24 +29,21 @@ contract MMR {
      * @dev This only stores the hashed value of the leaf.
      *      If you need to retrieve the detail data later, use a map to store them.
      */
-    function append(bytes32 data) public {
+    function append(bytes32 data, uint256 index) public {
         // Hash the leaf node first
         bytes32 dataHash = sha256(abi.encodePacked(data));
         bytes32 leaf = hashLeaf(tree.size + 1, dataHash);
         // Put the hashed leaf to the map
         tree.hashes[tree.size + 1] = leaf;
-        tree.width += 1;
         // Find peaks for the enlarged tree
-        uint256[] memory peakIndexes = getPeakIndexes(tree.width);
+        uint256[] memory peakIndexes = getPeakIndexes(index+1);
         // The right most peak's value is the new size of the updated tree
-//        tree.size = getSize(tree.width);
+        tree.size = getSize(index+1);
         // Starting from the left-most peak, get all peak hashes using _getOrCreateNode() function.
 //        bytes32[] memory peaks = new bytes32[](peakIndexes.length);
 //        for (uint256 i = 0; i < peakIndexes.length; i++) {
 //            peaks[i] = _getOrCreateNode(peakIndexes[i]);
 //        }
-//        // Create the root hash and update the tree
-//        tree.root = peakBagging(tree.width, peaks);
     }
 
     function getPeaks() public view returns (bytes32[] memory peaks) {
@@ -59,6 +55,8 @@ contract MMR {
             peaks[i] = tree.hashes[peakNodeIndexes[i]];
         }
         return peaks;
+        // Create the root hash and update the tree
+        tree.root = peakBagging(index+1, peaks);
     }
 
     function getLeafIndex(uint256 width) public pure returns (uint256) {
