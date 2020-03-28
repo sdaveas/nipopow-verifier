@@ -164,7 +164,7 @@ contract MMR {
     function numOfPeaks(uint256 width) public pure returns (uint256 num) {
         uint256 bits = width;
         while (bits > 0) {
-            if (bits % 2 == 1) num++;
+            if (!(bits % 2 == 0)) num++;
             bits = bits >> 1;
         }
         return num;
