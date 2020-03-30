@@ -103,7 +103,7 @@ class ContractInterface:
             self.contract_path_list = [self.contract_path_list]
 
         if len(self.precompiled_contract) == 0:
-            self.compiled_contracts = compile_files(self.contract_path_list)
+            self.compiled_contracts = compile_files(self.contract_path_list, optimize=True)
         else:
             self.compiled_contracts = {
                     self.contract_path_list[0] :
