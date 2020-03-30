@@ -10,8 +10,10 @@ contract MMR {
 
     bytes32 root;
 
-    function testMMR(bytes32[] memory data) public returns (bytes32) {
-
+    function testMMR(bytes32[] memory data)
+        public
+        returns (bytes32, bytes32[] memory, bytes32[] memory)
+    {
         // Create array for hashes of leafs and internal nodes
         bytes32[] memory hashes = new bytes32[](getSize(data.length) + 1);
 
@@ -35,7 +37,12 @@ contract MMR {
         emit debug("> Calling root with", data.length);
         root = peakBagging(data.length, peaks);
 
-        return root;
+        (
+            bytes32[] memory peakBaggingArray,
+            bytes32[] memory siblings
+        ) = getMerkleProof(hashes, data.length, 1);
+
+        return (root, peakBaggingArray, siblings);
     }
 
     function getSize(uint256 width) public pure returns (uint256) {
