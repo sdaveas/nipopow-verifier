@@ -32,7 +32,7 @@ contract MMR {
         // Starting from the left-most peak, get all peak hashes using _getOrCreateNode() function.
         bytes32[] memory peaks = new bytes32[](peakIndexes.length);
         for (uint256 i = 0; i < peakIndexes.length; i++) {
-            peaks[i] = _getOrCreateNode(peakIndexes[i], hashes);
+            peaks[i] = _getOrCreateNode(peakIndexes[i], hashes, 0);
         }
         root = peakBagging(data.length, peaks);
 
@@ -167,19 +167,19 @@ contract MMR {
      *      it computes hashes recursively downward.
      *      Only appending an item calls this function
      */
-    function _getOrCreateNode(uint256 index, bytes32[] memory hashes)
+    function _getOrCreateNode(uint256 index, bytes32[] memory hashes, uint256 offset)
         private
         returns (bytes32)
     {
         require(index <= getSize(index), "Out of range");
-
-        if (hashes[index] == bytes32(0)) {
+        if (hashes[index - offset] == bytes32(0)) {
             (uint256 leftIndex, uint256 rightIndex) = getChildren(index);
-            bytes32 leftHash = _getOrCreateNode(leftIndex, hashes);
-            bytes32 rightHash = _getOrCreateNode(rightIndex, hashes);
-            hashes[index] = hashBranch(index, leftHash, rightHash);
+            bytes32 leftHash = _getOrCreateNode(leftIndex, hashes, offset);
+            bytes32 rightHash = _getOrCreateNode(rightIndex, hashes, offset);
+            hashes[index - offset] = hashBranch(index, leftHash, rightHash);
         }
-        return hashes[index];
+        return hashes[index - offset];
+    }
 
     function isLeaf(uint256 index) public pure returns (bool) {
         return heightAt(index) == 1;
