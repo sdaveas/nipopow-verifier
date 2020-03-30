@@ -34,7 +34,6 @@ contract MMR {
         for (uint256 i = 0; i < peakIndexes.length; i++) {
             peaks[i] = _getOrCreateNode(peakIndexes[i], hashes);
         }
-        emit debug("> Calling root with", data.length);
         root = peakBagging(data.length, peaks);
 
         (
