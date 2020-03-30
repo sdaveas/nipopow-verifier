@@ -277,4 +277,32 @@ contract MMR {
         }
         return subpeaks;
     }
+
+    // to test
+    function getProofContent(
+        bytes32[4][] memory proof,
+        uint256 proofIndex,
+        bytes32 subpeak
+    )
+        public
+        pure
+        returns (
+            uint256 parentIndex,
+            bytes32 leftSibling,
+            bytes32 rightSibling,
+            uint256 peakIndex
+        )
+    {
+        return (
+            uint256(proof[proofIndex][0]),
+            leftSibling = proof[proofIndex][1] == bytes32(proofIndex)
+                ? subpeak
+                : proof[proofIndex][1],
+            rightSibling = proof[proofIndex][2] == bytes32(proofIndex)
+                ? subpeak
+                : proof[proofIndex][2],
+            peakIndex = uint256(proof[proofIndex][3])
+        );
+    }
+
 }
