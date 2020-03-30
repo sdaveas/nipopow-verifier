@@ -238,5 +238,24 @@ contract MMR {
         return closest;
     }
 
+    // Returns the sub-peak of a range
+    function getSubpeak(bytes32[] memory data, uint256 offset)
+        public
+        returns (bytes32, uint256)
+    {
+        uint256 subpeakWidth = closestPow2(data.length - offset);
+        bytes32[] memory hashes = new bytes32[](getSize(subpeakWidth) + 1);
+        // Populate hashes with leafs
+        for (uint256 index = 0; index < subpeakWidth; index++) {
+            // Hash the data of the node
+            bytes32 dataHash = sha256(abi.encodePacked(data[index + offset]));
+            // Create leaf
+            bytes32 leaf = hashLeaf(getSize(index + offset) + 1, dataHash);
+            // Put the hashed leaf to the array
+            hashes[getSize(index) + 1] = leaf;
+        }
+        bytes32 subpeak = _getOrCreateNode(getSize(subpeakWidth + offset), hashes, getSize(offset));
+        return (subpeak, offset + subpeakWidth);
+    }
     }
 }
