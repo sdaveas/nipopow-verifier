@@ -180,5 +180,53 @@ contract MMR {
             hashes[index] = hashBranch(index, leftHash, rightHash);
         }
         return hashes[index];
+
+    function isLeaf(uint256 index) public pure returns (bool) {
+        return heightAt(index) == 1;
+    }
+
+    /**
+     * @dev It returns a merkle proof for a leaf. Note that the index starts from 1
+     */
+     function getMerkleProof(
+         bytes32[] memory hashes,
+         uint256 width,
+         uint256 index
+     ) public pure returns (bytes32[] memory, bytes32[] memory) {
+         require(index < hashes.length, "Out of range");
+         require(isLeaf(index), "Not a leaf");
+
+         // Find all peaks for bagging
+         uint256[] memory peaks = getPeakIndexes(width);
+
+         bytes32[] memory peakBaggingArray = new bytes32[](peaks.length);
+         uint256 cursor;
+         for (uint256 i = 0; i < peaks.length; i++) {
+             // Collect the hash of all peaks
+             peakBaggingArray[i] = hashes[peaks[i]];
+             // Find the peak which includes the target index
+             if (peaks[i] >= index && cursor == 0) {
+                 cursor = peaks[i];
+             }
+         }
+         uint256 left;
+         uint256 right;
+
+         // Get hashes of the siblings in the mountain which the index belongs to.
+         // It moves the cursor from the summit of the mountain down to the target index
+         uint8 height = heightAt(cursor);
+         bytes32[] memory siblings = new bytes32[](height - 1);
+         while (cursor != index) {
+             height--;
+             (left, right) = getChildren(cursor);
+             // Move the cursor down to the left side or right side
+             cursor = index <= left ? left : right;
+             // Remaining node is the sibling
+             siblings[height - 1] = hashes[index <= left ? right : left];
+         }
+
+         return (peakBaggingArray, siblings);
+     }
+
     }
 }
