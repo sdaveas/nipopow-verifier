@@ -65,8 +65,11 @@ data = [b"\xaa" * 32] * size
 
 interface = deploy()
 
-result = call(interface, "testMMR", function_args=[data])
-print("MMR root:", result["result"].hex())
-print("Gas used:", result["gas"])
+result = call(interface, "getAllSubpeaks", function_args=[data])
+print(len(result["result"]))
+print(result["result"][0].hex()[:3])
+print(result["result"][1].hex()[:3])
+print(result["gas"])
+
 
 finalize(interface)
