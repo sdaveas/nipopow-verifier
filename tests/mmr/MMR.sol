@@ -305,4 +305,32 @@ contract MMR {
         );
     }
 
+    // to test
+    function verifySubpeak(
+        bytes32 subpeak,
+        bytes32[4][] memory proof,
+        uint256 proofIndex,
+        bytes32[] memory peaks
+    ) public pure returns (bool) {
+
+        bytes32 h = subpeak;
+
+        uint256 parentIndex;
+        bytes32 leftSibling;
+        bytes32 rightSibling;
+        uint256 rootpeakIndex;
+
+        do {
+            (
+                parentIndex,
+                leftSibling,
+                rightSibling,
+                rootpeakIndex
+            ) = getProofContent(proof, proofIndex, h);
+
+            h = sha256(
+                abi.encodePacked(parentIndex, leftSibling, rightSibling)
+            );
+        } while (rootpeakIndex == peaks.length);
+    }
 }
