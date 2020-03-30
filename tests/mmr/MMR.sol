@@ -257,5 +257,19 @@ contract MMR {
         bytes32 subpeak = _getOrCreateNode(getSize(subpeakWidth + offset), hashes, getSize(offset));
         return (subpeak, offset + subpeakWidth);
     }
+
+    function getAllSubpeaks(bytes32[] memory data)
+        public
+        returns (bytes32[] memory)
+    {
+        uint256 offset;
+        bytes32 subpeak;
+        uint256 subpeaksNumber = numOfPeaks(data.length);
+        bytes32[] memory subpeaks = new bytes32[](subpeaksNumber);
+        for (uint i = 0; i < subpeaksNumber; i++) {
+            (subpeak, offset) = getSubpeak(data, offset);
+            subpeaks[i] = subpeak;
+        }
+        return subpeaks;
     }
 }
