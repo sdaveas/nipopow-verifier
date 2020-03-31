@@ -2,7 +2,7 @@ pragma solidity ^0.6.0;
 
 
 contract MMR {
-    event debug(string tag, uint256 value);
+    event debug(string tag, bytes32 value);
 
     struct Tree {
         bytes32 root;
