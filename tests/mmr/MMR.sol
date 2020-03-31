@@ -278,7 +278,6 @@ contract MMR {
         return subpeaks;
     }
 
-    // to test
     function getProofContent(
         bytes32[4][] memory proof,
         uint256 proofIndex,
@@ -295,24 +294,22 @@ contract MMR {
     {
         return (
             uint256(proof[proofIndex][0]),
-            leftSibling = proof[proofIndex][1] == bytes32(proofIndex)
+            leftSibling = proof[proofIndex][1] == bytes32(0)
                 ? subpeak
                 : proof[proofIndex][1],
-            rightSibling = proof[proofIndex][2] == bytes32(proofIndex)
+            rightSibling = proof[proofIndex][2] == bytes32(0)
                 ? subpeak
                 : proof[proofIndex][2],
             peakIndex = uint256(proof[proofIndex][3])
         );
     }
 
-    // to test
     function verifySubpeak(
         bytes32 subpeak,
         bytes32[4][] memory proof,
         uint256 proofIndex,
         bytes32[] memory peaks
-    ) public pure returns (bool) {
-
+    ) public returns (bool) {
         bytes32 h = subpeak;
 
         uint256 parentIndex;
@@ -327,10 +324,15 @@ contract MMR {
                 rightSibling,
                 rootpeakIndex
             ) = getProofContent(proof, proofIndex, h);
+            proofIndex++;
 
             h = sha256(
                 abi.encodePacked(parentIndex, leftSibling, rightSibling)
             );
         } while (rootpeakIndex == peaks.length);
+
+        require(peaks[rootpeakIndex] == h, "Peak not verified");
+
+        return true;
     }
 }
