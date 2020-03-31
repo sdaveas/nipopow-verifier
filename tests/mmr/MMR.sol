@@ -309,7 +309,7 @@ contract MMR {
         bytes32[4][] memory proof,
         uint256 proofIndex,
         bytes32[] memory peaks
-    ) public returns (bool) {
+    ) public returns (uint256) {
         bytes32 h = subpeak;
 
         uint256 parentIndex;
@@ -332,6 +332,9 @@ contract MMR {
         } while (rootpeakIndex == peaks.length);
 
         require(peaks[rootpeakIndex] == h, "Peak not verified");
+
+        return proofIndex;
+    }
 
         return true;
     }
