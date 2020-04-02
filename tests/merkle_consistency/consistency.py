@@ -118,3 +118,21 @@ def test_merkle_tree_hash():
     print(result["gas"])
 
     finalize(interface)
+
+
+def test_path():
+
+    size = 7
+    data = []
+    for i in range(size):
+        data.append(int(i).to_bytes(32, "big"))
+
+    interface = deploy()
+
+    result = call(interface, "path", function_args=[data, 6])
+    res = result["result"]
+    for r in res:
+        print(r.hex())
+    print(result["gas"])
+
+    finalize(interface)
