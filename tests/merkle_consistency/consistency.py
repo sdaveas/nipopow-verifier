@@ -34,3 +34,19 @@ def deploy(constructor_arguments=[]):
 
 def finalize(interface):
     interface.end()
+
+
+def print_debug_events(contract, receipt):
+    try:
+        debug_events = contract.events.debug().processReceipt(receipt)
+    except Exception as ex:
+        debug_events = {}
+    if len(debug_events) > 0:
+        for e in debug_events:
+            log = dict(e)["args"]
+            if isinstance(log["value"], bytes):
+                value = log["value"].hex()
+            else:
+                value = log["value"]
+            print(log["tag"], "\t", value)
+    return debug_events
