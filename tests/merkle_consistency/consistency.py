@@ -102,3 +102,19 @@ def test_merkle_tree_hash_rec():
     print(result["gas"])
 
     finalize(interface)
+
+
+def test_merkle_tree_hash():
+    size = 100
+    data = []
+    for i in range(size):
+        data.append(int(i).to_bytes(32, "big"))
+
+    interface = deploy()
+
+    result = call(interface, "merkleTreeHash", function_args=[data])
+    res = result["result"]
+    print(res.hex())
+    print(result["gas"])
+
+    finalize(interface)
