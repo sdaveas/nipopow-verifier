@@ -24,4 +24,17 @@ contract consistency {
         return log2;
     }
 
+    function concatArrays(bytes32[] memory a1, bytes32[] memory a2) public returns(bytes32[] memory) {
+        bytes32[] memory a = new bytes32[](a1.length + a2.length);
+
+        for (uint256 i = 0; i < a1.length; i++) {
+            a[i] = a1[i];
+        }
+
+        for (uint256 i = 0; i < a2.length; i++) {
+            a[i + a1.length] = a2[i];
+        }
+        return a;
+    }
+
 }
