@@ -136,3 +136,9 @@ def test_path():
     print(result["gas"])
 
     finalize(interface)
+
+
+# test_closestPow2(20)
+# test_merkle_tree_hash_rec()
+# test_merkle_tree_hash()
+test_path()
