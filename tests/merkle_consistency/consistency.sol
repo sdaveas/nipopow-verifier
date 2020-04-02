@@ -76,4 +76,37 @@ contract consistency {
         return data[0];
     }
 
+    // untested
+    function path(bytes32[] memory data, uint256 index) public returns (bytes32[] memory) {
+
+        emit debug("Looking for", index);
+        for (uint256 i = 0; i < data.length; i++) {
+            data[i] = sha256(abi.encodePacked(uint256(0), data[i]));
+        }
+
+        uint proofIndex;
+        uint256 proofLength = log2Ceiling(data.length);
+        bytes32[] memory proof = new bytes32[](proofLength);
+
+        uint256 step = 2;
+        while(step/2 < data.length) {
+            emit debug("Round", proofIndex);
+            for (uint256 i = 0; i < data.length - step/2; i+=step) {
+                data[i] = sha256(abi.encodePacked(uint256(1), data[i], data[i+step/2]));
+                if (i == index) {
+                    emit debug("Sibling index", i + step/2);
+                    proof[proofIndex++] = data[i + step/2];
+                    index = i;
+                }
+                else if (i + step/2 == index) {
+                    emit debug("Sibling index", i);
+                    proof[proofIndex++] = data[i];
+                    index = i;
+                }
+            }
+            step *= 2;
+        }
+
+        return proof;
+    }
 }
