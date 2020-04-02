@@ -66,3 +66,23 @@ def call(interface, function_name, function_args=[]):
     interface.run_gas_profiler(profiler, tx_hash, function_name)
     print_debug_events(contract, receipt)
     return {"result": res, "gas": receipt["gasUsed"]}
+
+
+def test_log2Ceiling(data):
+    interface = deploy()
+
+    result = call(interface, "log2Ceiling", function_args=[data])
+    res = result["result"]
+    print(res)
+    print(result["gas"])
+
+    finalize(interface)
+
+
+def test_closestPow2(data):
+    interface = deploy()
+    result = call(interface, "closestPow2", function_args=[data])
+    print(result["result"])
+    print(result["gas"])
+
+    finalize(interface)
