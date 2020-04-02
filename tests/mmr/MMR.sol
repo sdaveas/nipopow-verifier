@@ -12,7 +12,7 @@ contract MMR {
 
     function testMMR(bytes32[] memory data)
         public
-        returns (bytes32, bytes32[] memory, bytes32[] memory)
+        returns (bytes32)
     {
         // Create array for hashes of leafs and internal nodes
         bytes32[] memory hashes = new bytes32[](getSize(data.length) + 1);
@@ -35,13 +35,14 @@ contract MMR {
             peaks[i] = _getOrCreateNode(peakIndexes[i], hashes, 0);
         }
         root = peakBagging(data.length, peaks);
+        return root;
 
-        (
-            bytes32[] memory peakBaggingArray,
-            bytes32[] memory siblings
-        ) = getMerkleProof(hashes, data.length, 1);
+        // (
+        //     bytes32[] memory peakBaggingArray,
+        //     bytes32[] memory siblings
+        // ) = getMerkleProof(hashes, data.length, 1);
 
-        return (root, peakBaggingArray, siblings);
+        // return (root, peakBaggingArray, siblings, hashes);
     }
 
     function getSize(uint256 width) public pure returns (uint256) {
@@ -336,6 +337,4 @@ contract MMR {
         return proofIndex;
     }
 
-        return true;
-    }
 }
