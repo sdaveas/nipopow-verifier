@@ -15,6 +15,26 @@ import contract_interface
 sys.path.append("..")
 from config import profiler
 
+import pickle
+
+
+def export_pkl(data, filename):
+    with open(filename, "wb") as f:
+        pickle.dump(data, f)
+
+
+def import_pkl(filename):
+    with open(filename, "rb") as f:
+        return pickle.load(f)
+
+
+def int_to_bytes(integer, bytessize=32, endian="big"):
+    return int(integer).to_bytes(bytessize, endian)
+
+
+def zero_bytes(bytessize=32):
+    return b"\x00" * bytessize
+
 
 def deploy(constructor_arguments=[]):
     contract_path = "./MMR.sol"
@@ -60,16 +80,49 @@ def call(interface, function_name, function_args=[]):
     return {"result": res, "gas": receipt["gasUsed"]}
 
 
-size = 10
-data = [b"\xaa" * 32] * size
+def test_mmr():
+    size = 231
+    data = [b"\xaa" * 32] * size
 
-interface = deploy()
+    interface = deploy()
 
-result = call(interface, "getAllSubpeaks", function_args=[data])
-print(len(result["result"]))
-print(result["result"][0].hex()[:3])
-print(result["result"][1].hex()[:3])
-print(result["gas"])
+    result = call(interface, "testMMR", function_args=[data])
+    print(result["result"].hex())
+    print(result["gas"])
 
 
-finalize(interface)
+def verify_subpeak():
+    size = 10
+    data = [b"\xaa" * 32] * size
+
+    interface = deploy()
+
+    hashes = import_pkl("hashes_10.pkl")
+    peaks = import_pkl("peaks_10.pkl")
+
+    mmr_proof = [
+        [int_to_bytes(3), hashes[1], zero_bytes(), int_to_bytes(2)],
+        [int_to_bytes(7), zero_bytes(), hashes[6], int_to_bytes(2)],
+        [int_to_bytes(15), zero_bytes(), hashes[14], int_to_bytes(0)],
+    ]
+    result = call(
+        interface, "verifySubpeak", function_args=[hashes[2], mmr_proof, 0, peaks],
+    )
+
+    mmr_proof = [
+        [int_to_bytes(3), hashes[1], zero_bytes(), int_to_bytes(2)],
+        [int_to_bytes(7), zero_bytes(), hashes[6], int_to_bytes(2)],
+        [int_to_bytes(15), zero_bytes(), hashes[14], int_to_bytes(0)],
+        [int_to_bytes(18), hashes[16], zero_bytes(), int_to_bytes(1)],
+    ]
+    result = call(
+        interface, "verifySubpeak", function_args=[hashes[17], mmr_proof, 3, peaks],
+    )
+
+    result = call(interface, "verifySubpeak", function_args=[hashes[18], [], 4, peaks],)
+
+    finalize(interface)
+
+
+# verify_subpeak()
+test_mmr()
