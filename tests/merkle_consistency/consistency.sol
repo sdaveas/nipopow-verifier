@@ -37,4 +37,26 @@ contract consistency {
         return a;
     }
 
+    function merkleTreeHashRec(bytes32[] memory data) public returns (bytes32) {
+        uint256 n = data.length;
+        if (n == 1) {
+            return sha256(abi.encodePacked(uint256(0), data[0]));
+            // return data;
+        }
+
+        uint256 k = closestPow2(n);
+
+        bytes32[] memory left = new bytes32[](k);
+        for (uint256 i = 0; i < k; i++) {
+            left[i] = data[i];
+        }
+
+        bytes32[] memory right = new bytes32[](n - k);
+        for (uint256 i = 0; i < n - k; i++) {
+            right[i] = data[i + k];
+        }
+
+        return sha256(abi.encodePacked(uint256(1), merkleTreeHashRec(left), merkleTreeHashRec(right)));
+    }
+
 }
