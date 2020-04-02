@@ -2,6 +2,7 @@ pragma solidity ^0.6.0;
 
 
 contract consistency {
+    event debug(string tag, uint256 value);
 
     function closestPow2(uint256 number) public pure returns (uint256) {
         uint256 closest = 1;
