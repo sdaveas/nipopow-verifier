@@ -15,4 +15,13 @@ contract consistency {
         return closest;
     }
 
+    function log2Ceiling(uint256 number) public returns (uint256) {
+        uint256 log2;
+        while (number > 0) {
+            number >>= 1;
+            log2++;
+        }
+        return log2;
+    }
+
 }
