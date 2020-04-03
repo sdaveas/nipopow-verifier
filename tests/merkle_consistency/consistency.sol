@@ -25,7 +25,10 @@ contract consistency {
         return log2;
     }
 
-    function concatArrays(bytes32[] memory a1, bytes32[] memory a2) public returns(bytes32[] memory) {
+    function concatArrays(bytes32[] memory a1, bytes32[] memory a2)
+        public
+        returns (bytes32[] memory)
+    {
         bytes32[] memory a = new bytes32[](a1.length + a2.length);
 
         for (uint256 i = 0; i < a1.length; i++) {
@@ -57,19 +60,27 @@ contract consistency {
             right[i] = data[i + k];
         }
 
-        return sha256(abi.encodePacked(uint256(1), merkleTreeHashRec(left), merkleTreeHashRec(right)));
+        return
+            sha256(
+                abi.encodePacked(
+                    uint256(1),
+                    merkleTreeHashRec(left),
+                    merkleTreeHashRec(right)
+                )
+            );
     }
 
     function merkleTreeHash(bytes32[] memory data) public returns (bytes32) {
-
         for (uint256 i = 0; i < data.length; i++) {
             data[i] = sha256(abi.encodePacked(uint256(0), data[i]));
         }
 
         uint256 step = 2;
-        while(step/2 < data.length) {
-            for (uint256 i = 0; i < data.length - step/2; i+=step) {
-                data[i] = sha256(abi.encodePacked(uint256(1), data[i], data[i+step/2]));
+        while (step / 2 < data.length) {
+            for (uint256 i = 0; i < data.length - step / 2; i += step) {
+                data[i] = sha256(
+                    abi.encodePacked(uint256(1), data[i], data[i + step / 2])
+                );
             }
             step *= 2;
         }
@@ -78,28 +89,31 @@ contract consistency {
     }
 
     // untested
-    function path(bytes32[] memory data, uint256 index) public returns (bytes32[] memory) {
-
+    function path(bytes32[] memory data, uint256 index)
+        public
+        returns (bytes32[] memory)
+    {
         emit debug("Looking for", index);
         for (uint256 i = 0; i < data.length; i++) {
             data[i] = sha256(abi.encodePacked(uint256(0), data[i]));
         }
 
-        uint proofIndex;
+        uint256 proofIndex;
         uint256 proofLength = log2Ceiling(data.length);
         bytes32[] memory proof = new bytes32[](proofLength);
 
         uint256 step = 2;
-        while(step/2 < data.length) {
+        while (step / 2 < data.length) {
             emit debug("Round", proofIndex);
-            for (uint256 i = 0; i < data.length - step/2; i+=step) {
-                data[i] = sha256(abi.encodePacked(uint256(1), data[i], data[i+step/2]));
+            for (uint256 i = 0; i < data.length - step / 2; i += step) {
+                data[i] = sha256(
+                    abi.encodePacked(uint256(1), data[i], data[i + step / 2])
+                );
                 if (i == index) {
-                    emit debug("Sibling index", i + step/2);
-                    proof[proofIndex++] = data[i + step/2];
+                    emit debug("Sibling index", i + step / 2);
+                    proof[proofIndex++] = data[i + step / 2];
                     index = i;
-                }
-                else if (i + step/2 == index) {
+                } else if (i + step / 2 == index) {
                     emit debug("Sibling index", i);
                     proof[proofIndex++] = data[i];
                     index = i;
