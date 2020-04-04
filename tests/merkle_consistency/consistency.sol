@@ -22,27 +22,10 @@ contract consistency {
         return log2;
     }
 
-    function concatArrays(bytes32[] memory a1, bytes32[] memory a2)
-        public
-        returns (bytes32[] memory)
-    {
-        bytes32[] memory a = new bytes32[](a1.length + a2.length);
-
-        for (uint256 i = 0; i < a1.length; i++) {
-            a[i] = a1[i];
-        }
-
-        for (uint256 i = 0; i < a2.length; i++) {
-            a[i + a1.length] = a2[i];
-        }
-        return a;
-    }
-
     function merkleTreeHashRec(bytes32[] memory data) public returns (bytes32) {
         uint256 n = data.length;
         if (n == 1) {
             return sha256(abi.encodePacked(uint256(0), data[0]));
-            // return data;
         }
 
         uint256 k = closestPow2(n);
@@ -126,17 +109,19 @@ contract consistency {
         uint256 m = _m;
         bool[] memory siblings = new bool[](log2Ceiling(_n));
         uint256 siblingsIndex;
+        uint256 k;
 
         do {
-            uint256 k = closestPow2(n);
+            k = closestPow2(n);
             if (m < k) {
-                siblings[siblingsIndex++] = true;
+                siblings[siblingsIndex] = true;
                 n = k;
             } else {
-                siblings[siblingsIndex++] = false;
+                siblings[siblingsIndex] = false;
                 n = n - k;
                 m = m - k;
             }
+            siblingsIndex++;
         } while (n != 1);
 
         bool[] memory rev_siblings = new bool[](siblingsIndex);
@@ -196,14 +181,7 @@ contract consistency {
         uint256 proofIndex;
         bytes32[] memory proof = new bytes32[](log2Ceiling(data.length) + 1);
 
-        while (start != end) {
-            if (m == end - start) {
-                proof[proofIndex] = merkleTreeHash(
-                    subArray(data, start, start + m)
-                );
-                break;
-            }
-
+        while (m != end - start) {
             k = closestPow2(end - start);
 
             if (m <= k) {
@@ -221,6 +199,11 @@ contract consistency {
             proofIndex++;
             require(proofIndex < proof.length, "Proof too small");
         }
+
+        proof[proofIndex] = merkleTreeHash(
+            subArray(data, start, start + m)
+        );
+
         return proof;
     }
 
