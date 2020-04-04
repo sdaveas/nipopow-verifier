@@ -2,8 +2,6 @@ pragma solidity ^0.6.0;
 
 
 contract consistency {
-    event debug(string tag, uint256 value);
-
     function closestPow2(uint256 number) public pure returns (uint256) {
         uint256 closest = 1;
         while ((closest << 1) <= number) {
@@ -89,12 +87,10 @@ contract consistency {
         return data[0];
     }
 
-    // untested
     function path(bytes32[] memory data, uint256 _index)
         public
         returns (bytes32[] memory)
     {
-        emit debug("Looking for", index);
         uint256 index = _index;
         for (uint256 i = 0; i < data.length; i++) {
             data[i] = sha256(abi.encodePacked(uint256(0), data[i]));
@@ -106,17 +102,14 @@ contract consistency {
 
         uint256 step = 2;
         while (step / 2 < data.length) {
-            emit debug("Round", proofIndex);
             for (uint256 i = 0; i < data.length - step / 2; i += step) {
                 data[i] = sha256(
                     abi.encodePacked(uint256(1), data[i], data[i + step / 2])
                 );
                 if (i == index) {
-                    emit debug("Sibling index", i + step / 2);
                     proof[proofIndex++] = data[i + step / 2];
                     index = i;
                 } else if (i + step / 2 == index) {
-                    emit debug("Sibling index", i);
                     proof[proofIndex++] = data[i];
                     index = i;
                 }
