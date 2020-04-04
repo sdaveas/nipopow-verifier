@@ -32,10 +32,15 @@ def import_pkl(filename):
         return pickle.load(f)
 
 
-def deploy(constructor_arguments=[]):
-    contract_path = "./consistency.sol"
+def deploy(
+    contract_path="./consistency.sol", backend="ganache", constructor_arguments=[]
+):
+    """
+    Deploys a contract with a name and returns the interface
+    """
+
     interface = contract_interface.ContractInterface(
-        contract_path, backend="ganache", constructor_arguments=constructor_arguments
+        contract_path, backend=backend, constructor_arguments=constructor_arguments,
     )
     return interface
 
