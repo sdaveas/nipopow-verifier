@@ -16,8 +16,9 @@ contract consistency {
         return closest;
     }
 
-    function log2Ceiling(uint256 number) public returns (uint256) {
+    function log2Ceiling(uint256 _number) public returns (uint256) {
         uint256 log2;
+        uint256 number = _number;
         while (number > 0) {
             number >>= 1;
             log2++;
@@ -89,11 +90,12 @@ contract consistency {
     }
 
     // untested
-    function path(bytes32[] memory data, uint256 index)
+    function path(bytes32[] memory data, uint256 _index)
         public
         returns (bytes32[] memory)
     {
         emit debug("Looking for", index);
+        uint256 index = _index;
         for (uint256 i = 0; i < data.length; i++) {
             data[i] = sha256(abi.encodePacked(uint256(0), data[i]));
         }
