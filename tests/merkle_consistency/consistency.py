@@ -11,26 +11,6 @@ import contract_interface
 sys.path.append("..")
 from config import profiler
 
-import pickle
-
-
-def export_pkl(data, filename):
-    """
-    exports data to a file named 'filename'
-    """
-
-    with open(filename, "wb") as f:
-        pickle.dump(data, f)
-
-
-def import_pkl(filename):
-    """
-    imports data from a file named 'filename'
-    """
-
-    with open(filename, "rb") as f:
-        return pickle.load(f)
-
 
 def deploy(
     contract_path="./consistency.sol", backend="ganache", constructor_arguments=[]
