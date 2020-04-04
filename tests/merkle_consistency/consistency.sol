@@ -172,4 +172,18 @@ contract consistency {
         return h;
     }
 
+    function subArray(bytes32[] memory array, uint256 start, uint256 end)
+        public
+        returns (bytes32[] memory)
+    {
+        require(end > start, "Invalid limits");
+        require(start < array.length, "Invalid limits");
+        require(end <= array.length, "Invalid limits");
+        bytes32[] memory subArray = new bytes32[](end - start);
+        for (uint256 i = start; i < end; i++) {
+            subArray[i - start] = array[i];
+        }
+        return subArray;
+    }
+
 }
