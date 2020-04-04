@@ -178,3 +178,22 @@ def subArray(data, start, end):
     interface = deploy()
     result = call(interface, "subArray", function_args=[data, start, end])
     return result
+
+
+def cons_proof_sub(data, m):
+    """
+    Returns the consistency proof for range m of data
+    Note this returns the proof reversed and possibly with void records
+    """
+
+    interface = deploy()
+    result = call(interface, "consProofSub", function_args=[data, m])
+
+    proof = result["result"]
+    rev_proof = []
+    for p in proof[::-1]:
+        if p == int(0).to_bytes(32, "big"):
+            continue
+        rev_proof.append(p)
+
+    return {"result": rev_proof, "gas": result["gas"]}
