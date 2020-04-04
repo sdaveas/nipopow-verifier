@@ -149,4 +149,27 @@ contract consistency {
         return rev_siblings;
     }
 
+    function rootFromPath(
+        bytes32 nodeData,
+        uint256 _n,
+        bytes32[] memory proof,
+        uint256 _m
+    ) public returns (bytes32) {
+        bytes32 h = sha256(abi.encodePacked(uint256(0), nodeData));
+        bool[] memory siblingsPos = createSiblings(_n, _m);
+        bytes32 left;
+        bytes32 right;
+        for (uint256 i = 0; i < siblingsPos.length; i++) {
+            if (siblingsPos[i] == true) {
+                left = h;
+                right = proof[i];
+            } else {
+                left = proof[i];
+                right = h;
+            }
+            h = sha256(abi.encodePacked(uint256(1), left, right));
+        }
+        return h;
+    }
+
 }
