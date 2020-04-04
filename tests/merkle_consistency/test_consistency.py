@@ -60,3 +60,18 @@ def test_merkle_tree_hash(init_environment):
         merkle_proof = path(data, index)["result"]
         _root = root_from_path(merkle_proof, len(data), index)["result"]
         assert root == _root
+
+
+def test_consistency_proof(init_environment):
+
+    for m in tqdm(range(1, len(data), step), desc="Testing consistency for 0"):
+        root = merkle_tree_hash(data[:m])["result"]
+        consistency_proof = cons_proof_sub(data, m)["result"]
+        _root = root_0_from_const_proof(consistency_proof, m, len(data))["result"]
+        assert root == _root
+
+    root = merkle_tree_hash(data)["result"]
+    for m in tqdm(range(1, len(data), step), desc="Testing consistency for 1"):
+        consistency_proof = cons_proof_sub(data, m)["result"]
+        _root = root_1_from_const_proof(consistency_proof, m, len(data))["result"]
+        assert root == _root
