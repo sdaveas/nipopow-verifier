@@ -3,15 +3,13 @@ pragma solidity ^0.6.0;
 
 contract consistency {
     function closestPow2(uint256 number) public pure returns (uint256) {
-        uint256 closest = 1;
-        while ((closest << 1) <= number) {
-            closest <<= 1;
+        if (number == 0 || number == 1) return 0;
+        uint256 pow = 1;
+        while (pow << 1 < number) {
+            pow <<= 1;
         }
-        require(closest & (closest - 1) == 0, "Not power of 2");
-        if (closest == number) {
-            closest /= 2;
-        }
-        return closest;
+        require(pow & pow-1 == 0, "Not a power of 2");
+        return pow;
     }
 
     function log2Ceiling(uint256 _number) public returns (uint256) {
