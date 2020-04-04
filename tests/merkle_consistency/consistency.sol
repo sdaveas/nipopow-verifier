@@ -249,4 +249,32 @@ contract consistency {
         return sha256(abi.encodePacked(uint256(1), left, right));
     }
 
+    function root1FromConsProof(bytes32[] memory proof, uint256 n0, uint256 n1)
+        public
+        returns (bytes32)
+    {
+        if (proof.length == 2)
+            return sha256(abi.encodePacked(uint256(1), proof[0], proof[1]));
+
+        uint256 k = closestPow2(n1);
+        bytes32 left;
+        bytes32 right;
+
+        if (n0 < k) {
+            left = root1FromConsProof(
+                subArray(proof, 0, proof.length - 1),
+                n0,
+                k
+            );
+            right = proof[proof.length - 1];
+        } else {
+            left = proof[proof.length - 1];
+            right = root1FromConsProof(
+                subArray(proof, 0, proof.length - 1),
+                n0 - k,
+                n1 - k
+            );
+        }
+        return sha256(abi.encodePacked(uint256(1), left, right));
+    }
 }
