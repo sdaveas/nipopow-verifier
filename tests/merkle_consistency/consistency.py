@@ -15,11 +15,19 @@ import pickle
 
 
 def export_pkl(data, filename):
+    """
+    exports data to a file named 'filename'
+    """
+
     with open(filename, "wb") as f:
         pickle.dump(data, f)
 
 
 def import_pkl(filename):
+    """
+    imports data from a file named 'filename'
+    """
+
     with open(filename, "rb") as f:
         return pickle.load(f)
 
@@ -33,10 +41,18 @@ def deploy(constructor_arguments=[]):
 
 
 def finalize(interface):
+    """
+    Finalized an interface
+    """
+
     interface.end()
 
 
 def print_debug_events(contract, receipt):
+    """
+    Prints 'debug' events
+    """
+
     try:
         debug_events = contract.events.debug().processReceipt(receipt)
     except Exception as ex:
@@ -54,7 +70,7 @@ def print_debug_events(contract, receipt):
 
 def call(interface, function_name, function_args=[]):
     """
-    Runs a function with function_args
+    Runs the output of a function
     """
 
     contract = interface.get_contract()
