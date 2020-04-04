@@ -197,3 +197,14 @@ def cons_proof_sub(data, m):
         rev_proof.append(p)
 
     return {"result": rev_proof, "gas": result["gas"]}
+
+
+def root_0_from_const_proof(proof, n0, n1):
+    """
+    Returns the root hash of the merkle tree as constructed from proof from a
+    range of n0 out of n1 nodes
+    """
+
+    interface = deploy()
+    result = call(interface, "root0FromConsProof", function_args=[proof, n0, n1])
+    return result
