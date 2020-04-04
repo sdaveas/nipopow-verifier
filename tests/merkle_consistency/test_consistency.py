@@ -38,6 +38,7 @@ def test_log2_ceiling(init_environment):
 
 def test_closest_pow_of_2(init_environment):
 
+    assert closest_pow_of_2(0)["result"] == 0
     assert closest_pow_of_2(1)["result"] == 0
     assert closest_pow_of_2(2)["result"] == 1
     assert closest_pow_of_2(3)["result"] == 2
