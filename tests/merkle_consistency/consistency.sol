@@ -186,4 +186,44 @@ contract consistency {
         return subArray;
     }
 
+    function consProofSub(bytes32[] memory data, uint256 _m)
+        public
+        returns (bytes32[] memory)
+    {
+        uint256 start = 0;
+        uint256 end = data.length;
+        uint256 m = _m;
+        uint256 k;
+
+        uint256 proofIndex;
+        bytes32[] memory proof = new bytes32[](log2Ceiling(data.length) + 1);
+
+        while (start != end) {
+            if (m == end - start) {
+                proof[proofIndex] = merkleTreeHash(
+                    subArray(data, start, start + m)
+                );
+                break;
+            }
+
+            k = closestPow2(end - start);
+
+            if (m <= k) {
+                proof[proofIndex] = merkleTreeHash(
+                    subArray(data, start + k, end)
+                );
+                end = start + k;
+            } else {
+                proof[proofIndex] = merkleTreeHash(
+                    subArray(data, start, start + k)
+                );
+                start += k;
+                m -= k;
+            }
+            proofIndex++;
+            require(proofIndex < proof.length, "Proof too small");
+        }
+        return proof;
+    }
+
 }
