@@ -226,4 +226,27 @@ contract consistency {
         return proof;
     }
 
+    function root0FromConsProof(bytes32[] memory proof, uint256 n0, uint256 n1)
+        public
+        returns (bytes32)
+    {
+        require(n0 < n1, "n0 >= n1");
+        // k = 4
+        uint256 k = closestPow2(n1);
+        if (n0 < k) {
+            return
+                root0FromConsProof(subArray(proof, 0, proof.length - 1), n0, k);
+        }
+        if (n0 == k) {
+            return proof[proof.length - 2];
+        }
+        bytes32 left = proof[proof.length - 1];
+        bytes32 right = root0FromConsProof(
+            subArray(proof, 0, proof.length - 1),
+            n0 - k,
+            n1 - k
+        );
+        return sha256(abi.encodePacked(uint256(1), left, right));
+    }
+
 }
