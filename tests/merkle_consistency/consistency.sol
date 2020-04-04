@@ -103,9 +103,6 @@ contract consistency {
         uint256 step = 2;
         while (step / 2 < data.length) {
             for (uint256 i = 0; i < data.length - step / 2; i += step) {
-                data[i] = sha256(
-                    abi.encodePacked(uint256(1), data[i], data[i + step / 2])
-                );
                 if (i == index) {
                     proof[proofIndex++] = data[i + step / 2];
                     index = i;
@@ -113,6 +110,9 @@ contract consistency {
                     proof[proofIndex++] = data[i];
                     index = i;
                 }
+                data[i] = sha256(
+                    abi.encodePacked(uint256(1), data[i], data[i + step / 2])
+                );
             }
             step *= 2;
         }
