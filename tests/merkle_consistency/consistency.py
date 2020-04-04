@@ -208,3 +208,24 @@ def root_0_from_const_proof(proof, n0, n1):
     interface = deploy()
     result = call(interface, "root0FromConsProof", function_args=[proof, n0, n1])
     return result
+
+
+def root_1_from_const_proof(proof, n0, n1):
+    """
+    Returns the root hash of the merkle tree as constructed from proof from a
+    range of n1 nodes
+    """
+
+    interface = deploy()
+    result = call(interface, "root1FromConsProof", function_args=[proof, n0, n1])
+    return result
+
+
+size = 7
+data = []
+for i in range(size):
+    data.append(int(i).to_bytes(32, "big"))
+for m in range(1, len(data)):
+    proof = cons_proof_sub(data, m)["result"]
+    root = root_1_from_const_proof(proof, m, len(data))["result"]
+    print(root.hex())
