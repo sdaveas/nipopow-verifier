@@ -2,16 +2,18 @@ pragma solidity ^0.6.0;
 
 
 contract consistency {
+    // Returns 2^i so that number/2 < 2^i < number
     function closestPow2(uint256 number) public pure returns (uint256) {
         if (number == 0 || number == 1) return 0;
         uint256 pow = 1;
         while (pow << 1 < number) {
             pow <<= 1;
         }
-        require(pow & pow-1 == 0, "Not a power of 2");
+        require(pow & (pow - 1) == 0, "Not a power of 2");
         return pow;
     }
 
+    // Returns the ceiling of log2(number) ie the number number's digits
     function log2Ceiling(uint256 _number) public returns (uint256) {
         uint256 log2;
         uint256 number = _number;
@@ -22,6 +24,7 @@ contract consistency {
         return log2;
     }
 
+    // Returns the root of merkle tree as computed from data (recursive)
     function merkleTreeHashRec(bytes32[] memory data) public returns (bytes32) {
         uint256 n = data.length;
         if (n == 1) {
@@ -50,6 +53,7 @@ contract consistency {
             );
     }
 
+    // Returns the root of merkle tree as computed from data
     function merkleTreeHash(bytes32[] memory data) public returns (bytes32) {
         for (uint256 i = 0; i < data.length; i++) {
             data[i] = sha256(abi.encodePacked(uint256(0), data[i]));
@@ -68,6 +72,7 @@ contract consistency {
         return data[0];
     }
 
+    // Returns the merkle proof of node indicated by _index in data
     function path(bytes32[] memory data, uint256 _index)
         public
         returns (bytes32[] memory)
@@ -101,6 +106,7 @@ contract consistency {
         return proof;
     }
 
+    // Creates an array that indicate whether the sibling is left (false) of right (true)
     function createSiblings(uint256 _n, uint256 _m)
         public
         returns (bool[] memory)
@@ -132,6 +138,7 @@ contract consistency {
         return rev_siblings;
     }
 
+    // Returns the root as calculated from a path
     function rootFromPath(
         bytes32 nodeData,
         uint256 _n,
@@ -155,6 +162,7 @@ contract consistency {
         return h;
     }
 
+    // Alternative for array[start:end]
     function subArray(bytes32[] memory array, uint256 start, uint256 end)
         public
         returns (bytes32[] memory)
@@ -169,6 +177,7 @@ contract consistency {
         return subArray;
     }
 
+    // Creates a consistancy proof for prefix _m of data
     function consProofSub(bytes32[] memory data, uint256 _m)
         public
         returns (bytes32[] memory)
@@ -200,19 +209,18 @@ contract consistency {
             require(proofIndex < proof.length, "Proof too small");
         }
 
-        proof[proofIndex] = merkleTreeHash(
-            subArray(data, start, start + m)
-        );
+        proof[proofIndex] = merkleTreeHash(subArray(data, start, start + m));
 
         return proof;
     }
 
+    // Returns the root hash of the merkle tree as constructed from proof from a
+    // prefix of n0 out of n1 nodes
     function root0FromConsProof(bytes32[] memory proof, uint256 n0, uint256 n1)
         public
         returns (bytes32)
     {
         require(n0 < n1, "n0 >= n1");
-        // k = 4
         uint256 k = closestPow2(n1);
         if (n0 < k) {
             return
@@ -230,6 +238,7 @@ contract consistency {
         return sha256(abi.encodePacked(uint256(1), left, right));
     }
 
+    // Returns the root hash of the merkle tree as constructed from proof from n1 nodes
     function root1FromConsProof(bytes32[] memory proof, uint256 n0, uint256 n1)
         public
         returns (bytes32)
