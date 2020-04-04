@@ -89,74 +89,85 @@ def call(interface, function_name, function_args=[]):
     return {"result": res, "gas": receipt["gasUsed"]}
 
 
-def test_log2Ceiling(data):
+def log2_ceiling(number):
+    """
+    Returns the ceiling[log2(number)] ie the number of binary digits
+    """
+
     interface = deploy()
-
-    result = call(interface, "log2Ceiling", function_args=[data])
-    res = result["result"]
-    print(res)
-    print(result["gas"])
-
+    result = call(interface, "log2Ceiling", function_args=[number])
     finalize(interface)
+    return result
 
 
-def test_closestPow2(data):
+def closest_pow_of_2(number):
+    """
+    Returns n sos that number/2 < n < number
+    """
+
     interface = deploy()
-    result = call(interface, "closestPow2", function_args=[data])
-    print(result["result"])
-    print(result["gas"])
-
+    result = call(interface, "closestPow2", function_args=[number])
     finalize(interface)
+    return result
 
 
-def test_merkle_tree_hash_rec():
-    size = 100
-    data = []
-    for i in range(size):
-        data.append(int(i).to_bytes(32, "big"))
+def merkle_tree_hash_rec(data):
+    """
+    Returns the merkle roof of data using recursion
+    """
 
     interface = deploy()
-
     result = call(interface, "merkleTreeHashRec", function_args=[data])
-    res = result["result"]
-    print(res.hex())
-    print(result["gas"])
-
     finalize(interface)
+    return result
 
 
-def test_merkle_tree_hash():
-    size = 100
-    data = []
-    for i in range(size):
-        data.append(int(i).to_bytes(32, "big"))
+def merkle_tree_hash(data):
+    """
+    Returns the merkle roof of data
+    """
 
     interface = deploy()
-
     result = call(interface, "merkleTreeHash", function_args=[data])
-    res = result["result"]
-    print(res.hex())
-    print(result["gas"])
-
     finalize(interface)
+    return result
 
 
-def test_path():
-
-    size = 7
-    data = []
-    for i in range(size):
-        data.append(int(i).to_bytes(32, "big"))
+def path(data, index):
+    """
+    Returns the merkle proof for index in data
+    """
 
     interface = deploy()
-
-    result = call(interface, "path", function_args=[data, 6])
-    res = result["result"]
-    for r in res:
-        print(r.hex())
-    print(result["gas"])
-
+    result = call(interface, "path", function_args=[data, index])
     finalize(interface)
+    return result
+
+
+def create_siblings(n, m):
+    """
+    Creates a bool siblings array to facilitate merkle proof validation
+    """
+
+    interface = deploy()
+    result = call(interface, "createSiblings", function_args=[n, m])
+    finalize(interface)
+    return result
+
+
+def root_from_path(path, size, index):
+    """
+    Returns the root as calculated following path
+    """
+
+    interface = deploy()
+    result = call(
+        interface,
+        "rootFromPath",
+        function_args=[int(index).to_bytes(32, "big"), size, path, index],
+    )
+    finalize(interface)
+    return result
 
 
 # test_closestPow2(20)
