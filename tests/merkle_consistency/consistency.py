@@ -170,7 +170,11 @@ def root_from_path(path, size, index):
     return result
 
 
-# test_closestPow2(20)
-# test_merkle_tree_hash_rec()
-# test_merkle_tree_hash()
-test_path()
+def subArray(data, start, end):
+    """
+    Returns data[start:end]
+    """
+
+    interface = deploy()
+    result = call(interface, "subArray", function_args=[data, start, end])
+    return result
