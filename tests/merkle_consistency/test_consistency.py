@@ -48,3 +48,15 @@ def test_closest_pow_of_2(init_environment):
     assert closest_pow_of_2(8)["result"] == 4
     assert closest_pow_of_2(9)["result"] == 8
     assert closest_pow_of_2(10)["result"] == 8
+
+
+def test_merkle_tree_hash(init_environment):
+
+    root = merkle_tree_hash(data)["result"]
+    rec_path = merkle_tree_hash_rec(data)["result"]
+    assert root == rec_path
+
+    for index in tqdm(range(1, len(data), step), desc="Testing paths"):
+        merkle_proof = path(data, index)["result"]
+        _root = root_from_path(merkle_proof, len(data), index)["result"]
+        assert root == _root
