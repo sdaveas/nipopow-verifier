@@ -9,7 +9,6 @@ from consistency import (
     log2_ceiling,
     closest_pow_of_2,
     merkle_tree_hash,
-    merkle_tree_hash_rec,
     path,
     root_from_path,
     cons_proof_sub,
@@ -63,9 +62,6 @@ def test_closest_pow_of_2(init_environment):
 def test_merkle_tree_hash(init_environment):
 
     root = merkle_tree_hash(data)["result"]
-    rec_path = merkle_tree_hash_rec(data)["result"]
-    assert root == rec_path
-
     for index in tqdm(range(1, len(data), step), desc="Testing paths"):
         merkle_proof = path(data, index)["result"]
         _root = root_from_path(merkle_proof, len(data), index)["result"]
