@@ -24,7 +24,19 @@ contract Consistency {
         return pow;
     }
 
+    // Substitute for array[start:end] for bool[]
+    function subArrayBool(bool[] memory array, uint256 start, uint256 end)
+        public
+        returns (bool[] memory)
+    {
+        require(end > start, "Invalid limits");
+        require(start < array.length, "Invalid limits");
+        require(end <= array.length, "Invalid limits");
+        bool[] memory subArray = new bool[](end - start);
+        for (uint256 i = start; i < end; i++) {
+            subArray[i - start] = array[i];
         }
+        return subArray;
     }
 
     // Returns the root of merkle tree as computed from data (recursive)
