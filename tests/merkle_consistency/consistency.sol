@@ -171,12 +171,12 @@ contract Consistency {
 
             if (m <= k) {
                 proof[proofIndex] = merkleTreeHash(
-                    subArray(data, start + k, end)
+                    subArrayBytes32(data, start + k, end)
                 );
                 end = start + k;
             } else {
                 proof[proofIndex] = merkleTreeHash(
-                    subArray(data, start, start + k)
+                    subArrayBytes32(data, start, start + k)
                 );
                 start += k;
                 m -= k;
@@ -185,7 +185,9 @@ contract Consistency {
             require(proofIndex < proof.length, "Proof too small");
         }
 
-        proof[proofIndex] = merkleTreeHash(subArray(data, start, start + m));
+        proof[proofIndex] = merkleTreeHash(
+            subArrayBytes32(data, start, start + m)
+        );
 
         return proof;
     }
@@ -200,14 +202,18 @@ contract Consistency {
         uint256 k = closestPow2(n1);
         if (n0 < k) {
             return
-                root0FromConsProof(subArray(proof, 0, proof.length - 1), n0, k);
+                root0FromConsProof(
+                    subArrayBytes32(proof, 0, proof.length - 1),
+                    n0,
+                    k
+                );
         }
         if (n0 == k) {
             return proof[proof.length - 2];
         }
         bytes32 left = proof[proof.length - 1];
         bytes32 right = root0FromConsProof(
-            subArray(proof, 0, proof.length - 1),
+            subArrayBytes32(proof, 0, proof.length - 1),
             n0 - k,
             n1 - k
         );
@@ -228,7 +234,7 @@ contract Consistency {
 
         if (n0 < k) {
             left = root1FromConsProof(
-                subArray(proof, 0, proof.length - 1),
+                subArrayBytes32(proof, 0, proof.length - 1),
                 n0,
                 k
             );
@@ -236,7 +242,7 @@ contract Consistency {
         } else {
             left = proof[proof.length - 1];
             right = root1FromConsProof(
-                subArray(proof, 0, proof.length - 1),
+                subArrayBytes32(proof, 0, proof.length - 1),
                 n0 - k,
                 n1 - k
             );
