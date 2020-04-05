@@ -1,7 +1,7 @@
 pragma solidity ^0.6.0;
 
 
-contract consistency {
+contract Consistency {
     // Returns 2^i so that number/2 < 2^i < number
     function closestPow2(uint256 number) public pure returns (uint256) {
         if (number == 0 || number == 1) return 0;
