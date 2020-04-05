@@ -128,7 +128,7 @@ def create_siblings(n, m):
     return result
 
 
-def root_from_path(path, size, index):
+def root_from_path(index, path, siblings):
     """
     Returns the root as calculated following path
     """
@@ -137,7 +137,7 @@ def root_from_path(path, size, index):
     result = call(
         interface,
         "rootFromPath",
-        function_args=[int(index).to_bytes(32, "big"), size, path, index],
+        function_args=[int(index).to_bytes(32, "big"), path, siblings],
     )
     finalize(interface)
     return result
