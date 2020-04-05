@@ -3,10 +3,19 @@ run with
 $ pytest -v -s test_consistency
 """
 
-import sys
 from tqdm import tqdm
 import pytest
-from consistency import *
+from consistency import (
+    log2_ceiling,
+    closest_pow_of_2,
+    merkle_tree_hash,
+    merkle_tree_hash_rec,
+    path,
+    root_from_path,
+    cons_proof_sub,
+    root_0_from_const_proof,
+    root_1_from_const_proof,
+)
 
 
 @pytest.fixture
@@ -68,11 +77,15 @@ def test_consistency_proof(init_environment):
     for m in tqdm(range(1, len(data), step), desc="Testing consistency for 0"):
         root = merkle_tree_hash(data[:m])["result"]
         consistency_proof = cons_proof_sub(data, m)["result"]
-        _root = root_0_from_const_proof(consistency_proof, m, len(data))["result"]
+        _root = root_0_from_const_proof(consistency_proof, m, len(data))[
+            "result"
+        ]
         assert root == _root
 
     root = merkle_tree_hash(data)["result"]
     for m in tqdm(range(1, len(data), step), desc="Testing consistency for 1"):
         consistency_proof = cons_proof_sub(data, m)["result"]
-        _root = root_1_from_const_proof(consistency_proof, m, len(data))["result"]
+        _root = root_1_from_const_proof(consistency_proof, m, len(data))[
+            "result"
+        ]
         assert root == _root

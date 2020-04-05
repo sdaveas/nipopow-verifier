@@ -13,14 +13,18 @@ from config import profiler
 
 
 def deploy(
-    contract_path="./consistency.sol", backend="ganache", constructor_arguments=[]
+    contract_path="./consistency.sol",
+    backend="ganache",
+    constructor_arguments=[],
 ):
     """
     Deploys a contract with a name and returns the interface
     """
 
     interface = contract_interface.ContractInterface(
-        contract_path, backend=backend, constructor_arguments=constructor_arguments,
+        contract_path,
+        backend=backend,
+        constructor_arguments=constructor_arguments,
     )
     return interface
 
@@ -186,7 +190,9 @@ def root_0_from_const_proof(proof, n0, n1):
     """
 
     interface = deploy()
-    result = call(interface, "root0FromConsProof", function_args=[proof, n0, n1])
+    result = call(
+        interface, "root0FromConsProof", function_args=[proof, n0, n1]
+    )
     return result
 
 
@@ -197,5 +203,7 @@ def root_1_from_const_proof(proof, n0, n1):
     """
 
     interface = deploy()
-    result = call(interface, "root1FromConsProof", function_args=[proof, n0, n1])
+    result = call(
+        interface, "root1FromConsProof", function_args=[proof, n0, n1]
+    )
     return result
