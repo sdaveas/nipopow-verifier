@@ -54,6 +54,20 @@ contract Consistency {
         return subArray;
     }
 
+
+    // Substitute for array[::-1]
+    function reverse(bytes32[] memory array)
+    public
+    returns(bytes32[] memory){
+        bytes32 tmp;
+        for(uint256 i = 0; i < array.length/2; i++) {
+            tmp = array[i];
+            array[i] = array[array.length - 1 - i];
+            array[array.length - 1 - i] = tmp;
+        }
+        return array;
+    }
+
     // Returns the root of merkle tree as computed from data
     //
     //  |    A|   B|   C|   D|   E| <- round 1
@@ -189,7 +203,12 @@ contract Consistency {
             subArrayBytes32(data, start, start + m)
         );
 
-        return proof;
+        uint256 firstNonZero = proof.length - 1;
+        while (proof[firstNonZero] == bytes32(0)) {
+            firstNonZero--;
+        }
+
+        return reverse(subArrayBytes32(proof, 0, firstNonZero+1));
     }
 
     // Returns the root hash of the merkle tree as constructed from proof from a
