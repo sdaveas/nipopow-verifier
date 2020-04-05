@@ -24,8 +24,8 @@ def init_environment():
     """
     global data
     global step
-    size = 256
-    step = 20
+    size = 33
+    step = 1
     data = []
     for i in range(size):
         data.append(int(i).to_bytes(32, "big"))
