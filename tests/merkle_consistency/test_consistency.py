@@ -63,8 +63,8 @@ def test_merkle_tree_hash(init_environment):
 
     root = merkle_tree_hash(data)["result"]
     for index in tqdm(range(1, len(data), step), desc="Testing paths"):
-        merkle_proof = path(data, index)["result"]
-        _root = root_from_path(merkle_proof, len(data), index)["result"]
+        merkle_proof, siblings = path(data, index)["result"]
+        _root = root_from_path(index, merkle_proof, siblings)["result"]
         assert root == _root
 
 
