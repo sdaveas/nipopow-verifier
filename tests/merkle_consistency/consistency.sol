@@ -85,7 +85,7 @@ contract Consistency {
     // Returns the merkle proof of node indicated by _index in data
     function path(bytes32[] memory data, uint256 _index)
         public
-        returns (bytes32[] memory)
+        returns (bytes32[] memory, bool[] memory)
     {
         uint256 index = _index;
         for (uint256 i = 0; i < data.length; i++) {
@@ -95,15 +95,20 @@ contract Consistency {
         uint256 proofIndex;
         uint256 proofLength = log2Ceiling(data.length);
         bytes32[] memory proof = new bytes32[](proofLength);
+        bool[] memory siblings = new bool[](proofLength);
 
         uint256 step = 2;
         while (step / 2 < data.length) {
             for (uint256 i = 0; i < data.length - step / 2; i += step) {
                 if (i == index) {
-                    proof[proofIndex++] = data[i + step / 2];
+                    proof[proofIndex] = data[i + step / 2];
+                    siblings[proofIndex] = true;
+                    proofIndex++;
                     index = i;
                 } else if (i + step / 2 == index) {
-                    proof[proofIndex++] = data[i];
+                    proof[proofIndex] = data[i];
+                    siblings[proofIndex] = false;
+                    proofIndex++;
                     index = i;
                 }
                 data[i] = sha256(
