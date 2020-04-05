@@ -55,7 +55,16 @@ contract Consistency {
     }
 
     // Returns the root of merkle tree as computed from data
+    //
+    //  |    A|   B|   C|   D|   E| <- round 1
+    //  |   AB|    |  CD|    |   E| <- round 2
+    //  | ABCD|    |    |    |   E| <- round 3
+    //  |ABDCE|    |    |    |    | <- round 4
+
+    //  where A is hash(0|A) and AB is hash(1| hash( 0|A)| hash( 0|B))
+    // At the end of all rounds hash is contained in position 0 of data
     function merkleTreeHash(bytes32[] memory data) public returns (bytes32) {
+        // Hash all leafs
         for (uint256 i = 0; i < data.length; i++) {
             data[i] = sha256(abi.encodePacked(uint256(0), data[i]));
         }
