@@ -189,3 +189,13 @@ def root_1_from_const_proof(proof, n0, n1):
         interface, "root1FromConsProof", function_args=[proof, n0, n1]
     )
     return result
+
+
+def reverse(array):
+    """
+    Reverses an array
+    """
+
+    interface = deploy()
+    result = call(interface, "reverse", function_args=[array])
+    return result
