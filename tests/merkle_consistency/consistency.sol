@@ -2,6 +2,17 @@ pragma solidity ^0.6.0;
 
 
 contract Consistency {
+    // Returns the ceiling of log2(number) ie the number number's digits
+    function log2Ceiling(uint256 _number) public returns (uint256) {
+        uint256 _log2;
+        uint256 number = _number;
+        while (number > 0) {
+            number >>= 1;
+            _log2++;
+        }
+        return _log2;
+    }
+
     // Returns 2^i so that number/2 < 2^i < number
     function closestPow2(uint256 number) public pure returns (uint256) {
         if (number == 0 || number == 1) return 0;
@@ -13,15 +24,7 @@ contract Consistency {
         return pow;
     }
 
-    // Returns the ceiling of log2(number) ie the number number's digits
-    function log2Ceiling(uint256 _number) public returns (uint256) {
-        uint256 log2;
-        uint256 number = _number;
-        while (number > 0) {
-            number >>= 1;
-            log2++;
         }
-        return log2;
     }
 
     // Returns the root of merkle tree as computed from data (recursive)
