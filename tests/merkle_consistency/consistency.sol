@@ -54,13 +54,10 @@ contract Consistency {
         return subArray;
     }
 
-
     // Substitute for array[::-1]
-    function reverse(bytes32[] memory array)
-    public
-    returns(bytes32[] memory){
+    function reverse(bytes32[] memory array) public returns (bytes32[] memory) {
         bytes32 tmp;
-        for(uint256 i = 0; i < array.length/2; i++) {
+        for (uint256 i = 0; i < array.length / 2; i++) {
             tmp = array[i];
             array[i] = array[array.length - 1 - i];
             array[array.length - 1 - i] = tmp;
@@ -132,8 +129,7 @@ contract Consistency {
             step *= 2;
         }
 
-        // If the proof was smaller than log2(data.length), keep only cells
-        // with value
+        // If the proof was smaller than log2(data.length), remove zero cells
         // proofIndex points the first zero record, or the end of the proof
         if (proofIndex != proof.length) {
             proof = subArrayBytes32(proof, 0, proofIndex);
@@ -166,7 +162,9 @@ contract Consistency {
         return h;
     }
 
-    // Creates a consistancy proof for prefix _m of data
+    // Creates a consistancy proof for prefix _m of data.
+    // The proof contains all intermediate nodes in order to reconstruct root
+    // of data and root of data[:_m]
     function consProofSub(bytes32[] memory data, uint256 _m)
         public
         returns (bytes32[] memory)
@@ -212,8 +210,7 @@ contract Consistency {
         return reverse(proof);
     }
 
-    // Returns the root hash of the merkle tree as constructed from proof from a
-    // prefix of n0 out of n1 nodes
+    // Returns the merkle root hash of the firsts n0 items of n1 data
     function root0FromConsProof(bytes32[] memory proof, uint256 n0, uint256 n1)
         public
         returns (bytes32)
@@ -240,7 +237,8 @@ contract Consistency {
         return sha256(abi.encodePacked(uint256(1), left, right));
     }
 
-    // Returns the root hash of the merkle tree as constructed from proof from n1 nodes
+    // Returns the merkle root hash of n1 items. The proof was created with
+    // prefix of size n0
     function root1FromConsProof(bytes32[] memory proof, uint256 n0, uint256 n1)
         public
         returns (bytes32)
