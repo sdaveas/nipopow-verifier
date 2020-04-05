@@ -149,7 +149,9 @@ def subArray(data, start, end):
     """
 
     interface = deploy()
-    result = call(interface, "subArray", function_args=[data, start, end])
+    result = call(
+        interface, "subArrayBytes32", function_args=[data, start, end]
+    )
     return result
 
 
