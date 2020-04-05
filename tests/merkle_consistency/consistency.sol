@@ -118,26 +118,30 @@ contract Consistency {
             step *= 2;
         }
 
-        return proof;
-    }
-
+        uint256 firstNonZero = proof.length - 1;
+        while (proof[firstNonZero] == bytes32(0)) {
+            firstNonZero--;
+        }
+        if (firstNonZero != proof.length - 1) {
+            proof = subArrayBytes32(proof, 0, firstNonZero + 1);
+            siblings = subArrayBool(siblings, 0, firstNonZero + 1);
         }
 
+        return (proof, siblings);
     }
 
-    // Returns the root as calculated from a path
+    // Returns the merkle tree root as calculated from a proof
     function rootFromPath(
         bytes32 nodeData,
-        uint256 _n,
         bytes32[] memory proof,
-        uint256 _m
+        bool[] memory siblings
     ) public returns (bytes32) {
         bytes32 h = sha256(abi.encodePacked(uint256(0), nodeData));
-        bool[] memory siblingsPos = createSiblings(_n, _m);
         bytes32 left;
         bytes32 right;
-        for (uint256 i = 0; i < siblingsPos.length; i++) {
-            if (siblingsPos[i] == true) {
+
+        for (uint256 i = 0; i < siblings.length; i++) {
+            if (siblings[i] == true) {
                 left = h;
                 right = proof[i];
             } else {
