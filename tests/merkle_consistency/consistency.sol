@@ -132,6 +132,8 @@ contract Consistency {
             step *= 2;
         }
 
+        // If the proof was smaller than log2(data.length), keep only cells
+        // with value
         uint256 firstNonZero = proof.length - 1;
         while (proof[firstNonZero] == bytes32(0)) {
             firstNonZero--;
