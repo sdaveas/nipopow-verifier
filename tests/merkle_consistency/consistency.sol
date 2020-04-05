@@ -121,36 +121,8 @@ contract Consistency {
         return proof;
     }
 
-    // Creates an array that indicate whether the sibling is left (false) of right (true)
-    function createSiblings(uint256 _n, uint256 _m)
-        public
-        returns (bool[] memory)
-    {
-        uint256 n = _n;
-        uint256 m = _m;
-        bool[] memory siblings = new bool[](log2Ceiling(_n));
-        uint256 siblingsIndex;
-        uint256 k;
-
-        do {
-            k = closestPow2(n);
-            if (m < k) {
-                siblings[siblingsIndex] = true;
-                n = k;
-            } else {
-                siblings[siblingsIndex] = false;
-                n = n - k;
-                m = m - k;
-            }
-            siblingsIndex++;
-        } while (n != 1);
-
-        bool[] memory rev_siblings = new bool[](siblingsIndex);
-        for (uint256 i = 0; i < siblingsIndex; i++) {
-            rev_siblings[i] = siblings[siblingsIndex - 1 - i];
         }
 
-        return rev_siblings;
     }
 
     // Returns the root as calculated from a path
