@@ -95,17 +95,6 @@ def closest_pow_of_2(number):
     return result
 
 
-def merkle_tree_hash_rec(data):
-    """
-    Returns the merkle roof of data using recursion
-    """
-
-    interface = deploy()
-    result = call(interface, "merkleTreeHashRec", function_args=[data])
-    finalize(interface)
-    return result
-
-
 def merkle_tree_hash(data):
     """
     Returns the merkle roof of data
