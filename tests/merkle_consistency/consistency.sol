@@ -134,13 +134,10 @@ contract Consistency {
 
         // If the proof was smaller than log2(data.length), keep only cells
         // with value
-        uint256 firstNonZero = proof.length - 1;
-        while (proof[firstNonZero] == bytes32(0)) {
-            firstNonZero--;
-        }
-        if (firstNonZero != proof.length - 1) {
-            proof = subArrayBytes32(proof, 0, firstNonZero + 1);
-            siblings = subArrayBool(siblings, 0, firstNonZero + 1);
+        // proofIndex points the first zero record, or the end of the proof
+        if (proofIndex != proof.length) {
+            proof = subArrayBytes32(proof, 0, proofIndex);
+            siblings = subArrayBool(siblings, 0, proofIndex);
         }
 
         return (proof, siblings);
@@ -179,8 +176,9 @@ contract Consistency {
         uint256 m = _m;
         uint256 k;
 
-        uint256 proofIndex;
+        // Max size of the proof is the height of the merkle tree
         bytes32[] memory proof = new bytes32[](log2Ceiling(data.length) + 1);
+        uint256 proofIndex;
 
         while (m != end - start) {
             k = closestPow2(end - start);
@@ -201,16 +199,17 @@ contract Consistency {
             require(proofIndex < proof.length, "Proof too small");
         }
 
-        proof[proofIndex] = merkleTreeHash(
+        proof[proofIndex++] = merkleTreeHash(
             subArrayBytes32(data, start, start + m)
         );
 
-        uint256 firstNonZero = proof.length - 1;
-        while (proof[firstNonZero] == bytes32(0)) {
-            firstNonZero--;
+        // If the proof was smaller than its max size, strip zero elements
+        // proofIndex points the first zero record, or the end of the proof
+        if (proofIndex != proof.length) {
+            proof = subArrayBytes32(proof, 0, proofIndex);
         }
-
-        return reverse(subArrayBytes32(proof, 0, firstNonZero+1));
+        // Finally reverse the proof
+        return reverse(proof);
     }
 
     // Returns the root hash of the merkle tree as constructed from proof from a
