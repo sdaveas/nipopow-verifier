@@ -23,8 +23,10 @@ def init_environment():
     This runs before every test
     """
     global data
+    global start
     global step
     size = 33
+    start = 1
     step = 1
     data = []
     for i in range(size):
@@ -62,7 +64,7 @@ def test_closest_pow_of_2(init_environment):
 def test_merkle_tree_hash(init_environment):
 
     root = merkle_tree_hash(data)["result"]
-    for index in tqdm(range(1, len(data), step), desc="Testing paths"):
+    for index in tqdm(range(start, len(data), step), desc="Testing paths"):
         merkle_proof, siblings = path(data, index)["result"]
         _root = root_from_path(index, merkle_proof, siblings)["result"]
         assert root == _root
@@ -70,7 +72,9 @@ def test_merkle_tree_hash(init_environment):
 
 def test_consistency_proof(init_environment):
 
-    for m in tqdm(range(1, len(data), step), desc="Testing consistency for 0"):
+    for m in tqdm(
+        range(start, len(data), step), desc="Testing consistency for 0"
+    ):
         root = merkle_tree_hash(data[:m])["result"]
         consistency_proof = cons_proof_sub(data, m)["result"]
         _root = root_0_from_const_proof(consistency_proof, m, len(data))[
@@ -79,7 +83,9 @@ def test_consistency_proof(init_environment):
         assert root == _root
 
     root = merkle_tree_hash(data)["result"]
-    for m in tqdm(range(1, len(data), step), desc="Testing consistency for 1"):
+    for m in tqdm(
+        range(start, len(data), step), desc="Testing consistency for 1"
+    ):
         consistency_proof = cons_proof_sub(data, m)["result"]
         _root = root_1_from_const_proof(consistency_proof, m, len(data))[
             "result"
