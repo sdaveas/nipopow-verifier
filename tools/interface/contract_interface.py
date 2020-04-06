@@ -42,11 +42,19 @@ class ContractInterface:
 
         libraries = {}
         compiled_libraries=self.compile(libraries_path_list)
-        self.contract_instances = self.deploy(compiled_libraries, names_to_addresses=libraries)
+        self.deploy(compiled_libraries, names_to_addresses=libraries)
 
         compiled_contracts = self.compile(contract_path_list, precompiled_contract)
+        compiled_contracts = self.remove_librearies(compiled_contracts, libraries)
+
         self.link(compiled_contracts, libraries)
         self.contract_instances = self.deploy(compiled_contracts, constructor_arguments)
+
+    def remove_librearies(self, contracts, libraries):
+        for l in libraries.keys():
+            if l in contracts.keys():
+                del contracts[l]
+        return contracts
 
     def link(self, contracts, libraries):
         for contract_name in contracts.keys():
@@ -204,5 +212,5 @@ class ContractInterface:
     def get_contracts(self):
         return self.contract_instances
 
-    def get_contract(self, index=-1):
+    def get_contract(self, index=0):
         return self.contract_instances[index]
