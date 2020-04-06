@@ -44,6 +44,7 @@ def print_debug_events(contract, receipt):
         debug_events = contract.events.debug().processReceipt(receipt)
     except Exception:
         debug_events = {}
+
     if len(debug_events) > 0:
         for e in debug_events:
             log = dict(e)["args"]
