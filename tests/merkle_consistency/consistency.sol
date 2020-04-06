@@ -3,29 +3,18 @@
 pragma solidity ^0.6.0;
 
 import "./arrays.sol";
+import "./math.sol";
 
 
 contract Consistency {
     // Returns the ceiling of log2(number) ie the number number's digits
     function log2Ceiling(uint256 _number) public returns (uint256) {
-        uint256 _log2;
-        uint256 number = _number;
-        while (number > 0) {
-            number >>= 1;
-            _log2++;
-        }
-        return _log2;
+        return math.log2Ceiling(_number);
     }
 
     // Returns 2^i so that number/2 < 2^i < number
     function closestPow2(uint256 number) public pure returns (uint256) {
-        if (number == 0 || number == 1) return 0;
-        uint256 pow = 1;
-        while (pow << 1 < number) {
-            pow <<= 1;
-        }
-        require(pow & (pow - 1) == 0, "Not a power of 2");
-        return pow;
+        return math.closestPow2(number);
     }
 
     //  where A is hash(0|A) and AB is hash(1| hash( 0|A)| hash( 0|B))
