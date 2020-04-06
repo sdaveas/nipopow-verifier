@@ -15,7 +15,7 @@ from config import profiler
 def deploy(
     contracts=[{"path": "./consistencyWrapper.sol", "ctor": [1]}],
     libraries=["./math.sol", "./arrays.sol", "./consistency.sol"],
-    backend="geth",
+    backend="ganache",
 ):
     """
     Deploys a contract with a name and returns the interface
