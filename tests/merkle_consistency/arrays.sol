@@ -25,8 +25,6 @@ library arrays {
         pure
         returns (bytes32[] memory)
     {
-        emit debug("start", start);
-        emit debug("end", end);
         require(end > start, "b32 Invalid limits");
         require(start < array.length, "b32 Invalid limits");
         require(end <= array.length, "b32 Invalid limits");
