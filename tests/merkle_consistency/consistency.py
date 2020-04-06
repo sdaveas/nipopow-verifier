@@ -13,20 +13,16 @@ from config import profiler
 
 
 def deploy(
-    contract_path="./consistency.sol",
-    libraries_path_list=["./arrays.sol", "./math.sol"],
-    backend="ganache",
-    constructor_arguments=[],
+    contracts=[{"path": "./consistencyWrapper.sol", "ctor": [1]}],
+    libraries=["./math.sol", "./arrays.sol", "./consistency.sol"],
+    backend="geth",
 ):
     """
     Deploys a contract with a name and returns the interface
     """
 
     interface = contract_interface.ContractInterface(
-        contract_path,
-        libraries_path_list=libraries_path_list,
-        backend=backend,
-        constructor_arguments=constructor_arguments,
+        contracts, libraries=libraries, backend=backend
     )
     return interface
 
