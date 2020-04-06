@@ -2,6 +2,8 @@
 
 pragma solidity ^0.6.0;
 
+import "./arrays.sol";
+
 
 contract Consistency {
     // Returns the ceiling of log2(number) ie the number number's digits
@@ -25,54 +27,6 @@ contract Consistency {
         require(pow & (pow - 1) == 0, "Not a power of 2");
         return pow;
     }
-
-    // Substitute for array[start:end] for bool[]
-    function subArrayBool(bool[] memory array, uint256 start, uint256 end)
-        public
-        returns (bool[] memory)
-    {
-        require(end > start, "Invalid limits");
-        require(start < array.length, "Invalid limits");
-        require(end <= array.length, "Invalid limits");
-        bool[] memory subArray = new bool[](end - start);
-        for (uint256 i = start; i < end; i++) {
-            subArray[i - start] = array[i];
-        }
-        return subArray;
-    }
-
-    // Substitute for array[start:end] for bytes32[]
-    function subArrayBytes32(bytes32[] memory array, uint256 start, uint256 end)
-        public
-        returns (bytes32[] memory)
-    {
-        require(end > start, "Invalid limits");
-        require(start < array.length, "Invalid limits");
-        require(end <= array.length, "Invalid limits");
-        bytes32[] memory subArray = new bytes32[](end - start);
-        for (uint256 i = start; i < end; i++) {
-            subArray[i - start] = array[i];
-        }
-        return subArray;
-    }
-
-    // Substitute for array[::-1]
-    function reverse(bytes32[] memory array) public returns (bytes32[] memory) {
-        bytes32 tmp;
-        for (uint256 i = 0; i < array.length / 2; i++) {
-            tmp = array[i];
-            array[i] = array[array.length - 1 - i];
-            array[array.length - 1 - i] = tmp;
-        }
-        return array;
-    }
-
-    // Returns the root of merkle tree as computed from data
-    //
-    //  |    A|   B|   C|   D|   E| <- round 1
-    //  |   AB|    |  CD|    |   E| <- round 2
-    //  | ABCD|    |    |    |   E| <- round 3
-    //  |ABDCE|    |    |    |    | <- round 4
 
     //  where A is hash(0|A) and AB is hash(1| hash( 0|A)| hash( 0|B))
     // At the end of all rounds hash is contained in position 0 of data
@@ -134,8 +88,8 @@ contract Consistency {
         // If the proof was smaller than log2(data.length), remove zero cells
         // proofIndex points the first zero record, or the end of the proof
         if (proofIndex != proof.length) {
-            proof = subArrayBytes32(proof, 0, proofIndex);
-            siblings = subArrayBool(siblings, 0, proofIndex);
+            proof = arrays.subArrayBytes32(proof, 0, proofIndex);
+            siblings = arrays.subArrayBool(siblings, 0, proofIndex);
         }
 
         return (proof, siblings);
@@ -185,12 +139,12 @@ contract Consistency {
 
             if (m <= k) {
                 proof[proofIndex] = merkleTreeHash(
-                    subArrayBytes32(data, start + k, end)
+                    arrays.subArrayBytes32(data, start + k, end)
                 );
                 end = start + k;
             } else {
                 proof[proofIndex] = merkleTreeHash(
-                    subArrayBytes32(data, start, start + k)
+                    arrays.subArrayBytes32(data, start, start + k)
                 );
                 start += k;
                 m -= k;
@@ -200,16 +154,16 @@ contract Consistency {
         }
 
         proof[proofIndex++] = merkleTreeHash(
-            subArrayBytes32(data, start, start + m)
+            arrays.subArrayBytes32(data, start, start + m)
         );
 
         // If the proof was smaller than its max size, strip zero elements
         // proofIndex points the first zero record, or the end of the proof
         if (proofIndex != proof.length) {
-            proof = subArrayBytes32(proof, 0, proofIndex);
+            proof = arrays.subArrayBytes32(proof, 0, proofIndex);
         }
         // Finally reverse the proof
-        return reverse(proof);
+        return arrays.reverse(proof);
     }
 
     // Returns the merkle root hash of the firsts n0 items of n1 data
@@ -222,7 +176,7 @@ contract Consistency {
         if (n0 < k) {
             return
                 root0FromConsProof(
-                    subArrayBytes32(proof, 0, proof.length - 1),
+                    arrays.subArrayBytes32(proof, 0, proof.length - 1),
                     n0,
                     k
                 );
@@ -232,7 +186,7 @@ contract Consistency {
         }
         bytes32 left = proof[proof.length - 1];
         bytes32 right = root0FromConsProof(
-            subArrayBytes32(proof, 0, proof.length - 1),
+            arrays.subArrayBytes32(proof, 0, proof.length - 1),
             n0 - k,
             n1 - k
         );
@@ -254,7 +208,7 @@ contract Consistency {
 
         if (n0 < k) {
             left = root1FromConsProof(
-                subArrayBytes32(proof, 0, proof.length - 1),
+                arrays.subArrayBytes32(proof, 0, proof.length - 1),
                 n0,
                 k
             );
@@ -262,7 +216,7 @@ contract Consistency {
         } else {
             left = proof[proof.length - 1];
             right = root1FromConsProof(
-                subArrayBytes32(proof, 0, proof.length - 1),
+                arrays.subArrayBytes32(proof, 0, proof.length - 1),
                 n0 - k,
                 n1 - k
             );
