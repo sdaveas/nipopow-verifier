@@ -1,11 +1,12 @@
 pragma solidity ^0.6.0;
 
+
 // A tiny library for array manipulations
 library arrays {
-
     // Substitute for array[start:end] for bool[]
     function subArrayBool(bool[] memory array, uint256 start, uint256 end)
         public
+        pure
         returns (bool[] memory)
     {
         require(end > start, "Invalid limits");
@@ -18,11 +19,10 @@ library arrays {
         return subArray;
     }
 
-    event debug(string tag, uint256 value);
-
     // Substitute for array[start:end] for bytes32[]
     function subArrayBytes32(bytes32[] memory array, uint256 start, uint256 end)
         public
+        pure
         returns (bytes32[] memory)
     {
         emit debug("start", start);
@@ -38,7 +38,11 @@ library arrays {
     }
 
     // Substitute for array[::-1]
-    function reverse(bytes32[] memory array) public returns (bytes32[] memory) {
+    function reverse(bytes32[] memory array)
+        public
+        pure
+        returns (bytes32[] memory)
+    {
         bytes32 tmp;
         for (uint256 i = 0; i < array.length / 2; i++) {
             tmp = array[i];

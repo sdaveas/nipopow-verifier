@@ -8,7 +8,7 @@ import "./math.sol";
 
 contract Consistency {
     // Returns the ceiling of log2(number) ie the number number's digits
-    function log2Ceiling(uint256 _number) public returns (uint256) {
+    function log2Ceiling(uint256 _number) public pure returns (uint256) {
         return math.log2Ceiling(_number);
     }
 
@@ -19,7 +19,11 @@ contract Consistency {
 
     //  where A is hash(0|A) and AB is hash(1| hash( 0|A)| hash( 0|B))
     // At the end of all rounds hash is contained in position 0 of data
-    function merkleTreeHash(bytes32[] memory data) public returns (bytes32) {
+    function merkleTreeHash(bytes32[] memory data)
+        public
+        pure
+        returns (bytes32)
+    {
         // Hash all leafs
         for (uint256 i = 0; i < data.length; i++) {
             data[i] = sha256(abi.encodePacked(uint256(0), data[i]));
@@ -41,6 +45,7 @@ contract Consistency {
     // Returns the merkle proof of node indicated by _index in data
     function path(bytes32[] memory data, uint256 _index)
         public
+        pure
         returns (bytes32[] memory, bool[] memory)
     {
         uint256 index = _index;
@@ -89,7 +94,7 @@ contract Consistency {
         bytes32 nodeData,
         bytes32[] memory proof,
         bool[] memory siblings
-    ) public returns (bytes32) {
+    ) public pure returns (bytes32) {
         bytes32 h = sha256(abi.encodePacked(uint256(0), nodeData));
         bytes32 left;
         bytes32 right;
@@ -112,6 +117,7 @@ contract Consistency {
     // of data and root of data[:_m]
     function consProofSub(bytes32[] memory data, uint256 _m)
         public
+        pure
         returns (bytes32[] memory)
     {
         uint256 start = 0;
@@ -158,6 +164,7 @@ contract Consistency {
     // Returns the merkle root hash of the firsts n0 items of n1 data
     function root0FromConsProof(bytes32[] memory proof, uint256 n0, uint256 n1)
         public
+        pure
         returns (bytes32)
     {
         require(n0 < n1, "n0 >= n1");
@@ -186,6 +193,7 @@ contract Consistency {
     // prefix of size n0
     function root1FromConsProof(bytes32[] memory proof, uint256 n0, uint256 n1)
         public
+        pure
         returns (bytes32)
     {
         if (proof.length == 2)

@@ -5,7 +5,7 @@ pragma solidity ^0.6.0;
 
 library math {
     // Returns the ceiling of log2(number) ie the number number's digits
-    function log2Ceiling(uint256 _number) public returns (uint256) {
+    function log2Ceiling(uint256 _number) public pure returns (uint256) {
         uint256 _log2;
         uint256 number = _number;
         while (number > 0) {
