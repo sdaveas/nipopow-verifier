@@ -1,6 +1,6 @@
 # Inspired by https://github.com/pryce-turner/web3_python_tutorials
 import solcx
-from solcx import set_solc_version, get_solc_version, compile_source, compile_files
+from solcx import set_solc_version, get_solc_version, compile_source, compile_files, link_code
 
 import web3
 from web3 import Web3, EthereumTesterProvider, contract
@@ -16,21 +16,19 @@ class ContractInterface:
     def __init__(
             self,
             contract_path_list=[],
+            libraries_path_list=[],
             solc_version='v0.6.2',
             contract_instances=[],
             backend='ganache',
             genesis_overrides={'gas_limit':3141592000},
             precompiled_contract={},
-            constructor_arguments=[]
+            constructor_arguments=[],
             ):
 
         self.solc_version=solc_version
-        self.precompiled_contract=precompiled_contract
         self.contract_path_list=contract_path_list
         self.backend=backend
-        self.compiled_contracts = {}
         self.contract_instances = []
-        self.constructor_arguments = constructor_arguments
 
         self.genesis_overrides=genesis_overrides
 
@@ -42,8 +40,20 @@ class ContractInterface:
 
         self.init_backend()
 
-        self.compile_contracts()
-        self.deploy_contracts()
+        libraries = {}
+        compiled_libraries=self.compile(libraries_path_list)
+        self.contract_instances = self.deploy(compiled_libraries, names_to_addresses=libraries)
+
+        compiled_contracts = self.compile(contract_path_list, precompiled_contract)
+        self.link(compiled_contracts, libraries)
+        self.contract_instances = self.deploy(compiled_contracts, constructor_arguments)
+
+    def link(self, contracts, libraries):
+        for contract_name in contracts.keys():
+            for library_name in libraries.keys():
+                library_address = libraries[library_name]
+                contract_bin = contracts[contract_name]["bin"]
+                contracts[contract_name]["bin"] = link_code(contract_bin, {library_name: library_address})
 
     def end(self):
         # Stop mining geth
@@ -88,7 +98,7 @@ class ContractInterface:
             raise RuntimeError('Cannot connect to '+url+':'+port+'. Is '+self.backend+' up?')
         self.w3.geth.miner.start(4)
 
-    def compile_contracts(self):
+    def compile(self, contract_path_list, precompiled_contract={}):
         try:
             solcx.set_solc_version(self.solc_version)
         except Exception as e:
@@ -99,20 +109,20 @@ class ContractInterface:
             print("... OK")
         set_solc_version(self.solc_version)
 
-        if not isinstance(self.contract_path_list, list):
-            self.contract_path_list = [self.contract_path_list]
+        if not isinstance(contract_path_list, list):
+            contract_path_list = [contract_path_list]
 
-        if len(self.precompiled_contract) == 0:
-            self.compiled_contracts = compile_files(self.contract_path_list, optimize=True)
+        if len(precompiled_contract) == 0:
+            compiled_contracts = compile_files(contract_path_list, optimize=True)
         else:
-            self.compiled_contracts = {
-                    self.contract_path_list[0] :
+            compiled_contracts = {
+                    contract_path_list[0] :
                     {
-                      'abi' : open(self.precompiled_contract['abi']).read(),
-                      'bin' : open(self.precompiled_contract['bin']).read()
+                      'abi' : open(precompiled_contract['abi']).read(),
+                      'bin' : open(precompiled_contract['bin']).read()
                     }}
 
-        # print("Compiled contract(s): ", len(self.compiled_contracts))
+        return compiled_contracts
 
 
     @staticmethod
@@ -162,40 +172,37 @@ class ContractInterface:
         except Exception as e:
             print('Unable to run profiles', e)
 
-    def deploy_contracts(self):
+    def deploy(self, compiled_contracts, constructor_arguments=[], names_to_addresses={}):
         deployed_contracts = []
-
-        for compiled_contract in self.compiled_contracts.items():
-            self.deployed_contract = self.w3.eth.contract(
+        contract_instances = []
+        for compiled_contract in compiled_contracts.items():
+            deployed_contract = self.w3.eth.contract(
                                     abi=compiled_contract[1]['abi'],
                                     bytecode=compiled_contract[1]['bin'],
                                     # Provide compiled contract abi and bytecode
                                     # abi=open('./Crosschain.abi').read(),
                                     # bytecode=open('./Crosschain.bin').read()
                                 )
-            my_contract = self.deployed_contract.constructor(*self.constructor_arguments)
+            my_contract = deployed_contract.constructor(*constructor_arguments)
 
             gas_estimate = my_contract.estimateGas()
             tx_hash = my_contract.transact({'from': self.w3.eth.accounts[0]})
 
             tx_receipt = self.w3.eth.waitForTransactionReceipt(tx_hash)
             contract_address = tx_receipt['contractAddress']
-            # print("Deployed {0} at: {1} using {2} gas.".format(
-            #     compiled_contract[0],
-            #     contract_address,
-            #     tx_receipt['cumulativeGasUsed']
-            #     ))
 
-            deployed_contracts.append(self.deployed_contract)
+            names_to_addresses[compiled_contract[0]] = contract_address
 
+            deployed_contracts.append(deployed_contract)
             contract_instance = self.w3.eth.contract(
                                     abi = compiled_contract[1]['abi'],
                                     address = contract_address
                                 )
-            self.contract_instances.append(contract_instance)
+            contract_instances.append(contract_instance)
+        return contract_instances
 
     def get_contracts(self):
         return self.contract_instances
 
-    def get_contract(self, index=0):
+    def get_contract(self, index=-1):
         return self.contract_instances[index]
