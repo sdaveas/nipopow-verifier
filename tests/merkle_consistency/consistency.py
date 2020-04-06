@@ -14,6 +14,7 @@ from config import profiler
 
 def deploy(
     contract_path="./consistency.sol",
+    libraries_path_list="./arrays.sol",
     backend="ganache",
     constructor_arguments=[],
 ):
@@ -23,6 +24,7 @@ def deploy(
 
     interface = contract_interface.ContractInterface(
         contract_path,
+        libraries_path_list=libraries_path_list,
         backend=backend,
         constructor_arguments=constructor_arguments,
     )
