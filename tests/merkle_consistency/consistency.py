@@ -13,7 +13,7 @@ from config import profiler
 
 
 def deploy(
-    contracts=[{"path": "./consistencyWrapper.sol", "ctor": [1]}],
+    contract={"path": "./consistencyWrapper.sol", "ctor": [1]},
     libraries=["./math.sol", "./arrays.sol", "./consistency.sol"],
     backend="ganache",
 ):
@@ -22,7 +22,7 @@ def deploy(
     """
 
     interface = contract_interface.ContractInterface(
-        contracts, libraries=libraries, backend=backend
+        contract, libraries=libraries, backend=backend,
     )
     return interface
 

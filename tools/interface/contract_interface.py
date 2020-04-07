@@ -15,16 +15,16 @@ class ContractInterface:
 
     def __init__(
             self,
-            contracts=[],
+            contract={},
             libraries=[],
             solc_version='v0.6.4',
             backend='ganache',
             genesis_overrides={'gas_limit':3141592000},
-            precompiled_contract={}
+            precompiled_contract=None
             ):
 
         self.solc_version=solc_version
-        self.contracts=contracts
+        self.contract=contract
         self.backend=backend
         self.contract_instances = []
 
@@ -43,9 +43,20 @@ class ContractInterface:
         compiled_libraries = self.compile(libraries)
         self.deploy(compiled_libraries)
 
-        paths = contracts[0]["path"]
-        compiled_contracts = self.compile([paths])
-        self.contract_instances = self.deploy(compiled_contracts, contracts[0]["ctor"])
+        path = contract["path"]
+        if precompiled_contract is not None:
+            compiled_contract = self.create_from_compiled(path, precompiled_contract)
+        else:
+            compiled_contract = self.compile(path)
+        self.contract_instances = self.deploy(compiled_contract, contract["ctor"])
+
+    def create_from_compiled(self, contract_path, precompiled_contract):
+        return [[ contract_path,
+                {
+                  'abi' : open(precompiled_contract['abi']).read(),
+                  'bin' : open(precompiled_contract['bin']).read()
+                }]]
+
 
     def setup_compiler(self):
         try:
@@ -118,24 +129,17 @@ class ContractInterface:
             if target in c:
                 return i
 
-    def compile(self, contracts, precompiled_contract={}):
+    def compile(self, contracts):
+
+        compiled_contracts = []
         if not isinstance(contracts, list):
-            contracts = [contract]
-        if len(precompiled_contract) == 0:
-            compiled_contracts = []
-            for c in contracts:
-                compiled = compile_files([c], optimize=True)
-                index = self.find_in_compiled(c, compiled)
-                key = list(compiled.keys())[index]
-                value = compiled[key]
-                compiled_contracts.append([key, value])
-        else:
-            compiled_contracts = [{
-                    contract_path_list[0] :
-                    {
-                      'abi' : open(precompiled_contract['abi']).read(),
-                      'bin' : open(precompiled_contract['bin']).read()
-                    }}]
+            contracts = [contracts]
+        for c in contracts:
+            compiled = compile_files([c], optimize=True)
+            index = self.find_in_compiled(c, compiled)
+            key = list(compiled.keys())[index]
+            value = compiled[key]
+            compiled_contracts.append([key, value])
         return compiled_contracts
 
 
