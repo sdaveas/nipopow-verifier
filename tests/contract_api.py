@@ -68,7 +68,11 @@ def submit_event_proof(
 
     print(receipt["gasUsed"])
 
-    return {"result": res, "gas_used": receipt["gasUsed"], "debug": debug_events}
+    return {
+        "result": res,
+        "gas_used": receipt["gasUsed"],
+        "debug": debug_events,
+    }
 
 
 def dispute_existing_proof(
@@ -81,7 +85,10 @@ def dispute_existing_proof(
     my_contract = interface.get_contract()
     from_address = interface.w3.eth.accounts[0]
     my_function = my_contract.functions.disputeExistingProof(
-        existing.headers, existing.siblings, block_of_interest_index, invalid_index,
+        existing.headers,
+        existing.siblings,
+        block_of_interest_index,
+        invalid_index,
     )
 
     res = my_function.call({"from": from_address})
@@ -104,7 +111,11 @@ def dispute_existing_proof(
 
     print(receipt["gasUsed"])
 
-    return {"result": res, "gas_used": receipt["gasUsed"], "debug": debug_events}
+    return {
+        "result": res,
+        "gas_used": receipt["gasUsed"],
+        "debug": debug_events,
+    }
 
 
 # bytes32[4][] memory existingHeaders,
@@ -161,7 +172,11 @@ def submit_contesting_proof_new(
 
     print(receipt["gasUsed"])
 
-    return {"result": res, "gas_used": receipt["gasUsed"], "debug": debug_events}
+    return {
+        "result": res,
+        "gas_used": receipt["gasUsed"],
+        "debug": debug_events,
+    }
 
 
 # TODO: This is code duplidation with the above function
@@ -201,7 +216,11 @@ def submit_contesting_proof(
 
     print(receipt["gasUsed"])
 
-    return {"result": res, "gas_used": receipt["gasUsed"], "debug": debug_events}
+    return {
+        "result": res,
+        "gas_used": receipt["gasUsed"],
+        "debug": debug_events,
+    }
 
 
 def finalize_event(interface, block_of_interest, from_address=None):
@@ -273,4 +292,8 @@ def validate_interlink(interface, proof, profile=True):
 
     print(receipt["gasUsed"])
 
-    return {"result": res, "gas_used": receipt["gasUsed"], "debug": debug_events}
+    return {
+        "result": res,
+        "gas_used": receipt["gasUsed"],
+        "debug": debug_events,
+    }
