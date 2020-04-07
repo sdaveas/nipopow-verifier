@@ -16,10 +16,9 @@ def make_interface(backend):
     Creates a contract interface
     """
     return contract_interface.ContractInterface(
-        "../contractNipopow.sol",
+        {"path": "../contractNipopow.sol", "ctor": [genesis, m, k]},
         backend=backend,
         genesis_overrides={"gas_limit": 67219750},
-        constructor_arguments=[genesis, m, k],
     )
 
 
