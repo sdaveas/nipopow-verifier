@@ -49,7 +49,7 @@ library Merkle {
         }
 
         uint256 proofIndex;
-        uint256 proofLength = log2Ceiling(data.length);
+        uint256 proofLength = data.length.log2Ceiling();
         bytes32[] memory proof = new bytes32[](proofLength);
         bool[] memory siblings = new bool[](proofLength);
 
@@ -121,11 +121,11 @@ library Merkle {
         uint256 k;
 
         // Max size of the proof is the height of the merkle tree
-        bytes32[] memory proof = new bytes32[](log2Ceiling(data.length) + 1);
+        bytes32[] memory proof = new bytes32[](data.length.log2Ceiling() + 1);
         uint256 proofIndex;
 
         while (m != end - start) {
-            k = closestPow2(end - start);
+            k = (end - start).closestPow2();
 
             if (m <= k) {
                 proof[proofIndex] = merkleTreeHash(
@@ -163,7 +163,7 @@ library Merkle {
         returns (bytes32)
     {
         require(n0 < n1, "n0 >= n1");
-        uint256 k = closestPow2(n1);
+        uint256 k = n1.closestPow2();
         if (n0 < k) {
             return
                 root0FromConsProof(
@@ -194,7 +194,7 @@ library Merkle {
         if (proof.length == 2)
             return sha256(abi.encodePacked(uint256(1), proof[0], proof[1]));
 
-        uint256 k = closestPow2(n1);
+        uint256 k = n1.closestPow2();
         bytes32 left;
         bytes32 right;
 

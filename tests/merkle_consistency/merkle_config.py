@@ -16,11 +16,10 @@ LIB_DIR = CONTR_DIR + "lib/"
 
 
 def deploy(
-    contract={"path": CONTR_DIR + "MerkleWrapper.sol", "ctor": [1]},
+    contract={"path": LIB_DIR + "Merkle.sol", "ctor": [1]},
     libraries=[
         LIB_DIR + "Math.sol",
         LIB_DIR + "Arrays.sol",
-        LIB_DIR + "Merkle.sol",
     ],
     backend="ganache",
 ):
