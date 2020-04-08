@@ -107,6 +107,15 @@ library Merkle {
         return h;
     }
 
+    // Inclusion verification for nodeData
+    function verifyMerkleRoot(bytes32 root, bytes32 nodeData, bytes32[] memory proof, bool[] memory siblings)
+        public
+        pure
+        returns(bool)
+    {
+        return root == rootFromPath(nodeData, proof, siblings);
+    }
+
     // Creates a consistancy proof for prefix _m of data.
     // The proof contains all intermediate nodes in order to reconstruct root
     // of data and root of data[:_m]
