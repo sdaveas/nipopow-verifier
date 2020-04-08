@@ -61,7 +61,6 @@ def test_merkle_proof(init_environment):
 
     _root = call(interface, "merkleTreeHash", [data])["result"]
     for index in tqdm(range(start, len(data), step), desc="Testing paths"):
-
         merkle_proof, siblings = call(interface, "path", [data, index])[
             "result"
         ]
@@ -75,23 +74,17 @@ def test_merkle_proof(init_environment):
 
 def test_consistency_proof(init_environment):
 
-    # This will change to iterative
+    root1 = call(interface, "merkleTreeHash", [data])["result"]
     for m in tqdm(
-        range(start, len(data), step), desc="Testing consistency for 0"
+        range(start, len(data), step), desc="Testing consistency proof"
     ):
-        root = merkle_tree_hash(data[:m])["result"]
-        consistency_proof = cons_proof_sub(data, m)["result"]
-        _root = root_0_from_const_proof(consistency_proof, m, len(data))[
+        root0 = call(interface, "merkleTreeHash", [data[:m]])["result"]
+        consistency_proof = call(interface, "consProofSub", [data, m])[
             "result"
         ]
-        assert root == _root
-
-    root = merkle_tree_hash(data)["result"]
-    for m in tqdm(
-        range(start, len(data), step), desc="Testing consistency for 1"
-    ):
-        consistency_proof = cons_proof_sub(data, m)["result"]
-        _root = root_1_from_const_proof(consistency_proof, m, len(data))[
-            "result"
-        ]
-        assert root == _root
+        res = call(
+            interface,
+            "verifyConsistencyProof",
+            [consistency_proof, root0, m, root1, len(data)],
+        )["result"]
+        assert res == True
