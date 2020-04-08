@@ -57,7 +57,7 @@ def test_closest_pow_of_2(init_environment):
         assert closest_pow_of_2(c)["result"] == closest[c]
 
 
-def test_merkle_tree_hash(init_environment):
+def test_merkle_proof(init_environment):
 
     _root = call(interface, "merkleTreeHash", [data])["result"]
     for index in tqdm(range(start, len(data), step), desc="Testing paths"):
