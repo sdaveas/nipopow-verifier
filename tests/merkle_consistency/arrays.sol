@@ -9,7 +9,7 @@ library arrays {
         pure
         returns (bool[] memory)
     {
-        require(end > start, "Invalid limits");
+        require(end >= start, "Invalid limits");
         require(start < array.length, "Invalid limits");
         require(end <= array.length, "Invalid limits");
         bool[] memory subArray = new bool[](end - start);
@@ -25,7 +25,7 @@ library arrays {
         pure
         returns (bytes32[] memory)
     {
-        require(end > start, "b32 Invalid limits");
+        require(end >= start, "b32 Invalid limits");
         require(start < array.length, "b32 Invalid limits");
         require(end <= array.length, "b32 Invalid limits");
         bytes32[] memory subArray = new bytes32[](end - start);
