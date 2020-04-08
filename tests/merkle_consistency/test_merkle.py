@@ -70,7 +70,7 @@ def test_closest_pow_of_2(init_environment):
 
 def test_merkle_tree_hash(init_environment):
 
-    _root = merkle_tree_hash(data)["result"]
+    _root = call(interface, "merkleTreeHash", [data])["result"]
     for index in tqdm(range(start, len(data), step), desc="Testing paths"):
 
         merkle_proof, siblings = call(interface, "path", [data, index])[
