@@ -206,6 +206,19 @@ library Merkle {
         return (firstRoot, secondRoot);
     }
 
+    // Consistecy proof verification
+    function verifyConsistencyProof(
+        bytes32[] memory proof,
+        bytes32 firstRoot,
+        uint256 firstSize,
+        bytes32 secondRoot,
+        uint256 secondSize
+    ) public pure returns (bool)
     {
+        bytes32 firstFromProof;
+        bytes32 secondFromProof;
+        (firstFromProof, secondFromProof) = rootsFromConsistencyProof(proof, firstSize, secondSize);
+        return firstRoot == firstFromProof && secondRoot == secondFromProof;
     }
+
 }
