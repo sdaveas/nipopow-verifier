@@ -17,7 +17,7 @@ library math {
 
     // Returns 2^i so that number/2 < 2^i < number
     function closestPow2(uint256 number) public pure returns (uint256) {
-        if (number == 0 || number == 1) return 0;
+        if (number <= 1) return 0;
         uint256 pow = 1;
         while (pow << 1 < number) {
             pow <<= 1;
