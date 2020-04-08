@@ -12,16 +12,6 @@ library Merkle {
     using Arrays for bool[];
     using Math for uint256;
 
-    // Returns the ceiling of log2(number) ie the number number's digits
-    function log2Ceiling(uint256 number) public pure returns (uint256) {
-        return number.log2Ceiling();
-    }
-
-    // Returns 2^i so that number/2 < 2^i < number
-    function closestPow2(uint256 number) public pure returns (uint256) {
-        return number.closestPow2();
-    }
-
     //  where A is hash(0|A) and AB is hash(1| hash( 0|A)| hash( 0|B))
     // At the end of all rounds hash is contained in position 0 of data
     function merkleTreeHash(bytes32[] memory data)
