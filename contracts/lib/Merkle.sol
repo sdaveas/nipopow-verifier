@@ -165,63 +165,47 @@ library Merkle {
         return proof.reverse();
     }
 
-    // Returns the merkle root hash of the firsts n0 items of n1 data
-    function root0FromConsProof(bytes32[] memory proof, uint256 n0, uint256 n1)
+    // Returns the merkle root hashes of overall and prefix data as
+    // reconstructed from consistency proof
+    function rootsFromConsistencyProof(bytes32[] memory proof, uint256 _first, uint256 _second)
         public
         pure
-        returns (bytes32)
+        returns (bytes32, bytes32)
     {
-        require(n0 < n1, "n0 >= n1");
-        uint256 k = n1.closestPow2();
-        if (n0 < k) {
-            return
-                root0FromConsProof(
-                    proof.subArrayBytes32(0, proof.length - 1),
-                    n0,
-                    k
-                );
+        require(_first > 0, "First <= 0");
+        require(_second > _first, "Second <= First");
+
+        bytes32 firstRoot= proof[0];
+        bytes32 secondRoot = proof[0];
+        uint256 first = _first - 1;
+        uint256 second = _second - 1;
+
+        while (first&1 == 1) {
+            first >>=1;
+            second >>=1;
         }
-        if (n0 == k) {
-            return proof[proof.length - 2];
+
+        for(uint256 i = 1; i < proof.length; i++) {
+            if (second == 0) {
+                return (bytes32(0), bytes32(0));
+            }
+            if (first&1 == 1 || first == second) {
+                firstRoot = sha256(abi.encodePacked(uint256(1), proof[i], firstRoot));
+                secondRoot = sha256(abi.encodePacked(uint256(1), proof[i], secondRoot));
+                while (first&1 != 1 && first > 0) {
+                    first >>= 1;
+                    second >>= 1;
+                }
+            }
+            else {
+                secondRoot = sha256(abi.encodePacked(uint256(1), secondRoot, proof[i]));
+            }
+            first >>= 1;
+            second >>= 1;
         }
-        bytes32 left = proof[proof.length - 1];
-        bytes32 right = root0FromConsProof(
-            proof.subArrayBytes32(0, proof.length - 1),
-            n0 - k,
-            n1 - k
-        );
-        return sha256(abi.encodePacked(uint256(1), left, right));
+        return (firstRoot, secondRoot);
     }
 
-    // Returns the merkle root hash of n1 items. The proof was created with
-    // prefix of size n0
-    function root1FromConsProof(bytes32[] memory proof, uint256 n0, uint256 n1)
-        public
-        pure
-        returns (bytes32)
     {
-        if (proof.length == 2)
-            return sha256(abi.encodePacked(uint256(1), proof[0], proof[1]));
-
-        uint256 k = n1.closestPow2();
-        bytes32 left;
-        bytes32 right;
-
-        if (n0 < k) {
-            left = root1FromConsProof(
-                proof.subArrayBytes32(0, proof.length - 1),
-                n0,
-                k
-            );
-            right = proof[proof.length - 1];
-        } else {
-            left = proof[proof.length - 1];
-            right = root1FromConsProof(
-                proof.subArrayBytes32(0, proof.length - 1),
-                n0 - k,
-                n1 - k
-            );
-        }
-        return sha256(abi.encodePacked(uint256(1), left, right));
     }
 }
