@@ -2,7 +2,7 @@ pragma solidity ^0.6.0;
 
 
 // A tiny library for array manipulations
-library arrays {
+library Arrays {
     // Substitute for array[start:end] for bool[]
     function subArrayBool(bool[] memory array, uint256 start, uint256 end)
         public

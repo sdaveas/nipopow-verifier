@@ -11,10 +11,17 @@ import contract_interface
 sys.path.append("..")
 from config import profiler
 
+CONTR_DIR = "../../contracts/"
+LIB_DIR = CONTR_DIR + "lib/"
+
 
 def deploy(
-    contract={"path": "./consistencyWrapper.sol", "ctor": [1]},
-    libraries=["./math.sol", "./arrays.sol", "./consistency.sol"],
+    contract={"path": CONTR_DIR + "MerkleWrapper.sol", "ctor": [1]},
+    libraries=[
+        LIB_DIR + "Math.sol",
+        LIB_DIR + "Arrays.sol",
+        LIB_DIR + "Merkle.sol",
+    ],
     backend="ganache",
 ):
     """

@@ -2,11 +2,11 @@
 
 pragma solidity ^0.6.0;
 
-import "./arrays.sol";
-import "./math.sol";
+import "./Arrays.sol";
+import "./Math.sol";
 
 
-library consistency {
+library Merkle {
     // Returns the ceiling of log2(number) ie the number number's digits
     function log2Ceiling(uint256 _number) public pure returns (uint256) {
         return math.log2Ceiling(_number);

@@ -2,14 +2,14 @@
 
 pragma solidity ^0.6.0;
 
-import "./consistency.sol";
+import "./lib/Merkle.sol";
 
 
-contract consistencyWrapper {
     // Returns the ceiling of log2(number) ie the number number's digits
     function log2Ceiling(uint256 _number) public pure returns (uint256) {
         return consistency.log2Ceiling(_number);
     }
+contract MerkleWrapper {
 
     // Returns 2^i so that number/2 < 2^i < number
     function closestPow2(uint256 number) public pure returns (uint256) {
