@@ -5,16 +5,8 @@ pragma solidity ^0.6.0;
 import "./lib/Merkle.sol";
 
 
-    // Returns the ceiling of log2(number) ie the number number's digits
-    function log2Ceiling(uint256 _number) public pure returns (uint256) {
-        return consistency.log2Ceiling(_number);
-    }
 contract MerkleWrapper {
 
-    // Returns 2^i so that number/2 < 2^i < number
-    function closestPow2(uint256 number) public pure returns (uint256) {
-        return consistency.closestPow2(number);
-    }
     using Merkle for *;
 
     //  where A is hash(0|A) and AB is hash(1| hash( 0|A)| hash( 0|B))
