@@ -64,12 +64,12 @@ def test_merkle_proof(init_environment):
         merkle_proof, siblings = call(interface, "path", [data, index])[
             "result"
         ]
-        root = call(
+        res = call(
             interface,
-            "rootFromPath",
-            [index.to_bytes(32, "big"), merkle_proof, siblings],
+            "verifyMerkleRoot",
+            [_root, index.to_bytes(32, "big"), merkle_proof, siblings],
         )["result"]
-        assert root == _root
+        assert res == True
 
 
 def test_consistency_proof(init_environment):
