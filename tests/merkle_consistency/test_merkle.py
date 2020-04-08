@@ -5,7 +5,9 @@ $ pytest -v -s test_consistency
 
 from tqdm import tqdm
 import pytest
-from consistency import (
+from merkle import (
+    deploy,
+    call,
     log2_ceiling,
     closest_pow_of_2,
     merkle_tree_hash,
@@ -26,6 +28,8 @@ def init_environment():
     """
     This runs before every test
     """
+    global interface
+    global backend
     global data
     global start
     global step
@@ -35,6 +39,21 @@ def init_environment():
     data = []
     for i in range(size):
         data.append(int(i).to_bytes(32, "big"))
+
+    backend = "ganache"
+    interface = deploy()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def finish_session(request):
+    """
+    This runs after every test is finished
+    """
+
+    yield
+    session = request.session
+    interface = deploy(backend=backend)
+    interface.end()
 
 
 def test_log2_ceiling(init_environment):
@@ -51,15 +70,23 @@ def test_closest_pow_of_2(init_environment):
 
 def test_merkle_tree_hash(init_environment):
 
-    root = merkle_tree_hash(data)["result"]
+    _root = merkle_tree_hash(data)["result"]
     for index in tqdm(range(start, len(data), step), desc="Testing paths"):
-        merkle_proof, siblings = path(data, index)["result"]
-        _root = root_from_path(index, merkle_proof, siblings)["result"]
+
+        merkle_proof, siblings = call(interface, "path", [data, index])[
+            "result"
+        ]
+        root = call(
+            interface,
+            "rootFromPath",
+            [index.to_bytes(32, "big"), merkle_proof, siblings],
+        )["result"]
         assert root == _root
 
 
 def test_consistency_proof(init_environment):
 
+    # This will change to iterative
     for m in tqdm(
         range(start, len(data), step), desc="Testing consistency for 0"
     ):
