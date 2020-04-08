@@ -5,18 +5,7 @@ $ pytest -v -s test_consistency
 
 from tqdm import tqdm
 import pytest
-from merkle import (
-    deploy,
-    call,
-    log2_ceiling,
-    closest_pow_of_2,
-    merkle_tree_hash,
-    path,
-    root_from_path,
-    cons_proof_sub,
-    root_0_from_const_proof,
-    root_1_from_const_proof,
-)
+from merkle_config import deploy, call
 
 
 log2 = {0: 0, 1: 1, 2: 2, 3: 2, 4: 3, 5: 3, 6: 3, 7: 3, 8: 4}
