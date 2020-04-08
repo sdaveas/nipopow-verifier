@@ -7,14 +7,19 @@ import "./Math.sol";
 
 
 library Merkle {
+
+    using Arrays for bytes32[];
+    using Arrays for bool[];
+    using Math for uint256;
+
     // Returns the ceiling of log2(number) ie the number number's digits
-    function log2Ceiling(uint256 _number) public pure returns (uint256) {
-        return math.log2Ceiling(_number);
+    function log2Ceiling(uint256 number) public pure returns (uint256) {
+        return number.log2Ceiling();
     }
 
     // Returns 2^i so that number/2 < 2^i < number
     function closestPow2(uint256 number) public pure returns (uint256) {
-        return math.closestPow2(number);
+        return number.closestPow2();
     }
 
     //  where A is hash(0|A) and AB is hash(1| hash( 0|A)| hash( 0|B))
@@ -82,8 +87,8 @@ library Merkle {
         // If the proof was smaller than log2(data.length), remove zero cells
         // proofIndex points the first zero record, or the end of the proof
         if (proofIndex != proof.length) {
-            proof = arrays.subArrayBytes32(proof, 0, proofIndex);
-            siblings = arrays.subArrayBool(siblings, 0, proofIndex);
+            proof = proof.subArrayBytes32(0, proofIndex);
+            siblings = siblings.subArrayBool(0, proofIndex);
         }
 
         return (proof, siblings);
@@ -134,12 +139,12 @@ library Merkle {
 
             if (m <= k) {
                 proof[proofIndex] = merkleTreeHash(
-                    arrays.subArrayBytes32(data, start + k, end)
+                    data.subArrayBytes32(start + k, end)
                 );
                 end = start + k;
             } else {
                 proof[proofIndex] = merkleTreeHash(
-                    arrays.subArrayBytes32(data, start, start + k)
+                    data.subArrayBytes32(start, start + k)
                 );
                 start += k;
                 m -= k;
@@ -149,16 +154,16 @@ library Merkle {
         }
 
         proof[proofIndex++] = merkleTreeHash(
-            arrays.subArrayBytes32(data, start, start + m)
+            data.subArrayBytes32(start, start + m)
         );
 
         // If the proof was smaller than its max size, strip zero elements
         // proofIndex points the first zero record, or the end of the proof
         if (proofIndex != proof.length) {
-            proof = arrays.subArrayBytes32(proof, 0, proofIndex);
+            proof = proof.subArrayBytes32(0, proofIndex);
         }
         // Finally reverse the proof
-        return arrays.reverse(proof);
+        return proof.reverse();
     }
 
     // Returns the merkle root hash of the firsts n0 items of n1 data
@@ -172,7 +177,7 @@ library Merkle {
         if (n0 < k) {
             return
                 root0FromConsProof(
-                    arrays.subArrayBytes32(proof, 0, proof.length - 1),
+                    proof.subArrayBytes32(0, proof.length - 1),
                     n0,
                     k
                 );
@@ -182,7 +187,7 @@ library Merkle {
         }
         bytes32 left = proof[proof.length - 1];
         bytes32 right = root0FromConsProof(
-            arrays.subArrayBytes32(proof, 0, proof.length - 1),
+            proof.subArrayBytes32(0, proof.length - 1),
             n0 - k,
             n1 - k
         );
@@ -205,7 +210,7 @@ library Merkle {
 
         if (n0 < k) {
             left = root1FromConsProof(
-                arrays.subArrayBytes32(proof, 0, proof.length - 1),
+                proof.subArrayBytes32(0, proof.length - 1),
                 n0,
                 k
             );
@@ -213,7 +218,7 @@ library Merkle {
         } else {
             left = proof[proof.length - 1];
             right = root1FromConsProof(
-                arrays.subArrayBytes32(proof, 0, proof.length - 1),
+                proof.subArrayBytes32(0, proof.length - 1),
                 n0 - k,
                 n1 - k
             );

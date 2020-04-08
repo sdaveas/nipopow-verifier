@@ -15,6 +15,7 @@ contract MerkleWrapper {
     function closestPow2(uint256 number) public pure returns (uint256) {
         return consistency.closestPow2(number);
     }
+    using Merkle for *;
 
     //  where A is hash(0|A) and AB is hash(1| hash( 0|A)| hash( 0|B))
     // At the end of all rounds hash is contained in position 0 of data
@@ -23,7 +24,7 @@ contract MerkleWrapper {
         pure
         returns (bytes32)
     {
-        return consistency.merkleTreeHash(data);
+        return data.merkleTreeHash();
     }
 
     // Returns the merkle proof of node indicated by _index in data
@@ -32,7 +33,7 @@ contract MerkleWrapper {
         pure
         returns (bytes32[] memory, bool[] memory)
     {
-        return consistency.path(data, _index);
+        return data.path(_index);
     }
 
     // Returns the merkle tree root as calculated from a proof
@@ -41,7 +42,7 @@ contract MerkleWrapper {
         bytes32[] memory proof,
         bool[] memory siblings
     ) public pure returns (bytes32) {
-        return consistency.rootFromPath(nodeData, proof, siblings);
+        return nodeData.rootFromPath(proof, siblings);
     }
 
     // Creates a consistency proof for prefix _m of data.
@@ -52,7 +53,7 @@ contract MerkleWrapper {
         pure
         returns (bytes32[] memory)
     {
-        return consistency.consProofSub(data, _m);
+        return data.consProofSub(_m);
     }
 
     // Returns the merkle root hash of the firsts n0 items of n1 data
@@ -61,7 +62,7 @@ contract MerkleWrapper {
         pure
         returns (bytes32)
     {
-        return consistency.root0FromConsProof(proof, n0, n1);
+        return proof.root0FromConsProof(n0, n1);
     }
 
     // Returns the merkle root hash of n1 items. The proof was created with
@@ -71,6 +72,6 @@ contract MerkleWrapper {
         pure
         returns (bytes32)
     {
-        return consistency.root1FromConsProof(proof, n0, n1);
+        return proof.root1FromConsProof(n0, n1);
     }
 }
