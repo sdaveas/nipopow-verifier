@@ -108,7 +108,9 @@ def test_consistent_contest(init_environment):
         backend=backend,
     )
     consistency_proof = call(
-        interface, "consProofSub", [submit_proof.hashed_headers, small_lca+1],
+        interface,
+        "consProofSub",
+        [submit_proof.hashed_headers, small_lca + 1],
     )["result"]
 
     interface = deploy(backend=backend)
@@ -123,14 +125,14 @@ def test_consistent_contest(init_environment):
         interface,
         "submitContestingProof",
         [
-            submit_proof.hashed_headers[:small_lca+1],
+            submit_proof.hashed_headers[: small_lca + 1],
             consistency_proof,
             small_contest_proof.best_level_subproof_headers,
             small_contest_proof.best_level_subproof_siblings,
             small_contest_proof.best_level,
             submit_proof.hashed_headers[-1],
         ],
-        0
+        0,
     )
 
     print(res["gas"])
