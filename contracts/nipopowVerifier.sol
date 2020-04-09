@@ -1,9 +1,11 @@
 pragma solidity ^0.6.2;
 
 
-//import "strings.sol";
+import "./lib/Merkle.sol";
 
 contract Crosschain {
+    using Merkle for bytes32[];
+
     constructor(bytes32 genesis, uint _m, uint _k) public {
         genesisBlockHash = genesis;
         m = _m;
