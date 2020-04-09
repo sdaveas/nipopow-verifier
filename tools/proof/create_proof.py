@@ -183,7 +183,14 @@ class ProofTool:
 
         return proof
 
-    def create_fixed_fork_proof(self, proof, fork_proof):
+    @staticmethod
+    def header_in_proof(header, proof):
+        for i, (h, s) in enumerate(proof):
+            if h == header:
+                return i
+        return -1
+
+    def truncate_fork_proof(self, proof, fork_proof):
         """
         Creates the subset of the fork_proof which different than the original
         """
@@ -191,15 +198,14 @@ class ProofTool:
         lca = 0
         fixed_fork_proof = []
 
-        for fp in fork_proof:
-            try:
-                lca = proof.index(fp)
+        for h, s in fork_proof:
+            fixed_fork_proof.append((h, s))
+            index = self.header_in_proof(h, proof)
+            if index >= 0:
+                lca = index
                 break
-            except ValueError as e:
-                fixed_fork_proof.append(fp)
-                continue
 
-        return fixed_fork_proof, lca - 1
+        return fixed_fork_proof, lca
 
     def create_proof_and_forkproof(self, mainblocks, fork_index, forkblocks):
         """
@@ -212,16 +218,22 @@ class ProofTool:
         header = None
         header_map = None
         interlink_map = None
-        blockchain_name = self.proof_dir() + "blockchain_" + str(mainblocks) + ".pkl"
+        blockchain_name = (
+            self.proof_dir() + "blockchain_" + str(mainblocks) + ".pkl"
+        )
         try:
             open(blockchain_name)
-            header, header_map, interlink_map = blockchain_utils.load_blockchain(
-                blockchain_name
-            )
+            (
+                header,
+                header_map,
+                interlink_map,
+            ) = blockchain_utils.load_blockchain(blockchain_name)
         except Exception:
-            (header, header_map, interlink_map) = blockchain_utils.create_blockchain(
-                blocks=mainblocks
-            )
+            (
+                header,
+                header_map,
+                interlink_map,
+            ) = blockchain_utils.create_blockchain(blocks=mainblocks)
             blockchain_utils.save_blockchain(
                 blockchain_name, header, header_map, interlink_map
             )
@@ -259,7 +271,10 @@ class ProofTool:
             blocks=forkblocks,
         )
         blockchain_utils.save_blockchain(
-            fork_blockchain_name, fork_header, fork_header_map, fork_interlink_map
+            fork_blockchain_name,
+            fork_header,
+            fork_header_map,
+            fork_interlink_map,
         )
         # Fork proof
         fork_proof = []
@@ -270,7 +285,7 @@ class ProofTool:
             fork_header, fork_header_map, fork_interlink_map
         )
 
-        fixed_fork_proof, lca = self.create_fixed_fork_proof(proof, fork_proof)
+        fixed_fork_proof, lca = self.truncate_fork_proof(proof, fork_proof)
         self.export_proof(fixed_fork_proof, fork_proof_name)
 
         return (

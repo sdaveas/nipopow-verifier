@@ -331,14 +331,16 @@ contract Crosschain {
     }
 
     // If this will be expensive, check memory mapping
-    // Check if all blocks of existing[lca+1:] are different from contesting[1:]
+    // Check if all blocks of existing[0:lca] are different from contesting[:-1]
+    // existing[0] is the tip of existing, existing[-1] is the genesis
+    // contesting[0] is the tip of contesting, contestin[-1] is the lca
     function disjointProofs(
         bytes32[] memory existing,
         bytes32[] memory contesting,
         uint256 lca
     ) internal pure returns (bool) {
-        for (uint256 i = lca + 1; i < existing.length; i++) {
-            for (uint256 j = 1; j < contesting.length; j++) {
+        for (uint256 i = 0; i < lca; i++) {
+            for (uint256 j = 0; j < contesting.length - 1; j++) {
                 if (existing[i] == contesting[j]) {
                     return false;
                 }
