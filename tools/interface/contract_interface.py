@@ -165,7 +165,7 @@ class ContractInterface:
         try:
             executable = 'node'
             rpc = 'http://127.0.0.1:8545'
-            contract_path = self.contracts[0]["path"]
+            contract_path = self.contract["path"]
             sourcemap_path = 'combined.json'
             self.create_sourcemap(contract_path, sourcemap_path)
             output_file = filename
