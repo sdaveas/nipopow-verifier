@@ -408,10 +408,6 @@ contract Crosschain {
         bytes32 merkleHash = existingHeadersHashedPrefix.merkleTreeHash();
 
         require(
-            lca > blockOfInterestIndex,
-            "Block of interest exists in sub-chain"
-        );
-
             consistencyProof.verifyConsistencyProof(
                 merkleHash,
                 existingHeadersHashedPrefix.length,
