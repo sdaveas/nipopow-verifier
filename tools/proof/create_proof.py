@@ -201,7 +201,7 @@ class ProofTool:
         for h, s in fork_proof:
             fixed_fork_proof.append((h, s))
             index = self.header_in_proof(h, proof)
-            if (index >= 0):
+            if index >= 0:
                 lca = index
                 break
 
@@ -218,16 +218,22 @@ class ProofTool:
         header = None
         header_map = None
         interlink_map = None
-        blockchain_name = self.proof_dir() + "blockchain_" + str(mainblocks) + ".pkl"
+        blockchain_name = (
+            self.proof_dir() + "blockchain_" + str(mainblocks) + ".pkl"
+        )
         try:
             open(blockchain_name)
-            header, header_map, interlink_map = blockchain_utils.load_blockchain(
-                blockchain_name
-            )
+            (
+                header,
+                header_map,
+                interlink_map,
+            ) = blockchain_utils.load_blockchain(blockchain_name)
         except Exception:
-            (header, header_map, interlink_map) = blockchain_utils.create_blockchain(
-                blocks=mainblocks
-            )
+            (
+                header,
+                header_map,
+                interlink_map,
+            ) = blockchain_utils.create_blockchain(blocks=mainblocks)
             blockchain_utils.save_blockchain(
                 blockchain_name, header, header_map, interlink_map
             )
@@ -265,7 +271,10 @@ class ProofTool:
             blocks=forkblocks,
         )
         blockchain_utils.save_blockchain(
-            fork_blockchain_name, fork_header, fork_header_map, fork_interlink_map
+            fork_blockchain_name,
+            fork_header,
+            fork_header_map,
+            fork_interlink_map,
         )
         # Fork proof
         fork_proof = []
