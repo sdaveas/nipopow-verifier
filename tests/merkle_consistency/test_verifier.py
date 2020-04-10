@@ -22,6 +22,18 @@ def init_environment():
     global backend
     backend = "geth"
 
+    global merkle_iface
+    merkle_iface = deploy(
+        {"path": "../../contracts/lib/Merkle.sol", "ctor": [1]},
+        libraries=[
+            "../../contracts/lib/Math.sol",
+            "../../contracts/lib/Arrays.sol",
+        ],
+        backend=backend,
+    )
+    global nipopow_iface
+    nipopow_iface = deploy()
+
     global submit_proof
     global small_contest_proof
     global small_lca
@@ -54,36 +66,34 @@ def finish_session(request):
 
     yield
     session = request.session
-    interface = deploy(backend=backend)
-    interface.end()
+    merkle_iface.end()
+    nipopow_iface.end()
 
 
 def test_consistent_proof(init_environment):
-
-    interface = deploy(
-        {"path": "../../contracts/lib/Merkle.sol", "ctor": [1]},
-        libraries=[
-            "../../contracts/lib/Math.sol",
-            "../../contracts/lib/Arrays.sol",
-            "../../contracts/lib/Merkle.sol",
-        ],
-        backend=backend,
-    )
+    """
+    Test is the nipopow is generating and verifing proper consistency proofs
+    TODO: If consistency proofs are efficient afterall, replace the following
+    with a python-generated consistency proof. Also do proper property based
+    testing
+    """
 
     merkle_root_0 = call(
-        interface, "merkleTreeHash", [submit_proof.hashed_headers[:small_lca]]
+        merkle_iface,
+        "merkleTreeHash",
+        [submit_proof.hashed_headers[:small_lca]],
     )["result"]
 
     merkle_root_1 = call(
-        interface, "merkleTreeHash", [submit_proof.hashed_headers]
+        merkle_iface, "merkleTreeHash", [submit_proof.hashed_headers]
     )["result"]
 
     consistency_proof = call(
-        interface, "consProofSub", [submit_proof.hashed_headers, small_lca],
+        merkle_iface, "consProofSub", [submit_proof.hashed_headers, small_lca],
     )["result"]
 
     res = call(
-        interface,
+        merkle_iface,
         "verifyConsistencyProof",
         [
             consistency_proof,
@@ -97,32 +107,30 @@ def test_consistent_proof(init_environment):
 
 
 def test_consistent_contest(init_environment):
+    """
+    Test contesting with consistency proof
+    TODO: If consistency proofs are efficient afterall, replace the following
+    with a python-generated consistency proof. Also do proper property based
+    testing
+    """
 
-    interface = deploy(
-        {"path": "../../contracts/lib/Merkle.sol", "ctor": [1]},
-        libraries=[
-            "../../contracts/lib/Math.sol",
-            "../../contracts/lib/Arrays.sol",
-            "../../contracts/lib/Merkle.sol",
-        ],
-        backend=backend,
-    )
+    ## Replace this ->
     consistency_proof = call(
-        interface,
+        merkle_iface,
         "consProofSub",
         [submit_proof.hashed_headers, small_lca + 1],
     )["result"]
+    ## <- until here
 
-    interface = deploy(backend=backend)
     res = call(
-        interface,
+        nipopow_iface,
         "submitEventProof",
         [submit_proof.headers, submit_proof.siblings, submit_proof.size - 1,],
     )["result"]
     assert res == True
 
     res = call(
-        interface,
+        nipopow_iface,
         "submitContestingProof",
         [
             submit_proof.hashed_headers[: small_lca + 1],
@@ -134,7 +142,5 @@ def test_consistent_contest(init_environment):
         ],
         0,
     )
-
-    print(res["gas"])
 
     assert res["result"] == True
