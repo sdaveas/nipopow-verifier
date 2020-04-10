@@ -348,7 +348,7 @@ contract Crosschain {
     }
 
     // If this will be expensive, check memory mapping
-    // Check if all blocks of existing[0:lca] are different from contesting[:-1]
+    // Check if existing[0:lca] is disjoint from contesting[:-1]
     // existing[0] is the tip of existing, existing[-1] is the genesis
     // contesting[0] is the tip of contesting, contestin[-1] is the lca
     function disjointProofsFixed(
