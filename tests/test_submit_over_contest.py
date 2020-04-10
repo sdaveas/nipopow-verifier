@@ -141,6 +141,8 @@ def test_boi_in_small(init_environment):
 
     assert res["result"] == True
 
+    return
+
     res = submit_contesting_proof_new(
         interface,
         submit_proof,
