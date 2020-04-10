@@ -405,11 +405,9 @@ contract Crosschain {
             "Contesting period has expired"
         );
 
-        bytes32 merkleHash = existingHeadersHashedPrefix.merkleTreeHash();
-
         require(
             consistencyProof.verifyConsistencyProof(
-                merkleHash,
+                existingHeadersHashedPrefix.merkleTreeHash(),
                 existingHeadersHashedPrefix.length,
                 events[blockOfInterestHash].proofMerkleTreeRoot,
                 events[blockOfInterestHash].proofSize
