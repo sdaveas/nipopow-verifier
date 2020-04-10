@@ -1,12 +1,12 @@
 pragma solidity ^0.6.2;
 
-
 import "./lib/Merkle.sol";
+
 
 contract Crosschain {
     using Merkle for bytes32[];
 
-    constructor(bytes32 genesis, uint _m, uint _k) public {
+    constructor(bytes32 genesis, uint256 _m, uint256 _k) public {
         genesisBlockHash = genesis;
         m = _m;
         k = _k;
@@ -109,10 +109,7 @@ contract Crosschain {
     // TODO: lca can be very close to the tip of submited proof so that
     // score(existing[lca:]) < score(contesting[lca:]) because
     // |existing[:lca]| < m
-    function bestArg(bytes32[] memory proof)
-        internal
-        returns (uint256)
-    {
+    function bestArg(bytes32[] memory proof) internal returns (uint256) {
         uint256 maxLevel = 0;
         uint256 maxScore = 0;
         uint256 curLevel = 0;
@@ -186,10 +183,11 @@ contract Crosschain {
         return uint8(bytes1(b << 248));
     }
 
-    function findSiblingsOffset(
-        bytes32[4][] memory headers,
-        uint256 proofIndex
-    ) internal pure returns (uint256) {
+    function findSiblingsOffset(bytes32[4][] memory headers, uint256 proofIndex)
+        internal
+        pure
+        returns (uint256)
+    {
         uint256 ptr;
 
         for (uint256 i = 1; i < proofIndex; i++) {
@@ -209,10 +207,7 @@ contract Crosschain {
         bytes32[] memory siblings,
         uint256 validateIndex
     ) internal pure returns (bool) {
-        uint256 siblingsOffset = findSiblingsOffset(
-            headers,
-            validateIndex
-        );
+        uint256 siblingsOffset = findSiblingsOffset(headers, validateIndex);
 
         uint8 branchLength = b32ToUint8(
             (headers[validateIndex][3] >> 8) & bytes32(uint256(0xff))
@@ -256,7 +251,6 @@ contract Crosschain {
             for (uint8 j = 0; j < branchLength; j++)
                 reversedSiblings[j] = siblings[ptr + j];
             ptr += branchLength;
-
 
             // Verify the merkle tree proof
             if (
@@ -304,7 +298,8 @@ contract Crosschain {
         }
 
         events[hashedBlock].proofSize = hashedHeaders.length;
-        events[hashedBlock].proofMerkleTreeRoot = hashedHeaders.merkleTreeHash();
+        events[hashedBlock].proofMerkleTreeRoot = hashedHeaders
+            .merkleTreeHash();
         events[hashedBlock].proofHash = sha256(abi.encodePacked(headers));
         events[hashedBlock].siblingsHash = sha256(abi.encodePacked(siblings));
         events[hashedBlock].expire = block.number + k;
@@ -395,9 +390,9 @@ contract Crosschain {
         uint256 bestLevel,
         bytes32 blockOfInterestHash
     ) public returns (bool) {
-
         require(
-            existingHeadersHashedPrefix.length >= m, "Security parameter m violated"
+            existingHeadersHashedPrefix.length >= m,
+            "Security parameter m violated"
         );
 
         require(
@@ -432,13 +427,16 @@ contract Crosschain {
         );
 
         require(
-            existingHeadersHashedPrefix[existingHeadersHashedPrefix.length - 1] ==
-                contestingHeadersHashed[contestingHeaders.length - 1],
+            existingHeadersHashedPrefix[existingHeadersHashedPrefix.length -
+                1] == contestingHeadersHashed[contestingHeaders.length - 1],
             "Wrong lca"
         );
 
         require(
-            disjointProofs(existingHeadersHashedPrefix, contestingHeadersHashed),
+            disjointProofs(
+                existingHeadersHashedPrefix,
+                contestingHeadersHashed
+            ),
             "Contesting proof[1:] is not different from existing[1:]"
         );
 
