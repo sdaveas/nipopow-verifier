@@ -5,6 +5,10 @@ $ pytest -v -s test_submit_over_contest.py
 
 import sys
 
+sys.path.append("../tools/proof/")
+from proof import Proof
+from create_proof import ProofTool
+
 sys.path.append("../tools/interface/")
 from contract_interface import ContractInterface
 from config import errors, extract_message_from_error, genesis, m, k
@@ -40,6 +44,54 @@ def init_environment():
         backend=backend,
         constructor_arguments=[genesis, m, k],
     )
+
+    global submit_proof
+    global contest_proof
+    global contest_lca
+
+    pt = ProofTool()
+    pt.fetch_proof(20)
+    (
+        submit_proof_name,
+        contest_proof_name,
+        contest_lca,
+        contest_header,
+        contest_header_map,
+        contest_interlink_map,
+    ) = pt.create_proof_and_forkproof(100, 50, 50)
+
+    submit_proof = Proof()
+    submit_proof.set(pt.fetch_proof(submit_proof_name))
+
+    contest_proof = Proof()
+    contest_proof.set(
+        pt.fetch_proof(contest_proof_name),
+        header=contest_header,
+        header_map=contest_header_map,
+        interlink_map=contest_interlink_map,
+    )
+
+
+def test_create_disjoint_fork_proofs(init_environment):
+    """
+    Creates a chain and a fork chain
+
+                            lca
+                             v
+    submit_proof : [0] ------b------ [-1]
+                             |
+    contest_proof: [0] ------+
+
+    truncated_proof = contest_proof[:lca]
+    """
+
+    pt = ProofTool()
+    original_proof = submit_proof.proof
+    fork_proof = contest_proof.proof
+    truncated_proof, lca = pt.truncate_fork_proof(original_proof, fork_proof)
+    for o_header, _ in original_proof[:lca]:
+        for t_header, _ in truncated_proof:
+            assert o_header != t_header
 
 
 def test_submit_disjoint_proofs(init_environment):
