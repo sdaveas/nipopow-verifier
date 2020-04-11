@@ -47,7 +47,6 @@ def init_environment():
 
     global submit_proof
     global contest_proof
-    global contest_lca
 
     pt = ProofTool()
     pt.fetch_proof(20)
