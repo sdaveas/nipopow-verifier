@@ -338,7 +338,7 @@ contract Crosschain {
         bytes32[] memory existing,
         bytes32[] memory contesting,
         uint256 lca
-    ) public pure returns (bool) {
+    ) internal pure returns (bool) {
         for (uint256 i = 0; i < lca; i++) {
             for (uint256 j = 0; j < contesting.length - 1; j++) {
                 if (existing[i] == contesting[j]) {
