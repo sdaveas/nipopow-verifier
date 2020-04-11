@@ -11,7 +11,7 @@ from create_proof import ProofTool
 
 sys.path.append("../tools/interface/")
 from contract_interface import ContractInterface
-from config import errors, extract_message_from_error, genesis, m, k
+from config import genesis, m, k
 import pytest
 
 
