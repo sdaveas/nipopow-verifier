@@ -1,6 +1,6 @@
 """
 run with
-$ pytest -v -s test_submit_over_contest.py
+$ pytest -v -s test_disjoint_proofs.py
 """
 
 import sys
