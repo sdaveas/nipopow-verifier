@@ -63,8 +63,10 @@ def test_submit_disjoint_proofs(init_environment):
             pref = b"\xff"
         array_2.append(pref + i.to_bytes(31, "big"))
 
-    res = call(interface, "disjointProofs", [array_1, array_2, lca])
-    assert res["result"] == False
-
-    res = call(interface, "disjointProofsFixed", [array_1, array_2, lca])
-    assert res["result"] == True
+    if i in range(size):
+        if size >= lca:
+            res = call(interface, "disjointProofs", [array_1, array_2, i])
+            assert res["result"] == False
+        else:
+            res = call(interface, "disjointProofs", [array_1, array_2, i])
+            assert res["result"] == True
