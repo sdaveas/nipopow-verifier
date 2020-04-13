@@ -13,8 +13,6 @@ Place abstract here
 \section{Introduction}
 This is the intro
 \subsection{Motivation}
-\subsection{Our contributions}
-Added value of the project
 
 Digital coins are peer-to-peer currencies based on applied cryptography for the
 validation of transactions. Most of them are based on blockchain(ref), a form
@@ -61,6 +59,36 @@ such as multi-currency wallets. This treatment opposes the nature of
 blockchain, which is meant to be a decentralized construction. This motivated
 us to create a solution that provides cheap, strust-less crosschain operations.
 
+\subsection{Objectives}
+
+In this paper, we focus on recent research in the area of crosschains. In
+particular, we make use of a construction named Non-Interractive Proofs of
+Proof of Work (NIPoPoW), which enables the compression of a chain to
+poly-logarothmic size. NIPoPoWs is the main building block of our solution in
+order to prove to blockchain A that an event happened in blockchain B. We were
+based on the previous work done by Giorgos Christoglou(ref), which was the
+first ever implementation of crosschains, and was used as a guideline to start
+building our solution.
+A series of useful observations, the utilization of modern solidity features
+and gas-efficient practices, allowed us to repair previous security
+vulnerabilities, and deliver a secure, superlight bitcoin client in solidity,
+that can be used in a realistic blockchain.
+
+Our target is to satisfy the following criteria:
+\begin{itemize}
+\item Applicability: The protocol should be applicable to the realistic
+    blockchain.
+\item Security: The protocol should be secure against any adversarial attack.
+\item Trustless: In accordance with the principle of decentralisation which
+    requires that our system is trust-less and no central authority or third
+    party is involved.
+\item Cheap: The protocol should be cheaper than the current state of the art
+    tech-nologies. This would make trust-less crosschain transactions more
+    popular and affordable.
+\item Supports many blockchains: During the past 10 years, the blockchain
+    technology has evolved and new coins adopt different designs. Our goal is
+    to provide a protocol that overcomes these differences.
+\end{itemize}
 
 \section{Background}
 Relevant technologies
