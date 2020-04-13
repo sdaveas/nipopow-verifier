@@ -13,9 +13,54 @@ Place abstract here
 \section{Introduction}
 This is the intro
 \subsection{Motivation}
-Added value of the project
 \subsection{Our contributions}
 Added value of the project
+
+Digital coins are peer-to-peer currencies based on applied cryptography for the
+validation of transactions. Most of them are based on blockchain(ref), a form
+of decentralized database. In this database, a public ledger is deployed, which
+is stored and updated by thousands of users in absence of supervision from
+public authorities.
+
+In 2008, Bitcoin(ref), the first ever successful decentralized digital coin,
+was invented by an unknown person or group of people using the name Satoshi
+Nakamoto. A year after, the bitcoin network started, quickly followed by
+several other digital coins, which in the cryptocurrency folklore are known as
+altcoins. Usually, altcoins are based on new features missing from the
+cryptocurrency market, and they are either accepted or rejected by the
+community. Popular altcoins are Ethereum(ref), which is the first to provide
+smart contracts, Ripple(ref) which provides real-time payment settlements and
+Litecoin(ref) which enables near-zero cost payments.
+
+Over the last decade, cryptocurrencies gained attention from the public as an
+increased number of users are accepting and adapting to decentralized
+transactions. In 2017, the popularity of cryptocurrencies rapidly grew, which
+resulted in massive capitalisation and creation of tokens. During this period,
+some of the issues that blockchain technology faces were displayed. One of
+these issues is blockchain interoperability. That is, the property of
+distinct blockchains to interact efficiently with each other. Despite its great
+importance, this field has only been addressed recently. To date,
+cryptocurrencies are lacking a commonly accepted protocol that enables
+distributed interoperability. Such a protocol would be very useful to
+blockchain technology, since it would provide the freedom to the users to
+variously utilize features of different blockchains. For example, one can store
+their funds at Bitcoins, and convert them to Ether to make a payment,
+benefiting from lower transaction fees.
+
+Specifically, a crosschain protocol would allow for two main operations to emerge
+\begin{itemize}
+\item Crosschain trading: An entity that has deposits in a blockchain A, makes
+    a payment to an entity at a blockchain B.
+\item Crosschain fund transfer: Entity transfers funds from blockchain A to
+    blockchain B. After this operation, the funds do not exist at blockchain A.
+    The entity can decide to return any amount of the funds to its original blockchain.
+\end{itemize}
+
+Currently, this operation is only available to the users via third parties,
+such as multi-currency wallets. This treatment opposes the nature of
+blockchain, which is meant to be a decentralized construction. This motivated
+us to create a solution that provides cheap, strust-less crosschain operations.
+
 
 \section{Background}
 Relevant technologies
