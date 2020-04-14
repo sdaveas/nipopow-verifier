@@ -68,7 +68,7 @@
   construction. This motivated us to create a solution that provides
   cheap, trust-less crosschain operations.
 
-  \subsection{Objectives}
+  \subsection{Previous Work}
 
   In this paper, we focus on recent research in the area of crosschains.
   In particular, we make use of Non-Interactive Proofs of Proof of Work
@@ -80,12 +80,12 @@
   We are based on the work done by Giorgos Christoglou et al.(ref),
   which was the first ever implementation of crosschain events
   verification, and was used as a starting point for our solution. The
-  work of Giorgos et al. focuses on verifying Bitcoin blockchain events
-  in the Ethereum blockchain. In order to provide this functionality, a
-  NIPoPoW verifier was developed in solidity(ref), the programming
-  language of Ethereum blockchain. This solution, however, is impossible
-  to be applied in a real blockchain due to extensive gas usage and
-  severe security issues.
+  work of Giorgos et al. focuses on verifying Bitcoin events from the
+  Ethereum blockchain. In order to provide this functionality, a NIPoPoW
+  verifier was developed in Solidity(ref), one of the programming
+  languages of Ethereum blockchain. This solution, however, is
+  impossible to be applied in a real blockchain due to extensive gas
+  usage and severe security issues.
 
   A series of keen observations, the application of gas-efficient
   practices, and the utilization of modern solidity features, allowed us
