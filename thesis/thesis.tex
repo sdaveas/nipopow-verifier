@@ -1,174 +1,270 @@
 \documentclass{article}
+
 \usepackage[utf8]{inputenc}
 
 \title{A gas-efficient superlight Bitcoin client in Solidity}
 \begin{document}
 
-\maketitle
+  \maketitle
 
-\begin{abstract}
-Place abstract here
-\end{abstract}
+  \begin{abstract}
+    Place abstract here
+  \end{abstract}
 
-\section{Introduction}
-This is the intro
-\subsection{Motivation}
+  \section{Introduction}
 
-Digital coins are peer-to-peer currencies based on applied cryptography for the
-validation of transactions. Most of them are based on blockchain(ref), a form
-of decentralized database. In this database, a public ledger is deployed, which
-is stored and updated by thousands of users in absence of supervision from
-public authorities.
+  This is the intro
 
-In 2008, Bitcoin(ref), the first ever successful decentralized digital coin,
-was invented by an unknown person or group of people using the name Satoshi
-Nakamoto. A year after, the bitcoin network started, quickly followed by
-several other digital coins, which in the cryptocurrency folklore are known as
-altcoins. Usually, altcoins are based on new features missing from the
-cryptocurrency market, and they are either accepted or rejected by the
-community. Popular altcoins are Ethereum(ref), which is the first to provide
-smart contracts, Ripple(ref) which provides real-time payment settlements and
-Litecoin(ref) which enables near-zero cost payments.
+  \subsection{Motivation}
 
-Over the last decade, cryptocurrencies gained attention from the public as an
-increased number of users are accepting and adapting to decentralized
-transactions. In 2017, the popularity of cryptocurrencies rapidly grew, which
-resulted in massive capitalisation and creation of tokens. During this period,
-some of the issues that blockchain technology faces were displayed. One of
-these issues is blockchain interoperability. That is, the property of
-distinct blockchains to interact efficiently with each other. Despite its great
-importance, this field has only been addressed recently. To date,
-cryptocurrencies are lacking a commonly accepted protocol that enables
-distributed interoperability. Such a protocol would be very useful to
-blockchain technology, since it would provide the freedom to the users to
-variously utilize features of different blockchains. For example, one can store
-their funds at Bitcoins, and convert them to Ether to make a payment,
-benefiting from lower transaction fees.
+  Digital coins are peer-to-peer currencies based on applied
+  cryptography for the validation of transactions. Most of them are
+  based on blockchain(ref), a form of decentralized database. In this
+  database, a public ledger is deployed, which is stored and updated by
+  thousands of users in absence of supervision from public authorities.
 
-Specifically, a crosschain protocol would allow for two main operations to emerge
-\begin{itemize}
-\item Crosschain trading: An entity that has deposits in a blockchain A, makes
-    a payment to an entity at a blockchain B.
-\item Crosschain fund transfer: Entity transfers funds from blockchain A to
-    blockchain B. After this operation, the funds do not exist at blockchain A.
-    The entity can decide to return any amount of the funds to its original blockchain.
-\end{itemize}
+  In 2008, Bitcoin(ref), the first ever successful decentralized digital
+  coin, was invented by an unknown person or group of people using the
+  name Satoshi Nakamoto. A year after, the bitcoin network started,
+  quickly followed by several other digital coins, which in the
+  cryptocurrency folklore are known as altcoins. Usually, altcoins are
+  based on new features missing from the cryptocurrency market, and they
+  are either accepted or rejected by the community. Popular altcoins are
+  Ethereum(ref), which is the first to provide smart contracts,
+  Ripple(ref) which provides real-time payment settlements and
+  Litecoin(ref) which enables near-zero cost payments.
 
-Currently, this operation is only available to the users via third parties,
-such as multi-currency wallets. This treatment opposes the nature of
-blockchain, which is meant to be a decentralized construction. This motivated
-us to create a solution that provides cheap, strust-less crosschain operations.
+  Over the last decade, cryptocurrencies gained attention from the
+  public as an increased number of users are accepting and adapting to
+  decentralized transactions. In 2017, the popularity of
+  cryptocurrencies rapidly grew, which resulted in massive
+  capitalisation and creation of tokens. During this period, some of the
+  issues that blockchain technology faces were displayed. One of these
+  issues is blockchain interoperability. That is, the property of
+  distinct blockchains to interact efficiently with each other. Despite
+  its great importance, this field has only been addressed recently. To
+  date, cryptocurrencies are lacking a commonly accepted protocol that
+  enables distributed interoperability. Such a protocol would be very
+  useful to blockchain technology, since it would provide the freedom to
+  the users to variously utilize features of different blockchains. For
+  example, one can store their funds at Bitcoins, and convert them to
+  Ether to make a payment, benefiting from lower transaction fees.
 
-\subsection{Objectives}
+  Specifically, a crosschain protocol would allow for two main
+  operations to emerge
+  \begin{itemize}
+  \item
+    Crosschain trading: An entity that has deposits in a blockchain A,
+    makes a payment to an entity at a blockchain B.
+  \item
+    Crosschain fund transfer: Entity transfers funds from blockchain A
+    to blockchain B. After this operation, the funds do not exist at
+    blockchain A. The entity can decide to return any amount of the
+    funds to its original blockchain.
+  \end{itemize}
 
-In this paper, we focus on recent research in the area of crosschains. In
-particular, we make use of a construction named Non-Interractive Proofs of
-Proof of Work (NIPoPoW), which enables the compression of a chain to
-poly-logarothmic size. NIPoPoWs is the main building block of our solution in
-order to prove to blockchain A that an event happened in blockchain B. We were
-based on the previous work done by Giorgos Christoglou(ref), which was the
-first ever implementation of crosschains, and was used as a guideline to start
-building our solution.
-A series of useful observations, the utilization of modern solidity features
-and gas-efficient practices, allowed us to repair previous security
-vulnerabilities, and deliver a secure, superlight bitcoin client in solidity,
-that can be used in a realistic blockchain.
+  Currently, this operation is only available to the users via third
+  parties, such as multi-currency wallets. This treatment opposes the
+  nature of blockchain, which is meant to be a decentralized
+  construction. This motivated us to create a solution that provides
+  cheap, strust-less crosschain operations.
 
-Our target is to satisfy the following criteria:
-\begin{itemize}
-\item Applicability: The protocol should be applicable to the realistic
+  \subsection{Objectives}
+
+  In this paper, we focus on recent research in the area of crosschains.
+  In particular, we make use of a construction named Non-Interractive
+  Proofs of Proof of Work (NIPoPoW), which enables the compression of a
+  chain to poly-logarothmic size. NIPoPoWs is the main building block of
+  our solution in order to prove to blockchain A that an event happened
+  in blockchain B. We were based on the previous work done by Giorgos
+  Christoglou(ref), which was the first ever implementation of
+  crosschains, and was used as a guideline to start building our
+  solution. A series of useful observations, the utilization of modern
+  solidity features and gas-efficient practices, allowed us to repair
+  previous security vulnerabilities, and deliver a secure, superlight
+  bitcoin client in solidity, that can be used in a realistic
+  blockchain.
+
+  Our target is to satisfy the following criteria:
+  \begin{itemize}
+  \item
+    Applicability: The protocol should be applicable to the realistic
     blockchain.
-\item Security: The protocol should be secure against any adversarial attack.
-\item Trustless: In accordance with the principle of decentralisation which
-    requires that our system is trust-less and no central authority or third
-    party is involved.
-\item Cheap: The protocol should be cheaper than the current state of the art
-    tech-nologies. This would make trust-less crosschain transactions more
-    popular and affordable.
-\item Supports many blockchains: During the past 10 years, the blockchain
-    technology has evolved and new coins adopt different designs. Our goal is
-    to provide a protocol that overcomes these differences.
-\end{itemize}
+  \item
+    Security: The protocol should be secure against any adversarial
+    attack.
+  \item
+    Trustless: In accordance with the principle of decentralisation
+    which requires that our system is trust-less and no central
+    authority or third party is involved.
+  \item
+    Cheap: The protocol should be cheaper than the current state of the
+    art tech-nologies. This would make trust-less crosschain
+    transactions more popular and affordable.
+  \item
+    Supports many blockchains: During the past 10 years, the blockchain
+    technology has evolved and new coins adopt different designs. Our
+    goal is to provide a protocol that overcomes these differences.
+  \end{itemize}
 
-\section{Background}
-Relevant technologies
-\subsection{Primitives}
-Describe primitives
-\subsection{Bitcoin}
-Describe Bitcoin blockchain
-\subsection{Ethereum}
-Describe Ethereum blockchain
-\subsubsection{Solidity}
-Describe the use of solidity language
-\subsubsection{Smark contracts}
-Describe the use of smart contracts
-\subsubsection{Ethereum Virtual Machine}
-The Ethereum Virtual Machine (EVM) is a sandboxed virtual stack embedded within each full Ethereum node, responsible for executing contract bytecode. Contracts are typically written in higher level languages, like Solidity, then compiled to EVM bytecode.
+  \section{Background}
 
-This means that the machine code is completely isolated from the network, filesystem or any processes of the host computer. Every node in the Ethereum network runs an EVM instance which allows them to agree on executing the same instructions. The EVM is Turing complete, which refers to a system capable of performing any logical step of a computational function. JavaScript, the programming language which powers the worldwide web, widely uses Turing completeness.
+  Relevant technologies
 
-Ethereum Virtual Machines have been successfully implemented in various programming languages including C++, Java, JavaScript, Python, Ruby, and many others.
+  \subsection{Primitives}
 
-The EVM is essential to the Ethereum Protocol and is instrumental to the consensus engine of the Ethereum system. It allows anyone to execute code in a trustless ecosystem in which the outcome of an execution can be guaranteed and is fully deterministic (i.e.) executing smart contracts.
-\subsection{Non-Interactive Proofs Of Proof Of Work}
-Describe the rationale behind NIPoPoWs, what they provide
-\subsubsection{Prefix Proofs}
-Describe prefix proofs
-\subsubsection{Suffix Proofs}
-Describe suffix proofs
-\subsubsection{Infix Proofs}
-Describe infix proofs
-\subsection{Forks}
-Soft, hard and velvet fork
+  Describe primitives
 
-\section{Implementation}
-In this section, the implementation steps are described. We also outline the difficulties we faced.
+  \subsection{Bitcoin}
 
-\subsection{Setting up test environment}
-A testing environment is a setup of software to execute test cases. Test bed or test environment is configured as per the need of the application under test. Setting up a right test environment ensures software testing success.
+  Describe Bitcoin blockchain
 
-In the case of solidity applications, smart contracts are deployed on the EVM. The functionality of the deployed application is tested by making calls to the contract's functions and asserting the correctness of the results. In order to ensure that the contract always operates appropriately, all test-cases must be covered. A common practice for developers is to create a local, in-memory blockchain to deploy and test applications.
+  \subsection{Ethereum}
 
-There is variety of EVMs one can use. We experimented with are Ganache,Geth and Py-EVM.
+  Describe Ethereum blockchain
 
-\subsubsection{Ganache}
-\subsubsection{Geth}
-\subsubsection{Py-EVM}
+  \subsubsection{Solidity}
 
-\subsection{Targeting vulnerabilities and costly functionalities}
-\begin{itemize}
-\item 0. Knowledge that extensive gas usage is due to large storage allocation
-\item 1. Make old contract compatible with the last version of solidity compiler
-\item 2. Create tests for all functionalities
-\item 3. Identify and fix vulnerabilities
+  Describe the use of solidity language
 
-Gas was very high due to storage variables
+  \subsubsection{Smark contracts}
 
-Contract is vulnerable to premining
-\item 4. Profile contract gas usage
-\item 5. Identify expensive operations
-\end{itemize}
-\subsection{Fixing vulnerabilities and restricting gas usage}
+  Describe the use of smart contracts
 
-\begin{itemize}
+  \subsubsection{Ethereum Virtual Machine}
 
-\item Add verification of genesis
-\item Reconsider DAG and ancestors methodology and redesign submission and contest schema
-\item Submit doesn't need to save in the proof in storage. Contest can provide the existing proof during contesting.
+  The Ethereum Virtual Machine (EVM) is a sandboxed virtual stack
+  embedded within each full Ethereum node, responsible for executing
+  contract bytecode. Contracts are typically written in higher level
+  languages, like Solidity, then compiled to EVM bytecode.
 
-\item Use subset: P1\{:lca\} $>$ P2\{:lca\}, P1 is the existing, P2 is the contesting
+  This means that the machine code is completely isolated from the
+  network, filesystem or any processes of the host computer. Every node
+  in the Ethereum network runs an EVM instance which allows them to
+  agree on executing the same instructions. The EVM is Turing complete,
+  which refers to a system capable of performing any logical step of a
+  computational function. JavaScript, the programming language which
+  powers the worldwide web, widely uses Turing completeness.
 
-This prevents expensive storage for DAG and ancestors.
+  Ethereum Virtual Machines have been successfully implemented in
+  various programming languages including C++, Java, JavaScript, Python,
+  Ruby, and many others.
 
-\item Even the check of subset can be skipped. The contesting proof cannot benefit from pre-lca malformed proof. If Pa is valid, then we just need to check Pb[lca:]
+  The EVM is essential to the Ethereum Protocol and is instrumental to
+  the consensus engine of the Ethereum system. It allows anyone to
+  execute code in a trustless ecosystem in which the outcome of an
+  execution can be guaranteed and is fully deterministic (i.e.)
+  executing smart contracts.
 
-\item This is not vulnerable to DOS attacks
+  \subsection{Non-Interactive Proofs Of Proof Of Work}
 
-\item Observe the network and contest with the appropriate proof if submitted is not correct.
+  Describe the rationale behind NIPoPoWs, what they provide
 
-\end{itemize}
+  \subsubsection{Prefix Proofs}
 
-\section{Results}
-\section{Conclusion}
-\section{Future Work}
+  Describe prefix proofs
+
+  \subsubsection{Suffix Proofs}
+
+  Describe suffix proofs
+
+  \subsubsection{Infix Proofs}
+
+  Describe infix proofs
+
+  \subsection{Forks}
+
+  Soft, hard and velvet fork
+
+  \section{Implementation}
+
+  In this section, the implementation steps are described. We also
+  outline the difficulties we faced.
+
+  \subsection{Setting up test environment}
+
+  A testing environment is a setup of software to execute test cases.
+  Test bed or test environment is configured as per the need of the
+  application under test. Setting up a right test environment ensures
+  software testing success.
+
+  In the case of solidity applications, smart contracts are deployed on
+  the EVM. The functionality of the deployed application is tested by
+  making calls to the contract's functions and asserting the correctness
+  of the results. In order to ensure that the contract always operates
+  appropriately, all test-cases must be covered. A common practice for
+  developers is to create a local, in-memory blockchain to deploy and
+  test applications.
+
+  There is variety of EVMs one can use. We experimented with are
+  Ganache,Geth and Py-EVM.
+
+  \subsubsection{Ganache}
+
+  \subsubsection{Geth}
+
+  \subsubsection{Py-EVM}
+
+  \subsection{Targeting vulnerabilities and costly functionalities}
+
+  \begin{itemize}
+  \item
+    0. Knowledge that extensive gas usage is due to large storage
+    allocation
+  \item
+    1. Make old contract compatible with the last version of solidity
+    compiler
+  \item
+    2. Create tests for all functionalities
+  \item
+    3. Identify and fix vulnerabilities
+
+    Gas was very high due to storage variables
+
+    Contract is vulnerable to premining
+  \item
+    4. Profile contract gas usage
+  \item
+    5. Identify expensive operations
+  \end{itemize}
+
+  \subsection{Fixing vulnerabilities and restricting gas usage}
+
+  \begin{itemize}
+
+  \item
+    Add verification of genesis
+  \item
+    Reconsider DAG and ancestors methodology and redesign submission and
+    contest schema
+  \item
+    Submit doesn't need to save in the proof in storage. Contest can
+    provide the existing proof during contesting.
+
+  \item
+    Use subset: P1\{:lca\} $>$ P2\{:lca\}, P1 is the existing, P2 is the
+    contesting
+
+    This prevents expensive storage for DAG and ancestors.
+
+  \item
+    Even the check of subset can be skipped. The contesting proof cannot
+    benefit from pre-lca malformed proof. If Pa is valid, then we just
+    need to check Pb[lca:]
+
+  \item
+    This is not vulnerable to DOS attacks
+
+  \item
+    Observe the network and contest with the appropriate proof if
+    submitted is not correct.
+
+  \end{itemize}
+
+  \section{Results}
+
+  \section{Conclusion}
+
+  \section{Future Work}
+
 \end{document}
