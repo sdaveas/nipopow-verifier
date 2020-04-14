@@ -98,24 +98,24 @@ def test_create_disjoint_fork_proofs(init_environment):
 def test_submit_disjoint_proofs(init_environment):
     """
     Test old disjoint with two arrays
-    array_1: [0] ------+------ [-1]
+    chain_1: [0] ------+------ [-1]
                        |
-    array_2: [0] ------+
+    chain_2: [0] ------+
     """
 
-    array_1 = []
-    array_2 = []
+    chain_1 = []
+    chain_2 = []
     size = 10
     lca = int(size / 2)
 
     for i in range(size):
-        array_1.append(b"\xaa" + i.to_bytes(31, "big"))
+        chain_1.append(b"\xaa" + i.to_bytes(31, "big"))
         if i >= lca:
             pref = b"\xaa"
         else:
             pref = b"\xff"
-        array_2.append(pref + i.to_bytes(31, "big"))
+        chain_2.append(pref + i.to_bytes(31, "big"))
 
         # This fails
-        res = call(interface, "disjointProofs", [array_1, array_2, lca])
+        res = call(interface, "disjointProofs", [chain_1, chain_2, lca])
         assert res["result"] == True
