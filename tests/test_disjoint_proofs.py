@@ -40,9 +40,8 @@ def init_environment():
 
     backend = "ganache"
     interface = ContractInterface(
-        "../contractNipopow.sol",
+        {"path": "../contractNipopow.sol", "ctor": [genesis, m, k]},
         backend=backend,
-        constructor_arguments=[genesis, m, k],
     )
 
     global submit_proof
