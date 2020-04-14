@@ -192,7 +192,8 @@ class ProofTool:
 
     def truncate_fork_proof(self, proof, fork_proof):
         """
-        Creates the subset of the fork_proof which different than the original
+        Returns the prefix of 'fork_proof' until first common block with
+        'proof' (included) and the index of the first common block in 'proof'
         """
 
         lca = 0
