@@ -106,7 +106,7 @@ def test_submit_disjoint_proofs(init_environment):
     chain_1 = []
     chain_2 = []
     size = 10
-    lca = int(size / 2)
+    lca = size // 2
 
     for i in range(size):
         chain_1.append(b"\xaa" + i.to_bytes(31, "big"))
