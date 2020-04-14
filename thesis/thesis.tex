@@ -87,27 +87,30 @@
   impossible to be applied in a real blockchain due to extensive gas
   usage and severe security issues.
 
-  A series of keen observations, the application of gas-efficient
-  practices, and the utilization of modern solidity features, allowed us
-  to repair previous security vulnerabilities and deliver a secure,
-  superlight Bitcoin client in solidity, which can be applied to a real
-  blockchain.
+  \subsection{Our Contributions}
 
-  \bigbreak Our target is to satisfy the following criteria:
+  A series of keen observations, the application of gas-efficient
+  practices, and the utilization of modern Solidity features, led us to
+  implement a new verifier architecture. This allowed us to repair
+  previous vulnerabilities and enable crosschain operations by providing
+  a secure, superlight Bitcoin client that can be deployed on the real
+  blockchain. \bigbreak Our contribution is the creation of a Bitcoin
+  client in Solidity that meets with the following criteria:
   \begin{itemize}
   \item
-    Applicability: The protocol should be applicable to the realistic
-    blockchain.
+    Security: Is secure against any adversarial attack.
   \item
-    Security: The protocol should be secure against any adversarial
-    attack.
+    Trustless: Does not have dependencies at any third-party
+    applications.
   \item
-    Trustless: The protocol should not have dependencies at any
-    third-party
+    Applicability: Is applicable to the real blockchain. That is, data
+    derived from the full-sized Bitcoin blockchain are successfully
+    accepted and processed without exceeding the build-in constraints of
+    the Ethereum blockchain (i.e. block gas limit. call data limit etc).
   \item
-    Cheap: The protocol should be cheaper than the current state of the
-    art technologies. This would make trust-less crosschain transactions
-    more popular and affordable.
+    Cheap: Is cheaper than the current state of the art technologies.
+    This would make trustless crosschain transactions more popular and
+    affordable.
   \end{itemize}
 
   \pagebreak
