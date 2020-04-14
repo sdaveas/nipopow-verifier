@@ -69,17 +69,26 @@
   \subsection{Objectives}
 
   In this paper, we focus on recent research in the area of crosschains.
-  In particular, we make use of a construction named Non-Interractive
-  Proofs of Proof of Work (NIPoPoW), which enables the compression of a
-  chain to poly-logarothmic size. NIPoPoWs is the main building block of
-  our solution in order to prove to blockchain A that an event happened
-  in blockchain B. We were based on the previous work done by Giorgos
-  Christoglou(ref), which was the first ever implementation of
-  crosschains, and was used as a guideline to start building our
-  solution. A series of useful observations, the utilization of modern
-  solidity features and gas-efficient practices, allowed us to repair
-  previous security vulnerabilities, and deliver a secure, superlight
-  bitcoin client in solidity, that can be used in a realistic
+  In particular, we make use of Non-Interactive Proofs of Proof of Work
+  (NIPoPoWs)(ref), which enables the compression of a chain to its
+  poly-logarothmic size. NIPoPoWs is the main building block of our
+  solution in order to prove to blockchain A that an event happened in
+  blockchain B.
+
+  We were based on the work done by Giorgos Christoglou et al.(ref),
+  which was the first ever implementation of crosschain events
+  verification, and was used as a starting point for our solution. The
+  work of Giorgos et al. focuses on verifying Bitcoin blockchain events
+  in the Ethereum blockchain. In order to provide this functionality, a
+  NIPoPoW verifier was developed in solidity(ref), the programming
+  language of Ethereum blockchain. This solution, however, is impossible
+  to be applied in a real blockchain due to extensive gas usage and
+  severe security issues.
+
+  A series of keen observations, the application of gas-efficient
+  practices, and the utilization of modern solidity features, allowed us
+  to repair previous security vulnerabilities and deliver a secure,
+  superlight Bitcoin client in solidity, which can be applied to a real
   blockchain.
 
   Our target is to satisfy the following criteria:
@@ -91,17 +100,12 @@
     Security: The protocol should be secure against any adversarial
     attack.
   \item
-    Trustless: In accordance with the principle of decentralisation
-    which requires that our system is trust-less and no central
-    authority or third party is involved.
+    Trustless: The protocol should not have dependencies at any
+    third-party
   \item
     Cheap: The protocol should be cheaper than the current state of the
-    art tech-nologies. This would make trust-less crosschain
-    transactions more popular and affordable.
-  \item
-    Supports many blockchains: During the past 10 years, the blockchain
-    technology has evolved and new coins adopt different designs. Our
-    goal is to provide a protocol that overcomes these differences.
+    art technologies. This would make trust-less crosschain transactions
+    more popular and affordable.
   \end{itemize}
 
   \section{Background}
