@@ -189,29 +189,55 @@
   In this section, the implementation steps are described. We also
   outline the difficulties we faced.
 
-  \subsection{Setting up test environment}
+  \subsection{Environment Set-Up}
+  The first step towards starting the
+  implementation is to set up a comfortable and adjustable environment.
+  There are several environments one can use to build Solidity
+  applications, most important of which are Truffle(ref), Remix(ref) and
+  Embark(ref). However, none of the aforementioned delivered the
+  experience we needed in the scope of our project, due to the lack of
+  speed and customization options. Hence, we created a custom
+  environment to import, compile, deploy and test smart contracts. We
+  used Python(ref) to build our environment, since it is a powerful and
+  convenient programming language, and all of our necessary dependencies
+  had a Python implementation available. We developed our environment in
+  Linux(ref).
 
-  A testing environment is a setup of software to execute test cases.
-  Test bed or test environment is configured as per the need of the
-  application under test. Setting up a right test environment ensures
-  software testing success.
+  The components we used as building blocks are Web3(ref) which is a
+  powerful library for interacting with Ethereum, the Solidity
+  compiler(ref), and EthereumTester which is a set of tools for testing
+  Ethereum-based applications. For the purpose of our project, a private
+  blockchain needed to be deployed running an Ethereum Virtual Machine
+  (EVM) for testing. Our environment supports multiple EVMs, namely
+  Geth(ref), Ganache(ref) and Py-EVM(ref). Although all aforementioned
+  EVMs are equivalent, each one of them provides unique attributes to
+  the developer which helped progress effortlessly at different states
+  of our implementation.
 
-  In the case of solidity applications, smart contracts are deployed on
-  the EVM. The functionality of the deployed application is tested by
-  making calls to the contract's functions and asserting the correctness
-  of the results. In order to ensure that the contract always operates
-  appropriately, all test-cases must be covered. A common practice for
-  developers is to create a local, in-memory blockchain to deploy and
-  test applications.
+  Py-EVM is an evolving EVM which is created strictly for testing. The
+  ease of access and use, the configuration freedom of its underlying
+  test chain and its effectiveness for small sized data helped our first
+  steps. However, as the input data size started to grow, the
+  effectiveness of the tool rapidly fell. Ganache is a popular EVM
+  developed by the truffle team. It’s speed and configuration freedom
+  are its main advantages. However, its extreme memory demand made it
+  impossible to use when the sizes of the input were analogous to the
+  Bitcoin blockchain size. Finally, Geth is another popular EVM which is
+  created by the Ethereum team. It also supports heavy customization
+  while its memory usage is limited compared to Ganache, even for
+  extensive input. It is, however, slower than the Ganache. The set of
+  configurations we used for each EVM can be found in our public
+  repository(ref).
 
-  There is variety of EVMs one can use. We experimented with are
-  Ganache,Geth and Py-EVM.
+  TODO: insert figure of Py-EVM vs Ganache vs Geth
 
-  \subsubsection{Ganache}
+  Another useful utility we used was solidity-gas-profiler by Yushih.
+  This greatly helped us to draw useful conclusions regarding the
+  distribution of gas usage across the contract’s functions.
 
-  \subsubsection{Geth}
+  TODO: insert figure of gas profiling
 
-  \subsubsection{Py-EVM}
+  \subsubsection{Previous work}
 
   \subsection{Targeting vulnerabilities and costly functionalities}
 
