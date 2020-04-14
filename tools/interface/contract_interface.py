@@ -1,6 +1,6 @@
 # Inspired by https://github.com/pryce-turner/web3_python_tutorials
 import solcx
-from solcx import set_solc_version, get_solc_version, compile_source, compile_files
+from solcx import set_solc_version, get_solc_version, compile_source, compile_files, link_code
 
 import web3
 from web3 import Web3, EthereumTesterProvider, contract
@@ -15,22 +15,18 @@ class ContractInterface:
 
     def __init__(
             self,
-            contract_path_list=[],
-            solc_version='v0.6.2',
-            contract_instances=[],
+            contract={},
+            libraries=[],
+            solc_version='v0.6.4',
             backend='ganache',
             genesis_overrides={'gas_limit':3141592000},
-            precompiled_contract={},
-            constructor_arguments=[]
+            precompiled_contract=None
             ):
 
         self.solc_version=solc_version
-        self.precompiled_contract=precompiled_contract
-        self.contract_path_list=contract_path_list
+        self.contract=contract
         self.backend=backend
-        self.compiled_contracts = {}
         self.contract_instances = []
-        self.constructor_arguments = constructor_arguments
 
         self.genesis_overrides=genesis_overrides
 
@@ -39,11 +35,45 @@ class ContractInterface:
         self.backends_to_inits['geth'] = self.init_backend_geth
 
         self.w3 = Web3()
-
         self.init_backend()
+        self.setup_compiler()
 
-        self.compile_contracts()
-        self.deploy_contracts()
+        self.libraries = {}
+
+        compiled_libraries = self.compile(libraries)
+        self.deploy(compiled_libraries)
+
+        path = contract["path"]
+        if precompiled_contract is not None:
+            compiled_contract = self.create_from_compiled(path, precompiled_contract)
+        else:
+            compiled_contract = self.compile(path)
+        self.contract_instances = self.deploy(compiled_contract, contract["ctor"])
+
+    def create_from_compiled(self, contract_path, precompiled_contract):
+        return [[ contract_path,
+                {
+                  'abi' : open(precompiled_contract['abi']).read(),
+                  'bin' : open(precompiled_contract['bin']).read()
+                }]]
+
+
+    def setup_compiler(self):
+        try:
+            solcx.set_solc_version(self.solc_version)
+        except Exception as e:
+            print("Solidity version " + self.solc_version +
+                  " does not exist in your system")
+            print("Installing now ...")
+            solcx.install_solc(self.solc_version)
+            print("... OK")
+        set_solc_version(self.solc_version)
+
+    def link(self, contract_bin, libraries):
+        for library_name in libraries.keys():
+            library_address = libraries[library_name]
+            contract_bin = link_code( contract_bin, {library_name: library_address})
+        return contract_bin
 
     def end(self):
         # Stop mining geth
@@ -88,31 +118,29 @@ class ContractInterface:
             raise RuntimeError('Cannot connect to '+url+':'+port+'. Is '+self.backend+' up?')
         self.w3.geth.miner.start(4)
 
-    def compile_contracts(self):
-        try:
-            solcx.set_solc_version(self.solc_version)
-        except Exception as e:
-            print("Solidity version " + self.solc_version +
-                  " does not exist in your system")
-            print("Installing now ...")
-            solcx.install_solc(self.solc_version)
-            print("... OK")
-        set_solc_version(self.solc_version)
+    def get_paths(self, contracts):
+        paths = []
+        for c in contracts:
+            paths.append(c.keys())
+        return paths
 
-        if not isinstance(self.contract_path_list, list):
-            self.contract_path_list = [self.contract_path_list]
+    def find_in_compiled(self, target, compiled):
+        for i, c in enumerate(compiled.keys()):
+            if target in c:
+                return i
 
-        if len(self.precompiled_contract) == 0:
-            self.compiled_contracts = compile_files(self.contract_path_list)
-        else:
-            self.compiled_contracts = {
-                    self.contract_path_list[0] :
-                    {
-                      'abi' : open(self.precompiled_contract['abi']).read(),
-                      'bin' : open(self.precompiled_contract['bin']).read()
-                    }}
+    def compile(self, contracts):
 
-        # print("Compiled contract(s): ", len(self.compiled_contracts))
+        compiled_contracts = []
+        if not isinstance(contracts, list):
+            contracts = [contracts]
+        for c in contracts:
+            compiled = compile_files([c], optimize=True)
+            index = self.find_in_compiled(c, compiled)
+            key = list(compiled.keys())[index]
+            value = compiled[key]
+            compiled_contracts.append([key, value])
+        return compiled_contracts
 
 
     @staticmethod
@@ -136,9 +164,8 @@ class ContractInterface:
 
         try:
             executable = 'node'
-            # TODO: Let the user provide the path of the profiler
             rpc = 'http://127.0.0.1:8545'
-            contract_path = self.contract_path_list[0]
+            contract_path = self.contracts[0]["path"]
             sourcemap_path = 'combined.json'
             self.create_sourcemap(contract_path, sourcemap_path)
             output_file = filename
@@ -162,37 +189,26 @@ class ContractInterface:
         except Exception as e:
             print('Unable to run profiles', e)
 
-    def deploy_contracts(self):
-        deployed_contracts = []
-
-        for compiled_contract in self.compiled_contracts.items():
-            self.deployed_contract = self.w3.eth.contract(
+    def deploy(self, compiled_contracts, constructor_arguments=[]):
+        contract_instances = []
+        for compiled_contract in compiled_contracts:
+            linked_bytecode = self.link(compiled_contract[1]['bin'], self.libraries)
+            deployed_contract = self.w3.eth.contract(
                                     abi=compiled_contract[1]['abi'],
-                                    bytecode=compiled_contract[1]['bin'],
-                                    # Provide compiled contract abi and bytecode
-                                    # abi=open('./Crosschain.abi').read(),
-                                    # bytecode=open('./Crosschain.bin').read()
+                                    bytecode=linked_bytecode,
                                 )
-            my_contract = self.deployed_contract.constructor(*self.constructor_arguments)
-
-            gas_estimate = my_contract.estimateGas()
+            my_contract = deployed_contract.constructor(*constructor_arguments)
             tx_hash = my_contract.transact({'from': self.w3.eth.accounts[0]})
-
             tx_receipt = self.w3.eth.waitForTransactionReceipt(tx_hash)
             contract_address = tx_receipt['contractAddress']
-            # print("Deployed {0} at: {1} using {2} gas.".format(
-            #     compiled_contract[0],
-            #     contract_address,
-            #     tx_receipt['cumulativeGasUsed']
-            #     ))
-
-            deployed_contracts.append(self.deployed_contract)
+            self.libraries[compiled_contract[0]] = contract_address
 
             contract_instance = self.w3.eth.contract(
                                     abi = compiled_contract[1]['abi'],
                                     address = contract_address
                                 )
-            self.contract_instances.append(contract_instance)
+            contract_instances.append(contract_instance)
+        return contract_instances
 
     def get_contracts(self):
         return self.contract_instances
