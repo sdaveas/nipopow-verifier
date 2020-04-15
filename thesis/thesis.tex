@@ -206,18 +206,17 @@
   Python implementations available. We developed our environment in
   Linux(ref).
 
+  \subsubsection{Dependencies}
+
   The components we used as building blocks are Web3(ref) which is a
   powerful library for interacting with Ethereum, the Solidity
   compiler(ref), and EthereumTester which is a set of tools for testing
   Ethereum-based applications. For the purpose of our project, a private
-  blockchain needed to be deployed running an Ethereum Virtual Machine
-  (EVM) for testing. Our environment supports multiple EVMs, namely
-  Geth(ref), Ganache(ref) and Py-EVM(ref). Although all aforementioned
-  EVMs are equivalent, each one of them provides unique attributes to
-  the developer which helped progress effortlessly at different states
-  of our implementation.
+  blockchain running an Ethereum Virtual Machine (EVM) was deployed.
+  This is a common practice for Ethereum developers since it greatly
+  facilitates testing procedures. Our environment supports multiple
+  EVMs, namely Geth(ref), Ganache(ref) and Py-EVM(ref).
 
-  Py-EVM is an evolving EVM which is created strictly for testing. The
   ease of access and use, the configuration freedom of its underlying
   test chain and its effectiveness for small sized data helped our first
   steps. However, as the input data size started to grow, the
