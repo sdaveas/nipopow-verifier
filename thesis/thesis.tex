@@ -217,19 +217,32 @@
   facilitates testing procedures. Our environment supports multiple
   EVMs, namely Geth(ref), Ganache(ref) and Py-EVM(ref).
 
+  \subsubsection{EVMs}
+
+  All aforementioned EVMs deliver an implementation that complies with
+  the specifications as described at the Ethereum yellow paper(ref).
+  However, different implementations provide unique attributes to the
+  developer, each of which helped us to progress effortlessly at
+  different states of our implementation.
+
+  Py-EVM is an evolving EVM which is created mainly for testing. The
   ease of access and use, the configuration freedom of its underlying
   test chain and its effectiveness for small sized data helped our first
   steps. However, as the input data size started to grow, the
-  effectiveness of the tool rapidly fell. Ganache is a popular EVM
-  developed by the truffle team. It’s speed and configuration freedom
-  are its main advantages. However, its extreme memory demand made it
-  impossible to use when the sizes of the input were analogous to the
-  Bitcoin blockchain size. Finally, Geth is another popular EVM which is
-  created by the Ethereum team. It also supports heavy customization
-  while its memory usage is limited compared to Ganache, even for
-  extensive input. It is, however, slower than the Ganache. The set of
-  configurations we used for each EVM can be found in our public
-  repository(ref).
+  effectiveness of the tool rapidly fell.
+
+  Ganache is a popular EVM developed by the Truffle team. It’s speed and
+  configuration freedom are its main advantages. However, its extreme
+  memory requirements made it impossible to use when the sizes of the
+  input were analogous to the Bitcoin blockchain size.
+
+  Geth is another popular EVM which is created by the Ethereum team. It
+  also supports heavy customization while its memory usage is very
+  limited compared to Ganache, even for extensive input. It is, however,
+  slower than the Ganache.
+
+  The set of configurations we used for each EVM can be found in our
+  public repository(ref).
 
   TODO: insert figure of Py-EVM vs Ganache vs Geth
 
