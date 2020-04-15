@@ -189,17 +189,21 @@
   \section{Implementation}
 
   \subsection{Environment Set-Up}
-  The first step towards starting the
-  implementation is to set up a comfortable and adjustable environment.
-  There are several environments one can use to build Solidity
-  applications, most important of which are Truffle(ref), Remix(ref) and
-  Embark(ref). However, none of the aforementioned delivered the
-  experience we needed in the scope of our project, due to the lack of
-  speed and customization options. Hence, we created a custom
-  environment to import, compile, deploy and test smart contracts. We
-  used Python(ref) to build our environment, since it is a powerful and
-  convenient programming language, and all of our necessary dependencies
-  had a Python implementation available. We developed our environment in
+
+  \subsubsection{Existing Environments}
+
+  The first step towards starting the implementation is to set up a
+  comfortable and adjustable environment. There are several environments
+  one can use to build Solidity applications, most popular of which are
+  Truffle(ref), Remix(ref) and Embark(ref). However, none of the
+  aforementioned delivered the experience we needed in the scope of our
+  project, due to the lack of speed and customization options. Hence, we
+  created a custom environment to import, compile, deploy and test smart
+  contracts.
+
+  We used Python(ref) to build our environment, since it is a powerful
+  and convenient programming language, and all of our dependencies had
+  Python implementations available. We developed our environment in
   Linux(ref).
 
   The components we used as building blocks are Web3(ref) which is a
