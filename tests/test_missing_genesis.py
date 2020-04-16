@@ -13,7 +13,11 @@ from proof import Proof
 from create_proof import ProofTool
 from edit_chain import remove_genesis
 
-from contract_api import make_interface, submit_event_proof, submit_contesting_proof
+from contract_api import (
+    make_interface,
+    submit_event_proof,
+    submit_contesting_proof,
+)
 from config import errors, extract_message_from_error, genesis
 
 import pytest
@@ -25,10 +29,12 @@ def init_environment():
     This runs before every test
     """
 
-    global backend
+    backend = "ganache"
+    global interface
+    interface = make_interface(backend)
+
     global proof
     global headless_proof
-    backend = "ganache"
     proof = Proof()
     headless_proof = Proof()
 
@@ -48,7 +54,6 @@ def finish_session(request):
     yield
     # you can access the session from the injected 'request':
     session = request.session
-    interface = make_interface(backend)
     interface.end()
 
 
@@ -56,9 +61,7 @@ def test_missing_genesis_submit(init_environment):
     """
     Calls the submit_event_proof of the contracts with a proof without genesis
     """
-
     block_of_interest_index = 0
-    interface = make_interface(backend)
 
     with pytest.raises(Exception) as e:
         submit_event_proof(interface, headless_proof, block_of_interest_index)
