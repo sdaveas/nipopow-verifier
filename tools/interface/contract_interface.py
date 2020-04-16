@@ -256,3 +256,18 @@ def timestamp():
     from datetime import datetime
     return datetime.today().isoformat().split('.')[0]
 
+def call(interface, function_name, function_args=[], profiler=None, event_name='debug'):
+    """
+    Runs the output, gas used and events emitted for a function
+    """
+
+    contract = interface.get_contract()
+    from_address = interface.w3.eth.accounts[0]
+    function = contract.get_function_by_name(function_name)(*function_args)
+    res = function.call({"from": from_address})
+    tx_hash = function.transact({"from": from_address})
+    receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
+    if profiler is not None:
+        interface.run_gas_profiler(profiler, tx_hash, function_name + '_' + timestamp())
+    events = get_events(contract, receipt, event_name)
+    return {"result": res, "gas": receipt["gasUsed"], 'events': events}
