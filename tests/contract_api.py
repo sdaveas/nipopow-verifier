@@ -83,21 +83,7 @@ def finalize_event(interface, block_of_interest):
     Calls finalize_event of the verifier
     """
 
-    my_contract = interface.get_contract()
-    if from_address is None:
-        from_address = interface.w3.eth.accounts[0]
-
-    res = my_contract.functions.finalizeEvent(block_of_interest).call(
-        {"from": from_address}
-    )
-
-    tx_hash = my_contract.functions.finalizeEvent(block_of_interest).transact(
-        {"from": from_address}
-    )
-
-    interface.w3.eth.waitForTransactionReceipt(tx_hash)
-
-    return {"result": res}
+    return interface.call("finalizeEvent", function_args=[block_of_interest])
 
 
 def event_exists(interface, block_of_interest):
@@ -105,9 +91,7 @@ def event_exists(interface, block_of_interest):
     Calls event_exists of the contract
     """
 
-    contract = interface.get_contract()
-    res = contract.functions.eventExists(block_of_interest).call()
-    return res
+    return interface.call("eventExist", function_args=[block_of_interest])
 
 
 def validate_interlink(interface, proof, profile=True):
