@@ -15,7 +15,7 @@ from contract_api import (
     submit_event_proof,
     dispute_existing_proof,
 )
-from config import errors, extract_message_from_error, genesis
+from config import errors, extract_message_from_error
 
 import pytest
 
@@ -52,7 +52,9 @@ def test_dispute_valid(init_environment):
 
     block_of_interest_index = 0
     interface = make_interface(backend)
-    res = submit_event_proof(interface, proof, block_of_interest_index, profile=True)
+    res = submit_event_proof(
+        interface, proof, block_of_interest_index, profile=True
+    )
     assert res["result"] == True
 
     with pytest.raises(Exception) as ex:
@@ -80,6 +82,10 @@ def test_dispute_invalid(init_environment):
     assert res["result"] == True
 
     res = dispute_existing_proof(
-        interface, invalid_proof, block_of_interest_index, invalid_index, profile=True,
+        interface,
+        invalid_proof,
+        block_of_interest_index,
+        invalid_index,
+        profile=True,
     )
     assert res["result"] == True
