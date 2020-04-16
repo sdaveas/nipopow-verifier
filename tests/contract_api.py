@@ -59,49 +59,26 @@ def dispute_existing_proof(interface, existing, block_of_interest_index, invalid
 
 # TODO: This is code duplidation with the above function
 def submit_contesting_proof(
-    interface, proof, block_of_interest, from_address=None, profile=False
+    interface, existing, lca, contesting, block_of_interest_index,
 ):
     """
     Calls contest_event_proof of the verifier
     """
 
-    my_contract = interface.get_contract()
-    if from_address is None:
-        from_address = interface.w3.eth.accounts[0]
-
-    res = my_contract.functions.submitContestingProof(
-        proof.headers, proof.siblings, block_of_interest
-    ).call({"from": from_address})
-
-    tx_hash = my_contract.functions.submitContestingProof(
-        proof.headers, proof.siblings, block_of_interest
-    ).transact({"from": from_address})
-
-    receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
-    try:
-        debug_events = my_contract.events.debug().processReceipt(receipt)
-    except Exception as ex:
-        debug_events = {}
-    if len(debug_events) > 0:
-        print("Contest::")
-        for e in debug_events:
-            log = dict(e)["args"]
-            print(log["tag"], "\t", log["value"])
-
-    if profile is True:
-        filename = str(int(time())) + ".txt"
-        interface.run_gas_profiler(profiler, tx_hash, filename)
-
-    print(receipt["gasUsed"])
-
-    return {
-        "result": res,
-        "gas_used": receipt["gasUsed"],
-        "debug": debug_events,
-    }
+    return interface.call(
+        "submitContestingProof",
+        function_args=[
+            existing.hashed_headers,
+            lca,
+            contesting.best_level_subproof_headers,
+            contesting.best_level_subproof_siblings,
+            contesting.best_level,
+            block_of_interest_index,
+        ],
+    )
 
 
-def finalize_event(interface, block_of_interest, from_address=None):
+def finalize_event(interface, block_of_interest):
     """
     Calls finalize_event of the verifier
     """
