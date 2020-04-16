@@ -56,66 +56,6 @@ def dispute_existing_proof(interface, existing, block_of_interest_index, invalid
         ],
     )
 
-# bytes32[4][] memory existingHeaders,
-# uint256 lca,
-# bytes32[4][] memory contestingHeaders,
-# bytes32[] memory contestingSiblings,
-# bytes32[4] memory blockOfInterest,
-
-# TODO: This is code duplidation with the above function
-def submit_contesting_proof_new(
-    interface,
-    existing,
-    lca,
-    contesting,
-    block_of_interest_index,
-    from_address=None,
-    profile=False,
-):
-    """
-    Calls contest_event_proof of the verifier
-    """
-
-    my_contract = interface.get_contract()
-    if from_address is None:
-        from_address = interface.w3.eth.accounts[0]
-
-    my_function = my_contract.functions.submitContestingProof(
-        existing.hashed_headers,
-        lca,
-        contesting.best_level_subproof_headers,
-        contesting.best_level_subproof_siblings,
-        contesting.best_level,
-        block_of_interest_index,
-    )
-
-    res = my_function.call({"from": from_address})
-
-    tx_hash = my_function.transact({"from": from_address})
-
-    receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
-    try:
-        debug_events = my_contract.events.debug().processReceipt(receipt)
-    except Exception as ex:
-        debug_events = {}
-    if len(debug_events) > 0:
-        print("Contest::")
-        for e in debug_events:
-            log = dict(e)["args"]
-            print(log["tag"], "\t", log["value"])
-
-    if profile is True:
-        filename = str(int(time())) + ".txt"
-        interface.run_gas_profiler(profiler, tx_hash, filename)
-
-    print(receipt["gasUsed"])
-
-    return {
-        "result": res,
-        "gas_used": receipt["gasUsed"],
-        "debug": debug_events,
-    }
-
 
 # TODO: This is code duplidation with the above function
 def submit_contesting_proof(
