@@ -71,31 +71,33 @@
   \subsection{Previous Work}
 
   In this paper, we focus on recent research in the area of crosschains.
-  In particular, we make use of Non-Interactive Proofs of Proof of Work
-  (NIPoPoWs)(ref), which enables the compression of a chain to its
-  poly-logarothmic size. NIPoPoWs is the main building block of our
-  solution in order to prove to blockchain A that an event happened in
-  blockchain B.
+  In particular, we make use of the cryptographic primitive
+  Non-Interactive Proofs of Proof of Work (NIPoPoWs)(ref), which enables
+  the compression of a chain to its poly-logarothmic size. NIPoPoWs is
+  the main building block of our solution in order to make the
+  occurrence of an event of blockchain A provably known to blockchain B.
 
-  We are based on the work done by Giorgos Christoglou et al.(ref),
+  We are based on previous work done by Giorgos Christoglou et al.(ref),
   which was the first ever implementation of crosschain events
-  verification, and was used as a starting point for our solution. The
-  work of Giorgos et al. focuses on verifying Bitcoin events from the
-  Ethereum blockchain. In order to provide this functionality, a NIPoPoW
-  verifier was developed in Solidity(ref), one of the programming
-  languages of Ethereum blockchain. This solution, however, is
-  impossible to be applied in a real blockchain due to extensive gas
-  usage and severe security issues.
+  verification. The work of Giorgos et al. focuses on verifying Bitcoin
+  events from the Ethereum blockchain. In order to provide this
+  functionality, a NIPoPoW verifier was developed in Solidity(ref), one
+  of the programming languages of Ethereum blockchain. This solution,
+  however, is impossible to be applied in a real blockchain due to
+  extensive gas usage and severe security issues.
 
-  \subsection{Our Contributions}
+  \subsection{Our contributions}
 
   A series of keen observations, the application of gas-efficient
-  practices, and the utilization of modern Solidity features, led us to
-  implement a new verifier architecture. This allowed us to repair
+  practices and the utilization of modern Solidity features led us to
+  the design of a new verifier architecture. This allowed us to repair
   previous vulnerabilities and enable crosschain operations by providing
   a secure, superlight Bitcoin client that can be deployed on the real
-  blockchain. \bigbreak Our contribution is the creation of a Bitcoin
-  client in Solidity that meets with the following criteria:
+  blockchain.
+
+  Our contribution is the creation of a Bitcoin client in Solidity that
+  verifies events across blockchains while meeting the following
+  criteria:
   \begin{itemize}
   \item
     Security: Is secure against any adversarial attack.
@@ -105,15 +107,14 @@
   \item
     Applicability: Is applicable to the real blockchain. That is, data
     derived from the full-sized Bitcoin blockchain are successfully
-    accepted and processed without exceeding the build-in constraints of
-    the Ethereum blockchain (i.e. block gas limit. call data limit etc).
+    accepted and processed by the client without exceeding the build-in
+    constraints of the Ethereum blockchain (i.e. block gas limit, call
+    data limit etc).
   \item
     Cheap: Is cheaper than the current state of the art technologies.
     This would make trustless crosschain transactions more popular and
     affordable.
   \end{itemize}
-
-  \pagebreak
 
   \section{Background}
 
@@ -226,24 +227,24 @@
   All aforementioned EVMs deliver an implementation that complies with
   the specifications as described at the Ethereum yellow paper(ref).
   However, different implementations provide unique attributes to the
-  developer, each of which helped us to progress effortlessly at
-  different states of our implementation.
+  developer, each of which helped us to progress effortlessly during
+  different stages of our implementation.
 
   Py-EVM is an evolving EVM which is created mainly for testing. The
   ease of access and use, the configuration freedom of its underlying
   test chain and its effectiveness for small sized data helped our first
   steps. However, as the input data size started to grow, the
-  effectiveness of the tool rapidly fell.
+  effectiveness of the tool rapidly fell(ref).
 
   Ganache is a popular EVM developed by the Truffle team. It’s speed and
   configuration freedom are its main advantages. However, its extreme
-  memory requirements made it impossible to use when the sizes of the
+  memory requirement made it impossible to use when the sizes of the
   input were analogous to the Bitcoin blockchain size.
 
   Geth is another popular EVM which is created by the Ethereum team. It
   also supports heavy customization while its memory usage is very
-  limited compared to Ganache, even for extensive input. It is, however,
-  slower than the Ganache.
+  limited compared to Ganache, even for extensive inputs. It is,
+  however, slower than Ganache.
 
   The set of configurations we used for each EVM can be found in our
   public repository(ref).
@@ -263,11 +264,11 @@
 
   As mentioned above, we used a previous verifier implementation(ref) as
   a basis for our implementation. Since we adopted common primitives, we
-  used some the tools Giorgos et al. used for functionalities such as
+  used some of the tools Giorgos et al. used for functionalities such as
   constructing blockchains and proofs. For the purposes of our project,
   we needed to enhance the functionality of the existing tools in some
   cases. We are thankful to the writers for sharing their
-  implementation. This greatly facilitated our goal. Similar to Giorgos
+  implementation. This greatly facilitated our work. Similar to Giorgos
   el al., we follow the steps listed below:
 
   \begin{enumerate}
@@ -286,7 +287,7 @@
 
   The tool that creates the blockchain was created by Andrew Miller, one
   of the writers of Non-Interactive Proofs of Proof of Work(ref) paper.
-  The tool is using the Bitcoin library to construct a blockchain
+  The tool is using the Bitcoin library(ref) to construct a blockchain
   similar to Bitcoin’s. The interlink pointers are organised into a
   merkle tree and the index is determined by their level. For details
   regarding the level calculation, see section(ref). The merkle root of
@@ -302,13 +303,13 @@
 
   \subsubsection{Superblock Levels}
 
-  In the scope of this paper, we assume that the difficulty target of
-  mined blocks is constant. As discussed in section(ref), this is not
-  the model of the Bitcoin blockchain. The definition of the superblock
-  is changed to a simpler definition and the level is determined by the
-  number of leading zeros of the block header hash. Although this change
-  does not take into account the difficulty target, the scoring of proof
-  of work does not generate security holes in the protocol.
+  We assume that the difficulty target of mined blocks is constant. As
+  discussed in section(ref), this is not the model of the Bitcoin
+  blockchain. The definition of superblocks is changed to a simpler
+  definition and the level is determined by the number of leading zeros
+  of the block header hash. Although this change does not take into
+  account the difficulty target, the scoring of proof of work does not
+  generate security holes in the protocol.
 
   \subsubsection{Proof}
 
@@ -355,17 +356,18 @@
 
   In order to perform a submission, one must provide a proof and a
   predicate. If a certain number of rounds passes without submission of
-  contestations, the proof is considered valid. The passing of rounds is
-  indicated by the mining of new blocks atop the block containing the
-  submission.
+  contestations, the proof is considered valid and the predicate is
+  considered true. The passing of rounds is indicated by the mining of
+  new blocks atop of the block containing the submission.
 
   If the submitted proof is invalid (i.e. the predicate is not true for
   the honest chain), a contesting proof is submitted, invalidating the
-  original proof. The contesting proof is considered better only if it
-  encapsulates more proof of work than the existing, as described in the
-  NIPoPoWs paper. In order to perform a submission, one must provide a
-  consteting proof and the predicate claimed for the submitted proof. If
-  the contesting proof is better, then the predicate is evaluated
+  original proof and predicate. The contesting proof is considered
+  better only if it encapsulates more proof of work than the existing
+  proof, as described in the NIPoPoWs paper. In order to perform a
+  submission, one must provide a consteting proof and the predicate that
+  is claimed to be true by the originally submitted proof. If the
+  contesting proof has better score, then the predicate is evaluated
   against the contesting proof.
 
   TODO: Add matrix or something else to show Honest Submit + No Constest
