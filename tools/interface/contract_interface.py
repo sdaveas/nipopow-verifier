@@ -219,50 +219,54 @@ class ContractInterface:
     def get_contract(self, index=0):
         return self.contract_instances[index]
 
+    @staticmethod
+    def get_events(contract, receipt, event_name):
+        """
+        Prints events with name 'event_name'
+        """
 
+        try:
+            my_event = getattr(contract.events, event_name)
+        except Exception:
+            return []
 
-def get_events(contract, receipt, event_name):
-    """
-    Prints events with name 'event_name'
-    """
-
-    my_event = getattr(contract.events, event_name)
-    try:
         events = my_event().processReceipt(receipt)
-    except Exception:
-        events = {}
 
-    extracted_events = []
-    if len(events) > 0:
-        for e in events:
-            log = dict(e)["args"]
-            if isinstance(log["value"], bytes):
-                value = log["value"].hex()
-            else:
-                value = log["value"]
-            extracted_events.append([log["tag"], value])
-    return extracted_events
+        extracted_events = []
+        if len(events) > 0:
+            for e in events:
+                log = dict(e)["args"]
+                if isinstance(log["value"], bytes):
+                    value = log["value"].hex()
+                else:
+                    value = log["value"]
+                extracted_events.append([log["tag"], value])
+        return extracted_events
 
-def timestamp():
-    """
-    Returns the current date time skipping milliseconds
-    2020-04-16T12:11:45
-    """
-    from datetime import datetime
-    return datetime.today().isoformat().split('.')[0]
+    @staticmethod
+    def timestamp():
+        """
+        Returns the current date time skipping milliseconds
+        2020-04-16T12:11:45
+        """
+        from datetime import datetime
+        return datetime.today().isoformat().split('.')[0]
 
-def call(interface, function_name, function_args=[], profiler=None, event_name='debug'):
-    """
-    Runs the output, gas used and events emitted for a function
-    """
+    def call(self, function_name, function_args=[], event_name='debug', value=0, from_address=None):
+        """
+        Runs the output, gas used and events emitted for a function
+        """
+        if from_address is None:
+            from_address = self.w3.eth.accounts[0]
 
-    contract = interface.get_contract()
-    from_address = interface.w3.eth.accounts[0]
-    function = contract.get_function_by_name(function_name)(*function_args)
-    res = function.call({"from": from_address})
-    tx_hash = function.transact({"from": from_address})
-    receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
-    if profiler is not None:
-        interface.run_gas_profiler(profiler, tx_hash, function_name + '_' + timestamp())
-    events = get_events(contract, receipt, event_name)
-    return {"result": res, "gas": receipt["gasUsed"], 'events': events}
+        contract = self.get_contract()
+        function = contract.get_function_by_name(function_name)(*function_args)
+        res = function.call({"from": from_address, "value": value})
+        tx_hash = function.transact({"from": from_address, "value": value})
+        receipt = self.w3.eth.waitForTransactionReceipt(tx_hash)
+        events = self.get_events(contract, receipt, event_name)
+
+        if self.profiler is not None:
+            self.run_gas_profiler(self.profiler, tx_hash, function_name + '_' + self.timestamp())
+
+        return {"result": res, "gas": receipt["gasUsed"], 'events': events}
