@@ -62,7 +62,9 @@ def test_sufficient_collateral(init_environment):
     # Collateral defined in contract:
     # uint constant z = 100000000000000000; // 0.1 eth, 10^17
 
-    res = submit_event_proof(interface, proof, proof.size - 1, collateral=pow(10, 17))
+    res = submit_event_proof(
+        interface, proof, proof.size - 1, collateral=pow(10, 17)
+    )
     assert res["result"] == True
 
 
@@ -73,14 +75,12 @@ def test_insufficient_collateral(init_environment):
 
     interface = make_interface(backend)
 
-    # Collateral defined in contract:
-    # uint constant z = 100000000000000000; // 0.1 eth, 10^17
-
     collateral = pow(10, 17) - 1
 
     with pytest.raises(Exception) as ex:
-        submit_event_proof(interface, proof, proof.size - 1, collateral=collateral)
-    print(ex)
+        submit_event_proof(
+            interface, proof, proof.size - 1, collateral=collateral
+        )
     assert extract_message_from_error(ex) == errors["ante up"]
 
 
@@ -91,13 +91,14 @@ def test_receive_collateral(init_environment):
     from_address = interface.w3.eth.accounts[0]
     initial_balance = interface.w3.eth.getBalance(from_address)
 
-    # Collateral defined in contract:
-    # uint constant z = 100000000000000000; // 0.1 eth, 10^17
-
     block_of_interest_index = proof.size - 1
     collateral = pow(10, 17)
     res = submit_event_proof(
-        interface, proof, block_of_interest_index, collateral, from_address
+        interface,
+        proof,
+        block_of_interest_index,
+        collateral=collateral,
+        from_address=from_address,
     )
     assert res["result"] == True
 

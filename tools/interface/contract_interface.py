@@ -20,7 +20,8 @@ class ContractInterface:
             solc_version='v0.6.4',
             backend='ganache',
             genesis_overrides={'gas_limit':3141592000},
-            precompiled_contract=None
+            precompiled_contract=None,
+            profiler=None
             ):
 
         self.solc_version=solc_version
@@ -49,6 +50,8 @@ class ContractInterface:
         else:
             compiled_contract = self.compile(path)
         self.contract_instances = self.deploy(compiled_contract, contract["ctor"])
+
+        self.profiler = profiler
 
     def create_from_compiled(self, contract_path, precompiled_contract):
         return [[ contract_path,
@@ -165,7 +168,7 @@ class ContractInterface:
         try:
             executable = 'node'
             rpc = 'http://127.0.0.1:8545'
-            contract_path = self.contracts[0]["path"]
+            contract_path = self.contract["path"]
             sourcemap_path = 'combined.json'
             self.create_sourcemap(contract_path, sourcemap_path)
             output_file = filename
@@ -215,3 +218,55 @@ class ContractInterface:
 
     def get_contract(self, index=0):
         return self.contract_instances[index]
+
+    @staticmethod
+    def get_events(contract, receipt, event_name):
+        """
+        Prints events with name 'event_name'
+        """
+
+        try:
+            my_event = getattr(contract.events, event_name)
+        except Exception:
+            return []
+
+        events = my_event().processReceipt(receipt)
+
+        extracted_events = []
+        if len(events) > 0:
+            for e in events:
+                log = dict(e)["args"]
+                if isinstance(log["value"], bytes):
+                    value = log["value"].hex()
+                else:
+                    value = log["value"]
+                extracted_events.append([log["tag"], value])
+        return extracted_events
+
+    @staticmethod
+    def timestamp():
+        """
+        Returns the current date time skipping milliseconds
+        2020-04-16T12:11:45
+        """
+        from datetime import datetime
+        return datetime.today().isoformat().split('.')[0]
+
+    def call(self, function_name, function_args=[], event_name='debug', value=0, from_address=None):
+        """
+        Runs the output, gas used and events emitted for a function
+        """
+        if from_address is None:
+            from_address = self.w3.eth.accounts[0]
+
+        contract = self.get_contract()
+        function = contract.get_function_by_name(function_name)(*function_args)
+        res = function.call({"from": from_address, "value": value})
+        tx_hash = function.transact({"from": from_address, "value": value})
+        receipt = self.w3.eth.waitForTransactionReceipt(tx_hash)
+        events = self.get_events(contract, receipt, event_name)
+
+        if self.profiler is not None:
+            self.run_gas_profiler(self.profiler, tx_hash, function_name + '_' + self.timestamp())
+
+        return {"result": res, "gas": receipt["gasUsed"], 'events': events}
