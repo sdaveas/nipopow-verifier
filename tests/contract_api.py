@@ -41,7 +41,9 @@ def submit_event_proof(
     )
 
 
-def dispute_existing_proof(interface, existing, block_of_interest_index, invalid_index):
+def dispute_existing_proof(
+    interface, existing, block_of_interest_index, invalid_index
+):
     """
     Calls disputeExistingProof(existingHeaders, existingHeadersHash, siblings)
     """
