@@ -14,8 +14,6 @@ import pytest
 
 contr_dir = "../contracts/"
 lib_dir = contr_dir + "lib/"
-log2 = {0: 0, 1: 1, 2: 2, 3: 2, 4: 3, 5: 3, 6: 3, 7: 3, 8: 4}
-closest = {0: 0, 1: 0, 2: 1, 3: 2, 4: 2, 5: 4, 6: 4, 7: 4, 8: 4, 9: 8, 10: 8}
 
 
 @pytest.fixture
@@ -60,19 +58,23 @@ def finish_session(request):
 
 def test_log2_ceiling(init_environment):
 
-    for l in tqdm(log2.keys()):
+    log2_ceiling_results = {0: 0, 1: 1, 2: 2, 3: 2, 4: 3, 5: 3, 6: 3, 7: 3, 8: 4}
+    for l in tqdm(log2_ceiling_results.keys()):
         assert (
             math_iface.call("log2Ceiling", function_args=[l])["result"]
-            == log2[l]
+            == log2_ceiling_results[l]
         )
 
 
 def test_closest_pow_of_2(init_environment):
 
-    for c in tqdm(closest.keys()):
+    closest_pow_of_2_results = {
+        0: 0, 1: 0, 2: 1, 3: 2, 4: 2, 5: 4, 6: 4, 7: 4, 8: 4, 9: 8, 10: 8,
+    }
+    for c in tqdm(closest_pow_of_2_results.keys()):
         assert (
             math_iface.call("closestPow2", function_args=[c])["result"]
-            == closest[c]
+            == closest_pow_of_2_results[c]
         )
 
 
