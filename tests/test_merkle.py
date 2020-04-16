@@ -1,13 +1,19 @@
 """
 run with
-$ pytest -v -s test_consistency
+$ pytest -v -s test_merkle
 """
 
+import sys
+
+sys.path.append("../tools/interface/")
+import contract_interface
+
 from tqdm import tqdm
+
 import pytest
-from merkle_config import deploy, call
 
-
+contr_dir = "../contracts/"
+lib_dir = contr_dir + "lib/"
 log2 = {0: 0, 1: 1, 2: 2, 3: 2, 4: 3, 5: 3, 6: 3, 7: 3, 8: 4}
 closest = {0: 0, 1: 0, 2: 1, 3: 2, 4: 2, 5: 4, 6: 4, 7: 4, 8: 4, 9: 8, 10: 8}
 
@@ -17,8 +23,18 @@ def init_environment():
     """
     This runs before every test
     """
-    global interface
-    global backend
+    global merkle_iface
+    global math_iface
+    backend = "ganache"
+    merkle_iface = contract_interface.ContractInterface(
+        contract={"path": lib_dir + "Merkle.sol", "ctor": []},
+        libraries=[lib_dir + "Math.sol", lib_dir + "Arrays.sol",],
+        backend=backend,
+    )
+    math_iface = contract_interface.ContractInterface(
+        contract={"path": lib_dir + "Math.sol", "ctor": []}, backend=backend,
+    )
+
     global data
     global start
     global step
@@ -29,9 +45,6 @@ def init_environment():
     for i in range(size):
         data.append(int(i).to_bytes(32, "big"))
 
-    backend = "ganache"
-    interface = deploy()
-
 
 @pytest.fixture(scope="session", autouse=True)
 def finish_session(request):
@@ -41,31 +54,36 @@ def finish_session(request):
 
     yield
     session = request.session
-    interface = deploy(backend=backend)
-    interface.end()
+    merkle_iface.end()
+    math_iface.end()
 
 
 def test_log2_ceiling(init_environment):
 
     for l in tqdm(log2.keys()):
-        assert log2_ceiling(l)["result"] == log2[l]
+        assert (
+            math_iface.call("log2Ceiling", function_args=[l])["result"]
+            == log2[l]
+        )
 
 
 def test_closest_pow_of_2(init_environment):
 
     for c in tqdm(closest.keys()):
-        assert closest_pow_of_2(c)["result"] == closest[c]
+        assert (
+            math_iface.call("closestPow2", function_args=[c])["result"]
+            == closest[c]
+        )
 
 
 def test_merkle_proof(init_environment):
 
-    _root = call(interface, "merkleTreeHash", [data])["result"]
+    _root = merkle_iface.call("merkleTreeHash", [data])["result"]
     for index in tqdm(range(start, len(data), step), desc="Testing paths"):
-        merkle_proof, siblings = call(interface, "path", [data, index])[
+        merkle_proof, siblings = merkle_iface.call("path", [data, index])[
             "result"
         ]
-        res = call(
-            interface,
+        res = merkle_iface.call(
             "verifyMerkleRoot",
             [_root, index.to_bytes(32, "big"), merkle_proof, siblings],
         )["result"]
@@ -74,16 +92,15 @@ def test_merkle_proof(init_environment):
 
 def test_consistency_proof(init_environment):
 
-    root1 = call(interface, "merkleTreeHash", [data])["result"]
+    root1 = merkle_iface.call("merkleTreeHash", [data])["result"]
     for m in tqdm(
         range(start, len(data), step), desc="Testing consistency proof"
     ):
-        root0 = call(interface, "merkleTreeHash", [data[:m]])["result"]
-        consistency_proof = call(interface, "consProofSub", [data, m])[
+        root0 = merkle_iface.call("merkleTreeHash", [data[:m]])["result"]
+        consistency_proof = merkle_iface.call("consProofSub", [data, m])[
             "result"
         ]
-        res = call(
-            interface,
+        res = merkle_iface.call(
             "verifyConsistencyProof",
             [consistency_proof, root0, m, root1, len(data)],
         )["result"]
