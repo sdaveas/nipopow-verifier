@@ -226,3 +226,24 @@ def deploy(contract, backend, libraries=[]):
     )
     return interface
 
+def get_events(contract, receipt, event_name):
+    """
+    Prints events with name 'event_name'
+    """
+
+    my_event = getattr(contract.events, event_name)
+    try:
+        events = my_event().processReceipt(receipt)
+    except Exception:
+        events = {}
+
+    extracted_events = []
+    if len(events) > 0:
+        for e in events:
+            log = dict(e)["args"]
+            if isinstance(log["value"], bytes):
+                value = log["value"].hex()
+            else:
+                value = log["value"]
+            extracted_events.append([log["tag"], value])
+    return extracted_events
