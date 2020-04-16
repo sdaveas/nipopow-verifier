@@ -215,3 +215,14 @@ class ContractInterface:
 
     def get_contract(self, index=0):
         return self.contract_instances[index]
+
+def deploy(contract, backend, libraries=[]):
+    """
+    Returns an interface for passed contracts, libraries and backend
+    """
+
+    interface = ContractInterface(
+        contract, libraries=libraries, backend=backend,
+    )
+    return interface
+
