@@ -3,9 +3,8 @@ API for NiPoPoW verifier smart contract
 """
 
 import sys
-from time import time
 
-from config import profiler, genesis, m, k
+from config import contract_path, genesis, m, k, collateral, profiler
 
 sys.path.append("../tools/interface/")
 import contract_interface
@@ -16,9 +15,9 @@ def make_interface(backend):
     Creates a contract interface
     """
     return contract_interface.ContractInterface(
-        {"path": "../contractNipopow.sol", "ctor": [genesis, m, k]},
+        {"path": contract_path, "ctor": [genesis, m, k]},
         backend=backend,
-        genesis_overrides={"gas_limit": 67219750},
+        profiler=profiler,
     )
 
 
@@ -27,52 +26,19 @@ def submit_event_proof(
     interface,
     proof,
     block_of_interest_index,
-    collateral=pow(10, 17),
+    collateral=collateral,
     from_address=None,
-    profile=False,
 ):
     """
     Call submit_event_proof of the verifier
     """
 
-    my_contract = interface.get_contract()
-    if from_address is None:
-        from_address = interface.w3.eth.accounts[0]
-
-    my_function = my_contract.functions.submitEventProof(
-        proof.headers, proof.siblings, block_of_interest_index
+    return interface.call(
+        "submitEventProof",
+        function_args=[proof.headers, proof.siblings, block_of_interest_index],
+        value=collateral,
+        from_address=from_address,
     )
-
-    res = my_function.call({"from": from_address, "value": collateral})
-
-    tx_hash = my_function.transact({"from": from_address, "value": collateral})
-
-    receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
-
-    try:
-        debug_events = my_contract.events.debug().processReceipt(receipt)
-    except Exception as ex:
-        debug_events = {}
-    if len(debug_events) > 0:
-        for e in debug_events:
-            log = dict(e)["args"]
-            if isinstance(log["value"], bytes):
-                value = log["value"].hex()
-            else:
-                value = log["value"]
-            print(log["tag"], "\t", value)
-
-    if profile is True:
-        filename = str(int(time())) + ".txt"
-        interface.run_gas_profiler(profiler, tx_hash, filename)
-
-    print(receipt["gasUsed"])
-
-    return {
-        "result": res,
-        "gas_used": receipt["gasUsed"],
-        "debug": debug_events,
-    }
 
 
 def dispute_existing_proof(
