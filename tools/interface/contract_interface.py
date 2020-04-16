@@ -247,3 +247,12 @@ def get_events(contract, receipt, event_name):
                 value = log["value"]
             extracted_events.append([log["tag"], value])
     return extracted_events
+
+def timestamp():
+    """
+    Returns the current date time skipping milliseconds
+    2020-04-16T12:11:45
+    """
+    from datetime import datetime
+    return datetime.today().isoformat().split('.')[0]
+
