@@ -370,10 +370,24 @@
   contesting proof has better score, then the predicate is evaluated
   against the contesting proof.
 
-  TODO: Add matrix or something else to show Honest Submit + No Constest
-  -> Predicate = True Honest Submit + Adversary Contest -> Predicate =
-  True Adversary Submit + Honest Contest -> Predicate = False Adversary
-  Submit + No Contest -> Impossible
+  The correct functionality of the verifier is the following.
+  \begin{itemize}
+  \item
+    If an honest party makes a submission and no contestation is
+    occured, then the predicate remains true.
+  \item
+    If an honest party makes a submission and it is contested by an
+    adversary, then the contestation is invalid and the predicate
+    remains true.
+  \item
+    If an adversary makes a submission, then an honest party makes a
+    contestation. The contestation invalidates the original submission
+    and the predicate becomes false.
+  \item
+    No adversary submission not followed by an honest contestation can
+    take place due to the assumption that at least one honest party
+    listens to the contract traffic(ref).
+  \end{itemize}
 
   \subsection{Previous Implementation}
 
