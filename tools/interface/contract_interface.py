@@ -20,7 +20,8 @@ class ContractInterface:
             solc_version='v0.6.4',
             backend='ganache',
             genesis_overrides={'gas_limit':3141592000},
-            precompiled_contract=None
+            precompiled_contract=None,
+            profiler=None
             ):
 
         self.solc_version=solc_version
@@ -49,6 +50,8 @@ class ContractInterface:
         else:
             compiled_contract = self.compile(path)
         self.contract_instances = self.deploy(compiled_contract, contract["ctor"])
+
+        self.profiler = profiler
 
     def create_from_compiled(self, contract_path, precompiled_contract):
         return [[ contract_path,
