@@ -13,7 +13,6 @@ from contract_api import (
     make_interface,
     submit_event_proof,
     submit_contesting_proof,
-    submit_contesting_proof_new,
     finalize_event,
     event_exists,
 )
@@ -106,20 +105,17 @@ def test_boi_in_large(init_environment):
     block_of_interest_index = 0
     interface = make_interface(backend)
 
-    res = submit_event_proof(
-        interface, submit_proof, block_of_interest_index, profile=True
-    )
+    res = submit_event_proof(interface, submit_proof, block_of_interest_index)
 
     assert res["result"] == True
 
     with pytest.raises(Exception) as ex:
-        res = submit_contesting_proof_new(
+        res = submit_contesting_proof(
             interface,
             submit_proof,
             small_lca,
             small_contest_proof,
             block_of_interest_index,
-            profile=True,
         )
     assert extract_message_from_error(ex) == errors["low score"]
 
@@ -135,21 +131,16 @@ def test_boi_in_small(init_environment):
     block_of_interest_index = 0
     interface = make_interface(backend)
 
-    res = submit_event_proof(
-        interface, submit_proof, block_of_interest_index, profile=True
-    )
+    res = submit_event_proof(interface, submit_proof, block_of_interest_index,)
 
     assert res["result"] == True
 
-    return
-
-    res = submit_contesting_proof_new(
+    res = submit_contesting_proof(
         interface,
         submit_proof,
         large_lca,
         large_contest_proof,
         block_of_interest_index,
-        profile=True,
     )
     assert res["result"] == True
 
@@ -167,19 +158,16 @@ def test_boi_in_common_submit_small(init_environment):
 
     block_of_interest_index = submit_proof.size - 1
 
-    res = submit_event_proof(
-        interface, submit_proof, block_of_interest_index, profile=True
-    )
+    res = submit_event_proof(interface, submit_proof, block_of_interest_index,)
     assert res["result"] == True
 
     with pytest.raises(Exception) as ex:
-        res = submit_contesting_proof_new(
+        res = submit_contesting_proof(
             interface,
             submit_proof,
             large_lca,
             large_contest_proof,
             block_of_interest_index,
-            profile=True,
         )
     assert extract_message_from_error(ex) == errors["boi in sub-chain"]
 
@@ -195,19 +183,16 @@ def test_boi_in_common_submit_big(init_environment):
     interface = make_interface(backend)
     block_of_interest_index = submit_proof.size - 1
 
-    res = submit_event_proof(
-        interface, submit_proof, block_of_interest_index, profile=True
-    )
+    res = submit_event_proof(interface, submit_proof, block_of_interest_index,)
     assert res["result"] == True
 
     with pytest.raises(Exception) as ex:
-        res = submit_contesting_proof_new(
+        res = submit_contesting_proof(
             interface,
             submit_proof,
             small_lca,
             small_contest_proof,
             block_of_interest_index,
-            profile=True,
         )
     assert extract_message_from_error(ex) == errors["boi in sub-chain"]
 
@@ -223,7 +208,7 @@ def test_boi_out_of_index(init_environment):
 
     with pytest.raises(Exception) as ex:
         res = submit_event_proof(
-            interface, submit_proof, block_of_interest_index, profile=True
+            interface, submit_proof, block_of_interest_index,
         )
     assert extract_message_from_error(ex) == errors["boi not exist"]
 
@@ -236,19 +221,16 @@ def test_boi_out_of_index_contest(init_environment):
     interface = make_interface(backend)
     block_of_interest_index = submit_proof.size - 1
 
-    res = submit_event_proof(
-        interface, submit_proof, block_of_interest_index, profile=True
-    )
+    res = submit_event_proof(interface, submit_proof, block_of_interest_index,)
     assert res["result"] == True
 
     with pytest.raises(Exception) as ex:
-        res = submit_contesting_proof_new(
+        res = submit_contesting_proof(
             interface,
             submit_proof,
             large_lca,
             large_contest_proof,
             submit_proof.size,  # This is out of range
-            profile=True,
         )
     assert extract_message_from_error(ex) == errors["boi not exist"]
 
@@ -261,19 +243,12 @@ def test_same_proofs(init_environment):
     interface = make_interface(backend)
     block_of_interest_index = submit_proof.size - 1
 
-    res = submit_event_proof(
-        interface, submit_proof, block_of_interest_index, profile=True
-    )
+    res = submit_event_proof(interface, submit_proof, block_of_interest_index,)
     assert res["result"] == True
 
     with pytest.raises(Exception) as ex:
-        res = submit_contesting_proof_new(
-            interface,
-            submit_proof,
-            0,
-            submit_proof,
-            block_of_interest_index,
-            profile=True,
+        res = submit_contesting_proof(
+            interface, submit_proof, 0, submit_proof, block_of_interest_index,
         )
     assert extract_message_from_error(ex) == errors["boi in sub-chain"]
 
@@ -286,19 +261,16 @@ def test_wrong_lca(init_environment):
     interface = make_interface(backend)
     block_of_interest_index = 0
 
-    res = submit_event_proof(
-        interface, submit_proof, block_of_interest_index, profile=True
-    )
+    res = submit_event_proof(interface, submit_proof, block_of_interest_index,)
     assert res["result"] == True
 
     with pytest.raises(Exception) as ex:
-        res = submit_contesting_proof_new(
+        res = submit_contesting_proof(
             interface,
             submit_proof,
             large_lca - 1,  # this is wrong
             large_contest_proof,
             block_of_interest_index,
-            profile=True,
         )
     assert extract_message_from_error(ex) == errors["wrong lca"]
 
@@ -312,13 +284,11 @@ def test_proof_exists(init_environment):
 
     block_of_interest_index = 0
 
-    res = submit_event_proof(
-        interface, submit_proof, block_of_interest_index, profile=True
-    )
+    res = submit_event_proof(interface, submit_proof, block_of_interest_index,)
     assert res["result"] == True
 
     with pytest.raises(Exception) as ex:
         res = submit_event_proof(
-            interface, submit_proof, block_of_interest_index, profile=True
+            interface, submit_proof, block_of_interest_index,
         )
     assert extract_message_from_error(ex) == errors["period expired"]
