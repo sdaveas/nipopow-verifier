@@ -197,11 +197,16 @@ As mentioned in the NIPoPoWs(ref Algorithm 7) paper, in order to construct a
 verifier, a DAG structure needs to be maintained in memory. This structure is
 stored in the form of a hashmap, and is used to host blocks of all different
 proofs. This process aims to prevent adversarial proofs which are structurally
-valid, but blocks are intentionally skipped. DAG is used to construct ancestors
-structure. By iterating ancestors, we can securely determine the value of the
-predicate.
+valid, but blocks are intentionally skipped. This scerario is displayed in
+Figure~\ref{fig:DAG_usage}. The DAG is used to construct ancestors structure. By iterating ancestors, we
+can securely determine the value of the predicate.
 
-// TODO: show the usage of DAG.
+\begin{figure}[hbt]
+\centering
+  \includegraphics[width=10cm]{DAG_usage}
+  \caption{Combination of multiple proofs in a DAG. The red block is the block of interest}
+\label{fig:DAG_usage}
+\end{figure}
 
 This solution is intuitive and is efficient to implement at most programming
 languages (C++, JAVA, Python, JavaScript etc). However, such an algorithm
@@ -211,36 +216,48 @@ treats storage differently than other programming languages. As mentioned
 above(ref), Solidity programs (i.e.\ smart contracts) are consuming gas to run.
 That is, the caller needs to pay in gas in order to execute operations, access
 and store data. In fact, reading from and writing to persistent memory is a
-very expensive operation in Solidity, as can be seen in the Ethereum yellow
-paper(ref).
+very expensive operation in Solidity, as stated in the Ethereum yellow
+paper(ref). A summary of gas costs is displayed in Figure~\ref{fig:gas_prices}.
 
-// TODO: Table of costs of operations in Solidity
+\begin{figure}[hbt]
+\centering
+  \includegraphics[width=12cm]{gas_prices}
+  \caption{Gas prices per operations\.}
+\label{fig:gas_prices}
+\end{figure}
 
 This fact was observed by Giorgos et al.\ and was recognized as the bottleneck
-of their application. We outline the logic of the previous implementation
-below.  We highlight structures that access persistent memory. Note that
+of their application. We describe each phase of the previous implementation in
+Algorithms~\ref{algo:submit_old} and~\ref{algo:contest_old}. We highlight structures that access persistent memory. Note that
 deleting from persistent storage is also considered a storage operation
 
-Submit (proof, predicate)
-\begin{enumerate}
-\item assert that no other proof was submitted for the same predicate
-\item validate proof’s interlink structure
-\item add proof to DAG
-\item create ancestors
-\item evaluate predicate
-\item delete ancestors
-\end{enumerate}
+\begin{algorithm}
+\caption{Submit Event Proof}
+\KwIn{$proof$, $predicate$}
+\label{algo:submit_old}
+Assert no other proof is currently submitted for the same $predicate$\\
+Assert that $proof$ is structurally valid\\
+Store $proof$ in $proof_{storage}$\\
+Add $proof$ to $DAG_{storage}$\\
+Compute $ancestors_{storage}$ from $DAG_{storage}$\\
+Evaluate $predicate$ from $ancestors_{storage}$\\
+Store result of evaluation in $predicate_{storage}$\\
+Delete $ancestors_{storage}$\\
+\end{algorithm}
 
-Contest (proof’, predicate):
-\begin{enumerate}
-\item assert that there is an open submission for the predicate
-\item find last common ancestor between proof, proof’
-\item find the proof with the best score between proof[lca:], proof’[lca:]
-\item add proof’ to DAG
-\item find ancestors
-\item evaluate predicate
-\item delete ancestors
-\end{enumerate}
+\begin{algorithm}
+\caption{Submit Contesting Proof}
+\KwIn{$proof'$, $predicate$}
+\label{algo:contest_old}
+Assert $predicate$ equals $predicate_{storage}$  \\
+Find \textit{lca} between $proof_{storage}$ and $proof'$\\
+Assert $proof’[lca:]$ has better score than $proof_{storage}[lca:]$ \\
+Add $proof’$ to $DAG_{storage}$\\
+Compute $ancestors_{storage}$ from $DAG_{storage}$\\
+Evaluate $predicate$ from $ancestors_{storage}$\\
+Delete $predicate_{storage}$\\
+Delete $ancestors_{storage}$\\
+\end{algorithm}
 
 \subsection{Targeting vulnerabilities and costly functionalities}
 
