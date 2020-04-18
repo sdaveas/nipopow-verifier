@@ -196,6 +196,7 @@ The correct functionality of the verifier is the following.
 \end{itemize}
 
 \subsection{Previous Implementation}
+\subsubsection{Overview}
 As mentioned in the NIPoPoWs(ref Algorithm 7) paper, in order to construct a
 verifier, a DAG structure needs to be maintained in memory. This structure is
 stored in the form of a hashmap, and is used to host blocks of all different
@@ -232,6 +233,8 @@ was recognized as the bottleneck of the application.
     \caption{Gas prices per operation.}
     \label{fig:gas_prices}
 \end{figure}
+
+\subsubsection{Phases}
 
 We describe each phase of the previous implementation in
 Algorithms~\ref{algo:submit_old} and~\ref{algo:contest_old}. We highlight
@@ -276,6 +279,9 @@ memory is also considered a storage operation
     delete $ancestors_{s}$\\
 \end{algorithm}
 
+\subsubsection{Security analysis}
+
+\subsubsection{Gas analysis}
 \subsection{Targeting vulnerabilities and costly functionalities}
 
 \begin{itemize}
