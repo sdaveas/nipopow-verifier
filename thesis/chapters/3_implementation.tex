@@ -240,30 +240,40 @@ memory is also considered a storage operation
 
 \begin{algorithm}
     \caption{Submit Event Proof}
-    \KwIn{$proof$, $predicate$}
     \label{algo:submit_old}
-    Assert no other proof is currently submitted for the same $predicate$\\
-    Assert that $proof$ is structurally valid\\
-    Store $proof$ in $proof_{storage}$\\
-    Add $proof$ to $DAG_{storage}$\\
-    Compute $ancestors_{storage}$ from $DAG_{storage}$\\
-    Evaluate $predicate$ from $ancestors_{storage}$\\
-    Store result of evaluation in $predicate_{storage}$\\
-    Delete $ancestors_{storage}$\\
+    \KwIn{$proof$, $predicate$}
+    \KwData{
+        \texttt{array} $proof_{s}$,
+        \texttt{hashmap} $DAG_{s}$,
+        \texttt{bool} $predicate_{s}$
+    }
+    require $predicate_{s}$ $=$ $\emptyset$ \\
+    require $validInterlink(proof$) \\
+    $DAG_{s}$ $\leftarrow$ $DAG_{s}$ $\cup$ $proof$\\
+    $proof_{s}$ $\leftarrow$ $proof$\\
+    $ancestors_{s}$ $\leftarrow$ $findAncestors(DAG_{s}$)\\
+    $predicate_{s}$ $\leftarrow$ $evaluatePredicate(ancestors_{s}$,
+    $predicate$)\\
+    delete $ancestors_{s}$\\
 \end{algorithm}
 
 \begin{algorithm}
     \caption{Submit Contesting Proof}
-    \KwIn{$proof'$, $predicate$}
     \label{algo:contest_old}
-    Assert $predicate$ equals $predicate_{storage}$  \\
-    Find \textit{lca} between $proof_{storage}$ and $proof'$\\
-    Assert $proof’[lca:]$ has better score than $proof_{storage}[lca:]$ \\
-    Add $proof’$ to $DAG_{storage}$\\
-    Compute $ancestors_{storage}$ from $DAG_{storage}$\\
-    Evaluate $predicate$ from $ancestors_{storage}$\\
-    Delete $predicate_{storage}$\\
-    Delete $ancestors_{storage}$\\
+    \KwIn{$proof'$, $predicate$}
+    \KwData{
+        \texttt{array} $proof_{s}$,
+        \texttt{hashmap} $DAG_{s}$,
+        \texttt{bool} $predicate_{s}$
+    }
+    require $predicate_{s}$ = $predicate$\\
+    $lca$ $\leftarrow$ findLca($proof_{s}$, $proof'$)\\
+    require $score(proof’[lca:])$ $>$ $score(proof_{s}[lca:])$ \\
+    $DAG_{s}$ $\leftarrow$ $DAG_{s}$ $\cup$ $proof'$\\
+    $ancestors_{s}$ $\leftarrow$ $findAncestors(DAG_{s})$\\
+    $predicate_{s}$ $\leftarrow$ $evaluatePredicate(ancestors_{s},
+    predicate)$\\
+    delete $ancestors_{s}$\\
 \end{algorithm}
 
 \subsection{Targeting vulnerabilities and costly functionalities}
