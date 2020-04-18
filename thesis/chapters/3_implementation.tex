@@ -76,7 +76,7 @@ constructing blockchains and proofs. For the purposes of our project,
 we needed to enhance the functionality of the existing tools in some
 cases. We are thankful to the writers for sharing their
 implementation. This greatly facilitated our work. Similar to Giorgos
-el al., we follow the steps listed below:
+et al.\, we follow the steps listed below:
 
 \begin{enumerate}
     \item
@@ -96,14 +96,14 @@ The tool that creates the blockchain was created by Andrew Miller, one
 of the writers of Non-Interactive Proofs of Proof of Work(ref) paper.
 The tool is using the Bitcoin library(ref) to construct a blockchain
 similar to Bitcoin’s. The interlink pointers are organised into a
-merkle tree and the index is determined by their level. For details
-regarding the level calculation, see section(ref). The merkle root of
+Merkle tree and the index is determined by their level. For details
+regarding the level calculation, see section(ref). The Merkle root of
 the interlink tree is a 32-bit value, and is included in the
-blockheader as an additional value. The new size of the block header
+block header as an additional value. The new size of the block header
 is 112 bytes. In order to ensure security, it is important for the
 interlink root to be included in the block header, as it is part of
 the proof. Otherwise, attackers could attack the proofs by reordering
-or including stray blocks. Miners can easily verify that the merkle
+or including stray blocks. Miners can easily verify that the Merkle
 root is correct.
 
 TODO: figure of the blockchain
@@ -161,38 +161,38 @@ proof and an event. During this phase, we assume that at least one
 honest full node is aware of the submission. This is also a part of
 the model of NIPoPoW, and is a logical assumption as explained in the
 paper. In order to perform a submission, one must provide a proof and
-a predicate. If a certain number of rounds passes without submission
-of contestations, the proof is considered valid and the predicate is
-considered true. The passing of rounds is indicated by the mining of
-new blocks atop of the block containing the submission.
+a predicate. If a certain number of rounds passes without contests, the proof
+is considered valid and the predicate is considered true. The passing of rounds
+is indicated by the mining of new blocks atop of the block containing the
+submission.
 
 \paragraph{Contest phase} If the submitted proof is invalid (i.e.\ the
 predicate is not true for the honest chain), a contesting proof is
 submitted, invalidating the original proof and predicate. The
 contesting proof is considered better only if it encapsulates more
 proof of work than the existing proof, as described in the NIPoPoWs
-paper. In order to contest, one must provide a consteting
-proof and the predicate that is claimed to be true by the originally
-submitted proof. If the contesting proof has better score, then the
-predicate is evaluated against the contesting proof.
+paper. In order to contest, one must provide a contest proof and the predicate
+that is claimed to be true by the originally submitted proof. If the contesting
+proof has better score, then the predicate is evaluated against the contesting
+proof.
 
 The correct functionality of the verifier is the following.
 \begin{itemize}
     \item
-        If an honest party makes a submission and no contestation is
-        occured, then the predicate becomes true.
+        if an \textit{honest} party submits a proof and no contest occurs, then
+        $predicate$ becomes $true$.
     \item
-        If an honest party makes a submission and it is contested by an
-        adversary, then the contestation is invalid and the predicate
-        remains true.
+        If an \textit{honest} party submits a proof and it is contested by an
+        \textit{adversary}, then the contest is invalid and the $predicate$
+        remains $true$.
     \item
-        If an adversary makes a submission, then an honest party makes a
-        contestation. The contestation invalidates the original submission
-        and the predicate becomes false.
+        If an \textit{adversary} submits a proof, then an \textit{honest} party
+        makes a contest. The contest invalidates the original submission and
+        the $predicate$ becomes $false$.
     \item
-        Adversary submissions not followed by an honest contestation cannot
-        take place due to the assumption that at least one honest party
-        observes the contract's traffic.
+        The scenario in which an \textit{adversary} submits a proof and it is not
+        followed by an \textit{honest} contest cannot take place due to the assumption
+        that at least one honest party observes the traffic of the contract.
 \end{itemize}
 
 \subsection{Previous Implementation}
@@ -200,7 +200,7 @@ As mentioned in the NIPoPoWs(ref Algorithm 7) paper, in order to construct a
 verifier, a DAG structure needs to be maintained in memory. This structure is
 stored in the form of a hashmap, and is used to host blocks of all different
 proofs. This process aims to prevent adversarial proofs which are structurally
-valid, but blocks are intentionally skipped. Such a scerario is displayed in
+valid, but blocks are intentionally skipped. Such a scenario is displayed in
 Figure~\ref{fig:DAG_usage}. The DAG is used to construct ancestors structure.
 By iterating ancestors, we can securely determine the value of the predicate.
 
@@ -209,7 +209,7 @@ By iterating ancestors, we can securely determine the value of the predicate.
     \includegraphics[width=10cm]{DAG_usage}
     \caption{Combination of multiple proofs in a DAG. The red block is the
         block of interest. Solid proof consists of blocks connected by solid
-        lines and adversary proof by dashed lines. Adversary intentionally
+        lines and adversary proof by dashed lines.The adversary intentionally
         uses a different set of blocks.}
     \label{fig:DAG_usage}
 \end{figure}
@@ -222,9 +222,9 @@ Solidity treats storage differently than most programming languages. As
 mentioned above(ref) in smart contracts the caller needs to pay in gas the
 execution of operations such as accessing and storing data. Reading from and
 writing to persistent memory are very expensive operations in Solidity, as
-stated in the Ethereum yellow paper(ref). A summary of a gas costs is displayed
+stated in the Ethereum yellow paper(ref). A summary of gas costs is displayed
 in Figure~\ref{fig:gas_prices}. This fact was observed by Giorgos et al.\ and
-was recognized as the bottleneck of their application.
+was recognized as the bottleneck of the application.
 
 \begin{figure}[hbt]
     \centering
@@ -292,7 +292,7 @@ memory is also considered a storage operation
 
         Gas was very high due to storage variables
 
-        Contract is vulnerable to premining
+        Contract is vulnerable to pre-mining
     \item
         4. Profile contract gas usage
     \item
