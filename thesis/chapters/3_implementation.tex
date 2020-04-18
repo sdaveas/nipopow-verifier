@@ -287,6 +287,44 @@ memory is also considered a storage operation
 
 \subsubsection{Security analysis}
 
+We observed that the smart contract is vulnerable to pre-mining(ref). By
+definition, a valid NIPoPoW is considered structurally correct if two
+properties are satisfied:
+
+\begin{enumerate}[(a)]
+
+\item The interlink structure of all blocks is correct. This is to prevent
+    adversaries from injecting blocks that do not exist in the original
+    blockchain.
+
+\item The first block of proof is $genesis$. This is to prevent adversaries
+    from create coins before blockchain was initiated in the public network.
+
+\end{enumerate}
+
+The second property is not verified in the smart contract, exposing it to
+pre-mining attacks. We can easily mitigate this vulnerability by initializing
+the smart contract with the $genesis$ block of the blockchain we will use to
+create proofs, and add an assertion that submitted proofs satisfy property (b).
+We needed changes are shown in Algorithms~\ref{algo:avoid_premining_ctor}
+and~\ref{algo:avoid_premining_submit}.
+
+\begin{algorithm}
+    \caption{Constructor}
+    \label{algo:avoid_premining_ctor}
+    \KwIn{$genesis$ block}
+    $genesis_{s}$ $\leftarrow$ $genesis$
+\end{algorithm}
+\vspace{-0.7cm}
+\begin{algorithm}
+    \caption{Submit Event Proof}
+    \label{algo:avoid_premining_submit}
+    \KwIn{$proof$, ...}
+    require $proof[0]$ = $genesis_{s}$ \\
+    ...
+\end{algorithm}
+
+
 \subsubsection{Gas analysis}
 \subsection{Targeting vulnerabilities and costly functionalities}
 
