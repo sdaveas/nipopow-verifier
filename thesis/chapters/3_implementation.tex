@@ -37,24 +37,21 @@ However, different implementations provide unique attributes to the
 developer, each of which helped us to progress effortlessly during
 different stages of our work.
 
-\paragraph {Py-EVM:} Py-EVM is
-an evolving EVM which is created mainly for testing. The ease of
-access and use, the configuration freedom of its underlying test chain
-and its effectiveness for small sized data helped our first steps.
-However, as the input data size started to grow, the effectiveness of
-the tool rapidly fell(ref).
+\paragraph {Py-EVM:} Py-EVM is an evolving EVM which is created mainly for
+testing. The ease of access and use, the configuration freedom of its
+underlying test chain and its effectiveness for small sized data helped our
+first steps. However, as the input data size started to grow, the effectiveness
+of the tool rapidly fell(ref).
 
-\paragraph {Ganache:} Ganache is a popular
-EVM developed by the Truffle team. It’s speed and configuration
-freedom are its main advantages. However, its extreme memory
-requirement made it impossible to use when the sizes of the input
-became analogous to the Bitcoin blockchain size.
+\paragraph {Ganache:} Ganache is a popular EVM developed by the Truffle team.
+It’s speed and configuration freedom are its main advantages. However, its
+extreme memory requirement made it impossible to use when the sizes of the
+input became analogous to the Bitcoin blockchain size.
 
-\paragraph {Geth:}
-Geth is another popular EVM which is created by the Ethereum team. It
-supports heavy customization while its memory usage is very limited
-compared to Ganache, even for extensive inputs. It is, however, slower
-than Ganache.
+\paragraph {Geth:} Geth is another popular EVM which is created by the Ethereum
+team. It supports heavy customization while its memory usage is very limited
+compared to Ganache, even for extensive inputs. It is, however, slower than
+Ganache.
 
 The set of configurations we used for each EVM can be found in our
 public repository(ref).
@@ -63,10 +60,10 @@ TODO: insert figure of Py-EVM vs Ganache vs Geth
 
 \subsubsection{Gas Profiling}
 
-Another useful utility we used was solidity-gas-profiler(ref), a
-profiling utility by Yushih. This gave us great insights regarding the
-gas usage across contract’s functions, and, consequently, helped us
-target the functionalities that needed to be refined.
+Another useful utility we used was solidity-gas-profiler(ref), a profiling
+utility by Yushih. This gave us great insights regarding the gas usage across
+contract’s functions, and, consequently, helped us target the functionalities
+that needed to be refined.
 
 TODO: insert figure of gas profiling
 
@@ -174,7 +171,7 @@ predicate is not true for the honest chain), a contesting proof is
 submitted, invalidating the original proof and predicate. The
 contesting proof is considered better only if it encapsulates more
 proof of work than the existing proof, as described in the NIPoPoWs
-paper. In order to perform a submission, one must provide a consteting
+paper. In order to contest, one must provide a consteting
 proof and the predicate that is claimed to be true by the originally
 submitted proof. If the contesting proof has better score, then the
 predicate is evaluated against the contesting proof.
@@ -183,7 +180,7 @@ The correct functionality of the verifier is the following.
 \begin{itemize}
     \item
         If an honest party makes a submission and no contestation is
-        occured, then the predicate remains true.
+        occured, then the predicate becomes true.
     \item
         If an honest party makes a submission and it is contested by an
         adversary, then the contestation is invalid and the predicate
@@ -193,9 +190,9 @@ The correct functionality of the verifier is the following.
         contestation. The contestation invalidates the original submission
         and the predicate becomes false.
     \item
-        No adversary submission not followed by an honest contestation can
+        Adversary submissions not followed by an honest contestation cannot
         take place due to the assumption that at least one honest party
-        listens to the contract traffic(ref).
+        observes the contract's traffic.
 \end{itemize}
 
 \subsection{Previous Implementation}
@@ -204,65 +201,67 @@ verifier, a DAG structure needs to be maintained in memory. This structure is
 stored in the form of a hashmap, and is used to host blocks of all different
 proofs. This process aims to prevent adversarial proofs which are structurally
 valid, but blocks are intentionally skipped. This scerario is displayed in
-Figure~\ref{fig:DAG_usage}. The DAG is used to construct ancestors structure. By iterating ancestors, we
-can securely determine the value of the predicate.
+Figure~\ref{fig:DAG_usage}. The DAG is used to construct ancestors structure.
+By iterating ancestors, we can securely determine the value of the predicate.
 
 \begin{figure}[hbt]
-\centering
-  \includegraphics[width=10cm]{DAG_usage}
-  \caption{Combination of multiple proofs in a DAG. The red block is the block of interest}
-\label{fig:DAG_usage}
+    \centering
+    \includegraphics[width=10cm]{DAG_usage}
+    \caption{Combination of multiple proofs in a DAG. The red block is the
+        block of interest}
+    \label{fig:DAG_usage}
 \end{figure}
 
-This solution is intuitive and is efficient to implement at most programming
-languages (C++, JAVA, Python, JavaScript etc). However, such an algorithm
-cannot be efficiently implemented in Solidity as is. This is not due to the
-lack of features, such as the existence of hashmaps, but because Solidity
-treats storage differently than other programming languages. As mentioned
-above(ref), Solidity programs (i.e.\ smart contracts) are consuming gas to run.
-That is, the caller needs to pay in gas in order to execute operations, access
-and store data. In fact, reading from and writing to persistent memory is a
-very expensive operation in Solidity, as stated in the Ethereum yellow
-paper(ref). A summary of gas costs is displayed in Figure~\ref{fig:gas_prices}.
+This solution is intuitive and is efficient to implement at most traditional
+programming languages (C++, JAVA, Python, JavaScript, etc). However, such an
+algorithm cannot be efficiently implemented in Solidity as is. This is not
+due to the lack of features, such as the existence of hashmaps, but because
+Solidity treats storage differently than other programming languages. As
+mentioned above(ref), in Solidity programs (i.e.\ smart contracts) the caller
+needs to pay in gas the execution of operations, such as accessing and storing
+data. In fact, reading from and writing to persistent memory is a very
+expensive operation in Solidity, as stated in the Ethereum yellow paper(ref). A
+summary of gas costs is displayed in Figure~\ref{fig:gas_prices}.
 
 \begin{figure}[hbt]
-\centering
-  \includegraphics[width=12cm]{gas_prices}
-  \caption{Gas prices per operations\.}
-\label{fig:gas_prices}
+    \centering
+    \includegraphics[width=12cm]{gas_prices}
+    \caption{Gas prices per operations\.}
+    \label{fig:gas_prices}
 \end{figure}
 
 This fact was observed by Giorgos et al.\ and was recognized as the bottleneck
 of their application. We describe each phase of the previous implementation in
-Algorithms~\ref{algo:submit_old} and~\ref{algo:contest_old}. We highlight structures that access persistent memory. Note that
-deleting from persistent storage is also considered a storage operation
+Algorithms~\ref{algo:submit_old} and~\ref{algo:contest_old}. We highlight
+structures that access persistent memory. Note that deleting from persistent
+storage is also considered a storage operation
 
 \begin{algorithm}
-\caption{Submit Event Proof}
-\KwIn{$proof$, $predicate$}
-\label{algo:submit_old}
-Assert no other proof is currently submitted for the same $predicate$\\
-Assert that $proof$ is structurally valid\\
-Store $proof$ in $proof_{storage}$\\
-Add $proof$ to $DAG_{storage}$\\
-Compute $ancestors_{storage}$ from $DAG_{storage}$\\
-Evaluate $predicate$ from $ancestors_{storage}$\\
-Store result of evaluation in $predicate_{storage}$\\
-Delete $ancestors_{storage}$\\
+    \caption{Submit Event Proof}
+    \KwIn{$proof$, $predicate$}
+    \label{algo:submit_old}
+    Assert no other proof is currently submitted for the same $predicate$\\
+    Assert that $proof$ is structurally valid\\
+    Store $proof$ in $proof_{storage}$\\
+    Add $proof$ to $DAG_{storage}$\\
+    Compute $ancestors_{storage}$ from $DAG_{storage}$\\
+    Evaluate $predicate$ from $ancestors_{storage}$\\
+    Store result of evaluation in $predicate_{storage}$\\
+    Delete $ancestors_{storage}$\\
 \end{algorithm}
 
 \begin{algorithm}
-\caption{Submit Contesting Proof}
-\KwIn{$proof'$, $predicate$}
-\label{algo:contest_old}
-Assert $predicate$ equals $predicate_{storage}$  \\
-Find \textit{lca} between $proof_{storage}$ and $proof'$\\
-Assert $proof’[lca:]$ has better score than $proof_{storage}[lca:]$ \\
-Add $proof’$ to $DAG_{storage}$\\
-Compute $ancestors_{storage}$ from $DAG_{storage}$\\
-Evaluate $predicate$ from $ancestors_{storage}$\\
-Delete $predicate_{storage}$\\
-Delete $ancestors_{storage}$\\
+    \caption{Submit Contesting Proof}
+    \KwIn{$proof'$, $predicate$}
+    \label{algo:contest_old}
+    Assert $predicate$ equals $predicate_{storage}$  \\
+    Find \textit{lca} between $proof_{storage}$ and $proof'$\\
+    Assert $proof’[lca:]$ has better score than $proof_{storage}[lca:]$ \\
+    Add $proof’$ to $DAG_{storage}$\\
+    Compute $ancestors_{storage}$ from $DAG_{storage}$\\
+    Evaluate $predicate$ from $ancestors_{storage}$\\
+    Delete $predicate_{storage}$\\
+    Delete $ancestors_{storage}$\\
 \end{algorithm}
 
 \subsection{Targeting vulnerabilities and costly functionalities}
