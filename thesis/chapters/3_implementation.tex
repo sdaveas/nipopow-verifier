@@ -200,7 +200,7 @@ As mentioned in the NIPoPoWs(ref Algorithm 7) paper, in order to construct a
 verifier, a DAG structure needs to be maintained in memory. This structure is
 stored in the form of a hashmap, and is used to host blocks of all different
 proofs. This process aims to prevent adversarial proofs which are structurally
-valid, but blocks are intentionally skipped. This scerario is displayed in
+valid, but blocks are intentionally skipped. Such a scerario is displayed in
 Figure~\ref{fig:DAG_usage}. The DAG is used to construct ancestors structure.
 By iterating ancestors, we can securely determine the value of the predicate.
 
@@ -212,29 +212,29 @@ By iterating ancestors, we can securely determine the value of the predicate.
     \label{fig:DAG_usage}
 \end{figure}
 
-This solution is intuitive and is efficient to implement at most traditional
+This logic is intuitive and efficient to implement in most traditional
 programming languages (C++, JAVA, Python, JavaScript, etc). However, such an
 algorithm cannot be efficiently implemented in Solidity as is. This is not
 due to the lack of features, such as the existence of hashmaps, but because
-Solidity treats storage differently than other programming languages. As
-mentioned above(ref), in Solidity programs (i.e.\ smart contracts) the caller
-needs to pay in gas the execution of operations, such as accessing and storing
-data. In fact, reading from and writing to persistent memory is a very
-expensive operation in Solidity, as stated in the Ethereum yellow paper(ref). A
-summary of gas costs is displayed in Figure~\ref{fig:gas_prices}.
+Solidity treats storage differently than most programming languages. As
+mentioned above(ref) in smart contracts the caller needs to pay in gas the
+execution of operations such as accessing and storing data. Reading from and
+writing to persistent memory are very expensive operations in Solidity, as
+stated in the Ethereum yellow paper(ref). A summary of a gas costs is displayed
+in Figure~\ref{fig:gas_prices}. This fact was observed by Giorgos et al.\ and
+was recognized as the bottleneck of their application.
 
 \begin{figure}[hbt]
     \centering
     \includegraphics[width=12cm]{gas_prices}
-    \caption{Gas prices per operations\.}
+    \caption{Gas prices per operation.}
     \label{fig:gas_prices}
 \end{figure}
 
-This fact was observed by Giorgos et al.\ and was recognized as the bottleneck
-of their application. We describe each phase of the previous implementation in
+We describe each phase of the previous implementation in
 Algorithms~\ref{algo:submit_old} and~\ref{algo:contest_old}. We highlight
 structures that access persistent memory. Note that deleting from persistent
-storage is also considered a storage operation
+memory is also considered a storage operation
 
 \begin{algorithm}
     \caption{Submit Event Proof}
