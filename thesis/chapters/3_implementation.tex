@@ -325,6 +325,32 @@ and~\ref{algo:avoid_premining_submit}.
     ...
 \end{algorithm}
 
+\paragraph{Score Computation}
+
+During our tests, we observed that the calculation of proofs score was
+incorrect. The score of each level is needed to determine which proof
+encapsulates the most Proof of Work. Between two proofs, we only need to
+compute the difference in score starting from their $lca$ until the tip of each
+contesting proof. Different levels are needed because the $lca$ an entity will
+contest is unknown to the original submitter. The solution is to create a proof
+of many levels, so that, disregarding the position of the $lca$, the security
+parameters will apply.
+
+TODO: Figure for the need of multiple levels
+
+Each block has a level, calculated as describe in Section(ref)
+\[ level = getLevel(block) \]
+
+Consequently, each level of the proof consists of a number of blocks
+$n_{level}$. This number is the sum of blocks of level $\geq$ $level$.  The
+score of each level, is computed as
+
+\[ score_{level} = 2^{level} \times n_{level}\]
+
+We observed that function $getLevel(block)$  returned $level-1$ instead of
+$level$ resulting to incorrect score computation. This can prevent an honest
+party from successfully contesting an adversary proof, making the contract
+insecure. The implementation of the function was repaired.
 
 \subsubsection{Gas analysis}
 \subsection{Targeting vulnerabilities and costly functionalities}
