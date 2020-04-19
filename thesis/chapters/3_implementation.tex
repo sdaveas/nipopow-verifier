@@ -339,8 +339,82 @@ and~\ref{algo:avoid_premining_submit}.
         2. Create tests for all functionalities
     \item
         3. Identify and fix vulnerabilities
+\begin{figure}
+    \begin{tikzpicture}
+        \begin{axis}[
+            symbolic y coords={
+                interlink,
+                DAG,
+                proof,
+                ancestors,
+                predicate,
+                del ancest.
+            },
+            ytick={interlink, DAG, proof, ancestors, predicate, del ancest.},
+            yticklabel style={text height=3ex},
+            xmin=0,
+            xbar,
+            xlabel={Gas Used},
+            xmajorgrids=true,
+            ]
+            \addplot coordinates {
+                    (124208,interlink)
+                    (1204142,DAG)
+                    (422535,proof)
+                    (1929705,ancestors)
+                    (286295,predicate)
+                    ( 163696,del ancest.)
+                };
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Operations gas cost on submit}
+    \label{fig:submit_old_gases}
+\end{figure}
 
-        Gas was very high due to storage variables
+\begin{figure}
+    \begin{tikzpicture}
+        \begin{axis}[
+            symbolic y coords={
+                interlink,
+                lca,
+                scores,
+                proof,
+                DAG,
+                ancest.,
+                pred.,
+                del ancest.
+            },
+            ytick={
+                interlink,
+                lca,
+                scores,
+                proof,
+                DAG,
+                ancest.,
+                pred.,
+                del ancest.
+            },
+            yticklabel style={text height=3ex},
+            xmin=0,
+            xbar,
+            xlabel={Gas Used},
+            xmajorgrids=true,
+            ]
+            \addplot coordinates {
+                    (151715,interlink)
+                    (574156,lca)
+                    (313897,scores)
+                    (337815,proof)
+                    (1208754,DAG)
+                    (2312361,ancest.)
+                    (272718,pred.)
+                    (126153,del ancest.)
+                };
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Operations gas cost on contest}
+    \label{fig:contest_old_gases}
+\end{figure}
 
         Contract is vulnerable to pre-mining
     \item
