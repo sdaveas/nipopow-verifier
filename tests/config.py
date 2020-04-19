@@ -7,7 +7,9 @@ import json
 genesis = b"\xf3\x0cF\xbe\xc5B\xa3t9\x95.\x0f\xfe\x0ea\r\xbb\xcd\xad\x97\xee\xd9\xba\x94U\xdc\x90\x05\xcbW\xfcR"
 m = 6
 k = 6
+collateral = pow(10, 17)
 
+contract_path = "../contractNipopow.sol"
 profiler = "/home/stelios/Projects/solidity-gas-profiler/profile.js"
 
 errors = {
