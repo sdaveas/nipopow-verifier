@@ -353,19 +353,7 @@ party from successfully contesting an adversary proof, making the contract
 insecure. The implementation of the function was repaired.
 
 \subsubsection{Gas analysis}
-\subsection{Targeting vulnerabilities and costly functionalities}
 
-\begin{itemize}
-    \item
-        0. Knowledge that extensive gas usage is due to large storage
-        allocation
-    \item
-        1. Make old contract compatible with the last version of solidity
-        compiler
-    \item
-        2. Create tests for all functionalities
-    \item
-        3. Identify and fix vulnerabilities
 \begin{figure}
     \begin{tikzpicture}
         \begin{axis}[
@@ -443,44 +431,60 @@ insecure. The implementation of the function was repaired.
     \label{fig:contest_old_gases}
 \end{figure}
 
-        Contract is vulnerable to pre-mining
-    \item
-        4. Profile contract gas usage
-    \item
-        5. Identify expensive operations
-\end{itemize}
-
-\subsection{Fixing vulnerabilities and restricting gas usage}
-
-\begin{itemize}
-
-    \item
-        Add verification of genesis
-    \item
-        Reconsider DAG and ancestors methodology and redesign submission and
-        contest schema
-    \item
-        Submit doesn't need to save in the proof in storage. Contest can
-        provide the existing proof during contesting.
-
-    \item
-        Use subset: P1\{:lca\} $>$ P2\{:lca\}, P1 is the existing, P2 is the
-        contesting
-
-        This prevents expensive storage for DAG and ancestors.
-
-    \item
-        Even the check of subset can be skipped. The contesting proof cannot
-        benefit from pre-lca malformed proof. If Pa is valid, then we just
-        need to check Pb[lca:]
-
-    \item
-        This is not vulnerable to DOS attacks
-
-    \item
-        Observe the network and contest with the appropriate proof if
-        submitted is not correct.
-
-\end{itemize}
+% \subsection{Targeting vulnerabilities and costly functionalities}
+%
+% \begin{itemize}
+%     \item
+%         0. Knowledge that extensive gas usage is due to large storage
+%         allocation
+%     \item
+%         1. Make old contract compatible with the last version of solidity
+%         compiler
+%     \item
+%         2. Create tests for all functionalities
+%     \item
+%         3. Identify and fix vulnerabilities
+%
+%         Gas was very high due to storage variables
+%
+%         Contract is vulnerable to pre-mining
+%     \item
+%         4. Profile contract gas usage
+%     \item
+%         5. Identify expensive operations
+% \end{itemize}
+%
+% \subsection{Fixing vulnerabilities and restricting gas usage}
+%
+% \begin{itemize}
+%
+%     \item
+%         Add verification of genesis
+%     \item
+%         Reconsider DAG and ancestors methodology and redesign submission and
+%         contest schema
+%     \item
+%         Submit doesn't need to save in the proof in storage. Contest can
+%         provide the existing proof during contesting.
+%
+%     \item
+%         Use subset: P1\{:lca\} $>$ P2\{:lca\}, P1 is the existing, P2 is the
+%         contesting
+%
+%         This prevents expensive storage for DAG and ancestors.
+%
+%     \item
+%         Even the check of subset can be skipped. The contesting proof cannot
+%         benefit from pre-lca malformed proof. If Pa is valid, then we just
+%         need to check Pb[lca:]
+%
+%     \item
+%         This is not vulnerable to DOS attacks
+%
+%     \item
+%         Observe the network and contest with the appropriate proof if
+%         submitted is not correct.
+%
+% \end{itemize}
 
 \pagebreak
