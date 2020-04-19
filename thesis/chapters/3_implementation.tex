@@ -202,20 +202,20 @@ at specific aspects in which our solution differs. We will later show these
 differences and we will analyse on how they impact the results of our
 application.
 
-\subsubsection{Overview}
-As mentioned in the NIPoPoWs(ref Algorithm 7) paper, in order to construct a
-verifier, a DAG structure needs to be maintained in memory. This structure is
-stored in the form of a hashmap, and is used to host blocks of all different
-proofs. This process aims to prevent adversarial proofs which are structurally
-valid, but blocks are intentionally skipped. Such a scenario is displayed in
-Figure~\ref{fig:DAG_usage}. The DAG is used to construct ancestors structure.
-By iterating ancestors, we can securely determine the value of the predicate.
+\subsubsection{Overview} As mentioned in the NIPoPoWs(ref Algorithm 7) paper,
+in order to construct a verifier, a Directed Acyclic Graph (DAG) needs to be
+maintained in memory. This structure is stored in the form of a hashmap, and is
+used to host blocks of all different proofs. This process aims to prevent
+adversarial proofs which are structurally valid but blocks are intentionally
+skipped. Such a scenario is displayed in Figure~\ref{fig:DAG_usage}. The DAG is
+then used to construct ancestors structure. By iterating ancestors, we can
+securely determine the value of the predicate.
 
 \begin{figure}[hbt]
     \centering
     \includegraphics[width=10cm]{DAG_usage}
     \caption{Combination of multiple proofs in a DAG. The red block is the
-        block of interest. Solid proof consists of blocks connected by solid
+        block of interest. Honest proof consists of blocks connected by solid
         lines and adversary proof by dashed lines.The adversary intentionally
         uses a different set of blocks.}
     \label{fig:DAG_usage}
@@ -226,7 +226,7 @@ programming languages (C++, JAVA, Python, JavaScript, etc). However, such an
 algorithm cannot be efficiently implemented in Solidity as is. This is not
 due to the lack of features, such as the existence of hashmaps, but because
 Solidity treats storage differently than most programming languages. As
-mentioned above(ref) in smart contracts the caller needs to pay in gas the
+mentioned above(ref) in smart contracts the caller needs to pay in gas for the
 execution of operations such as accessing and storing data. Reading from and
 writing to persistent memory are very expensive operations in Solidity, as
 stated in the Ethereum yellow paper(ref). A summary of gas costs is displayed
@@ -299,42 +299,45 @@ properties are satisfied:
     blockchain.
 
 \item The first block of proof is $genesis$. This is to prevent adversaries
-    from create coins before blockchain was initiated in the public network.
+    from create coins before blockchain are initiated at the public network.
 
 \end{enumerate}
 
 The second property is not verified in the smart contract, exposing it to
 pre-mining attacks. We can easily mitigate this vulnerability by initializing
 the smart contract with the $genesis$ block of the blockchain we will use to
-create proofs, and add an assertion that submitted proofs satisfy property (b).
-We needed changes are shown in Algorithms~\ref{algo:avoid_premining_ctor}
+create proofs, and add an assertion that submitted proofs need to satisfy
+property (b).  The needed changes are shown in
+Algorithms~\ref{algo:avoid_premining_ctor}
 and~\ref{algo:avoid_premining_submit}.
 
 \begin{algorithm}
-    \caption{Constructor}
+    \caption{Contract Constructor}
     \label{algo:avoid_premining_ctor}
     \KwIn{$genesis$ block}
-    $genesis_{s}$ $\leftarrow$ $genesis$
+    $genesis_{s}$ $\leftarrow$ $genesis$\newline
+    ...
 \end{algorithm}
 \vspace{-0.7cm}
 \begin{algorithm}
     \caption{Submit Event Proof}
     \label{algo:avoid_premining_submit}
     \KwIn{$proof$, ...}
-    require $proof[0]$ = $genesis_{s}$ \\
+    require $proof[0]$ = $genesis_{s}$\newline
     ...
 \end{algorithm}
 
-\paragraph{Score Computation}
+\paragraph{Score Calculation}
 
 During our tests, we observed that the calculation of proofs score was
 incorrect. The score of each level is needed to determine which proof
-encapsulates the most Proof of Work. Between two proofs, we only need to
-compute the difference in score starting from their $lca$ until the tip of each
-contesting proof. Different levels are needed because the $lca$ an entity will
-contest is unknown to the original submitter. The solution is to create a proof
-of many levels, so that, disregarding the position of the $lca$, the security
-parameters will apply.
+represents the chain with the most Proof of Work. Between two proofs, we only
+need to calculate the score starting from their $lca$ until the tip of each
+proof. Different levels are needed because the $lca$ between two proofs is only
+known when the contesting proof is submitted. The security parameter $m$ needs
+to be satisfied for every sub-proof $proof[:lca]$. We assure this is true by
+creating proofs of multiple levels, so that, disregarding the position of the
+$lca$, security parameter $m$ will always apply.
 
 TODO: Figure for the need of multiple levels
 
@@ -343,14 +346,15 @@ Each block has a level, calculated as describe in Section(ref)
 
 Consequently, each level of the proof consists of a number of blocks
 $n_{level}$. This number is the sum of blocks of level $\geq$ $level$.  The
-score of each level, is computed as
+score of each level is computed as:
 
-\[ score_{level} = 2^{level} \times n_{level}\]
+\[score_{level} = 2^{level} \times n_{level}\]
 
-We observed that function $getLevel(block)$  returned $level-1$ instead of
-$level$ resulting to incorrect score computation. This can prevent an honest
-party from successfully contesting an adversary proof, making the contract
-insecure. The implementation of the function was repaired.
+We observed that function $getLevel(block)$ of the contract returned
+$block.level-1$ instead of $block.level$ resulting to incorrect score
+computation. This can prevent an honest party from successfully contesting an
+adversarial proof, making the contract insecure. The function was refined to
+return the correct value.
 
 \subsubsection{Gas analysis}
 
