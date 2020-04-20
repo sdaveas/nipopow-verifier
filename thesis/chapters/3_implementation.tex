@@ -376,9 +376,50 @@ return the correct value.
 \subsection{Storage Elimination}
 
 As mentioned above, the bottleneck we had to eliminate was the extensive
-storage usage. We created a new architecture that allowed us to discard all
-expensive store operations, and utilize memory instead, which led to massive
-decrease at gas consumption.
+usage of storage. We created a new architecture that allowed us to discard all
+expensive store operations and utilize memory instead This led to massive
+decrease at gas consumption. In this section, we present the difference in gas
+usage between storage and memory utilization, and how a NIPoPoW verifier can be
+refined in order to eliminate storage usage.
+
+\subsubsection{Storage vs Memory}
+
+Here we demonstrate the difference in gas usage between storage and memory for
+a contract in Solidity. Suppose we have the simple following contract:
+
+\lstinputlisting[style=customc, captionpos=b, label={listing:storage_memory}, caption={Solidity test for storage and memory}]{data/StorageVsMemory.sol}
+
+Function \texttt{withStorage()} populates an array saved in storage and
+function \texttt{withMemory()} populates an array saved in memory. We
+initialize the sizes of the arrays by passing variable \texttt{size} to the
+contract constructor. We run this piece of code for \texttt{size} from 1 to
+100. The results are displayed at Figure~\ref{fig:memory_vs_storage}. For
+\texttt{size} = 100, the gas expended using memory is 53,574 and 2,569,848
+using storage which is almost 50 times more expensive. This code was compiled
+with Solidity version 0.6.6 with optimizations enabled\footnote{This version of
+Solidity compiler, which was the latest at the time this paper was published,
+does not optimize-out any variables.}. The EVM we used  was Ganache at
+Constantinople(ref) fork. It is obvious that if there is the option to use
+memory instead of storage in the design of smart contracts, it greatly
+benefits the users.
+
+\begin{figure}
+\centering
+\begin{tikzpicture}
+    \begin{axis}[
+        legend pos=north west,
+        scaled y ticks = false,
+        grid=major,
+        xlabel={Size},
+        ylabel={Gas}]
+    \addplot table [mark=none, col sep=comma] {data/storage.csv};
+    \addplot table [mark=none, col sep=comma] {data/memory.csv};
+    \legend{$storage$,$memory$};
+\end{axis}
+\end{tikzpicture}
+\label{fig:memory_vs_storage}
+\caption{Gas consumption for memory and storage}
+\end{figure}
 
 % \subsection{Targeting vulnerabilities and costly functionalities}
 %
