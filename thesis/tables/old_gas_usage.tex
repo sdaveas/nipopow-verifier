@@ -1,0 +1,36 @@
+\begin{table}[]
+    \centering
+    \begin{tabular}{@{}lccll@{}}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Submit function}} & \textbf{gas usage}    \\ \midrule
+        validate Interlink  & \multicolumn{1}{r}{124,208} \\
+        \\
+        \\
+        store proof         & \multicolumn{1}{r}{  422,535} \\
+        store DAG           & \multicolumn{1}{r}{1,204,142}\\
+        store ancestors     & \multicolumn{1}{r}{1,929,705}\\
+        evaluate predicate  & \multicolumn{1}{r}{  286,295} \\
+        delete ancestors    & \multicolumn{1}{r}{  163,696} \\
+        \midrule
+        Sum                 & \multicolumn{1}{r}{4,131,517} \\
+        \bottomrule
+    \end{tabular}
+    \quad
+    \begin{tabular}{@{}lccll@{}}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Contest function}} & \textbf{gas usage}    \\ \midrule
+        validate Interlink  & \multicolumn{1}{r}{  151,715} \\
+        find lca            & \multicolumn{1}{r}{  574,156} \\
+        compare proofs      & \multicolumn{1}{r}{  313,897} \\
+        store proof         & \multicolumn{1}{r}{  337,815} \\
+        update DAG          & \multicolumn{1}{r}{1,208,754} \\
+        store ancestors     & \multicolumn{1}{r}{2,312,361} \\
+        evaluate predicate  & \multicolumn{1}{r}{  272,718} \\
+        delete ancestors    & \multicolumn{1}{r}{  126,153} \\
+        \midrule
+        Sum                 & \multicolumn{1}{r}{5,297,569} \\
+        \bottomrule
+    \end{tabular}
+    \caption{Execution for proof of 20 blocks}
+    \label{table:old_gas_usage}
+\end{table}
