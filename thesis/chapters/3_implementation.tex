@@ -4,13 +4,12 @@
 
 \subsubsection{Existing Environments}
 
-The first step towards starting the implementation is to set up a
-comfortable and adjustable environment. There are several environments
-one can use to build Solidity applications, most popular of which are
-Truffle(ref), Remix(ref) and Embark(ref). However, none of the
-aforementioned applications delivered the experience we needed in the
-scope of our project, due to the lack of speed and customization
-options. That led us to the creation of a custom environment for
+The first step towards implementation is to set up a comfortable and adjustable
+environment. There are several environments one can use to build Solidity
+applications, most popular of which are Truffle(ref), Remix(ref) and
+Embark(ref). However, none of the aforementioned applications delivered the
+experience we needed in the scope of our project, due to the lack of speed and
+customization options. That led us to the creation of a custom environment for
 importing, compiling, deploying and testing smart contracts.
 
 We used Python(ref) to build our environment, since it is a powerful
@@ -25,7 +24,7 @@ powerful library for interacting with Ethereum, the Solidity v0.6.6
 compiler(ref), and EthereumTester which is a set of tools for testing
 Ethereum-based applications. For the purpose of our project, a private
 blockchain running an Ethereum Virtual Machine (EVM) was deployed.
-This is a common practice for Ethereum developers since it greatly
+This is a common practice for Ethereum development since it greatly
 facilitates testing procedures. Our environment supports multiple
 EVMs, namely Geth(ref), Ganache(ref) and Py-EVM(ref).
 
@@ -33,7 +32,7 @@ EVMs, namely Geth(ref), Ganache(ref) and Py-EVM(ref).
 
 All aforementioned EVMs deliver an implementation that complies with
 the specifications described at the Ethereum yellow paper(ref).
-However, different implementations provide unique attributes to the
+However, different implementations provide unique choices to the
 developer, each of which helped us to progress effortlessly during
 different stages of our work.
 
@@ -44,7 +43,7 @@ first steps. However, as the input data size started to grow, the effectiveness
 of the tool rapidly fell(ref).
 
 \paragraph {Ganache:} Ganache is a popular EVM developed by the Truffle team.
-It’s speed and configuration freedom are its main advantages. However, its
+Its speed and configuration freedom are its main advantages. However, its
 extreme memory requirement made it impossible to use when the sizes of the
 input became analogous to the Bitcoin blockchain size.
 
@@ -60,7 +59,7 @@ TODO: insert figure of Py-EVM vs Ganache vs Geth
 
 \subsubsection{Gas Profiling}
 
-Another useful utility we used was solidity-gas-profiler(ref), a profiling
+Another useful utility we used is solidity-gas-profiler(ref), a profiling
 utility by Yushih. This gave us great insights regarding the gas usage across
 contract’s functions, and, consequently, helped us target the functionalities
 that needed to be refined.
@@ -75,8 +74,10 @@ used some of the tools Giorgos et al.\ used for functionalities such as
 constructing blockchains and proofs. For the purposes of our project,
 we needed to enhance the functionality of the existing tools in some
 cases. We are thankful to the writers for sharing their
-implementation. This greatly facilitated our work. Similar to Giorgos
-et al.\, we follow the steps listed below:
+implementation. This greatly facilitated our work.
+
+In this subsection, we describe the model that our work shares this the
+previous implementation. This includes the following::
 
 \begin{enumerate}
     \item
@@ -87,36 +88,31 @@ et al.\, we follow the steps listed below:
         Verify the proof
 \end{enumerate}
 
-In this subsection, we describe the model under which both
-implementations were deployed.
 
 \subsubsection{Blockchain}
 
-The tool that creates the blockchain was created by Andrew Miller, one
-of the writers of Non-Interactive Proofs of Proof of Work(ref) paper.
-The tool is using the Bitcoin library(ref) to construct a blockchain
-similar to Bitcoin’s. The interlink pointers are organized into a
-Merkle tree and the index is determined by their level. For details
-regarding the level calculation, see section(ref). The Merkle root of
-the interlink tree is a 32-bit value, and is included in the
-block header as an additional value. The new size of the block header
-is 112 bytes. In order to ensure security, it is important for the
-interlink root to be included in the block header, as it is part of
-the proof. Otherwise, attackers could attack the proofs by reordering
-or including stray blocks. Miners can easily verify that the Merkle
-root is correct.
+The tool that creates the blockchain was created by Andrew Miller, one of the
+writers of Non-Interactive Proofs of Proof of Work(ref) paper.  The tool is
+using the Bitcoin library(ref) to construct a blockchain similar to Bitcoin’s.
+The interlink pointers are organized into a Merkle(ref) tree and the index is
+determined by their level. For details regarding the level calculation, see
+section(ref). The Merkle root of the interlink tree is a 32-bit value, and is
+included in the block header as an additional value. The new size of the block
+header is 112 bytes. In order to ensure security, it is important for the
+interlink root to be included in the block header, as it is part of the proof.
+Otherwise, attackers could attack the proofs by reordering or including stray
+blocks. Miners can easily verify that the Merkle root is correct.
 
 TODO: figure of the blockchain
 
 \subsubsection{Superblock Levels}
 
-We assume that the difficulty target of mined blocks is constant. As
-discussed in section(ref), this is not the model of the Bitcoin
-blockchain. The definition of superblocks is changed to a simpler
-definition and the level is determined by the number of leading zeros
-of the block header hash. Although this change does not take into
-account the difficulty target, the scoring of proof of work does not
-generate security holes in the protocol.
+We assume that the difficulty target of mined blocks is constant. As discussed
+in section(ref), this is not the actual setting of the Bitcoin blockchain. The
+definition of superblocks is changed to a simpler definition and the level is
+determined by the number of leading zeros of the block header hash. Although
+this change does not take into account the difficulty target, the scoring of
+proofs does not generate security holes in the protocol.
 
 \subsubsection{Proof}
 
@@ -135,7 +131,7 @@ prover receives the following inputs:
 Security parameters k, m are part of the NIPoPoW model and are
 explained in section(ref).
 
-The prover’s output is a proof of proof of work that satisfies the
+The prover’s output is a Proof of Proof of Work that satisfies the
 above security parameters. The prover needed to be enhanced in order
 to create special test cases (section(ref)) and enable our optimized
 architecture (section(ref)).
@@ -156,43 +152,48 @@ The verifier functions in two phases: (a) submit phase and (b) contest
 phase. Each phase has different inputs and functionalities, and is
 performed by different entities.
 
-\paragraph{Submit phase} During the submit phase, an entity submits a
-proof and an event. During this phase, we assume that at least one
-honest full node is aware of the submission. This is also a part of
-the model of NIPoPoW, and is a logical assumption as explained in the
-paper. In order to perform a submission, one must provide a proof and
-a predicate. If a certain number of rounds passes without contests, the proof
-is considered valid and the predicate is considered true. The passing of rounds
-is indicated by the mining of new blocks atop of the block containing the
-submission.
+\paragraph{Submit phase} During the submit phase, an entity submits a proof and
+an event. During this phase, we assume that at least one honest full node is
+aware of the submission. This is also a part of the model of NIPoPoWs, and is a
+logical assumption as explained in the paper. In order to claim the occurrence
+of an event, one must provide a proof and a predicate regarding the underlying
+event. If a certain number of rounds passes without successful contests,
+the proof is considered valid and the predicate is considered true. The passing
+of rounds is indicated by the mining of new blocks atop of the block containing
+the submission.
 
 \paragraph{Contest phase} If the submitted proof is invalid (i.e.\ the
-predicate is not true for the honest chain), a contesting proof is
-submitted, invalidating the original proof and predicate. The
-contesting proof is considered better only if it encapsulates more
-proof of work than the existing proof, as described in the NIPoPoWs
-paper. In order to contest, one must provide a contest proof and the predicate
-that is claimed to be true by the originally submitted proof. If the contesting
-proof has better score, then the predicate is evaluated against the contesting
-proof.
+predicate is not true for the honest chain), a contesting, better proof is
+submitted, invalidating the original proof and predicate. The contesting proof
+is considered better only if it encapsulates more Proof of Work than the
+existing proof, as described in the NIPoPoWs paper. In order to contest, one
+must provide a contest proof and the predicate that is claimed to be true by
+the originally submitted proof. If the contesting proof has better score, then
+the predicate is evaluated against the contesting proof.\\
 
-The correct functionality of the verifier is the following.
+The expected functionality of a NIPoPoW verifier is the following:
 \begin{itemize}
+
     \item
         if an \textit{honest} party submits a proof and no contest occurs, then
         $predicate$ becomes $true$.
+
     \item
         If an \textit{honest} party submits a proof and it is contested by an
-        \textit{adversary}, then the contest is invalid and the $predicate$
-        remains $true$.
+        \textit{adversary}, then the contest should be unsuccessful and the
+        $predicate$ should remain $true$.
+
     \item
         If an \textit{adversary} submits a proof, then an \textit{honest} party
-        makes a contest. The contest invalidates the original submission and
-        the $predicate$ becomes $false$.
+        should make a contest. The contest should invalidate the original
+        submission and the $predicate$ should become $false$.
+
     \item
         The scenario in which an \textit{adversary} submits a proof and it is not
-        followed by an \textit{honest} contest cannot take place due to the assumption
-        that at least one honest party observes the traffic of the contract.
+        followed by an \textit{honest} contest should not take place due to the
+        assumption that at least one honest party observes the traffic of the
+        contract.
+
 \end{itemize}
 
 \subsection{Previous Implementation}
@@ -204,41 +205,38 @@ application.
 
 \subsubsection{Overview} As mentioned in the NIPoPoWs(ref Algorithm 7) paper,
 in order to construct a verifier, a Directed Acyclic Graph (DAG) needs to be
-maintained in memory. This structure is stored in the form of a hashmap, and is
-used to host blocks of all different proofs. This process aims to prevent
-adversarial proofs which are structurally valid but blocks are intentionally
-skipped. Such a scenario is displayed in Figure~\ref{fig:DAG_usage}. The DAG is
-then used to construct ancestors structure. By iterating ancestors, we can
-securely determine the value of the predicate.
+maintained in memory. This structure is stored in the form of a hashmap(ref),
+and is used to host blocks of all different proofs. This process aims to
+prevent adversarial proofs which are structurally valid but blocks are
+intentionally skipped. Such a scenario is displayed in
+Figure~\ref{fig:DAG_usage}. The DAG is then used to construct ancestors
+structure. By iterating ancestors, we can securely determine the value of the
+predicate.
 
 \begin{figure}[hbt]
     \centering
     \includegraphics[width=10cm]{DAG_usage}
     \caption{Combination of multiple proofs in a DAG. The red block is the
         block of interest. Honest proof consists of blocks connected by solid
-        lines and adversary proof by dashed lines.The adversary intentionally
-        uses a different set of blocks.}
+        lines and adversarial proof by dashed lines. The adversary
+        intentionally uses a different set of blocks.}
     \label{fig:DAG_usage}
 \end{figure}
 
 This logic is intuitive and efficient to implement in most traditional
 programming languages (C++, JAVA, Python, JavaScript, etc). However, such an
-algorithm cannot be efficiently implemented in Solidity as is. This is not
-due to the lack of features, such as the existence of hashmaps, but because
+algorithm cannot be efficiently implemented in Solidity as is. This is not due
+to the lack of features, such as the existence of hashmaps, but because
 Solidity treats storage differently than most programming languages. As
 mentioned above(ref) in smart contracts the caller needs to pay in gas for the
 execution of operations such as accessing and storing data. Reading from and
 writing to persistent memory are very expensive operations in Solidity, as
-stated in the Ethereum yellow paper(ref). A summary of gas costs is displayed
-in Figure~\ref{fig:gas_prices}. This fact was observed by Giorgos et al.\ and
-was recognized as the bottleneck of the application.
+stated in the Ethereum yellow paper(ref). A summary of gas costs for storage
+and memory access if is displayed in Table~\ref{table:ethereum_gas_list}. This
+fact was observed by Giorgos et al.\ and was recognized as the bottleneck of
+the application.
 
-\begin{figure}[hbt]
-    \centering
-    \includegraphics[width=12cm]{gas_prices}
-    \caption{Gas prices per operation.}
-    \label{fig:gas_prices}
-\end{figure}
+\input{tables/yellow_paper_gas.tex}
 
 \subsubsection{Phases}
 
@@ -285,11 +283,24 @@ memory is also considered a storage operation
     delete $ancestors_{s}$\\
 \end{algorithm}
 
+\subsubsection{Gas analysis}
+
+Here, we layout experiments that show the gas usage of the previous
+implementation. In these experiments, we used a small proofs \footnote{For
+sizes of proofs for realistic blockchain sizes, refer to Section(ref)}. These
+sizes are unrealistic for a real blockchain, but are helpful to demonstrate the
+gas of the functions of the contract for each phase. The gas expend for submit
+and contest for proof of 20 blocks is shown in Table~\ref{table:old_gas_usage}.
+We observe that even for small proofs, the gas cost is high - 4 million gas
+units, given that the block gas limit of Ethereum is currently at
+9.908.813(ref) gas units. This is mainly due to the extensive storage usage.
+
+\input{tables/old_gas_usage.tex}
+
 \subsubsection{Security analysis}
 
-\paragraph{Pre-mining}
-We observed that the smart contract is vulnerable to pre-mining(ref). By
-definition, a valid NIPoPoW is considered structurally correct if two
+\paragraph{Pre-mining} We observed that the smart contract is vulnerable to
+pre-mining(ref). By definition, a valid NIPoPoW is structurally correct if two
 properties are satisfied:
 
 \begin{enumerate}[(a)]
@@ -303,11 +314,11 @@ properties are satisfied:
 
 \end{enumerate}
 
-The second property is not verified in the smart contract, exposing it to
-pre-mining attacks. We can easily mitigate this vulnerability by initializing
-the smart contract with the $genesis$ block of the blockchain we will use to
-create proofs, and add an assertion that submitted proofs need to satisfy
-property (b).  The needed changes are shown in
+The second property is not verified in the previous work, exposing the verifier
+to pre-mining attacks. We can easily mitigate this vulnerability by
+initializing the smart contract with the $genesis$ block of the blockchain we
+will use to create proofs, and add an assertion in submit and contest phase
+that proofs need to satisfy property (b). The needed changes are shown in
 Algorithms~\ref{algo:avoid_premining_ctor}
 and~\ref{algo:avoid_premining_submit}.
 
@@ -327,6 +338,7 @@ and~\ref{algo:avoid_premining_submit}.
     ...
 \end{algorithm}
 
+\bigbreak
 \paragraph{Score Calculation}
 
 During our tests, we observed that the calculation of proofs score was
@@ -335,9 +347,9 @@ represents the chain with the most Proof of Work. Between two proofs, we only
 need to calculate the score starting from their $lca$ until the tip of each
 proof. Different levels are needed because the $lca$ between two proofs is only
 known when the contesting proof is submitted. The security parameter $m$ needs
-to be satisfied for every sub-proof $proof[:lca]$. We assure this is true by
-creating proofs of multiple levels, so that, disregarding the position of the
-$lca$, security parameter $m$ will always apply.
+to be satisfied for every sub-proof $proof[:lca]$. We ensure that this is true
+by creating proofs of multiple levels, so that security parameter $m$ will
+apply, disregarding the position of the $lca$,
 
 TODO: Figure for the need of multiple levels
 
@@ -345,95 +357,24 @@ Each block has a level, calculated as describe in Section(ref)
 \[ level = getLevel(block) \]
 
 Consequently, each level of the proof consists of a number of blocks
-$n_{level}$. This number is the sum of blocks of level $\geq$ $level$.  The
+$n_{level}$. This number is the sum of blocks of level $\geq$ $level$, i.e.\
+block of level $l$ are also blocks of levels $l-1$, $l-2$, etc. The
 score of each level is computed as:
 
 \[score_{level} = 2^{level} \times n_{level}\]
 
-We observed that function $getLevel(block)$ of the contract returned
+We observed that function $getLevel(block)$ of the contract was returning
 $block.level-1$ instead of $block.level$ resulting to incorrect score
 computation. This can prevent an honest party from successfully contesting an
 adversarial proof, making the contract insecure. The function was refined to
 return the correct value.
 
-\subsubsection{Gas analysis}
+\subsection{Storage Elimination}
 
-\begin{figure}
-    \begin{tikzpicture}
-        \begin{axis}[
-            symbolic y coords={
-                interlink,
-                DAG,
-                proof,
-                ancestors,
-                predicate,
-                del ancest.
-            },
-            ytick={interlink, DAG, proof, ancestors, predicate, del ancest.},
-            yticklabel style={text height=3ex},
-            xmin=0,
-            xbar,
-            xlabel={Gas Used},
-            xmajorgrids=true,
-            ]
-            \addplot coordinates {
-                    (124208,interlink)
-                    (1204142,DAG)
-                    (422535,proof)
-                    (1929705,ancestors)
-                    (286295,predicate)
-                    ( 163696,del ancest.)
-                };
-        \end{axis}
-    \end{tikzpicture}
-    \caption{Operations gas cost on submit}
-    \label{fig:submit_old_gases}
-\end{figure}
-
-\begin{figure}
-    \begin{tikzpicture}
-        \begin{axis}[
-            symbolic y coords={
-                interlink,
-                lca,
-                scores,
-                proof,
-                DAG,
-                ancest.,
-                pred.,
-                del ancest.
-            },
-            ytick={
-                interlink,
-                lca,
-                scores,
-                proof,
-                DAG,
-                ancest.,
-                pred.,
-                del ancest.
-            },
-            yticklabel style={text height=3ex},
-            xmin=0,
-            xbar,
-            xlabel={Gas Used},
-            xmajorgrids=true,
-            ]
-            \addplot coordinates {
-                    (151715,interlink)
-                    (574156,lca)
-                    (313897,scores)
-                    (337815,proof)
-                    (1208754,DAG)
-                    (2312361,ancest.)
-                    (272718,pred.)
-                    (126153,del ancest.)
-                };
-        \end{axis}
-    \end{tikzpicture}
-    \caption{Operations gas cost on contest}
-    \label{fig:contest_old_gases}
-\end{figure}
+As mentioned above, the bottleneck we had to eliminate was the extensive
+storage usage. We created a new architecture that allowed us to discard all
+expensive store operations, and utilize memory instead, which led to massive
+decrease at gas consumption.
 
 % \subsection{Targeting vulnerabilities and costly functionalities}
 %
