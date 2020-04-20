@@ -1,0 +1,16 @@
+\begin{table}[]
+\begin{tabular}{@{}llr@{}}
+\toprule
+\multicolumn{1}{c}{Operation} & \multicolumn{1}{c}{Cost} & \multicolumn{1}{c}{Desc} \\
+\midrule
+$G_{create}$ & 32000 & Paid for a CREATE operation.\\
+$G_{sload}$ & 200 & Paid for a SLOAD operation.\\
+$G_{sset}$ & 20000 & Paid for an SSTORE operation.\\
+$G_{memory}$ & 3 & Paid words expanding memory.\\
+$G_{txdatazero}$ & 4 & Paid for zero byte of data for a transaction.\\
+$G_{txdatanonzero}$ & 68 & Paid for non-zero byte of data for a transaction.\\
+\end{tabular}
+\caption{Ethereum gas list}
+\label{table:ethereum_gas_list}
+\centering
+\end{table}
