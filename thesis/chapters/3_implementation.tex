@@ -388,21 +388,22 @@ table~\ref{table:notation}.
 \paragraph{Using subset} Our first realization was that instead of storing the
 DAG of $\pi_{exist}$, $\pi_{cont}$, we can require
 
-\[ \pi_{exist}\{:lca\} \subseteq \pi_{cont}\{:lca\} \]
-This way, we delegate to $E_{cont}$ the computational burden of creating
-$\pi_{cont}$ in a form that can be directly compared with $\pi_{exist}$, and we
-effectively avoid the demanding need of composing auxiliary structures DAG and
-ancestors on-chain. The implementation of $subset$ is displayed in
-listing~\ref{listing:subset}.
+\[ \pi_{exist}\{:lca_{e}\} \subseteq \pi_{cont}\{:lca_{c}\} \]
+where $lca_{e}$ and $lca_{c}$ are the indices of the $lca$ block in
+$\pi_{exist}$, and $\pi_{cont}$, respectively. This way we avoid
+the demanding need of composing auxiliary structures DAG and ancestors
+on-chain. The implementation of \texttt{subset} is displayed in
+listing~\ref{listing:subset}. The complexity of the function is
+\[ \mathcal{O}(\mid\pi_{exist}[:lca_{e}]\mid + \mid\pi_{cont}[:lca_{c}]\mid) \]
 
 \lstinputlisting[style=customc, captionpos=b, label={listing:subset},
 caption={Solidity implementation of subset}]{code/Subset.sol}
 
 \input{figures/subset_usage.tex}
 
-The gas consumption difference is displayed at
-figure~\ref{figure:DAG_vs_subset}. The $subset$ solution is approximately 2.7
-times more efficient.
+The gas consumption difference between $subset$ and $DAG + ancestors$ is
+displayed at figure~\ref{figure:DAG_vs_subset}. $Subset$ solution is
+approximately 2.7 times more efficient.
 
 \input{figures/DAG_vs_subset.tex}
 
