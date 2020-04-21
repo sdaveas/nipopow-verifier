@@ -1,0 +1,20 @@
+\begin{figure}
+\centering
+\begin{tikzpicture}
+    \begin{axis}[
+        y tick label style={/pgf/number format/.cd,%
+          set thousands separator={,},
+          fixed},
+        legend pos=north west,
+        scaled y ticks = false,
+        grid=major,
+        xlabel={Proof size},
+        ylabel={Gas consumption}]
+    \addplot table [col sep=comma] {data/DAG_ancestors.csv};
+    \addplot table [col sep=comma] {data/subset.csv};
+    \legend{$DAG+ancestors$,$Subset$};
+\end{axis}
+\end{tikzpicture}
+\caption{Gas consumption for DAG+ancestors and subset}
+\label{figure:DAG_vs_subset}
+\end{figure}
