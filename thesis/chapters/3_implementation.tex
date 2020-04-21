@@ -349,6 +349,30 @@ benefits the users.
 
 \input{figures/memory_vs_storage.tex}
 
+\subsubsection{Making use of calldata}
+
+In previous work we needed to store submitted proofs in order to proceed to
+contest. In this subsection we show an approach to securely verify proofs
+without utilizing the persistent memory of the smart contract.
+
+The rationale is to demand from the caller to provide two proofs to the
+contract during contest phase: (a) $\pi_{exist}$, which is a copy of the
+originally submitted proof $\pi_{orig}$, and (b) $\pi_{cont}$, which is the
+contesting proof. Proof $\pi_{orig}$ can be retrieved by observing contract's
+\textit{calldata}. We prevent an adversary from malforming $\pi_{exist}$ by
+storing the hash of $\pi_{orig}$ to contract's state during submit phase and
+then verifying that $\pi_{exist}$ has the same hash. The operation of hashing
+the proof and storing the digest is cheap\footnote{By setting $k=6$, $m$ = 13,
+a proof for the entire Bitcoin blockchain consists of less than 300
+superblocks. The hashing of such a proof costs approximately 300,000 gas
+units.} as shown in figure~\ref{figure:hash_proof_gas}. We calculate the digest
+of the proof by:
+
+\[\texttt{digest = sha256(abi.encodePacked(proof))}\] The size of the digest of
+a hash is 32 bytes. To persist such a small value in contract's memory only
+adds a constant, negligible cost overhead to our implementation.
+
+\input{figures/hash_proof_gas.tex}
 % \subsection{Targeting vulnerabilities and costly functionalities}
 %
 % \subsection{Fixing vulnerabilities and restricting gas usage}
