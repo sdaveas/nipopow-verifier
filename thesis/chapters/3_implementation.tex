@@ -406,7 +406,21 @@ times more efficient.
 
 \input{figures/DAG_vs_subset.tex}
 
+\paragraph{Subset complexity and limitations} Requiring $\pi_{exist}$ to be a subset of
+$\pi_{cont}$ greatly reduces gas, but the complexity of the $subset$ algorithm
+is high since both proofs have to be iterated from genesis to their respective
+$lca$ index. Generally, we expect for an adversary to provide a proof of a
+chain that is a fork of the honest chain at some point relatively close to the
+tip. This is due to the fact that the ability of an adversary to sustain a fork
+chain is exponentially weakened as the honest chain progresses.  This means
+that the length of $\pi$, $\mid\pi\mid$ will be considerably close to
+$\mid\pi[:lca]\mid$, and the complexity of \texttt{subset()} is effectively
+$\mathcal{O}(2\mid\pi\mid)$.
 
+In realistic cases, where the $lca$ lies around index 250, the gas cost of
+\texttt{subset()} is approximately 20,000,000 gas units, which makes it
+inapplicable for real blockchains since it exceeds the block gas limit of Ethereum
+blockchain by far.
 
 % \subsection{Targeting vulnerabilities and costly functionalities}
 %
