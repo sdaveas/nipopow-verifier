@@ -373,6 +373,41 @@ a hash is 32 bytes. To persist such a small value in contract's memory only
 adds a constant, negligible cost overhead to our implementation.
 
 \input{figures/hash_proof_gas.tex}
+
+\subsubsection{Removing DAG and ancestors}
+
+As shown in table~\ref{table:old_gas_usage}, the most demanding operation is
+the creation and population of DAG and ancestors. In this subsection we show
+how these two structures can be discarded from the verifier.
+
+In this subsection we will use the notation displayed in
+table~\ref{table:notation}.
+
+\input{tables/notation.tex}
+
+\paragraph{Using subset} Our first realization was that instead of storing the
+DAG of $\pi_{exist}$, $\pi_{cont}$, we can require
+
+\[ \pi_{exist}\{:lca\} \subseteq \pi_{cont}\{:lca\} \]
+This way, we delegate to $E_{cont}$ the computational burden of creating
+$\pi_{cont}$ in a form that can be directly compared with $\pi_{exist}$, and we
+effectively avoid the demanding need of composing auxiliary structures DAG and
+ancestors on-chain. The implementation of $subset$ is displayed in
+listing~\ref{listing:subset}.
+
+\lstinputlisting[style=customc, captionpos=b, label={listing:subset},
+caption={Solidity implementation of subset}]{code/Subset.sol}
+
+\input{figures/subset_usage.tex}
+
+The gas consumption difference is displayed at
+figure~\ref{figure:DAG_vs_subset}. The $subset$ solution is approximately 2.7
+times more efficient.
+
+\input{figures/DAG_vs_subset.tex}
+
+
+
 % \subsection{Targeting vulnerabilities and costly functionalities}
 %
 % \subsection{Fixing vulnerabilities and restricting gas usage}
