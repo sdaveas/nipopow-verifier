@@ -9,7 +9,7 @@
         scaled y ticks = false,
         grid=major,
         xlabel={Proof size},
-        ylabel={Gas consumption}]
+        ylabel={Gas consumption x 1.000}]
     \addplot table [col sep=comma] {data/DAG_ancestors.csv};
     \addplot table [col sep=comma] {data/subset.csv};
     \legend{$DAG+ancestors$,$Subset$};
