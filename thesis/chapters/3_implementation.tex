@@ -213,19 +213,11 @@ maintained in memory. This structure is stored in the form of a hashmap(ref),
 and is used to host blocks of all different proofs. This process aims to
 prevent adversarial proofs which are structurally valid but blocks are
 intentionally skipped. Such a scenario is displayed in
-Figure~\ref{fig:DAG_usage}. The DAG is then used to construct ancestors
-structure. By iterating ancestors, we can securely determine the value of the
-predicate.
+Figure~\ref{figure:DAG_usage}. The DAG is then used to construct ancestors
+structure. Ancestors are created performing a simple graph search in DAG. By
+iterating ancestors, we can securely determine the value of the predicate.
 
-\begin{figure}[hbt]
-    \centering
-    \includegraphics[width=10cm]{DAG_usage}
-    \caption{Combination of multiple proofs in a DAG. The red block is the
-        block of interest. Honest proof consists of blocks connected by solid
-        lines and adversarial proof by dashed lines. The adversary
-        intentionally uses a different set of blocks.}
-    \label{fig:DAG_usage}
-\end{figure}
+\input{figures/DAG_usage.tex}
 
 This logic is intuitive and efficient to implement in most traditional
 programming languages (C++, JAVA, Python, JavaScript, etc). However, such an
@@ -249,48 +241,12 @@ Algorithms~\ref{algo:submit_old} and~\ref{algo:contest_old}. We highlight
 structures that access persistent memory. Note that deleting from persistent
 memory is also considered a storage operation
 
-\begin{algorithm}
-    \caption{Submit Event Proof}
-    \label{algo:submit_old}
-    \KwIn{$proof$, $predicate$}
-    \KwData{
-        \texttt{array} $proof_{s}$,
-        \texttt{hashmap} $DAG_{s}$,
-        \texttt{bool} $predicate_{s}$
-    }
-    require $predicate_{s}$ $=$ $\emptyset$ \\
-    require $validInterlink(proof$) \\
-    $DAG_{s}$ $\leftarrow$ $DAG_{s}$ $\cup$ $proof$\\
-    $proof_{s}$ $\leftarrow$ $proof$\\
-    $ancestors_{s}$ $\leftarrow$ $findAncestors(DAG_{s}$)\\
-    $predicate_{s}$ $\leftarrow$ $evaluatePredicate(ancestors_{s}$,
-    $predicate$)\\
-    delete $ancestors_{s}$\\
-\end{algorithm}
-
-\begin{algorithm}
-    \caption{Submit Contesting Proof}
-    \label{algo:contest_old}
-    \KwIn{$proof'$, $predicate$}
-    \KwData{
-        \texttt{array} $proof_{s}$,
-        \texttt{hashmap} $DAG_{s}$,
-        \texttt{bool} $predicate_{s}$
-    }
-    require $predicate_{s}$ = $predicate$\\
-    $lca$ $\leftarrow$ findLca($proof_{s}$, $proof'$)\\
-    require $score(proof’[lca:])$ $>$ $score(proof_{s}[lca:])$ \\
-    $DAG_{s}$ $\leftarrow$ $DAG_{s}$ $\cup$ $proof'$\\
-    $ancestors_{s}$ $\leftarrow$ $findAncestors(DAG_{s})$\\
-    $predicate_{s}$ $\leftarrow$ $evaluatePredicate(ancestors_{s},
-    predicate)$\\
-    delete $ancestors_{s}$\\
-\end{algorithm}
+\input{algorithms/old_contract.tex}
 
 \subsubsection{Gas analysis}
 
 Here, we layout experiments that show the gas usage of the previous
-implementation. In these experiments, we used a small proofs \footnote{For
+implementation. In these experiments, we used a small proofs\footnote{For
 sizes of proofs for realistic blockchain sizes, refer to Section(ref)}. These
 sizes are unrealistic for a real blockchain, but are helpful to demonstrate the
 gas of the functions of the contract for each phase. The gas expend for submit
@@ -326,21 +282,7 @@ that proofs need to satisfy property (b). The needed changes are shown in
 Algorithms~\ref{algo:avoid_premining_ctor}
 and~\ref{algo:avoid_premining_submit}.
 
-\begin{algorithm}
-    \caption{Contract Constructor}
-    \label{algo:avoid_premining_ctor}
-    \KwIn{$genesis$ block}
-    $genesis_{s}$ $\leftarrow$ $genesis$\newline
-    ...
-\end{algorithm}
-\vspace{-0.7cm}
-\begin{algorithm}
-    \caption{Submit Event Proof}
-    \label{algo:avoid_premining_submit}
-    \KwIn{$proof$, ...}
-    require $proof[0]$ = $genesis_{s}$\newline
-    ...
-\end{algorithm}
+\input{algorithms/avoid_premining.tex}
 
 \bigbreak
 \paragraph{Score Calculation}
@@ -403,23 +345,7 @@ Constantinople(ref) fork. It is obvious that if there is the option to use
 memory instead of storage in the design of smart contracts, it greatly
 benefits the users.
 
-\begin{figure}
-\centering
-\begin{tikzpicture}
-    \begin{axis}[
-        legend pos=north west,
-        scaled y ticks = false,
-        grid=major,
-        xlabel={Size},
-        ylabel={Gas}]
-    \addplot table [mark=none, col sep=comma] {data/storage.csv};
-    \addplot table [mark=none, col sep=comma] {data/memory.csv};
-    \legend{$storage$,$memory$};
-\end{axis}
-\end{tikzpicture}
-\label{fig:memory_vs_storage}
-\caption{Gas consumption for memory and storage}
-\end{figure}
+\input{figures/memory_vs_storage.tex}
 
 % \subsection{Targeting vulnerabilities and costly functionalities}
 %
