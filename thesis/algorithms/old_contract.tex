@@ -1,0 +1,37 @@
+\begin{algorithm}
+    \caption{Submit Event Proof}
+    \label{algo:submit_old}
+    \KwIn{$proof$, $predicate$}
+    \KwData{
+        \texttt{array} $proof_{s}$,
+        \texttt{hashmap} $DAG_{s}$,
+        \texttt{bool} $predicate_{s}$
+    }
+    require $predicate_{s}$ $=$ $\emptyset$ \\
+    require $validInterlink(proof$) \\
+    $DAG_{s}$ $\leftarrow$ $DAG_{s}$ $\cup$ $proof$\\
+    $proof_{s}$ $\leftarrow$ $proof$\\
+    $ancestors_{s}$ $\leftarrow$ $findAncestors(DAG_{s}$)\\
+    $predicate_{s}$ $\leftarrow$ $evaluatePredicate(ancestors_{s}$,
+    $predicate$)\\
+    delete $ancestors_{s}$\\
+\end{algorithm}
+
+\begin{algorithm}
+    \caption{Submit Contesting Proof}
+    \label{algo:contest_old}
+    \KwIn{$proof'$, $predicate$}
+    \KwData{
+        \texttt{array} $proof_{s}$,
+        \texttt{hashmap} $DAG_{s}$,
+        \texttt{bool} $predicate_{s}$
+    }
+    require $predicate_{s}$ = $predicate$\\
+    $lca$ $\leftarrow$ findLca($proof_{s}$, $proof'$)\\
+    require $score(proof’[lca:])$ $>$ $score(proof_{s}[lca:])$ \\
+    $DAG_{s}$ $\leftarrow$ $DAG_{s}$ $\cup$ $proof'$\\
+    $ancestors_{s}$ $\leftarrow$ $findAncestors(DAG_{s})$\\
+    $predicate_{s}$ $\leftarrow$ $evaluatePredicate(ancestors_{s},
+    predicate)$\\
+    delete $ancestors_{s}$\\
+\end{algorithm}

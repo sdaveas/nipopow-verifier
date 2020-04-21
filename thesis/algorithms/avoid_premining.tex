@@ -1,0 +1,15 @@
+\begin{algorithm}
+    \caption{Contract Constructor}
+    \label{algo:avoid_premining_ctor}
+    \KwIn{$genesis$ block}
+    $genesis_{s}$ $\leftarrow$ $genesis$\newline
+    ...
+\end{algorithm}
+\vspace{-0.7cm}
+\begin{algorithm}
+    \caption{Submit Event Proof}
+    \label{algo:avoid_premining_submit}
+    \KwIn{$proof$, ...}
+    require $proof[0]$ = $genesis_{s}$\newline
+    ...
+\end{algorithm}
