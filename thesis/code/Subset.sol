@@ -1,6 +1,6 @@
 function subset(
-    Proof exist, uint existLca,
-    Proof cont, uint contLca
+    Proof memory exist, uint existLca,
+    Proof memory cont, uint contLca
 ) internal pure returns(bool)
 {
     uint256 j;
