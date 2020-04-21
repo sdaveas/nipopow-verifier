@@ -447,6 +447,15 @@ $lca_{e}$ simply as $lca$. For the aforementioned, the following is true:
 \newcommand*{\exist}{$\pi_{exist}$}
 \newcommand*{\cont}{$\pi_{cont}^{tr}$}
 
+\paragraph{Disjoint proofs} A requirement we need to satisfy is that
+$\pi_{exist}[lca:]$ and $\pi_{cont}^{tr}$ are disjoint. The implementation of
+this operation is shown in listing~\ref{listing:disjoint}. The complexity of
+\texttt{disjoint()} is $\mathcal{O}(\mid\pi_{exist}[lca_{e}:]\mid \times
+\mid\pi_{cont}lca_{c}^{tr}\mid)$.
+
+\lstinputlisting[style=customc, captionpos=b, label={listing:disjoint},
+caption={Implementation for disjoint proofs}]{code/Disjoint.sol}
+
 % \subsection{Targeting vulnerabilities and costly functionalities}
 %
 % \subsection{Fixing vulnerabilities and restricting gas usage}
