@@ -421,6 +421,31 @@ In realistic cases, where the $lca$ lies around index 250, the gas cost of
 \texttt{subset()} is approximately 20,000,000 gas units, which makes it
 inapplicable for real blockchains since it exceeds the block gas limit of Ethereum
 blockchain by far.
+\paragraph{Position of block of interest} By analyzing the benefits of
+$subset$, we concluded that there is a more efficient way to treat storage
+elimination. In general, the concept of $subset$ facilitated the case in which
+the block of interest belongs in the sub-proof $\pi_{exist}[:lca_{e}]$. But in
+this case, both $\pi_{exist}$ and $\pi_{cont}$ contain the block of interest at
+some index, as can be seen in figure~\ref{figure:after_subset}. Consequently,
+$\pi_{cont}$ cannot contradict the existence of the block of interest and the
+predicate is evaluated $true$ for both proofs. This means that if (a)
+$\pi_{exist}$ is structurally correct and (b) the block of interest is in
+$\pi_{exist}[:lca_{e}]$, then we can safely conclude that contesting with
+$\pi_{cont}$ is redundant. Therefore, $E_{c}$ can simply send
+$\pi_{cont}$[lca:] to the verifier. The truncation of $\pi_{cont}$ to
+$\pi_{cont}[lca_{c}:]$ can be easily addressed from $E_{c}$, since
+$\pi_{exist}$ is accessible from the contract's calldata and both proofs can be
+iterated off-chain.
+
+We will refer to the truncated contesting proof as $\pi_{cont}^{tr}$ and to
+$lca_{e}$ simply as $lca$. For the aforementioned, the following is true:
+\begin{enumerate}[(a)]
+    \item  $\pi_{exist}[0]$ = $Genesis$
+    \item  $\pi_{exist}[lca]$ = $\pi_{cont}^{tr}[0]$
+\end{enumerate}
+
+\newcommand*{\exist}{$\pi_{exist}$}
+\newcommand*{\cont}{$\pi_{cont}^{tr}$}
 
 % \subsection{Targeting vulnerabilities and costly functionalities}
 %
