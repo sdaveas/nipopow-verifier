@@ -12,33 +12,30 @@ experience we needed in the scope of our project, due to the lack of speed and
 customization options. That led us to the creation of a custom environment for
 importing, compiling, deploying and testing smart contracts.
 
-We used Python(ref) to build our environment, since it is a powerful
-and convenient programming language, and all of our dependencies had
-Python implementations available. We developed our environment in
-Linux(ref).
+We used Python(ref) to build our environment, since it is a powerful and
+convenient programming language, and all dependencies we needed had available
+Python implementations. We developed our environment in Linux(ref).
 
 \subsubsection{Dependencies}
 
-The components we used as building blocks are Web3(ref) which is a
-powerful library for interacting with Ethereum, the Solidity v0.6.6
-compiler(ref), and EthereumTester which is a set of tools for testing
-Ethereum-based applications. For the purpose of our project, a private
-blockchain running an Ethereum Virtual Machine (EVM) was deployed.
-This is a common practice for Ethereum development since it greatly
-facilitates testing procedures. Our environment supports multiple
-EVMs, namely Geth(ref), Ganache(ref) and Py-EVM(ref).
+The components we used as building blocks are Web3(ref) which is a powerful
+library for interacting with Ethereum, the Solidity v0.6.6 compiler(ref), and
+EthereumTester which is a set of tools for testing Ethereum-based applications.
+For the purpose of our project, a private blockchain running an Ethereum
+Virtual Machine (EVM) was deployed.  This is a common practice for Ethereum
+development since it greatly facilitates testing procedures. Our environment
+supports multiple EVMs, namely Geth(ref), Ganache(ref) and Py-EVM(ref).
 
 \subsubsection{Ethereum Virtual Machines}
 
-All aforementioned EVMs deliver an implementation that complies with
-the specifications described at the Ethereum yellow paper(ref).
-However, different implementations provide unique choices to the
-developer, each of which helped us to progress effortlessly during
-different stages of our work.
+All aforementioned EVMs deliver implementations that comply with the
+specifications described at the Ethereum yellow paper(ref). However, different
+implementations provide unique choices to the developer, each of which helped
+us to progress effortlessly during different stages of our work.
 
 \paragraph {Py-EVM:} Py-EVM is an evolving EVM which is created mainly for
 testing. The ease of access and use, the configuration freedom of its
-underlying test chain and its effectiveness for small sized data helped our
+underlying test chain and its effectiveness for small size of data helped our
 first steps. However, as the input data size started to grow, the effectiveness
 of the tool rapidly fell(ref).
 
@@ -49,22 +46,29 @@ input became analogous to the Bitcoin blockchain size.
 
 \paragraph {Geth:} Geth is another popular EVM which is created by the Ethereum
 team. It supports heavy customization while its memory usage is very limited
-compared to Ganache, even for extensive inputs. It is, however, slower than
-Ganache.
+compared to Ganache, even for extensive inputs. It has, however, higher
+execution times than Ganache for our purposes because Geth doesn't natively
+support auto-mining. That is the capability to mine new blocks only when new
+transactions are available. In order to avoid intense use of the CPU, we
+injected a function in Geth's \texttt{miner} object be inly invoked when a new
+transaction is available.  This, together with the fact that mining is
+probabilistic, put an extra overhead at the execution time.
 
-The set of configurations we used for each EVM can be found in our
-public repository(ref).
+\paragraph {Configuration:} We observed that using an EVM alone is not trivial.
+The set of configurations we used for each EVM can be found in our public
+repository(ref). We hope this will facilitate future work.
 
-TODO: insert figure of Py-EVM vs Ganache vs Geth
+\todo{figure of Py-EVM vs Ganache vs Geth}
 
 \subsubsection{Gas Profiling}
 
 Another useful utility we used is solidity-gas-profiler(ref), a profiling
-utility by Yushih. This gave us great insights regarding the gas usage across
-contract’s functions, and, consequently, helped us target the functionalities
-that needed to be refined.
+utility by Yushih. This experimental software displays the gas usage in a smart
+contract for each line of code. It gave us great insights regarding the gas
+usage across contract’s functions, and consequently helped us target the
+functionalities that needed to be refined.
 
-TODO: insert figure of gas profiling
+\todo{figure of gas profiling}
 
 \subsection{Model}
 
@@ -102,7 +106,7 @@ interlink root to be included in the block header, as it is part of the proof.
 Otherwise, attackers could attack the proofs by reordering or including stray
 blocks. Miners can easily verify that the Merkle root is correct.
 
-TODO: figure of the blockchain
+\todo{figure of blockchain}
 
 \subsubsection{Superblock Levels}
 
@@ -113,6 +117,8 @@ determined by the number of leading zeros of the block header hash. Although
 this change does not take into account the difficulty target, the scoring of
 proofs does not generate security holes in the protocol.
 
+\myworries{do we need to justify this?}
+
 \subsubsection{Proof}
 
 The tool that creates proofs was also created by Andrew Miller. The
@@ -122,60 +128,61 @@ prover receives the following inputs:
     \item
         A blockchain with interlinks
     \item
-        The security parameter k
+        The security parameter $k$
     \item
-        The security parameter m
+        The security parameter $m$
 \end{itemize}
 
-Security parameters k, m are part of the NIPoPoW model and are
+Security parameters $k$, $m$ are part of the NIPoPoW model and are
 explained in section(ref).
 
-The prover’s output is a Proof of Proof of Work that satisfies the
-above security parameters. The prover needed to be enhanced in order
-to create special test cases (section(ref)) and enable our optimized
-architecture (section(ref)).
+The prover’s output is a Proof of Proof of Work that satisfies the above
+security parameters. The prover needed to be enhanced in order to create
+special test cases (section(ref)) and enable our optimized architecture
+(section(ref)).
 
-TODO: figure of proof
+\todo{figure of proof}
 
 \subsubsection{Verifier}
 
-The goal of the verifier is to accept valid proofs and discard invalid
-proofs. A proof is submitted in combination with a predicate. The
-proof is considered valid if it is constructively correct and the
-predicate is true for the chain described by the proof. The predicate
-can represent the existence of an event in the source blockchain, such
-as the occurrence of a transaction. In our case, the predicate
-indicates the existence of a block in the proof.
+The goal of the verifier is to securely determine if an event has occurred in
+the honest blockchain. For this, the concept of NIPoPoWs is used. A proof is
+submitted in combination with a predicate. The proof is considered valid if it
+is constructively correct(ref) and the predicate is true for the chain
+described by the proof. The predicate represents the existence of an event
+in the source blockchain, such as the occurrence of a transaction. In our case,
+the predicate indicates the existence of a block in the proof.
 
-The verifier functions in two phases: (a) submit phase and (b) contest
-phase. Each phase has different inputs and functionalities, and is
-performed by different entities.
+\myworries{How much more demanding is to prove an actual transaction?}
 
-\paragraph{Submit phase} During the submit phase, an entity submits a proof and
-an event. During this phase, we assume that at least one honest full node is
-aware of the submission. This is also a part of the model of NIPoPoWs, and is a
-logical assumption as explained in the paper. In order to claim the occurrence
-of an event, one must provide a proof and a predicate regarding the underlying
-event. If a certain number of rounds passes without successful contests,
-the proof is considered valid and the predicate is considered true. The passing
+The verifier functions in two main phases: (a) \textbf{submit phase} and (b)
+\textbf{contest phase}. Each phase has different input and functionality, and
+is performed by different entities.
+
+\paragraph{Submit phase:} In \textbf{submit phase}, an entity submits a proof
+and an event. We assume that at least one honest full node is aware of the
+submission. This is also a part of the model of NIPoPoWs, and is a logical
+assumption as explained in the paper. In order to claim the occurrence of an
+event, one must provide a proof and a predicate regarding the underlying event.
+If $r$ rounds pass, the value of the predicate becomes immutable. The passing
 of rounds is indicated by the mining of new blocks atop of the block containing
-the submission.
+the submitted proof. The value of the predicate can change if a different entity
+successfully contests the submitted proof at some round $r_{c} < r$.
 
-\paragraph{Contest phase} If the submitted proof is invalid (i.e.\ the
-predicate is not true for the honest chain), a contesting, better proof is
-submitted, invalidating the original proof and predicate. The contesting proof
-is considered better only if it encapsulates more Proof of Work than the
-existing proof, as described in the NIPoPoWs paper. In order to contest, one
-must provide a contest proof and the predicate that is claimed to be true by
-the originally submitted proof. If the contesting proof has better score, then
-the predicate is evaluated against the contesting proof.\\
+\paragraph{Contesting phase:} In \textbf{contesting phase}, a new proof is
+submitted. If this proof is better, then the predicate is evaluated against the
+new proof. The contesting proof is considered better only if it is structurally
+correct and it represents a chain that encapsulates more Proof of Work than the
+originally submitted proof, as described in the NIPoPoWs paper.  In order to
+contest, one must provide the new proof and the predicate that is claimed to be
+true by the originally submitted proof.\\
 
 The expected functionality of a NIPoPoW verifier is the following:
 \begin{itemize}
 
     \item
-        if an \textit{honest} party submits a proof and no contest occurs, then
-        $predicate$ becomes $true$.
+        If an \textit{honest} party submits a proof and no contest occurs, then
+        the $predicate$ becomes $true$.
 
     \item
         If an \textit{honest} party submits a proof and it is contested by an
@@ -188,14 +195,22 @@ The expected functionality of a NIPoPoW verifier is the following:
         submission and the $predicate$ should become $false$.
 
     \item
-        The scenario in which an \textit{adversary} submits a proof and it is not
-        followed by an \textit{honest} contest should not take place due to the
+        The scenario in which an \textit{adversary} submits a proof an
+        \textit{honest} does not contest should not take place due to the
         assumption that at least one honest party observes the traffic of the
         contract.
 
 \end{itemize}
 
+\subsubsection{Notation}
+
+In this section we will use the notation displayed in
+table~\ref{table:notation}.
+
+\input{tables/notation.tex}
+
 \subsection{Previous Implementation}
+\todo{Should it be Previous Work?}
 
 In this subsection we present previous work. We prepare the reader by focusing
 at specific aspects in which our solution differs. We will later show these
@@ -206,6 +221,7 @@ In the process of building our Bitcoin Client, a suit of thorough unit tests
 were written to assert the correction of our results which we also used at the
 previous work. We discovered some erroneous functionalities that we appose in
 subsection \ref{sssc:Security Analysis}
+\todo{tests should be more visible}
 
 \subsubsection{Overview} As mentioned in the NIPoPoWs(ref Algorithm 7) paper,
 in order to construct a verifier, a Directed Acyclic Graph (DAG) needs to be
@@ -213,11 +229,11 @@ maintained in memory. This structure is stored in the form of a hashmap(ref),
 and is used to host blocks of all different proofs. This process aims to
 prevent adversarial proofs which are structurally valid but blocks are
 intentionally skipped. Such a scenario is displayed in
-Figure~\ref{figure:DAG_usage}. The DAG is then used to construct ancestors
-structure. Ancestors are created performing a simple graph search in DAG. By
-iterating ancestors, we can securely determine the value of the predicate.
+figure~\ref{figure:DAG_usage}. The DAG is then used to construct ancestors
+structure by performing a simple graph search. By iterating ancestors, we can
+securely determine the value of the predicate.
 
-\input{figures/DAG_usage.tex}
+% \input{figures/DAG_usage.tex}
 
 This logic is intuitive and efficient to implement in most traditional
 programming languages (C++, JAVA, Python, JavaScript, etc). However, such an
@@ -246,16 +262,19 @@ memory is also considered a storage operation
 \subsubsection{Gas analysis}
 
 Here, we layout experiments that show the gas usage of the previous
-implementation. In these experiments, we used a small proofs\footnote{For
-sizes of proofs for realistic blockchain sizes, refer to Section(ref)}. These
-sizes are unrealistic for a real blockchain, but are helpful to demonstrate the
-gas of the functions of the contract for each phase. The gas expend for submit
-and contest for proof of 20 blocks is shown in Table~\ref{table:old_gas_usage}.
-We observe that even for small proofs, the gas cost is high - 4 million gas
-units, given that the block gas limit of Ethereum is currently at
-9.908.813(ref) gas units. This is mainly due to the extensive storage usage.
+implementation. In these experiments, we used a small proofs\footnote{For sizes
+of proofs for realistic blockchain sizes, refer to Section(ref)}. These sizes
+are unrealistic for a real blockchain, but are helpful to demonstrate the gas
+of the functions of the contract for each phase. The gas expend for submit and
+contest for proof of 20 blocks is shown in Table~\ref{table:old_gas_usage}. We
+observe that even for small proofs, the gas cost is high - 4 million gas units,
+given that the block gas limit of Ethereum is currently at 9.908.813(ref) gas
+units. This is mainly due to the extensive storage usage.
 
-\input{tables/old_gas_usage.tex}
+\todo{maybe show numbers for the minimum proof that
+exceeds block gas limit.}
+
+% \input{tables/old_gas_usage.tex}
 
 \subsubsection{Security Analysis}
 
@@ -270,15 +289,15 @@ properties are satisfied:
     blockchain.
 
 \item The first block of proof is $genesis$. This is to prevent adversaries
-    from create coins before blockchain are initiated at the public network.
+    from create coins before blockchain are advertised at the public network.
 
 \end{enumerate}
 
 The second property is not verified in the previous work, exposing the verifier
 to pre-mining attacks. We can easily mitigate this vulnerability by
 initializing the smart contract with the $genesis$ block of the blockchain we
-will use to create proofs, and add an assertion in submit and contest phase
-that proofs need to satisfy property (b). The needed changes are shown in
+will use and add an assertion in submit and contest phase that proofs need to
+satisfy property (b). The needed changes are shown in
 Algorithms~\ref{algo:avoid_premining_ctor}
 and~\ref{algo:avoid_premining_submit}.
 
@@ -293,15 +312,14 @@ represents the chain with the most Proof of Work. Between two proofs, we only
 need to calculate the score starting from their $lca$ until the tip of each
 proof. Different levels are needed because the $lca$ between two proofs is only
 known when the contesting proof is submitted. The security parameter $m$ needs
-to be satisfied for every sub-proof $proof[:lca]$. We ensure that this is true
-by creating proofs of multiple levels, so that security parameter $m$ will
-apply, disregarding the position of the $lca$,
+to be satisfied for every sub-proof $\pi[:lca]$. We ensure that this is $true$
+by creating proofs of multiple levels, so that security parameter $m$ applies,
+disregarding $lca$'s position.
 
-TODO: Figure for the need of multiple levels
+\todo{Figure for the need of multiple levels}
 
 Each block has a level, calculated as describe in Section(ref)
 \[ level = getLevel(block) \]
-
 Consequently, each level of the proof consists of a number of blocks
 $n_{level}$. This number is the sum of blocks of level $\geq$ $level$, i.e.\
 block of level $l$ are also blocks of levels $l-1$, $l-2$, etc. The
@@ -309,13 +327,15 @@ score of each level is computed as:
 
 \[score_{level} = 2^{level} \times n_{level}\]
 
-We observed that function $getLevel(block)$ of the contract was returning
-$block.level-1$ instead of $block.level$ resulting to incorrect score
-computation. This can prevent an honest party from successfully contesting an
-adversarial proof, making the contract insecure. The function was refined to
-return the correct value.
+After running out tests for the previous implementation, we observed that
+function $getLevel(block)$ of the contract was returning $block.level-1$
+instead of $block.level$ resulting to incorrect score computation. This can
+prevent an honest party from successfully contesting an adversarial proof,
+making the contract insecure. The function was refined to return the correct
+value.
 
 \subsection{Storage Elimination}
+\todo{Should this be a new section?}
 
 As mentioned above, the bottleneck we had to eliminate was the extensive usage
 of storage. We created a new architecture that allow us to discard all
@@ -332,20 +352,21 @@ contract:
 
 \lstinputlisting[style=customc, captionpos=b, label={listing:storage_memory},
 caption={Solidity test for storage and memory}]{code/StorageVsMemory.sol}
+\todo{Highlight code}
 
 Function \texttt{withStorage()} populates an array saved in storage and
 function \texttt{withMemory()} populates an array saved in memory. We
 initialize the sizes of the arrays by passing the variable \texttt{size} to the
 contract constructor. We run this piece of code for \texttt{size} from 1 to
 100. The results are displayed at Figure~\ref{figure:memory_vs_storage}. For
-\texttt{size} = 100, the gas expended is 53,574 using memory and 2,569,848
-using storage which is almost 50 times more expensive. This code was compiled
-with Solidity version 0.6.6 with optimizations enabled\footnote{This version of
-Solidity compiler, which was the latest at the time this paper was published,
-did not optimize-out any of the variables.}. The EVM we used  was Ganache at
-the latest Constantinople(ref) fork. It is obvious that if there is the option
-to use memory instead of storage in the design of smart contracts, it greatly
-benefits the users.
+\texttt{size} = 100, the gas expended is 53,574 gas units using memory and
+2,569,848 using storage which is almost 50 times more expensive. This code was
+compiled with Solidity version 0.6.6 with optimizations enabled\footnote{This
+version of Solidity compiler, which was the latest at the time this paper was
+published, did not optimize-out any of the variables.}. The EVM we used  was
+Ganache at the latest Constantinople(ref) fork. It is obvious that if there is
+the option to use memory instead of storage in the design of smart contracts,
+the choice of memory greatly benefits the users.
 
 \input{figures/memory_vs_storage.tex}
 
@@ -353,7 +374,7 @@ benefits the users.
 
 In previous work we needed to store submitted proofs in order to proceed to
 contest. In this subsection we show an approach to securely verify proofs
-without utilizing the persistent memory of the smart contract.
+without utilizing the persistent storage of the smart contract.
 
 The rationale is to demand from the caller to provide two proofs to the
 contract during contest phase: (a) $\pi_{exist}$, which is a copy of the
@@ -379,11 +400,6 @@ adds a constant, negligible cost overhead to our implementation.
 As shown in table~\ref{table:old_gas_usage}, the most demanding operation is
 the creation and population of DAG and ancestors. In this subsection we show
 how these two structures can be discarded from the verifier.
-
-In this subsection we will use the notation displayed in
-table~\ref{table:notation}.
-
-\input{tables/notation.tex}
 
 \paragraph{Using subset} Our first realization was that instead of storing the
 DAG of $\pi_{exist}$, $\pi_{cont}$, we can require
@@ -414,51 +430,61 @@ $lca$ index. Generally, we expect for an adversary to provide a proof of a
 chain that is a fork of the honest chain at some point relatively close to the
 tip. This is due to the fact that the ability of an adversary to sustain a fork
 chain is exponentially weakened as the honest chain progresses.  This means
-that the length of $\pi$, $\mid\pi\mid$ will be considerably close to
+that the length of $\pi$, $\mid\pi\mid$ is be considerably close to
 $\mid\pi[:lca]\mid$, and the complexity of \texttt{subset()} is effectively
 $\mathcal{O}(2\mid\pi\mid)$.
 
-In realistic cases, where the $lca$ lies around index 250, the gas cost of
-\texttt{subset()} is approximately 20,000,000 gas units, which makes it
-inapplicable for real blockchains since it exceeds the block gas limit of Ethereum
-blockchain by far.
-\paragraph{Position of block of interest} By analyzing the benefits of
-$subset$, we concluded that there is a more efficient way to treat storage
-elimination. In general, the concept of $subset$ facilitated the case in which
-the block of interest belongs in the sub-proof $\pi_{exist}[:lca_{e}]$. But in
-this case, both $\pi_{exist}$ and $\pi_{cont}$ contain the block of interest at
-some index, as can be seen in figure~\ref{figure:after_subset}. Consequently,
-$\pi_{cont}$ cannot contradict the existence of the block of interest and the
-predicate is evaluated $true$ for both proofs. This means that if (a)
-$\pi_{exist}$ is structurally correct and (b) the block of interest is in
-$\pi_{exist}[:lca_{e}]$, then we can safely conclude that contesting with
-$\pi_{cont}$ is redundant. Therefore, $E_{c}$ can simply send
-$\pi_{cont}$[lca:] to the verifier. The truncation of $\pi_{cont}$ to
-$\pi_{cont}[lca_{c}:]$ can be easily addressed from $E_{c}$, since
-$\pi_{exist}$ is accessible from the contract's calldata and both proofs can be
-iterated off-chain.
+In realistic cases, where the $lca$ lies around index 250 of the proof, the gas
+cost of \texttt{subset()} is approximately 20,000,000 gas units, which makes it
+inapplicable for real blockchains since it exceeds the block gas limit of
+the Ethereum blockchain by far.
 
-We will refer to the truncated contesting proof as $\pi_{cont}^{tr}$ and to
-$lca_{e}$ simply as $lca$. For the aforementioned, the following is true:
-\begin{enumerate}[(a)]
-    \item  $\pi_{exist}[0]$ = $Genesis$
-    \item  $\pi_{exist}[lca]$ = $\pi_{cont}^{tr}[0]$
-\end{enumerate}
+\paragraph{Position of block of interest}
+
+By analyzing the benefits and trade-offs of $subset$, we concluded that there
+is a more efficient way to treat storage elimination. In general, the concept
+of $subset$ facilitated the case in which the block of interest belongs in the
+sub-proof $\pi_{exist}[:lca_{e}]$. But in this case, both $\pi_{exist}$ and
+$\pi_{cont}$ contain the block of interest at some index, as can be seen in
+figure~\ref{figure:after_subset}. Consequently, $\pi_{cont}$ cannot contradict
+the existence of the block of interest and the predicate is evaluated $true$
+for both proofs. This means that if (a) $\pi_{exist}$ is structurally correct
+and (b) the block of interest is in $\pi_{exist}[:lca_{e}]$, then we can safely
+conclude that contesting with $\pi_{cont}$ is redundant. Therefore,
+$E_{contest}$ can simply send $\pi_{cont}$[lca:] to the verifier. The
+truncation of $\pi_{cont}$ to $\pi_{cont}[lca_{c}:]$ can be easily addressed
+from $E_{cont}$, since $\pi_{exist}$ is accessible from the contract's
+calldata and both proofs can be iterated off-chain.
 
 \newcommand*{\exist}{$\pi_{exist}$}
 \newcommand*{\cont}{$\pi_{cont}^{tr}$}
 
-\paragraph{Disjoint proofs} A requirement we need to satisfy is that
-$\pi_{exist}[lca:]$ and $\pi_{cont}^{tr}$ are disjoint. The implementation of
-this operation is shown in listing~\ref{listing:disjoint}. The complexity of
-\texttt{disjoint()} is $\mathcal{O}(\mid\pi_{exist}[lca_{e}:]\mid \times
-\mid\pi_{cont}lca_{c}^{tr}\mid)$.
+\paragraph{Disjoint proofs}
+
+We will refer to the truncated contesting proof as $\pi_{cont}^{tr}$ and to
+$lca_{e}$ simply as $lca$. For the aforementioned, the following statements are
+true:
+
+\begin{enumerate}[(a)]
+    \item  $\pi_{exist}[0]$ = $genesis$
+    \item  $\pi_{exist}[lca]$ = $\pi_{cont}^{tr}[0]$
+\end{enumerate}
+
+The requirement that needs to be satisfied is
+\[\pi_{exist}\{lca+1:\} \cap \pi_{cont}^{tr}\{1:\} = \emptyset \]
+
+The implementation of this operation is shown in
+listing~\ref{listing:disjoint}.
 
 \lstinputlisting[style=customc, captionpos=b, label={listing:disjoint},
 caption={Implementation for disjoint proofs}]{code/Disjoint.sol}
 
 % \subsection{Targeting vulnerabilities and costly functionalities}
 %
+The complexity of \texttt{disjoint()} is
+\[ \mathcal{O}(\mid\pi_{exist}[lca_{e}:]\mid \times
+\mid\pi_{cont}^{tr}\mid) \]
+
 % \subsection{Fixing vulnerabilities and restricting gas usage}
 %
 % \begin{itemize}
