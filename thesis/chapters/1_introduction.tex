@@ -33,7 +33,7 @@ interoperability. Such a protocol would be very useful to blockchain
 technology, since it would allow users to variously utilize features of
 different blockchains. For example, one can store their funds in
 Bitcoins, and convert them to Ether to make a payment, benefiting from
-lower transaction fees and quicker transactions.
+lower transaction fees and quicker transaction rates.
 
 A crosschain protocol would enable two main operations
 \begin{itemize}
@@ -49,7 +49,7 @@ A crosschain protocol would enable two main operations
 
 Currently, this operation is only available to the users via third party
 applications, such as multi-currency wallets. This treatment certainly
-opposes the nature of blockchain, which is a decentralized construction.
+opposes to the nature of blockchain, which is a decentralized construction.
 This motivated us to create a solution that enables cheap, trust-less
 crosschain operations.
 
@@ -71,6 +71,8 @@ the programming languages of Ethereum blockchain. This solution,
 however, is impossible to be applied in a real blockchain due to
 extensive gas usage and severe security issues.
 
+\todo{maybe "severe" is too harsh}
+
 \subsection{Our contributions}
 
 A series of keen observations, the application of gas-efficient
@@ -91,8 +93,8 @@ verifies events across blockchains while meeting the following criteria:
         Applicability: Is applicable to the real blockchain. That is, data
         derived from the full-sized Bitcoin blockchain are successfully
         accepted and processed by the client without exceeding the build-in
-        constraints of the Ethereum blockchain (i.e.\ block gas limit, call
-        data limit etc).
+        constraints of the Ethereum blockchain (i.e.\ block gas limit, calldata
+        limit etc).
     \item
         Cheap: Is cheaper than the current state of the art technologies. This
         would make trustless crosschain transactions more popular and
