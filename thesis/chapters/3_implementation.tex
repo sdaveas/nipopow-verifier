@@ -50,13 +50,14 @@ compared to Ganache, even for extensive inputs. It has, however, higher
 execution times than Ganache for our purposes because Geth doesn't natively
 support auto-mining. That is the capability to mine new blocks only when new
 transactions are available. In order to avoid intense use of the CPU, we
-injected a function in Geth's \texttt{miner} object be inly invoked when a new
+injected a function in Geth's \texttt{miner} object be only invoked when a new
 transaction is available.  This, together with the fact that mining is
 probabilistic, put an extra overhead at the execution time.
 
-\paragraph {Configuration:} We observed that using an EVM alone is not trivial.
-The set of configurations we used for each EVM can be found in our public
-repository(ref). We hope this will facilitate future work.
+\paragraph {Configuration:} We observed that selecting and using an EVM for
+testing purposes is not trivial. The set of configurations we used for each EVM
+can be found in our public repository(ref). We hope this will facilitate future
+work.
 
 \todo{figure of Py-EVM vs Ganache vs Geth}
 
