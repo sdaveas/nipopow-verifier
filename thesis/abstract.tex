@@ -1,3 +1,30 @@
 \begin{abstract}
-    Place abstract here
+
+Superlight clients enable the verification of proof-of-work-based blockchains
+by checking only a small representative number of block headers instead of all
+the block headers as done in SPV. Such clients can be embedded within other
+blockchains by implementing them as smart contracts, allowing for cross-chain
+verification. One such interesting instance is the consumption of Bitcoin data
+within Ethereum by implementing a Bitcoin superlight client in Solidity. While
+such theoretical constructions have demonstrated security and efficiency, no
+practical implementation exists. In this work, we put forth the first practical
+Solidity implementation of a superlight client which implements the NIPoPoW
+superblocks protocol. Our implementation is open source and we demonstrate it
+is production-ready by providing full test coverage. Contrary to previous work,
+our Solidity smart contract achieves sufficient gas-efficiency to allow a proof
+and counter-proof to fit within the gas limit of a block, making it practical.
+We provide extensive experimental measurements for gas. The optimizations that
+enable gas-efficiency heavily leverage a novel technique which we term
+hash-and-resubmit, which almost completely eliminates persistent storage
+requirements, the most expensive operation of smart contracts in terms of gas.
+Instead, the contract asks contesters to resubmit data and checks their
+veracity by hashing it. We show that such techniques can be used to bring down
+gas costs significantly and may have applications to other contracts. We also
+identify and rectify multiple implementation security issues of previous work
+such as premining vulnerabilities. Lastly, our implementation allows us to
+calculate concrete cryptoeconomic parameters for the superblocks NIPoPoWs
+protocol and in particular to make recommendations about the monetary value of
+the collateral parameters. We provide such parameter recommendations over a
+variety of liveness and adversarial bound settings.
+
 \end{abstract}
