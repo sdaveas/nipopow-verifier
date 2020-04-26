@@ -1,4 +1,3 @@
-\section{Implementation}
 
 \subsection{Environment Set-Up}
 
@@ -217,7 +216,9 @@ In this subsection we present previous work. We prepare the reader by focusing
 at specific aspects in which our solution differs. We will later show these
 differences and we will analyse on how they impact the results of our
 application.
+\chapter{Implementation}
 
+\section{Analysis of Previous Work}
 In the process of building our Bitcoin Client, a suit of thorough unit tests
 were written to assert the correction of our results which we also used at the
 previous work. We discovered some erroneous functionalities that we appose in
@@ -260,7 +261,7 @@ memory is also considered a storage operation
 
 \input{algorithms/old_contract.tex}
 
-\subsubsection{Gas analysis}
+\subsection{Gas analysis}
 
 Here, we layout experiments that show the gas usage of the previous
 implementation. In these experiments, we used a small proofs\footnote{For sizes
@@ -275,11 +276,11 @@ units. This is mainly due to the extensive storage usage.
 \todo{maybe show numbers for the minimum proof that
 exceeds block gas limit.}
 
-% \input{tables/old_gas_usage.tex}
+\input{tables/old_gas_usage.tex}
 
-\subsubsection{Security Analysis}
+\subsection{Security Analysis}
 
-\paragraph{Pre-mining} We observed that the smart contract is vulnerable to
+\subsubsection{Pre-mining} We observed that the smart contract is vulnerable to
 pre-mining(ref). By definition, a valid NIPoPoW is structurally correct if two
 properties are satisfied:
 
@@ -304,8 +305,7 @@ and~\ref{algo:avoid_premining_submit}.
 
 \input{algorithms/avoid_premining.tex}
 
-\bigbreak
-\paragraph{Score Calculation}
+\subsubsection{Score Calculation}
 
 During our tests, we observed that the calculation of proofs score was
 incorrect. The score of each level is needed to determine which proof
@@ -335,7 +335,7 @@ prevent an honest party from successfully contesting an adversarial proof,
 making the contract insecure. The function was refined to return the correct
 value.
 
-\subsection{Storage Elimination}
+\section{Storage Elimination}
 \todo{Should this be a new section?}
 
 As mentioned above, the bottleneck we had to eliminate was the extensive usage
@@ -345,7 +345,7 @@ decrease of gas consumption. In this section, we present the difference in gas
 usage between storage and memory utilization, and how a NIPoPoW verifier can be
 implemented in Solidity without persisting proofs.
 
-\subsubsection{Storage vs Memory}
+\subsection{Storage vs Memory}
 
 We will first demonstrate the difference in gas usage between storage and
 memory for a smart contract in Solidity. Suppose we have the following simple
@@ -371,7 +371,7 @@ the choice of memory greatly benefits the users.
 
 \input{figures/memory_vs_storage.tex}
 
-\subsubsection{Making use of calldata}
+\subsection{Making use of calldata}
 
 In previous work we needed to store submitted proofs in order to proceed to
 contest. In this subsection we show an approach to securely verify proofs
@@ -396,13 +396,13 @@ adds a constant, negligible cost overhead to our implementation.
 
 \input{figures/hash_proof_gas.tex}
 
-\subsubsection{Removing DAG and ancestors}
+\subsection{Removing DAG and ancestors}
 
 As shown in table~\ref{table:old_gas_usage}, the most demanding operation is
 the creation and population of DAG and ancestors. In this subsection we show
 how these two structures can be discarded from the verifier.
 
-\paragraph{Using subset} Our first realization was that instead of storing the
+\subsubsection{Using subset} Our first realization was that instead of storing the
 DAG of $\pi_{exist}$, $\pi_{cont}$, we can require
 
 \[ \pi_{exist}\{:lca_{e}\} \subseteq \pi_{cont}\{:lca_{c}\} \]
@@ -424,7 +424,7 @@ approximately 2.7 times more efficient.
 
 \input{figures/DAG_vs_subset.tex}
 
-\paragraph{Subset complexity and limitations} Requiring $\pi_{exist}$ to be a subset of
+\subsubsection{Subset complexity and limitations} Requiring $\pi_{exist}$ to be a subset of
 $\pi_{cont}$ greatly reduces gas, but the complexity of the $subset$ algorithm
 is high since both proofs have to be iterated from genesis to their respective
 $lca$ index. Generally, we expect for an adversary to provide a proof of a
@@ -440,7 +440,7 @@ cost of \texttt{subset()} is approximately 20,000,000 gas units, which makes it
 inapplicable for real blockchains since it exceeds the block gas limit of
 the Ethereum blockchain by far.
 
-\paragraph{Position of block of interest}
+\subsubsection{Position of block of interest}
 
 By analyzing the benefits and trade-offs of $subset$, we concluded that there
 is a more efficient way to treat storage elimination. In general, the concept
@@ -460,7 +460,7 @@ calldata and both proofs can be iterated off-chain.
 \newcommand*{\exist}{$\pi_{exist}$}
 \newcommand*{\cont}{$\pi_{cont}^{tr}$}
 
-\paragraph{Disjoint proofs}
+\subsubsection{Disjoint proofs}
 
 We will refer to the truncated contesting proof as $\pi_{cont}^{tr}$ and to
 $lca_{e}$ simply as $lca$. For the aforementioned, the following statements are
