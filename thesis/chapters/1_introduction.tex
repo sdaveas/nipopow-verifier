@@ -2,103 +2,105 @@
 
 \section{Motivation}
 
-Digital coins are peer-to-peer currencies based on applied cryptography
-for the validation of transactions. Most of them are based on
-blockchain(ref), a form of decentralized database. In this database, a
-public ledger is deployed which is stored and updated by thousands of
-users in absence of supervision from public authorities.
+Digital coins are peer-to-peer currencies based on applied cryptography for the
+validation of transactions. Most of them are based on blockchain(ref)
+technology, a form of a decentralized database. In this database, a public
+ledger is deployed which is stored and updated by thousands of users in absence
+of supervision from public authorities.
 
-In 2008, Bitcoin(ref), the first ever successful decentralized digital
-coin, was invented by an unknown person or group of people using the
-name Satoshi Nakamoto. A year after, the bitcoin network started,
-quickly followed by several other digital coins, which in the
-cryptocurrency folklore are known as altcoins. Usually, altcoins are
-based on innovative features previously missing from the cryptocurrency
-market, and they are either accepted or rejected by the community.
-Popular altcoins are Ethereum(ref), which is the first to provide smart
-contracts, Ripple(ref) which provides real-time payment settlements and
-Litecoin(ref) which enables near-zero cost payments.
+In 2008, Bitcoin(ref), the first ever successful decentralized digital coin,
+was invented by an unknown person or group of people using the name Satoshi
+Nakamoto. A year after, the bitcoin network started, quickly followed by
+several other digital coins, known as altcoins in the cryptocurrency folklore.
+Usually, altcoins provide new, innovative features missing from the
+cryptocurrency market. Popular altcoins are Ethereum(ref), which is the first
+to provide smart contracts, Ripple(ref) which provides real-time payment
+settlements and Litecoin(ref) which enables near-zero cost payments.
 
-Over the last decade, cryptocurrencies gained attention from the public
-as an increased number of users accept and trust decentralized
-transactions. Specifically, in 2017, the popularity of cryptocurrencies
-rapidly grew, resulting in massive capitalisation and creation of
-tokens. During this period, some of the issues that blockchain
-technology faces were displayed. One of these issues is blockchain
-interoperability, the property of distinct blockchains to interact
-efficiently with each other. Despite its great importance, this field
-has not been addressed until recently. To date, cryptocurrencies are
-lacking a commonly accepted protocol that enables distributed
-interoperability. Such a protocol would be very useful to blockchain
-technology, since it would allow users to variously utilize features of
-different blockchains. For example, one can store their funds in
-Bitcoins, and convert them to Ether to make a payment, benefiting from
-lower transaction fees and quicker transaction rates.
+Over the last decade, cryptocurrencies gained attention from the public as an
+increased number of users accept and trust decentralized transactions.
+Specifically, in 2017, the popularity of cryptocurrencies rapidly grew,
+resulting in massive capitalisation and creation of tokens. During this period,
+some of the issues that blockchain ecosystem faces were displayed. One of these
+issues is blockchain interoperability, the property of different blockchains to
+efficiently interact with each other. Despite its great importance, this field
+has not been addressed until recently. To date, cryptocurrencies are lacking a
+commonly accepted protocol to communicate. Such a protocol would be very useful
+to blockchain ecosystems, since it would allow users to utilize various
+features of different blockchains. For example, to store their funds in
+Bitcoins and convert them to Ether to make a payment, benefiting from lower
+transaction fees and quicker transaction times.
 
-A crosschain protocol would enable two main operations
+The application of a crosschain protocol brings two main capabilities to the
+users:
 \begin{itemize}
     \item
-        Crosschain trading: An entity with deposits in blockchain A, makes a
-        payment to an entity at blockchain B.
+        Crosschain trading: A user with deposits in blockchain A, makes a
+        payment to a user at blockchain B.
     \item
-        Crosschain fund transfer: Entity transfers owning funds from
+        Crosschain fund transfer: A user transfers owning funds from
         blockchain A to blockchain B. After this operation, the funds no
-        longer exist at blockchain A. The entity can return any portion of the
+        longer exist at blockchain A. The user can transfer any portion of the
         original amount to the blockchain of origin.
 \end{itemize}
 
-Currently, this operation is only available to the users via third party
-applications, such as multi-currency wallets. This treatment certainly
-opposes to the nature of blockchain, which is a decentralized construction.
-This motivated us to create a solution that enables cheap, trust-less
-crosschain operations.
+Currently, crosschain operations are only available to the users via third
+party applications, such as multi-currency wallets. This centralized treatment
+is contradicting to the nature of blockchain, and abolishes the decentralized
+aspect of cryptocurrencies. This motivated us to create a solution that enables
+cheap and trust-less crosschain operations.
 
 \section{Previous Work}
 
-In this paper, we focus on recent research in the area of crosschains.
-In particular, we make use of the cryptographic primitive
-Non-Interactive Proofs of Proof of Work (NIPoPoWs)(ref), which enables
-the compression of a chain to its poly-logarothmic size. NIPoPoWs is the
-main building block of our solution in order to make the occurrence of
-an event of blockchain A provably known to blockchain B.
+Non-Interactive Proofs of Proof of Work (NIPoPoWs)(ref) are the fundamental
+building block of our solution. This cryptographic primitive enables the
+compression of blockchains and makes the occurrence of an event of blockchain A
+known to blockchain B provable and efficient.
 
-We are based on previous work done by Giorgos Christoglou et al.(ref),
-which was the first ever implementation of crosschain events
-verification. The work of Giorgos et al.\ focuses on verifying Bitcoin
-events from the Ethereum blockchain. In order to provide this
-functionality, a NIPoPoW verifier was developed in Solidity(ref), one of
-the programming languages of Ethereum blockchain. This solution,
-however, is impossible to be applied in a real blockchain due to
-extensive gas usage and severe security issues.
-
-\todo{maybe "severe" is too harsh}
+We refer to previous work by Giorgos Christoglou et al.(ref), which is the
+first ever implementation of crosschain events verification based on NIPoPoWs.
+This solution, however, is impossible to apply to the real blockchain due to
+extensive usage of resources and important security issues.
 
 \section{Our contributions}
 
-A series of keen observations, the application of gas-efficient
-practices and the utilization of modern Solidity features led us to the
-design of a new verifier architecture. This allowed us to repair
-previous vulnerabilities and enable crosschain operations by providing a
-secure, superlight Bitcoin client that can be deployed on the real
-blockchain.
+\todo{Add later on: A series of keen observations, the application of
+gas-efficient practices and the utilization of modern Solidity features led us
+to the design of a new verifier architecture.}
 
-Our contribution is the creation of a Bitcoin client in Solidity that
-verifies events across blockchains while meeting the following criteria:
+We developed the first ever client that can perform crosschain operations and
+is applicable to the real blockchain. Our client establishes a secure,
+efficient, cheap and fully decentralized solution to the interoperability
+problem.
+
+We also provide plain evidence that NIPoPoWs can be applied to the real world,
+\myworries{making the cryptographic primitive the first ever applied
+construction of succinct proofs to a real setting.}
+
+Our crosschain client meets the following requirements:
 \begin{itemize}
     \item
-        Security: Is secure against any adversarial attack.
+        Security: The client is invulnerable against all adversarial attacks.
     \item
-        Trustless: Does not have dependencies at any third-party applications.
+        Trust-less: The client is not dependent on third-party applications
+        and operates in a fully decentralized manner.
     \item
-        Applicability: Is applicable to the real blockchain. That is, data
-        derived from the full-sized Bitcoin blockchain are successfully
-        accepted and processed by the client without exceeding the build-in
-        constraints of the Ethereum blockchain (i.e.\ block gas limit, calldata
-        limit etc).
+        Applicability: The client can be utilized in the real blockchain and
+        does not violate any of the environmental constraints.
     \item
-        Cheap: Is cheaper than the current state of the art technologies. This
-        would make trustless crosschain transactions more popular and
-        affordable.
+        Cheap: The application is cheaper to use than the current state of the
+        art technologies.
+\end{itemize}
+
+We selected the two most popular blockchains to demonstrate our solution: (a)
+Bitcoin as the source blockchain and (b) Ethereum as the destination
+blockchain. Some of the applications that demonstrate the usage of our client
+are the following:
+
+\begin{itemize}
+    \item{Application \#1}
+    \item{Application \#2}
+    \item{Application \#3}
 \end{itemize}
 
 \pagebreak
