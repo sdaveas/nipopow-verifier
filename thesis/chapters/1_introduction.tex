@@ -29,35 +29,37 @@ utilizations of blockchain technology.
 
 Ethereum was first proposed in late 2013 and then brought to life in 2014.
 Ethereum is a blockchain network that, apart from its digital currency, Ether,
-can host decentralized programs also known as Dapps - decentralized apps - also
-called smart contracts. Smart contracts are written in Solidity, the
-programming language of Ethereum and yield to no single person controls, not
-even to their author.  The Ethereum platform is fully decentralized and
-consists of thousands of independent computers running it. Once a program is
-deployed to the Ethereum network it will be executed as written, hence the
-famous phrase: "code is law". Ethereum is a network of computers that together
-combine into one powerful, decentralized supercomputer. Ethereum is often
-characterized as the second era of blockchain networks.
+can host decentralized programs. These decentralized apps (Dapps), or smart
+contracts are written in Solidity, the programming language of Ethereum and
+yield to no single person control, not even to their author.  The Ethereum
+platform is fully decentralized and consists of thousands of independent
+computers running it. Once a program is deployed to the Ethereum network it
+will be executed as written, hence the famous phrase: "code is law". Ethereum
+is a network of computers that together combine into one powerful,
+decentralized supercomputer. Ethereum is often characterized as the second era
+of blockchain networks.
 
 With the passing of time, new cryptocurrencies, altcoins as they are called in
 the cryptocurrency folklore, are created every day. Some altcoins bring new
 features to the cryprocurrency market and are accepted by the community, even
 becoming popular. After Bitcoin and Ethereum, the most important blockchains in
 terms of capitalization are XRP, Tether, Bitcoin Cash and Litecoin. As of April
-22, there are over 5.392 cryptocurrencies with a total market capitalisation of
-\$201 billion.
+2020, there are over 5.392 cryptocurrencies with a total market capitalisation of
+\$201 Billion.
 
 In this world of distributed coins, a newcomer to the cryptocurrency ecosystem
-would possibly expect that there must be some kind of established way for all
-these distinct blockchain to interact; a way for Alice, who keeps her funds in
-Bitcoins to transfer an amount to Bob, who keeps his funds in Ether (one-way
-peg) and vice-versa (two-way peg).
+would possibly expect that there must be some kind of established protocol for
+all these distinct blockchain to interact; a way for Alice, who keeps her funds
+in Bitcoins, to transfer an amount to Bob, who keeps his funds in Ether and
+vice-versa. The transfer of an amount from one chain to another is called
+one-way peg, and the transfer of funds back to the original chain is called
+two-way peg.
 
 In reality, the problem of blockchain interoperability had not been researched
 until recently, and, to date, there is still no commonly accepted decentralized
-protocol that enables interactions between blockchains, the so-called
-crosschain operations.  In general, crosschain-enabled blockchains A, B would
-satisfy the following:
+protocol that enables interactions across blockchains, the so-called crosschain
+operations. In general, crosschain-enabled blockchains A, B would satisfy the
+following:
 
 \begin{itemize}
 
@@ -65,7 +67,7 @@ satisfy the following:
         payment to Bob at blockchain B.
 
     \item Crosschain fund transfer: Alice transfers her funds from blockchain A
-        to blockchain B. After this operation, the funds no longer exist at
+        to blockchain B. After this operation, the funds no longer exist in
         blockchain A. Alice can later decide to transfer any portion of the
         original amount to the blockchain of origin.
 
@@ -73,13 +75,13 @@ satisfy the following:
 
 Currently, crosschain operations are only available to the users via
 third-party applications, such as multi-currency wallets. It is obvious that
-this centralized treatment conflicts with the nature of the blockchain and the
+this centralized treatment opposes to the nature of the blockchain and the
 introspective of decentralized currencies. This contradiction motivated us to
 create a solution that enables cheap and trust-less crosschain operations.
 
 \section{Rationale}
 
-The essence of crosschain operations is to make known to chain A that an event
+The core of crosschain operations is to make known to chain A that an event
 occurred to chain B, such that a payment tool place. One trivial way for Alice
 to determine if an event took place in chain A and register it to chain B is to
 participate at both chains. But this way is very inefficient because of the
@@ -89,33 +91,39 @@ accommodate this size of data.
 
 An early solution to the extensive space of blockchain was given by Satoshi,
 and is called Simplified Payment Verification (SPV) protocol. In SPV, only the
-headers of blocks are stored, saving of a lot of storage. But even in this
-case, Bitcoin headers have the accumulative size of 50 GB (80 bytes each).  A
+headers of blocks are stored, saving of a lot of storage. However, even with
+this protocol, Bitcoin headers have the total size of 50 GB (80 bytes each). A
 mobile client needs several minutes, even hours to download all information
 needed to function as an SPV client. Moreover, not all blockchains have
 small-sized headers like Bitcoin. Block headers of Ethereum, for instance, are
-508 bytes.
+508 Bytes and for different altcoins they span several MB of data. SPV clients
+lead to unpleasant user experience at some cases, while they are completely
+impractical in others.
 
 Another idea to make chain A interact with chain B, is to provide a
 cryptographic proof to chain B that an event occurred in chain A. Secure
 cryptographic proofs are mathematical constructions that are easy to verify and
-impossible for an adversary to forge. In order to be efficient, the size of the
-proof needs to be small in relation with the size of the blockchain. This way,
-we are be able to create a proof for an event in chain A and send it to chain B
-for validation. If chain B supports smart contracts, like Ethereum, then the
-proof can be verified and no third-party is involved in the process.
+impossible for an adversary to forge and are broadly used in cryptography and
+blockchain in particular. In order to be efficient, the size of the proof needs
+to be small related to the size of the blockchain. This way, we are be able to
+create proofs for events in chain A and send it to chain B for validation.  If
+chain B supports smart contracts, like Ethereum, the proof can be verified
+automatically and transparently on-chain. Notice that no third-party is
+involved through the entire process.
 
 \section{Previous Work}
 
-Non-Interactive Proofs of Proof of Work (NIPoPoWs)(ref) are the fundamental
+Non-Interactive Proofs of Proof of Work (NIPoPoWs)(ref) is the fundamental
 building block of our solution. This cryptographic primitive is provably secure
-and provides succinctness. The size of the proofs is logarithmic to the size of
-the underlying blockchain.
+and provide succinct proofs regarding the occurrence of an event in a chain.
+The size of the proofs is logarithmic to the size of the underlying blockchain,
+which means that they are growing slowly compared to the rate of the growth of
+the blockchain.
 
 Giorgos Christoglou (ref), provided a Solidity smart contract which is the
 first ever implementation of crosschain events verification based on NIPoPoWs.
 This solution, however, is impossible to apply to the real blockchain due to
-extensive usage of resources and important security issues.
+extensive usage of resources and important security vulnerabilities.
 
 \section{Our contributions}
 
@@ -129,8 +137,9 @@ We put forth the following contributions:
 
     \item We developed the first ever client that verifies crosschain events
         and is applicable to the real blockchain. Our client establishes a
-        secure, efficient, cheap and fully decentralized solution to the
-        interoperability problem.
+        secure, efficient and fully decentralized solution to the
+        interoperability problem. Our client is implemented in Solidity and
+        verifies Bitcoin events.
 
     \item We prove that NIPoPoWs can be applied to the real blockchain,
         \myworries{making the cryptographic primitive the first ever applied
@@ -138,26 +147,33 @@ We put forth the following contributions:
 
 \end{enumerate}
 
-We selected the two most popular blockchains to demonstrate our solution:
-Bitcoin as the source blockchain and Ethereum as the destination blockchain.
+\bigbreak
+Our implementation meets the following requirements:
+\begin{enumerate}[(a)]
 
-Our client meets the following requirements:
-\begin{itemize}
     \item
         Security: The client is invulnerable against all adversarial attacks.
-    \item
-        Trust-less: The client is not dependent on third-party applications
-        and operates in a fully decentralized manner.
-    \item
-        Applicability: The client can be utilized in the real blockchain and
-        does not violate any of the environmental constraints.
-    \item
-        Cheap: The application is cheaper to use than the current state of the
-        art technologies.
-\end{itemize}
 
-Some of the applications that demonstrate the usage of our client
-are the following:
+    \item Is trust-less: The client is not dependent on third-party
+        applications and operates in a fully transparent, decentralized manner.
+
+    \item Applicability: The client can be utilized in the real blockchain and
+        does not violate any of the environmental constraints. Specifically,
+        the process of on-chain Bitcoin event verification does not exceed
+        Ethereum limitations such as block gas limit and calldata size.
+
+    \item Is cheap: The application is cheaper to use than the current state of
+        the art technologies.
+
+\end{enumerate}
+
+We selected Bitcoin as source blockchain as it the most used cryptocurrency and
+enabling crosschain transactions in Bitcoin is beneficial to the vast majority
+of blockchain community. We selected Ethereum because it is also a very popular
+blockchain and it supports smart contracts which is a requirement in order to
+perform on-chain verification.
+
+\bigbreak Applications that demonstrate the usage of our client are:
 
 \begin{itemize}
     \item{Application \#1}
