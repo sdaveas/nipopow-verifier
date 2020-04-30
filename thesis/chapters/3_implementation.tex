@@ -20,20 +20,28 @@ address}. We also used our configured EVMs with EIP 2028 enabled.
 
 \subsection{Gas analysis}
 
-Here, we layout experiments that show the gas usage of the previous
-implementation. In these experiments, we used a small proofs\footnote{For sizes
-of proofs for realistic blockchain sizes, refer to Section(ref)}. These sizes
-are unrealistic for a real blockchain, but are helpful to demonstrate the gas
-of the functions of the contract for each phase. The gas expend for submit and
-contest for proof of 20 blocks is shown in Table~\ref{table:old_gas_usage}. We
-observe that even for small proofs, the gas cost is high - 4 million gas units,
-given that the block gas limit of Ethereum is currently at 9.908.813(ref) gas
-units. This is mainly due to the extensive storage usage.
+Our profiler measures gas usage per line of code. This is very helpful to
+observe detailed gas consumption of a contract. Also, we used build-in Solidity
+events to measure aggregated gas consumption of different high-level
+functionalities. For our experiment we used a chain of 35 blocks, forked at
+index 15 with additional 10 blocks as displayed in Figure
+\ref{figure:proofs_25-10+20}. The gas usage of each functionality is shown in
+Table \ref{table:old_gas_usage}.
 
-\todo{maybe show numbers for the minimum proof that
-exceeds block gas limit.}
-
+\input{figures/proofs_25-10+20.tex}
 \input{tables/old_gas_usage.tex}
+
+We used a scenario in which the original proof is flawed and successfully
+contested. We selected this scenario because it includes both phases (submit
+and contest) and provides full coverage of contest phase since all operations
+are executed. For submit phase, the contract needed 10 million gas units, and
+for contest phase it needed almost 13 million gas units. Although this size
+only represents a very small faction of the real chain, the gas numbers already
+exceed the block gas limit of Ethereum, which is a slightly below 10 million.
+In figure \ref{figure:old_gas_per_size} we show the gas corresponding to
+fluctuates to different chain and proof sizes relatively to the block gas
+limit.
+
 
 \subsection{Security Analysis}
 
