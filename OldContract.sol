@@ -160,11 +160,11 @@ contract Crosschain {
             // Clean the stored memory.
             proof.visitedBlock[proof.ancestors[i]] = false;
         }
-        emit debug("predicate", ancestorsGas);
+        emit debug("predicate", ancestorsGas - gasleft());
 
         uint256 deleteGas = gasleft();
         delete proof.ancestors;
-        emit debug("delete ancestors", deleteGas);
+        emit debug("delete ancestors", deleteGas - gasleft());
 
         return Predicate;
     }
@@ -357,7 +357,6 @@ contract Crosschain {
         bytes32[] memory siblings,
         bytes32[4] memory blockOfInterest
     ) internal returns (bool) {
-        uint256 verifyGas = gasleft();
         bytes32[] memory contestingProof = new bytes32[](headers.length);
         for (uint256 i = 0; i < headers.length; i++) {
             contestingProof[i] = hashHeader(headers[i]);
@@ -388,7 +387,6 @@ contract Crosschain {
         } else {
             emit debug("not found:", 0);
         }
-        emit debug("verify:", verifyGas - gasleft());
         return p;
     }
 
@@ -400,7 +398,6 @@ contract Crosschain {
         bytes32[] memory siblings,
         bytes32[4] memory blockOfInterest
     ) public payable returns (bool) {
-        emit debug("-----------------submit------------------------", 0);
         bytes32 hashedBlock = hashHeader(blockOfInterest);
 
         if (msg.value < z) {
@@ -450,7 +447,6 @@ contract Crosschain {
         bytes32[] memory siblings,
         bytes32[4] memory blockOfInterest
     ) public returns (bool) {
-        emit debug("-----------------contest------------------------", 0);
         bytes32 hashedBlock = hashHeader(blockOfInterest);
 
         if (events[hashedBlock].expire < block.number) {
