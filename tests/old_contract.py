@@ -22,9 +22,9 @@ def main():
     """
 
     proof_tool = ProofTool("../data/proofs/")
-    proof_tool.fetch_proof(20)
+    proof_tool.fetch_proof(25)
     (submit_n, contest_n, _, _, _, _) = proof_tool.create_proof_and_forkproof(
-        10, 5, 10
+        25, 10, 20
     )
 
     proof = Proof()
@@ -39,23 +39,29 @@ def main():
 
     result = interface.call(
         "submitEventProof",
-        function_args=[proof.headers, proof.siblings, proof.headers[0]],
+        function_args=[proof.headers, proof.siblings, proof.headers[-1]],
         value=pow(10, 17),
     )
+    sum = 0
     print(result)
     for e in result["events"]:
         print(e[0], "\t", e[1])
+        sum += e[1]
+    print("Sum:", sum)
 
     result = interface.call(
         "submitContestingProof",
-        function_args=[c_proof.headers, c_proof.siblings, c_proof.headers[0]],
+        function_args=[c_proof.headers, c_proof.siblings, c_proof.headers[-1]],
     )
 
     interface.end()
 
+    sum = 0
     print(result)
     for e in result["events"]:
         print(e[0], "\t", e[1])
+        sum += e[1]
+    print("Sum:", sum)
 
 
 if __name__ == "__main__":

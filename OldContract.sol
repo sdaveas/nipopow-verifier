@@ -371,7 +371,7 @@ contract Crosschain {
         if (compareProofs(proof, contestingProof)) {
             uint256 proofGas = gasleft();
             proof.bestProof = contestingProof;
-            emit debug("proofS <- proof:", proofGas - gasleft());
+            emit debug("proof <- proof:", proofGas - gasleft());
             // Only when we get the "best" we add them to the DAG.
             uint256 dagGas = gasleft();
             addProofToDag(proof, contestingProof);
@@ -400,7 +400,7 @@ contract Crosschain {
         bytes32[] memory siblings,
         bytes32[4] memory blockOfInterest
     ) public payable returns (bool) {
-        emit debug("-----------------subit------------------------", 0);
+        emit debug("-----------------submit------------------------", 0);
         bytes32 hashedBlock = hashHeader(blockOfInterest);
 
         if (msg.value < z) {
