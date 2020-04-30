@@ -9,6 +9,14 @@ In this section we make the analysis of previous work by Christoglou. We oppose
 the gas usage of all internal functions. Then, we present the vulnerabilities
 we discovered, and how they were mitigated in our work.
 
+\subsection{Porting from old Solidity version}
+
+In out analysis, we used the latest version of Solidity. To facilitate this, we
+needed to port the smart contract from version 0.4 to version 0.6. The changes
+we needed to perform were mostly syntactic. These includes the usage of
+\texttt{abi.encodePacked}, explicit \texttt{memory} and \texttt{storage}
+declaration and explicit cast from \texttt{address} to \texttt{payable
+address}. We also used our configured EVMs with EIP 2028 enabled.
 
 \subsection{Gas analysis}
 
