@@ -62,6 +62,24 @@ reflected to the gas consumption curve.
 
 \input{tables/old_cost_in_fiat.tex}
 
+\paragraph{Pricing}
+
+So far, we have shown that the verifier is not applicable to the real
+blockchain due to extensive gas usage, exceeding the build-in limitation the
+Ethereum blockchain by far. While Ethereum adapts to community demands and
+build-in parameters can change, it seem improbable to ever incorporate such a
+high block gas limit. However, even in this extreme case, the verifier would
+still be impractical due to the high cost of the operations in fiat. We call
+this amount \emph{toll}, because it is the cost of using the "bridge" between
+two blockchains. We list these tolls in Table \ref{table:old_cost_in_fiat}. For
+this price, we used gas price equal to 5 Gwei, which is considered an average
+amount to complete transactions. With this gas price, the probability
+approximately that the transaction will be included in one of the next 200
+blocks is 33\%. Note that average gas price will not be sufficient for
+contesting phase, and it has to be performed with higher gas price because of
+the limited contesting period. We will later analyze thoroughly the entire
+spectrum of gas prices and tolls for realistic usage of both submit and contest
+phases.
 
 \subsection{Security Analysis}
 
