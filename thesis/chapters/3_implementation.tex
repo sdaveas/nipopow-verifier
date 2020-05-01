@@ -12,12 +12,14 @@ the vulnerabilities we discovered, and how we mitigated them in our work.
 
 \subsection{Porting from old Solidity version}
 
-In out analysis, we used the latest version of Solidity. To facilitate this, we
-needed to port the smart contract from version 0.4 to version 0.6. The changes
-we needed to perform were mostly syntactic. These includes the usage of
-\texttt{abi.encodePacked}, explicit \texttt{memory} and \texttt{storage}
-declaration and explicit cast from \texttt{address} to \texttt{payable
-address}. We also used our configured EVMs with EIP 2028 enabled.
+We used the latest version of Solidity compiler for our analysis. To perform
+the analysis, we needed to port the verifier from version Solidity 0.4 to
+version 0.6.  The changes we needed to perform were mostly syntactic. These
+includes the usage of \texttt{abi.encodePacked}, explicit \texttt{memory} and
+\texttt{storage} declaration and explicit cast from \texttt{address} to
+\texttt{payable address}. We also used our configured EVMs with EIP 2028
+enabled to benefit from low cost function calls. The functionality of the
+contract remained equivalent.
 
 \subsection{Gas analysis}
 
