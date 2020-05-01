@@ -41,6 +41,27 @@ party. We selected this configuration because it includes both phases
 (submit and contest) and provides full code coverage of each phase since all
 underlying operations are executed and no early returns occur.
 
+For a chain of 75 blocks, each phase of the contract needed more than 10
+million gas units. Although the size of this test chain is only a very small
+faction of the size of a realistic chain, the gas usage already exceeds the
+limit of Ethereum blockchain, which is slightly below 10 million. In
+particular, the submit of a 500,0000-blocks chain demands 47,280,453 gas. In
+Figure \ref{figure:old_gas_per_chain_proof}, we show gas consumption for submit
+phase for different chain sizes and their corresponding proofs sizes. We
+demonstrate results for chains sizes from 100 blocks (corresponding proof size
+25) to 500,000 blocks (corresponding to proof size 250).
+
+The linear relation displayed in Figure \ref{figure:old_gas_per_proof} implies
+that the gas consumption of the verifier is determined by the size of the
+proofs. As shown in Figure \ref{figure:size_of_nipopows} \todo{insert figure
+for proof size with relation to the chain in Background}, the size of the
+proofs grows logarithmically to the size of the chain, and this is also
+reflected to the gas consumption curve.
+
+\input{figures/old_gas_per_proof}
+
+\input{tables/old_cost_in_fiat.tex}
+
 
 \subsection{Security Analysis}
 
