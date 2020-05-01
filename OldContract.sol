@@ -398,6 +398,7 @@ contract Crosschain {
         bytes32[] memory siblings,
         bytes32[4] memory blockOfInterest
     ) public payable returns (bool) {
+        uint256 _gas = gasleft();
         bytes32 hashedBlock = hashHeader(blockOfInterest);
 
         if (msg.value < z) {
@@ -417,9 +418,11 @@ contract Crosschain {
         ) {
             events[hashedBlock].expire = block.number + k;
             events[hashedBlock].author = msg.sender;
+            emit debug("Overall", _gas - gasleft());
             return true;
         }
 
+        emit debug("Overall", _gas - gasleft());
         return false;
     }
 
@@ -447,12 +450,15 @@ contract Crosschain {
         bytes32[] memory siblings,
         bytes32[4] memory blockOfInterest
     ) public returns (bool) {
+
+
         bytes32 hashedBlock = hashHeader(blockOfInterest);
 
         if (events[hashedBlock].expire < block.number) {
             return false;
         }
 
+        uint256 _gas = gasleft();
         if (
             !verify(
                 events[hashedBlock].proof,
@@ -463,9 +469,11 @@ contract Crosschain {
         ) {
             events[hashedBlock].expire = 0;
             msg.sender.transfer(z);
+            emit debug("Overall", _gas - gasleft());
             return true;
         }
 
+        emit debug("Overall", _gas - gasleft());
         return false;
     }
 
