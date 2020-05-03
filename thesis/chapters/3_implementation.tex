@@ -83,28 +83,54 @@ phases.
 
 \subsection{Security Analysis}
 
-\subsubsection{Pre-mining} We observed that the verifier is vulnerable to
-pre-mining(ref). By definition, a NIPoPoW is structurally correct if two
-properties are satisfied:
+We observed that previous work is vulnerable to \emph{premining attack}. This
+kind of attack cannot be
+
+\subsubsection{Premining} Premining is the creation of a number of
+cryptocurrency coins before the cryptocurrency is launched to the public. Many
+altcoins are based on premining Bitcoin, however, is \emph{not} a premined
+cryptocurrency. It is proven that every Bitcoin has been created after
+3/Jan/2009, as we describe in Section \ref{premine}. If such a guarantee did
+not exist, the creator of Bitcoin could quietly mine blocks for a long time
+before initiating the public network as displayed in
+~\ref{figure:premining_attack_bitcoin}. The adversary could then publish the
+private, longer chain, invalidating the public chain which is adopted by the
+honest users and hosts all their funds.
+
+\input{figures/premining_attack_bitcoin}
+
+The NIPoPoW protocol takes into consideration the $genesis$ block of the
+underlying blockchain. We remind that the first block of the chain is always
+included in the NIPoPoW by construction. As we discuss in
+Section~\ref{NIPoPoWs}, in the NIPoPoW protocol a proof is structurally correct
+if two properties are satisfied:
+
+\todo{Rewrite this with using the notation}
 
 \begin{enumerate}[(a)]
 
-\item The interlink structure of all blocks is correct. This is to prevent
-    adversaries from injecting blocks that do not exist in the original
-    blockchain.
+\item The \emph{interlink} structure of all proof blocks is valid.
 
-\item The first block of proof is $genesis$. This is to prevent adversaries
-    from create coins before blockchain are advertised at the public network.
+\item The first block of a proof for a chain $C$ is the first block $C$, the
+    $genesis$ block.
 
 \end{enumerate}
 
-The second property is not verified in the previous work, exposing the verifier
-to pre-mining attacks. We can easily mitigate this vulnerability by
-initializing the smart contract with the $genesis$ block of the blockchain we
-will use and add an assertion in submit and contest phase that proofs need to
-satisfy property (b). The needed changes are shown in
-Algorithms~\ref{algo:avoid_premining_ctor}
-and~\ref{algo:avoid_premining_submit}.
+From property (b) of NIPoPoWs, we derive that the protocol is resilient to
+premining because any chain that does not start from Bitcoin's $genesis$ block,
+$gen_{B}$, results to a proof that also does not start from $gen_{B}$. Premined
+chains start with blocks different than $gen_{B}$, hence NIPoPoW that describe
+premined chains are invalid by definition.
+
+\subsubsection{An attack} Previous implementation does require the existence of
+underlying chain's $genesis$, exposing the verifier to premining attacks. Such
+an attack can be launched by an adversary that mines new blocks on a chain $C'$
+which is prior to the Bitcoin chain $C$ as displayed in
+\input{figures/premining_attack_nipopow.tex} Proofs for events in $C'$ cannot
+be contested by an honest party, since chain $C'$ includes more proof-of-work
+than $C$ and thus NIPoPoWs with higher score can be generated.
+Figure~\ref{figure:premining_attack_nipopow}.
+
 
 \input{algorithms/avoid_premining.tex}
 
