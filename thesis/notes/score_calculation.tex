@@ -1,0 +1,30 @@
+\subsubsection{Score Calculation}
+
+During our tests, we observed that the calculation of proofs score was
+incorrect. The score of each level is needed to determine which proof
+represents the chain with the most Proof of Work. Between two proofs, we only
+need to calculate the score starting from their $lca$ until the tip of each
+proof. Different levels are needed because the $lca$ between two proofs is only
+known when the contesting proof is submitted. The security parameter $m$ needs
+to be satisfied for every sub-proof $\pi[:lca]$. We ensure that this is $true$
+by creating proofs of multiple levels, so that security parameter $m$ applies,
+disregarding $lca$'s position.
+
+\todo{Figure for the need of multiple levels}
+
+Each block has a level, calculated as describe in Section(ref)
+\[ level = getLevel(block) \]
+Consequently, each level of the proof consists of a number of blocks
+$n_{level}$. This number is the sum of blocks of level $\geq$ $level$, i.e.\
+block of level $l$ are also blocks of levels $l-1$, $l-2$, etc. The
+score of each level is computed as:
+
+\[score_{level} = 2^{level} \times n_{level}\]
+
+After running out tests for the previous implementation, we observed that
+function $getLevel(block)$ of the contract was returning $block.level-1$
+instead of $block.level$ resulting to incorrect score computation. This can
+prevent an honest party from successfully contesting an adversarial proof,
+making the contract insecure. The function was refined to return the correct
+value.
+
