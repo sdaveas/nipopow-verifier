@@ -131,6 +131,17 @@ be contested by an honest party, since chain $C'$ includes more proof-of-work
 than $C$ and thus NIPoPoWs with higher score can be generated.
 Figure~\ref{figure:premining_attack_nipopow}.
 
+\subsubsection{Mitigation}
+
+We can mitigate this vulnerability by initializing the smart contract with the
+$genesis$ block of the underlying blockchain (in our case, Bitcoin) persisting
+$genesis$ in storage. For every phase, we add an assertion that the first block
+of the proof must be equal to $genesis$. The needed changes are shown in
+Algorithms~\ref{algo:avoid_premining_ctor}, ~\ref{algo:avoid_premining_submit}
+and~\ref{algo:avoid_premining_contest}.
+
+These operations do not noticeably increase the cost of the operations because
+the extra data saved in storage is constant and small in size (32 bytes).
 
 \input{algorithms/avoid_premining.tex}
 
