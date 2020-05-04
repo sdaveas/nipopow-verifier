@@ -19,7 +19,9 @@ from web3 import Web3, HTTPProvider
 
 w3 = Web3(
     HTTPProvider(
-        "https://ropsten.infura.io/v3/8f2b15b73f394809bf93b7b6552da3cf"
+        "https://mainnet.infura.io/v3/8f2b15b73f394809bf93b7b6552da3cf"
+        # "https://ropsten.infura.io/v3/8f2b15b73f394809bf93b7b6552da3cf"
+        # "https://kovan.infura.io/v3/8f2b15b73f394809bf93b7b6552da3cf"
     )
 )
 privateKey = "c9d1b917273a40c67e9dfd46f55808e980b751f0d3e32c7355eb22af7946773c"
@@ -30,14 +32,14 @@ bytecode = open("./Crosschain.bin").read()
 contract_ = w3.eth.contract(
     abi=abi,
     # bytecode=bytecode
-    address="0xE374199fB157f798582533488F075C27c4E1f7A1",
+    address="0xE374199fB157f798582533488F075C27c4E1f7A1",  # Ropsten
+    # address = "0xA8E9ef556eA23d440e2c40931D0aAf2fc1613a6a"      # Kovan
 )
 
 acct = w3.eth.account.privateKeyToAccount(privateKey)
 
 pt = ProofTool()
 proof = Proof()
-# proof.set(pt.fetch_proof(3491)) # m = 15
 proof.set(pt.fetch_proof(500000))  # m = 8 -> 37184
 headers_size = len(proof.headers) * 4 * 32
 siblings_size = len(proof.siblings) * 32
@@ -46,9 +48,8 @@ print(headers_size, siblings_size, headers_size + siblings_size)
 # construct_txn = contract_.constructor(genesis, k, m).buildTransaction({
 #     'from': acct.address,
 #     'nonce': w3.eth.getTransactionCount(acct.address),
-#     'gas': 2000000,
+#     'gas': 3000000,
 #     'gasPrice': w3.toWei('21', 'gwei')})
-
 
 function = contract_.functions.submitEventProof(
     proof.headers, proof.siblings, 0
@@ -71,3 +72,4 @@ tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
 print("OK")
 print(tx_receipt)
 contract_address = tx_receipt["contractAddress"]
+print(contract_address)
