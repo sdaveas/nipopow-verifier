@@ -1,14 +1,18 @@
 \chapter{Implementation}
 
-In this chapter, we put forth out implementation. First, we present our
-analysis of the previous work. Then we describe our
+In this chapter, we put forth our research and implementation. First, present
+the analysis of previous work regarding gas consumption, cost in fiat and
+security. Then we gradually describe our improved methodology that eliminates
+storage by utilizing hash-and-resubmit technique and delivers a gas-efficient,
+superlight Bitcoin client implementation. \todo{extend intro}
 
 \section{Analysis of Previous Work}
 
 In this section, we analyse the verifier by Christoglou et. al. First we
 discuss the process needed to prepare the code for our analysis. Then, we show
-the gas usage of all internal functions of the verifier.  Finally, we present
-the vulnerabilities we discovered, and how we mitigated them in our work.
+the gas usage of all internal functions of the verifier, and the cost of using
+that implementation. Finally, we present the vulnerabilities we discovered, and
+how we mitigated them in our work.
 
 \subsection{Porting from old Solidity version}
 
@@ -145,19 +149,20 @@ the extra data saved in storage is constant and small in size (32 bytes).
 
 \input{algorithms/avoid_premining.tex}
 
-\section{Logical Corrections}
-
-\todo{Tell how previous work can be improved: Predicate in contest is
-redundant, proof is stored only to get removed after}
-
 \section{Storage Elimination}
 
-As mentioned above, the bottleneck we had to eliminate was the extensive usage
-of storage. We created a new architecture that allow us to discard all
-expensive store operations and utilize memory instead. This led to massive
-decrease of gas consumption. In this section, we present the difference in gas
-usage between storage and memory utilization, and how a NIPoPoW verifier can be
-implemented in Solidity without persisting proofs.
+A series of keen observations, the application of gas-efficient practices and
+the utilization of modern Solidity features led us to the design of a new
+verifier architecture. As mentioned above, the bottleneck we had to eliminate
+was the extensive usage of storage. our implementation is bases on a new
+architecture that allow us to discard all expensive store operations and
+utilize memory instead, which led to massive decrease of gas consumption. We
+call this technique \emph{hash-and-resubmit}.
+
+In this section, we present the performance difference in gas consumption
+between storage and memory utilization. Then, we show how a gas-efficient,
+superlight Bitcoin client can be implemented in Solidity without persisting
+proofs, utilizing our novel technique.
 
 \subsection{Storage vs Memory}
 
