@@ -9,7 +9,7 @@ contract StorageVsMemory {
     }
 
     function withStorage() public {
-        for (uint i = 0; i < size; i++) {
+        for (uint256 i = 0; i < size; i++) {
             storageArr.push(i);
         }
     }
