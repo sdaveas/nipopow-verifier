@@ -16,14 +16,21 @@ how we mitigated them in our work.
 
 \subsection{Porting from old Solidity version}
 
-We used the latest version of Solidity compiler for our analysis. To perform
-the analysis, we needed to port the verifier from version Solidity 0.4 to
-version 0.6.  The changes we needed to perform were mostly syntactic. These
+We used the latest version of Solidity compiler for our analysis. In order to
+perform this analysis, we needed to port the verifier from version Solidity 0.4
+to version 0.6. The changes we needed to perform were mostly syntactic. These
 includes the usage of \texttt{abi.encodePacked}, explicit \texttt{memory} and
 \texttt{storage} declaration and explicit cast from \texttt{address} to
-\texttt{payable address}. We also used our configured EVMs with EIP 2028
+\texttt{payable address}. We also used our configured EVMs with EIP 2028(ref)
 enabled to benefit from low cost function calls. The functionality of the
 contract remained equivalent.
+
+\todo{
+The prover’s output is a Proof of Proof of Work that satisfies the above
+security parameters. The prover needed to be enhanced in order to create
+special test cases (Section(ref)) and enable our optimized architecture
+(Section(ref)).
+}
 
 \subsection{Gas analysis}
 
@@ -87,8 +94,8 @@ phases.
 
 \subsection{Security Analysis}
 
-We observed that previous work is vulnerable to \emph{premining attack}. This
-kind of attack cannot be
+We observed that previous work is vulnerable to \emph{premining attack}. Here,
+we lay out the attack and show how our work mitigates the threat.
 
 \subsubsection{Premining} Premining is the creation of a number of
 cryptocurrency coins before the cryptocurrency is launched to the public. Many
@@ -144,8 +151,9 @@ of the proof must be equal to $genesis$. The needed changes are shown in
 Algorithms~\ref{algo:avoid_premining_ctor}, ~\ref{algo:avoid_premining_submit}
 and~\ref{algo:avoid_premining_contest}.
 
-These operations do not noticeably increase the cost of the operations because
-the extra data saved in storage is constant and small in size (32 bytes).
+These operations do not increase the cost of the operations considerable
+because the extra data saved in storage is constant and small in size (32
+bytes).
 
 \input{algorithms/avoid_premining.tex}
 
@@ -163,6 +171,11 @@ In this section, we present the performance difference in gas consumption
 between storage and memory utilization. Then, we show how a gas-efficient,
 superlight Bitcoin client can be implemented in Solidity without persisting
 proofs, utilizing our novel technique.
+
+We will use extend our annotation with the content of
+Table~\ref{table:notation_verifier}.
+
+\input{tables/notation_verifier.tex}
 
 \subsection{Storage vs Memory}
 
@@ -190,6 +203,16 @@ the choice of memory greatly benefits the users.
 
 \input{figures/memory_vs_storage.tex}
 
+\subsection{Removing Ancestors}
+
+If one observes the code of the verifier, can realize that the existence of
+\texttt{ancestors_s} structure is redundant. The lifetime of
+\texttt{ancestors_s} is limited within the last lines of each phase, and serves
+the role of temporary storing the result of texttt{evaluatePredicate}, and then
+it is deleted. The same functionality can be achieved if the
+\texttt{ancestor_s} is saved in memory rather than in the storage of the
+contract.
+
 \subsection{Making use of calldata}
 
 In previous work we needed to store submitted proofs in order to proceed to
@@ -201,13 +224,10 @@ contract during contest phase: (a) $\pi_{exist}$, which is a copy of the
 originally submitted proof $\pi_{orig}$, and (b) $\pi_{cont}$, which is the
 contesting proof. Proof $\pi_{orig}$ can be retrieved by observing contract's
 \textit{calldata}. We prevent an adversary from malforming $\pi_{exist}$ by
-storing the hash of $\pi_{orig}$ to contract's state during submit phase and
+storing the hash of $\pi_{orig}$ in contract's state during submit phase and
 then verifying that $\pi_{exist}$ has the same hash. The operation of hashing
-the proof and storing the digest is cheap\footnote{By setting $k=6$, $m$ = 13,
-a proof for the entire Bitcoin blockchain consists of less than 300
-superblocks. The hashing of such a proof costs approximately 300,000 gas
-units.} as shown in figure~\ref{figure:hash_proof_gas}. We calculate the digest
-of the proof by:
+the proof and storing the digest is cheap as shown in
+figure~\ref{figure:hash_proof_gas}. We calculate the digest of the proof by:
 
 \[\texttt{digest = sha256(abi.encodePacked(proof))}\] The size of the digest of
 a hash is 32 bytes. To persist such a small value in contract's memory only
@@ -224,13 +244,12 @@ how these two structures can be discarded from the verifier.
 \subsubsection{Using subset} Our first realization was that instead of storing the
 DAG of $\pi_{exist}$, $\pi_{cont}$, we can require
 
-\[ \pi_{exist}\{:lca_{e}\} \subseteq \pi_{cont}\{:lca_{c}\} \]
-where $lca_{e}$ and $lca_{c}$ are the indices of the $lca$ block in
-$\pi_{exist}$, and $\pi_{cont}$, respectively. This way we avoid
-the demanding need of composing auxiliary structures DAG and ancestors
-on-chain. The implementation of \texttt{subset} is displayed in
-listing~\ref{listing:subset}. The complexity of the function is
-\[ \mathcal{O}(\mid\pi_{exist}[:lca_{e}]\mid + \mid\pi_{cont}[:lca_{c}]\mid) \]
+\[ \pi_{exist}\{:\textrm{LCA}\} \subseteq \pi_{cont}\{:\textrm{LCA}\} \]
+
+This way we avoid the demanding need of composing auxiliary structures DAG and
+ancestors on-chain. The implementation of \texttt{subset} is displayed in
+listing~\ref{listing:subset}. The complexity of the function is \[
+\mathcal{O}(\mid\pi_{exist}[:lca_{e}]\mid + \mid\pi_{cont}[:lca_{c}]\mid) \]
 
 \lstinputlisting[style=customc, captionpos=b, label={listing:subset},
 caption={Implementation of subset}]{code/Subset.sol}
@@ -243,21 +262,22 @@ approximately 2.7 times more efficient.
 
 \input{figures/DAG_vs_subset.tex}
 
-\subsubsection{Subset complexity and limitations} Requiring $\pi_{exist}$ to be a subset of
-$\pi_{cont}$ greatly reduces gas, but the complexity of the $subset$ algorithm
-is high since both proofs have to be iterated from genesis to their respective
-$lca$ index. Generally, we expect for an adversary to provide a proof of a
-chain that is a fork of the honest chain at some point relatively close to the
-tip. This is due to the fact that the ability of an adversary to sustain a fork
-chain is exponentially weakened as the honest chain progresses.  This means
-that the length of $\pi$, $\mid\pi\mid$ is be considerably close to
-$\mid\pi[:lca]\mid$, and the complexity of \texttt{subset()} is effectively
-$\mathcal{O}(2\mid\pi\mid)$.
+\subsubsection{Subset complexity and limitations}
 
-In realistic cases, where the $lca$ lies around index 250 of the proof, the gas
-cost of \texttt{subset()} is approximately 20,000,000 gas units, which makes it
-inapplicable for real blockchains since it exceeds the block gas limit of
-the Ethereum blockchain by far.
+Requiring $\pi_{exist}$ to be a subset of $\pi_{cont}$ greatly reduces gas, but
+the complexity of the $subset$ algorithm is high since both proofs have to be
+iterated from GEN until $lca_e$ and $lca_c$, respectively. Generally, we expect
+from an adversary to provide a proof of a chain that is a fork of the honest
+chain at some point relatively close to the tip. This is due to the fact that
+the ability of an adversary to sustain a fork chain exponentially weakens as
+the honest chain progresses. This means that the length of $\pi$, $|\pi|$ is be
+considerably close to $|\pi[:lca]|$, and the complexity of \texttt{subset()} is
+effectively $\mathcal{O}(2|\pi|)$.
+
+In realistic cases, where LCA lies around index 250 of the proof, the gas cost
+of \texttt{subset()} is approximately 20,000,000 gas units, which makes it
+inapplicable for real blockchains since it exceeds the block gas limit of the
+Ethereum blockchain by far.
 
 \subsubsection{Position of block of interest}
 
