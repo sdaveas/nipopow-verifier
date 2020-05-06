@@ -258,7 +258,7 @@ DAG of $\pi_{exist}$, $\pi_{cont}$, we can require
 This way we avoid the demanding need of composing auxiliary structures DAG and
 ancestors on-chain. The implementation of \texttt{subset} is displayed in
 listing~\ref{listing:subset}. The complexity of the function is \[
-\mathcal{O}(\mid\pi_{exist}[:lca_{e}]\mid + \mid\pi_{cont}[:lca_{c}]\mid) \]
+\mathcal{O}(|:\pi_{exist}\{:LCA\}| + |\pi_{cont}\{:LCA\}]|) \]
 
 \lstinputlisting[style=customc, captionpos=b, label={listing:subset},
 caption={Implementation of subset}]{code/Subset.sol}
@@ -329,8 +329,8 @@ listing~\ref{listing:disjoint}.
 caption={Implementation for disjoint proofs}]{code/Disjoint.sol}
 
 The complexity of \texttt{disjoint()} is
-\[ \mathcal{O}(\mid\pi_{exist}[lca_{e}:]\mid \times
-\mid\pi_{cont}^{tr}\mid) \]
+\[ \mathcal{O}(|\pi_{exist}[lca_{e}:]| \times
+|\pi_{cont}^{tr}|) \]
 
 \section{Fixing vulnerabilities and restricting gas usage}
 
