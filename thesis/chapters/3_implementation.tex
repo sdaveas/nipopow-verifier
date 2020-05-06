@@ -203,15 +203,24 @@ the choice of memory greatly benefits the users.
 
 \input{figures/memory_vs_storage.tex}
 
-\subsection{Removing Ancestors}
+\subsection{Refining Ancestors}
 
-If one observes the code of the verifier, can realize that the existence of
-\texttt{ancestors_s} structure is redundant. The lifetime of
-\texttt{ancestors_s} is limited within the last lines of each phase, and serves
-the role of temporary storing the result of texttt{evaluatePredicate}, and then
-it is deleted. The same functionality can be achieved if the
-\texttt{ancestor_s} is saved in memory rather than in the storage of the
-contract.
+We observed that in the code of the verifier the existence of
+\texttt{ancestors}$_s$ structure is redundant. The lifetime of the structure is
+limited within the last lines of each phase, and serves the role of temporary
+storing the result of \texttt{evaluatePredicate}, and then it is deleted. The
+same functionality can be achieved if the \texttt{ancestor}$_s$ is saved in
+memory rather than in the storage of the contract. The changes needed in order
+to convert \texttt{ancestors}$_s$ into a memory structure is displayed in
+Algorithm~\ref{algorithm:ancestors_in_memory}.
+
+\input{algorithms/ancestors_to_memory.tex}
+
+The elimination of storage structures results to better performance of the
+contract. In Table~\ref{table:old_gas_usage_no_ans} we show how such a subtle
+refinement can lead to a sizable performance gain.
+
+\input{tables/old_gas_usage_no_anc.tex}
 
 \subsection{Making use of calldata}
 

@@ -1,0 +1,19 @@
+\begin{algorithm}[H]
+    \caption{Usage of memory ancestors}
+    \label{algorithm:ancestors_in_memory}
+    \KwIn{\texttt{Proof} $\pi$, \texttt{Predicate} $predicate$}
+    \KwData{
+        \texttt{Block} $genesis_{s}$,
+        \texttt{Proof} $\pi_{s}$,
+        \texttt{hashmap} $DAG_{s}$,
+        \texttt{bool} $predicateExists_{s}$
+    }
+    require $\pi[0]$ = $genesis_{s}$ \\
+    require($predicateExists_{s}$ $=$ $false$) \\
+    require($validInterlink(\pi$))\\
+    $DAG_{s}$ $\leftarrow$ $DAG_{s}$ $\cup$ $\pi$\\
+    $\pi_{s}$ $\leftarrow$ $\pi$\\
+    \colorbox{green}{$ancestors_{m}$ $\leftarrow$ $findAncestors(DAG_{s}$)} \\
+    \colorbox{green}{$predicateExists_{s}$ $\leftarrow$
+    $evaluatePredicate(ancestors_{m}$, $predicate$)} \\
+\end{algorithm}
