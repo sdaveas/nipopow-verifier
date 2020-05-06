@@ -284,26 +284,40 @@ previous work as we will show in the following subsections.
 
 \subsection{Removing DAG and ancestors}
 
-As shown in table~\ref{table:old_gas_usage}, the most demanding operation is
-the creation and population of DAG and ancestors. In this subsection we show
-how these two structures can be discarded from the verifier.
+In this subsection we show how these two structures can be discarded from the
+client entirely. As shown in table~\ref{table:old_gas_usage}, the most
+demanding operation is the creation and population of DAG and ancestors. We
+show how ancestors structure can be improved, but the performance gain from
+this change still fails to deliver a client that is practical in a real
+setting.
 
-\subsubsection{Using subset} Our first realization was that instead of storing the
-DAG of $\pi_{exist}$, $\pi_{cont}$, we can require
+Now that we have achieved to freely retrieve $\pi_{exist}$, we can start
+sketching methodologies that benefit from this schema but another challenge we
+had to face is that the protocol of NIPoPoWs dependents on DAG which is a
+hashmap data structure. While such data structures are very efficient and
+useful data structures, in Solidity, hashmaps can only be contained in storage,
+which is unpromising for an efficient client design. Having that in mind, we
+created a schema that does not require the DAG, ancestors or any other
+complementary structures.
+
+
+\subsubsection{Using subset}
+
+Our first realization was that instead of creating a DAG of $\pi_{exist}$ and
+$\pi_{cont}$, we can rather require
 
 \[ \pi_{exist}\{:\textrm{LCA}\} \subseteq \pi_{cont}\{:\textrm{LCA}\} \]
-
-This way we avoid the demanding need of composing auxiliary structures DAG and
+This way, we avoid the burden of maintaining auxiliary structures DAG and
 ancestors on-chain. The implementation of \texttt{subset} is displayed in
 listing~\ref{listing:subset}. The complexity of the function is \[
-\mathcal{O}(|:\pi_{exist}\{:LCA\}| + |\pi_{cont}\{:LCA\}]|) \]
+\mathcal{O}(|\pi_{exist}\{:LCA\}| + |\pi_{cont}\{:LCA\}]|) \]
 
 \lstinputlisting[style=customc, captionpos=b, label={listing:subset},
 caption={Implementation of subset}]{code/Subset.sol}
 
 \input{figures/subset_usage.tex}
 
-The gas consumption difference between $subset$ and $DAG + ancestors$ is
+The gas consumption difference between $subset$ and $DAG+ancestors$ is
 displayed at figure~\ref{figure:DAG_vs_subset}. $Subset$ solution is
 approximately 2.7 times more efficient.
 
@@ -313,13 +327,13 @@ approximately 2.7 times more efficient.
 
 Requiring $\pi_{exist}$ to be a subset of $\pi_{cont}$ greatly reduces gas, but
 the complexity of the $subset$ algorithm is high since both proofs have to be
-iterated from GEN until $lca_e$ and $lca_c$, respectively. Generally, we expect
-from an adversary to provide a proof of a chain that is a fork of the honest
-chain at some point relatively close to the tip. This is due to the fact that
-the ability of an adversary to sustain a fork chain exponentially weakens as
-the honest chain progresses. This means that the length of $\pi$, $|\pi|$ is be
-considerably close to $|\pi[:lca]|$, and the complexity of \texttt{subset()} is
-effectively $\mathcal{O}(2|\pi|)$.
+iterated from $Gen$ until $lca_e$ and $lca_c$, respectively. Generally, we
+expect from an adversary to provide a proof of a chain that is a fork of the
+honest chain at some point relatively close to the tip. This is due to the fact
+that the ability of an adversary to sustain a fork chain exponentially weakens
+as the honest chain progresses. This means that the length of $\pi$, $|\pi|$ is
+expected to be considerably close to $|\pi[:lca]|$, and thus the complexity of
+\texttt{subset()} effectively becomes $\mathcal{O}(2|\pi|)$.
 
 In realistic cases, where LCA lies around index 250 of the proof, the gas cost
 of \texttt{subset()} is approximately 20,000,000 gas units, which makes it
