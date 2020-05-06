@@ -1,0 +1,31 @@
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|r|r|r|}
+    \hline
+    \multicolumn{4}{|c|}{\textbf{Submit Phase}}          \\ \hline
+    \multicolumn{1}{|c|}{\textbf{Function}} &
+      \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Storage\end{tabular}}} &
+      \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Memory\end{tabular}}} &
+      \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Performance \\ Gain\end{tabular}}} \\ \hline
+    find ancestors     & 4,995,289  & 3,776,205 & 24.40\%  \\ \hline
+    evaluate predicate & 306,433    & 191,489   & 60.00\%  \\ \hline
+    delete ancestors   & 45,137     & 0         & 100.00\% \\ \hline
+    \textbf{Sum}       & 10,025,780 & 8,913,990 & \textbf{0.11\%}   \\ \hline
+    \end{tabular}
+    \quad
+    \begin{tabular}{|l|r|r|r|}
+    \hline
+    \multicolumn{4}{|c|}{\textbf{Contest Phase}}          \\ \hline
+    \multicolumn{1}{|c|}{\textbf{Function}} &
+      \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Storage\end{tabular}}} &
+      \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Memory\end{tabular}}} &
+      \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Performance \\ Gain\end{tabular}}} \\ \hline
+    find ancestors     & 5,584,173  & 4,162,519 & 25.50\%  \\ \hline
+    evaluate predicate & 390,307    & 153,209   & 60.00\%  \\ \hline
+    delete ancestors   & 57,023     & 0         & 100.00\% \\ \hline
+    \textbf{Sum}       & 10,361,330 & 8,878,148 & \textbf{0.14\%}   \\ \hline
+    \end{tabular}
+
+\caption{Gas consumption degradation with memory for ancestors}
+\label{table:old_gas_usage_no_ans}
+\end{table}
