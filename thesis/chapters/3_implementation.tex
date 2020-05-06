@@ -222,27 +222,63 @@ refinement can lead to a sizable performance gain.
 
 \input{tables/old_gas_usage_no_anc.tex}
 
-\subsection{Making use of calldata}
 \subsection{Refining Predicate}
 
-In previous work we needed to store submitted proofs in order to proceed to
-contest. In this subsection we show an approach to securely verify proofs
-without utilizing the persistent storage of the smart contract.
 \todo{predicate is not needed in contest phase}
 
-The rationale is to demand from the caller to provide two proofs to the
+\subsection{Hash and resubmit}
+
+In previous work storage was needed to persist submitted proofs and perform
+contests. In this subsection we show out novel approach to securely verify
+proofs without utilizing the persistent storage. We name this technique
+\emph{hash-and-resubmit}.
+
+The rationale is to demand from $E_{cont}$ to provide two proofs to the
 contract during contest phase: (a) $\pi_{exist}$, which is a copy of the
 originally submitted proof $\pi_{orig}$, and (b) $\pi_{cont}$, which is the
-contesting proof. Proof $\pi_{orig}$ can be retrieved by observing contract's
-\textit{calldata}. We prevent an adversary from malforming $\pi_{exist}$ by
-storing the hash of $\pi_{orig}$ in contract's state during submit phase and
-then verifying that $\pi_{exist}$ has the same hash. The operation of hashing
-the proof and storing the digest is cheap as shown in
-figure~\ref{figure:hash_proof_gas}. We calculate the digest of the proof by:
+contesting proof. The challenge here, is twofold:
+
+\begin{enumerate}
+
+    \item Availability: $E_{cont}$ must be able to retrieve a valid copy of $\pi_{orig}$,
+        $\pi_{exist}$ without the need of accessing on-chain data.
+
+    \item Reliability: We must prevent $E_{cont}$ from dispatching
+        $\tilde\pi_{exist}$ which differs from $\pi_{orig}$.
+
+\end{enumerate}
+
+Hash-and-resubmit is utilized in two phases in order to face this challenge.
+The "resubmit" aspect addresses availability, and the "hash" aspect addresses
+reliability.
+
+\paragraph{Addressing Availability}
+
+During submit-phase, $E_{subm}$ makes a call to the function
+\texttt{submitEventProof}. This transaction, which consists of (a) the function
+call and (b) the corresponding data, is added to a block by a miner. As a
+blockchain transaction, the data of the function call are public to the
+network. Due to blockchain's transparency, $E_{cont}$ can retrieve
+$\pi_{orig}$ without the need of accessing contract data. This data space is
+called \emph{calldata}, and we make use of it to fetch $\pi_{exist}$, which is
+an exact copy of $\pi_{orig}$, originally submitted by $E_{subm}$. Note that
+this process is done off-chain. $E_{cont}$ does not have to interact with the
+client.
+
+\paragraph{Addressing Reliability}
+
+We prevent an adversary from altering $\pi_{exist}$ by storing the hash of
+$\pi_{orig}$ in contract's state during submit phase and then verifying that
+$\pi_{exist}$ has the same hash. The operation of hashing the proof and storing
+the digest is cheap as shown in figure~\ref{figure:hash_proof_gas}. We
+calculate the digest by invoking the pre-compiled \texttt{sha256} hash function
+of Solidity:
 
 \[\texttt{digest = sha256(abi.encodePacked(proof))}\] The size of the digest of
 a hash is 32 bytes. To persist such a small value in contract's memory only
-adds a constant, negligible cost overhead to our implementation.
+adds a constant, negligible cost overhead to our implementation. This low-cost
+technique allows us to provide vastly improved performance compared to the
+previous work as we will show in the following subsections.
 
 \input{figures/hash_proof_gas.tex}
 
