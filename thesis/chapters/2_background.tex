@@ -124,7 +124,13 @@ functionalities that needed to be refined.
 
 \section{Non-Interactive Proofs Of Proof Of Work}
 
-Describe the rationale behind NIPoPoWs, what they provide
+\subsection{Notation}
+
+We introduce the notation used in previous work in
+Table~\ref{table:notation_nipopow}. We will use this notation extensively.
+
+
+\input{tables/notation_nipopow.tex}
 
 \subsection{Prefix Proofs}
 
@@ -142,27 +148,28 @@ Describe infix proofs
 
 Soft, hard and velvet fork
 
-\section{Previous Work}
+\section{NIPoPoW verifier in Solidity}
 
 \subsection{Methodology}
 
-As mentioned above, we used a previous verifier implementation(ref) as a basis
-for our implementation. Since we adopted common primitives, we used some of the
-tools Giorgos et al.\ used for functionalities such as constructing blockchains
-and proofs. For the purposes of our project, we needed to enhance the
-functionality of the existing tools in some cases. We are thankful to the
+Here, we refer to work from Giorgos et. al. We used this implementation as a
+basis for our implementation. Since we adopted common primitives, we used some
+of the tools the authors used for functionalities such as constructing
+blockchains and proofs. For the purposes of our work, we needed to enhance
+the functionality of the existing tools in some cases. We are thankful to the
 writers for sharing their implementation. This greatly facilitated our work.
 
-In this subsection, we describe the model that our work shares this the
-previous implementation. This includes the following::
+In this subsection, we describe the model of Non-Interactive Proofs of Proof of
+Work in the context of the verifier implementation in Solidity. This includes
+the following:
 
 \begin{enumerate}
     \item
-        Construct a blockchain
+        Construction of a blockchain
     \item
-        Construct a proof for an event in the blockchain
+        Construction of a proof for an event in the blockchain
     \item
-        Verify the proof
+        Verification of the proof
 \end{enumerate}
 
 
@@ -189,9 +196,8 @@ in section(ref), this is not the actual setting of the Bitcoin blockchain. The
 definition of superblocks is changed to a simpler definition and the level is
 determined by the number of leading zeros of the block header hash. Although
 this change does not take into account the difficulty target, the scoring of
-proofs does not generate security holes in the protocol.
-
-\myworries{do we need to justify this?}
+proofs does not generate security holes in the protocol. \todo{ref to variable
+difficulty}
 
 \subsubsection{Proof}
 
@@ -207,27 +213,20 @@ prover receives the following inputs:
         The security parameter $m$
 \end{itemize}
 
-Security parameters $k$, $m$ are part of the NIPoPoW model and are
-explained in section(ref).
+Security parameters $k$, $m$ are part of the NIPoPoW model and are explained in
+Section(ref).
 
-The prover’s output is a Proof of Proof of Work that satisfies the above
-security parameters. The prover needed to be enhanced in order to create
-special test cases (section(ref)) and enable our optimized architecture
-(section(ref)).
+\todo{figure of verifier proof}
 
-\todo{figure of proof}
-
-\subsubsection{Verifier}
+\subsection{Phases}
 
 The goal of the verifier is to securely determine if an event has occurred in
 the honest blockchain. For this, the concept of NIPoPoWs is used. A proof is
 submitted in combination with a predicate. The proof is considered valid if it
 is constructively correct(ref) and the predicate is true for the chain
 described by the proof. The predicate represents the existence of an event
-in the source blockchain, such as the occurrence of a transaction. In our case,
-the predicate indicates the existence of a block in the proof.
-
-\myworries{How much more demanding is to prove an actual transaction?}
+in the source blockchain, such as the occurrence of a transaction. In this
+context, the predicate indicates the existence of a block in the proof.
 
 The verifier functions in two main phases: (a) \textbf{submit phase} and (b)
 \textbf{contest phase}. Each phase has different input and functionality, and
@@ -276,41 +275,27 @@ The expected functionality of a NIPoPoW verifier is the following:
 
 \end{itemize}
 
-\subsection{Notation}
+\subsection{Considerations}
 
-In this section we will use the notation displayed in
-table~\ref{table:notation}.
-
-\input{tables/notation.tex}
-
-\subsection{Implementation}
-\todo{Should it be Previous Work?}
-
-In this subsection we present previous work. We prepare the reader by focusing
-at specific aspects in which our solution differs. We will later show these
-differences and we will analyse on how they impact the results of our
-application.
-
-\subsubsection{Overview} As mentioned in the NIPoPoWs(ref Algorithm 7) paper,
-in order to construct a verifier, a Directed Acyclic Graph (DAG) needs to be
-maintained in memory. This structure is stored in the form of a hashmap(ref),
-and is used to host blocks of all different proofs. This process aims to
-prevent adversarial proofs which are structurally valid but blocks are
-intentionally skipped. Such a scenario is displayed in
-figure~\ref{figure:DAG_usage}. The DAG is then used to construct ancestors
-structure by performing a simple graph search. By iterating ancestors, we can
-securely determine the value of the predicate.
+As mentioned in the NIPoPoWs(ref Algorithm 7) paper, in order to construct a
+verifier, a Directed Acyclic Graph (DAG) needs to be maintained in memory. This
+structure is stored in the form of a hashmap(ref), and is used to host blocks
+of all different proofs. This process aims to prevent adversarial proofs which
+are structurally valid but blocks are intentionally skipped. Such a scenario is
+displayed in Figure~\ref{figure:DAG_usage}. The DAG is then used to construct
+ancestors structure by performing a simple graph search. By iterating
+ancestors, we can securely determine the value of the predicate.
 
 \input{figures/DAG_usage.tex}
 
 This logic is intuitive and efficient to implement in most traditional
-programming languages (C++, JAVA, Python, JavaScript, etc). However, such an
-algorithm cannot be efficiently implemented in Solidity as is. This is not due
-to the lack of features, such as the existence of hashmaps, but because
-Solidity treats storage differently than most programming languages. As
-mentioned above(ref) in smart contracts the caller needs to pay in gas for the
-execution of operations such as accessing and storing data. Reading from and
-writing to persistent memory are very expensive operations in Solidity, as
+programming languages (C++, JAVA, Python, JavaScript, etc). However, as our
+analysis proves, such an algorithm cannot be efficiently implemented in
+Solidity as is. This is not due to the lack of features, such as the existence
+of hashmaps, but because Solidity treats storage differently than traditional
+programming languages. In smart contracts, the caller needs to pay in gas for
+the execution of operations such as accessing and storing data. Reading from
+and writing to persistent memory are very expensive operations in Solidity, as
 stated in the Ethereum yellow paper(ref). A summary of gas costs for storage
 and memory access if is displayed in Table~\ref{table:ethereum_gas_list}. This
 fact was observed by Giorgos et al.\ and was recognized as the bottleneck of
@@ -320,10 +305,10 @@ the application.
 
 \subsubsection{Solidity Algorithms}
 
-We describe each phase of the previous implementation in
-Algorithms~\ref{algo:submit_old} and~\ref{algo:contest_old}. We highlight
-structures that access persistent memory. Note that deleting from persistent
-memory is also considered a storage operation
+We describe each phase of previous implementation in
+Algorithms~\ref{algo:submit_old} and~\ref{algo:contest_old}. We denote
+structures that access persistent memory as $struct_{s}$. Note that deleting
+from persistent memory is also considered a storage operation.
 
 \input{algorithms/old_contract.tex}
 
