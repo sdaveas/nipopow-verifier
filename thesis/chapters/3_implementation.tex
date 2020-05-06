@@ -223,10 +223,12 @@ refinement can lead to a sizable performance gain.
 \input{tables/old_gas_usage_no_anc.tex}
 
 \subsection{Making use of calldata}
+\subsection{Refining Predicate}
 
 In previous work we needed to store submitted proofs in order to proceed to
 contest. In this subsection we show an approach to securely verify proofs
 without utilizing the persistent storage of the smart contract.
+\todo{predicate is not needed in contest phase}
 
 The rationale is to demand from the caller to provide two proofs to the
 contract during contest phase: (a) $\pi_{exist}$, which is a copy of the
