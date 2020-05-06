@@ -1,37 +1,36 @@
 \begin{algorithm}[H]
     \caption{Submit Event Proof}
     \label{algo:submit_old}
-    \KwIn{$\pi$, $predicate$}
+    \KwIn{\texttt{Proof} $\pi$, \texttt{Predicate} $predicate$}
     \KwData{
-        \texttt{array} $\pi_{s}$,
+        \texttt{Proof} $\pi_{s}$,
         \texttt{hashmap} $DAG_{s}$,
-        \texttt{bool} $predicate_{s}$
+        \texttt{bool} $predicateExists_{s}$
     }
-    require $predicate_{s}$ $=$ $\emptyset$ \\
-    require $validInterlink(proof$) \\
+    require($predicateExists_{s}$ $=$ $false$) \\
+    require($validInterlink(\pi$))\\
     $DAG_{s}$ $\leftarrow$ $DAG_{s}$ $\cup$ $\pi$\\
     $\pi_{s}$ $\leftarrow$ $\pi$\\
     $ancestors_{s}$ $\leftarrow$ $findAncestors(DAG_{s}$)\\
-    $predicate_{s}$ $\leftarrow$ $evaluatePredicate(ancestors_{s}$,
+    $predicateExists_{s}$ $\leftarrow$ $evaluatePredicate(ancestors_{s}$,
     $predicate$)\\
     delete $ancestors_{s}$\\
 \end{algorithm}
 
 \begin{algorithm}
-    \caption{Submit Contesting Proof}
+    \caption{Submit Contest Proof}
     \label{algo:contest_old}
-    \KwIn{$\pi'$, $predicate$}
+    \KwIn{\texttt{Proof} $\tilde\pi$, \texttt{Predicate} $predicate$}
     \KwData{
-        \texttt{array} $\pi_{s}$,
+        \texttt{Proof} $\pi_{s}$,
         \texttt{hashmap} $DAG_{s}$,
-        \texttt{bool} $predicate_{s}$
+        \texttt{bool} $predicateExists_{s}$
     }
-    require $predicate_{s}$ = $predicate$\\
-    $lca$ $\leftarrow$ findLca($\pi_{s}$, $\pi'$)\\
-    require $score(proof’[lca:])$ $>$ $score(proof_{s}[lca:])$ \\
+    require($predicateExists_{s}$ = $true$) \\
+    $lca$ $\leftarrow$ findLca($\pi_{s}$, $\tilde\pi$)\\
+    require($score(\tilde\pi[lca:])$ $>$ $score(\tilde\pi_{s}[lca:])$) \\
     $DAG_{s}$ $\leftarrow$ $DAG_{s}$ $\cup$ $\pi'$\\
     $ancestors_{s}$ $\leftarrow$ $findAncestors(DAG_{s})$\\
-    $predicate_{s}$ $\leftarrow$ $evaluatePredicate(ancestors_{s},
-    predicate)$\\
+    $predicateExists_{s}$ $\leftarrow$ $evaluatePredicate(ancestors_{s}, predicate)$\\
     delete $ancestors_{s}$\\
 \end{algorithm}
