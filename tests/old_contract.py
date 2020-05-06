@@ -22,9 +22,9 @@ def main():
     """
 
     proof_tool = ProofTool("../data/proofs/")
-    proof_tool.fetch_proof(25)
+    proof_tool.fetch_proof(75)
     (submit_n, contest_n, _, _, _, _) = proof_tool.create_proof_and_forkproof(
-        25, 10, 20
+        75, 10, 25
     )
 
     proof = Proof()
