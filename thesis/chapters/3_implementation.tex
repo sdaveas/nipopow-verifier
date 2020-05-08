@@ -212,7 +212,10 @@ storing the result of \texttt{evaluatePredicate}, and then it is deleted. The
 same functionality can be achieved if the \texttt{ancestor}$_s$ is saved in
 memory rather than in the storage of the contract. The changes needed in order
 to convert \texttt{ancestors}$_s$ into a memory structure is displayed in
-Algorithm~\ref{algorithm:ancestors_in_memory}.
+Algorithm~\ref{algorithm:ancestors_in_memory}. Here, \texttt{ancestors}$_s$ is
+replaced with \texttt{ancestors}$_{m}$, which is saved in memory. Since the
+lifetime of memory structures is restricted within the function call, there is
+no need for deletion.
 
 \input{algorithms/ancestors_to_memory.tex}
 
@@ -228,9 +231,9 @@ refinement can lead to a sizable performance gain.
 
 \subsection{Hash and resubmit}
 
-In previous work storage was needed to persist submitted proofs and perform
-contests. In this subsection we show out novel approach to securely verify
-proofs without utilizing the persistent storage. We name this technique
+In previous work, storage was needed to persist submitted proofs and perform
+contests. In this subsection we show our novel approach to securely verify
+proofs without the utilization of persistent storage. We term this technique
 \emph{hash-and-resubmit}.
 
 The rationale is to demand from $E_{cont}$ to provide two proofs to the
@@ -248,11 +251,15 @@ contesting proof. The challenge here, is twofold:
 
 \end{enumerate}
 
-Hash-and-resubmit is utilized in two phases in order to face this challenge.
-The "resubmit" aspect addresses availability, and the "hash" aspect addresses
-reliability.
+As its name suggests, \emph{hash-and-resubmit} technique is performed in two
+phases to face this challenge: the \emph{hash} phase which addresses
+\emph{reliability}, and the \emph{resubmit} phase which addresses
+\emph{availability}.
 
-\paragraph{Addressing Availability}
+% The corresponding changes are displayed in
+% Algorithms~\ref{algorithm:submit_hash_and_resubmit}
+
+\paragraph{Addressing Availability:}
 
 During submit-phase, $E_{subm}$ makes a call to the function
 \texttt{submitEventProof}. This transaction, which consists of (a) the function
@@ -265,7 +272,7 @@ an exact copy of $\pi_{orig}$, originally submitted by $E_{subm}$. Note that
 this process is done off-chain. $E_{cont}$ does not have to interact with the
 client.
 
-\paragraph{Addressing Reliability}
+\paragraph{Addressing Reliability:}
 
 We prevent an adversary from altering $\pi_{exist}$ by storing the hash of
 $\pi_{orig}$ in contract's state during submit phase and then verifying that
@@ -279,6 +286,8 @@ a hash is 32 bytes. To persist such a small value in contract's memory only
 adds a constant, negligible cost overhead to our implementation. This low-cost
 technique allows us to provide vastly improved performance compared to the
 previous work as we will show in the following subsections.
+
+\input{algorithms/hash_and_resubmit.tex}
 
 \input{figures/hash_proof_gas.tex}
 
@@ -345,16 +354,16 @@ Ethereum blockchain by far.
 By analyzing the trade-offs of $subset$, we concluded that there is a more
 efficient way to treat storage elimination. In general, the concept of $subset$
 facilitated the case in which the block of interest belongs in the sub-proof
-$\pi_{exist}[:lca_{e}]$. But in this case, both $\pi_{exist}$ and $\pi_{cont}$
+$\pi_{exist}[:LCA]$. But in this case, both $\pi_{exist}$ and $\pi_{cont}$
 contain the block of interest at some index, as can be seen in
 figure~\ref{figure:after_subset}. Consequently, $\pi_{cont}$ cannot contradict
 the existence of the block of interest and the predicate is evaluated $true$
 for both proofs. This means that if (a) $\pi_{exist}$ is structurally correct
 and (b) the block of interest is in $\pi_{exist}[:lca_{e}]$, then we can safely
 conclude that contesting with $\pi_{cont}$ is redundant. Therefore,
-$E_{contest}$ can simply send $\pi_{cont}$[lca:] to the verifier. The
+$E_{cont}$ can simply send $\pi_{cont}$[lca:] to the verifier. The
 truncation of $\pi_{cont}$ to $\pi_{cont}[lca_{c}:]$ can be easily addressed
-from $E_{cont}$, since $\pi_{exist}$ is accessible from the contract's calldata
+by $E_{cont}$, since $\pi_{exist}$ is accessible from the contract's calldata
 and both proofs can be iterated off-chain.
 
 \subsubsection{Disjoint proofs}
