@@ -1,13 +1,14 @@
 \section{Introduction}
 
-\emph{Interoperability} is the ability of distinct blockchains to communicate.
-These \emph{cross-chain} interactions can enable useful features across
-blockchains such as the transfer of asset from one chain to another (one-way
-peg) and back (one-way peg). To date, there is no commonly accepted
-decentralized protocol that enables cross-chain transactions. Currently,
-crosschain operations are only available to the users via third-party
-applications, such as multi-currency wallets. However, this treatment is
-opposing to the nature of the decentralized currencies.
+Blockchain interoperability~\cite{dionyziz} is the ability of distinct
+blockchains to communicate.  This \emph{cross-chain}~\cite{pow-sidechains,
+pos-sidechains,burn,crosschain-sok, gtklocker} communication can enable useful
+features across blockchains such as the transfer of asset from one chain to
+another (one-way peg) and back (one-way peg)~\cite{pow-sidechains}. To date,
+there is no commonly accepted decentralized protocol that enables cross-chain
+transactions.  Currently, crosschain operations are only available to the users
+via third-party applications, such as multi-currency wallets. However, this
+treatment is opposing to the nature of decentralized currencies.
 
 \noindent
 
@@ -15,69 +16,62 @@ In general, crosschain-enabled blockchains A, B would support the following
 operations:
 
 \begin{itemize}
-\item Crosschain trading: Alice with deposits in blockchain A, can make a
-    payment to Bob at blockchain B.
-\item Crosschain fund transfer: Alice can transfers her funds from blockchain A
-    to blockchain B. After this operation, the funds no longer exist in
-    blockchain A. Alice can later decide to transfer any portion of the
+\item Crosschain trading: A user with deposits in blockchain A, can make a
+    payment to a user with funds in blockchain B.
+\item Crosschain fund transfer: A user can transfers her funds from blockchain
+    A to blockchain B. After this operation, the funds no longer exist in
+    blockchain A. The user can later decide to transfer any portion of the
     original amount to the blockchain of origin.
 \end{itemize}
 
 
 \noindent
 
-To perform crosschain operations, there must be some mechanism to discover from
-chain A that an event occurred to chain B, such that a transaction occurred. A
-trivial way is to participate as a node in both chains. This approach, however,
-is very impractical because a sizeable amount of storage is needed to host
-for the entire chain, as they grow with time. At the moment, Bitcoin chain
-spans roughly 245 GB and Ethereum has exceeded the 1 TB. Naturally, not all
-users have the convenience to accommodate this size of data.
+In order to perform crosschain operations, there must be some mechanism to
+allow users of blockchain A discover events that occur in chain B, such that a
+transaction occurred. A trivial way is to participate as a full node in both
+chains. This approach, however, is impractical because a sizeable amount of
+storage is needed to host entire chains as they grow with time. As of May 2020,
+Bitcoin~\cite{nakamoto} chain spans roughly 245 GB and Ethereum~\cite{wood,
+buterin} has exceeded 1 TB. Naturally, not all users are able to accommodate
+this size of data especially if portable media are used, such as mobile phones.
 
 An early solution to compress the extensive space of blockchain was given by
-Nakamoto with the Simplified Payment Verification (SPV) protocol. In SPV, only
-the headers of blocks are stored, saving a considerable amount of storage.
-However, even with this protocol, Bitcoin headers sum up to 50 GB of data (80
-bytes per header). A mobile client needs several minutes, even hours to fetch
-all information needed in order to function as an SPV client. Moreover, not all
-blockchains have small-sized headers like Bitcoin. Block headers of Ethereum,
-for instance, are 508 Bytes and in other altcoins the size of each header is
-several MB. Even with the use of SPV protocol, the process of downloading and
-validating all block headers can lead to unpleasant user experience.
+Nakamoto with the Simplified Payment Verification (SPV) protocol
+~\cite{nakamoto}. In SPV, only the headers of blocks are stored, saving a
+considerable amount of storage.  However, even with this protocol, the process
+of downloading and validating all block headers can lead to unpleasant user
+experience. In Ethereum, for instance, headers sum up to roughly 4 GB of data.
+A mobile client needs several minutes, even hours to fetch all information
+needed in order to function as an SPV client.
 
-In order to provide a more practical solution than SPV clients, a new
-generation of \emph{superlight clients} emerged. In these protocols,
-cryptographic proofs are generated, which prove the occurrence of events inside
-a blockchain. Better performance is achieved due to the considerably smaller
-size of the proofs compared to the SPV protocol. By utilizing superlight client
-protocols, a compressed proof for an event in chain A can be constructed, and,
-if chain B supports smart contracts, the proof can be then verified
-automatically and transparently \emph{on-chain}. Note that, this communication
-is realized without the intervention of third-party applications. An
-interesting application of such a protocol is the communication of Bitcoin
-events to Ethereum.
+In order to deliver more practical solutions for blockchain verification, a new
+generation of \emph{superlight}
+clients~\cite{popow,nipopows,compactsuperblocks, flyclient} emerged. In these
+protocols, cryptographic proofs are generated, which prove the occurrence of
+events inside a blockchain. Better performance is achieved due to considerably
+smaller size of proofs compared to the data needed in SPV. By utilizing
+superlight client protocols, a compressed proof for an event in chain A is
+constructed, and, if chain B supports smart contracts, the proof can then be
+verified automatically and transparently \emph{on-chain}.  Note that, this
+communication is realized without the intervention of third-party applications.
+An interesting application of such a protocol is the communication between
+Bitcoin and Ethereum.
 
 \noindent
 
-\textbf{Related Work.} Non-Interactive Proofs of Proof of Work (NIPoPoWs)(ref)
-is the fundamental building block of our solution. This cryptographic primitive
-is \emph{provably secure} and provides \emph{succinct proofs} regarding the
-existence of an arbitrary event in a chain. Contrary to the linear growth rate
-of the underlying blockchain, NIPoPoWs span logarithmic size of blocks
+\textbf{Related Work.} We use Non-Interactive Proofs of Proof of Work
+(NIPoPoWs)~\cite{nipopows} as the fundamental building block of our solution.
+This cryptographic primitive is \emph{provably secure} and provides
+\emph{succinct proofs} regarding the existence of an arbitrary event in a
+chain. Contrary to the linear growth rate of the underlying blockchain,
+NIPoPoWs span polylogarithmic size of blocks.
 
-Christoglou (ref), has provided a Solidity smart contract which is the first
+Christoglou~\cite{gglou}, has provided a Solidity smart contract which is the first
 ever implementation of crosschain events verification based on NIPoPoWs, where
 proofs are submitted and checked for their validity. This solution, however, is
 impossible to apply to the real blockchain due to extensive usage of resources
-and important security vulnerabilities.
-
-A different methodology to solve interoperability is a protocol introduced by
-Summa team. In this work, users waits for a transaction to be buried under
-several blocks which implies that the transaction must belong to the real
-chain, and thus be valid. This treatment enables fast and cheap crosschain
-capabilities. But this solution has not been proved to be cryptographically
-secure. In fact, an attack has been laid out that makes the protocol vulnerable
-to non-rational adversaries.
+and important security vulnerabilities such as premining.
 
 \noindent
 
@@ -86,15 +80,16 @@ to non-rational adversaries.
 \item We developed the first ever decentralized client that securely verifies
 crosschain events and is applicable to the real blockchain. Our client
 establishes a safe, cheap and trust-less solution to the interoperability
-problem. Our client is implemented in Solidity and verifies Bitcoin events
-on the Ethereum blockchain.
-\item We prove via application that NIPoPoWs can be utilized in the real
-blockchain, making the cryptographic primitive the first ever applied
-construction of secure, succinct proofs in a real setting.
+problem. We implemented our client in Solidity, and we verify Bitcoin events
+to the Ethereum blockchain.
 \item We present a novel pattern which we term \emph{hash-and-resubmit}. This
-pattern improves the performance of smart contracts in terms of gas consumption
-by utilizing \emph{calldata} space to eliminate high-cost storage operations.
-\item Optimistic vs non-optimistic constructions ??
+pattern improves the performance of Ethereum smart contracts~\cite{wood,
+buterin} in terms of gas consumption by utilizing \emph{calldata} space to
+eliminate high-cost storage operations.
+\item We prove via application that NIPoPoWs can be utilized in the real
+blockchain, making the cryptographic primitive the first ever provably secure
+construction of succinct proofs which is applied in a real setting.
+\item Optimistic vs non-optimistic constructions - Ask gtklocker
 \end{enumerate}
 
 \bigbreak
