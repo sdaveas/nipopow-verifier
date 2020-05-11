@@ -1,0 +1,78 @@
+\begin{algorithm}
+    \label{alg.compare-storage}
+    \caption{\textsf{Compare} N-sized arrays using storage}
+    \begin{algorithmic}[1]
+        \Function{\sf Submit}{$array$}
+            \State $best\_array \gets array$
+            \Comment{array saved in storage}
+            \State $holder \gets msg.sender$
+            \State\Return{true}
+        \EndFunction
+    \vskip8pt
+    \end{algorithmic}
+
+    \begin{algorithmic}[1]
+        \Function{\sf Contest}{$new\_array$}
+        \If{!compare($new\_array$)}
+            \State\Return{false}
+        \EndIf
+        \State $holder \gets msg.sender$
+        \State\Return{true}
+    \EndFunction
+    \vskip8pt
+    \end{algorithmic}
+
+    \begin{algorithmic}[1]
+        \Function{\sf compare}{$new\_array$}
+            \For{$i$ in $best\_array$.length}
+            \If{$new\_array$[$i$] $\leq$ $best\_array$[$i$]}
+                    \State\Return{false}
+                \EndIf
+            \EndFor
+            \State\Return{true}
+        \EndFunction
+        \vskip8pt
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+    \label{alg.compare-memory}
+    \caption{\textsf{Compare} N-sized arrays using hash-and-resubmit pattern}
+    \begin{algorithmic}[1]
+        \Function{\sf Submit}{$array[N]$}
+        \State $hash \gets sha256(array)$
+            \Comment{hash saved in storage}
+            \State $holder \gets msg.sender$
+            \State\Return{true}
+        \EndFunction
+    \vskip8pt
+    \end{algorithmic}
+
+    \begin{algorithmic}[1]
+    \Function{\sf Contest}{$existing\_array$, $new\_array$}
+    \If{hash256($existing\_array$) $\neq$ $hash$}
+        \State\Return{false}
+        \Comment{Invalid $original\_array$}
+    \EndIf
+
+    \If{!compare($original\_array$, $new\_array$)}
+        \State\Return{false}
+    \EndIf
+    \State $holder \gets msg.sender$
+    \State\Return{true}
+    \EndFunction
+    \vskip8pt
+    \end{algorithmic}
+
+    \begin{algorithmic}[1]
+        \Function{\sf compare}{$array_1$, $array_2$}
+            \For{$i$ in $array_1$.length}
+                \If{$array_1$[$i$] $\leq$ $array_2$[$i$]}
+                    \State\Return{false}
+                \EndIf
+            \EndFor
+            \State\Return{true}
+        \EndFunction
+        \vskip8pt
+    \end{algorithmic}
+\end{algorithm}

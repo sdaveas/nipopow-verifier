@@ -1,0 +1,49 @@
+\begin{algorithm}
+    \caption{Contract State}
+    \label{algo:hash_and_resubmit_data}
+    \KwData{
+      \texttt{Block} $genesis_{s}$,
+      \texttt{\texttt{Bytes32} $digest^{\pi}$},
+      \texttt{\texttt{Proof} $\pi_{s}$},
+      \texttt{hashmap} $DAG_{s}$,
+      \texttt{bool} $predicateExists_{s}$ \\
+    }
+\end{algorithm}
+
+\begin{algorithm}
+    \caption{Submit Event Proof}
+    \label{algo:hash_and_resubmit_submit}
+    \KwIn{\\
+        \texttt{Proof} $\pi$, \\
+        \texttt{Predicate} $predicate$
+    }
+    require $\pi[0]$ = $genesis_{s}$ \\
+    require($predicateExists_{s}$ $=$ $false$) \\
+    require($validInterlink(\pi$))\\
+    $DAG_{s}$ $\leftarrow$ $DAG_{s}$ $\cup$ $\pi$\\
+    $digest^{\pi}$ $\leftarrow$ sha256($\pi$) \\
+    $ancestors_{s}$ $\leftarrow$ $findAncestors(DAG_{s}$)\\
+    $predicateExists_{s}$ $\leftarrow$ $evaluatePredicate(ancestors_{s}$,
+    $predicate$)\\
+    delete $ancestors_{s}$\\
+\end{algorithm}
+
+\vspace{0.1cm}
+
+\begin{algorithm}
+    \caption{Submit Contest Proof}
+    \label{algo:hash_and_resubmit_contest}
+    \KwIn{\\
+        \texttt{Proof} $\pi$, \texttt{Proof} $\tilde\pi$, \texttt{Predicate} $predicate$
+    }
+    require $\tilde\pi[0]$ = $genesis_{s}$ \\
+    require($predicateExists_{s}$ = $true$) \\
+    require(sha256($\pi$) = $digest^{\pi}$) \\
+    $lca$ $\leftarrow$ findLca($\pi$, $\tilde\pi$) \\
+    require($score(\tilde\pi[lca:])$ $>$ $score(\pi_{s}[lca:])$) \\
+    require($score(\tilde\pi[lca:])$ $>$ $score(\pi[lca:])$) \\
+    $DAG_{s}$ $\leftarrow$ $DAG_{s}$ $\cup$ $\tilde\pi$\\
+    $ancestors_{s}$ $\leftarrow$ $findAncestors(DAG_{s})$\\
+    $predicateExists_{s}$ $\leftarrow$ $evaluatePredicate(ancestors_{s}, predicate)$\\
+    delete $ancestors_{s}$\\
+\end{algorithm}

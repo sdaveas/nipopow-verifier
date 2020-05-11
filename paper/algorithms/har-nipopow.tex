@@ -1,0 +1,84 @@
+\begin{algorithm}
+    \label{alg.har-nipopow}
+    \caption{The \textsf{NIPoPoW} client using hash-and-resubmit pattern}
+    \begin{algorithmic}[1]
+        \Function{\sf Constructor}{$genesis$}
+            \State $Gen \gets genesis$
+        \EndFunction
+    \vskip8pt
+    \end{algorithmic}
+
+    \begin{algorithmic}[1]
+        \Function{\sf Submit}{$\pi$, $e$}
+        \State require($\pi$[0] = $Gen$)
+        \State require($events[e]$ = false)
+        \State require($validInterlink(\pi)$)
+        \State $DAG_s \gets DAG_s \cup \pi$
+        \State $hash$ $\gets$ sha256($\pi$)
+        \Comment{enable hash-and-resubmit}
+        \State $ancestors_s \gets findAncestors(DAG_s)$
+        \State $events[e] \gets evaluatePredicate(ancestors_s, e)$
+        \State delete $ancestors$
+    \EndFunction
+    \vskip8pt
+    \end{algorithmic}
+
+    \begin{algorithmic}[1]
+        \Function{\sf Contest}{$\pi$, $\tilde\pi$ $e$}
+        \State require($hash$ = sha256($\pi$))
+        \Comment{verify original digest}
+        \State require($\tilde\pi$[0] = $Gen$)
+        \State require($events[e]$ = true)
+        \State require($validInterlink(\tilde\pi)$)
+        \State $lca = findLca(\pi, \tilde\pi)$
+        \State require($score(\pi[:lca]) > score(\tilde\pi[lca])$)
+        \State $DAG \gets DAG \cup \tilde\pi$
+        \State $ancestors_s \gets findAncestors(DAG_s)$
+        \State $events[e] \gets evaluatePredicate(ancestors_s, e)$
+        \State delete $ancestors$
+    \EndFunction
+    \vskip8pt
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+    \label{alg.compare-memory}
+    \caption{\textsf{Compare} N-sized arrays using hash-and-resubmit pattern}
+    \begin{algorithmic}[1]
+        \Function{\sf Submit}{$array[N]$}
+        \State $hash \gets sha256(array)$
+            \Comment{hash saved in storage}
+            \State $holder \gets msg.sender$
+            \State\Return{true}
+        \EndFunction
+    \vskip8pt
+    \end{algorithmic}
+
+    \begin{algorithmic}[1]
+    \Function{\sf Contest}{$existing\_array$, $new\_array$}
+    \If{hash256($existing\_array$) $\neq$ $hash$}
+        \State\Return{false}
+        \Comment{Invalid $original\_array$}
+    \EndIf
+
+    \If{!compare($original\_array$, $new\_array$)}
+        \State\Return{false}
+    \EndIf
+    \State $holder \gets msg.sender$
+    \State\Return{true}
+    \EndFunction
+    \vskip8pt
+    \end{algorithmic}
+
+    \begin{algorithmic}[1]
+        \Function{\sf compare}{$array_1$, $array_2$}
+            \For{$i$ in $array_1$.length}
+                \If{$array_1$[$i$] $\leq$ $array_2$[$i$]}
+                    \State\Return{false}
+                \EndIf
+            \EndFor
+            \State\Return{true}
+        \EndFunction
+        \vskip8pt
+    \end{algorithmic}
+\end{algorithm}
