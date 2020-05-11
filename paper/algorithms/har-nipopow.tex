@@ -1,5 +1,5 @@
 \begin{algorithm}
-    \label{alg.har-nipopow}
+    \label{alg:har-nipopow}
     \caption{The \textsf{NIPoPoW} client using hash-and-resubmit pattern}
     \begin{algorithmic}[1]
         \Function{\sf Constructor}{$genesis$}
@@ -24,14 +24,14 @@
     \end{algorithmic}
 
     \begin{algorithmic}[1]
-        \Function{\sf Contest}{$\pi$, $\tilde\pi$ $e$}
+        \Function{\sf Contest}{$\pi$, $\tilde\pi$, $e$}
         \State require($hash$ = sha256($\pi$))
         \Comment{verify original digest}
         \State require($\tilde\pi$[0] = $Gen$)
         \State require($events[e]$ = true)
         \State require($validInterlink(\tilde\pi)$)
         \State $lca = findLca(\pi, \tilde\pi)$
-        \State require($score(\pi[:lca]) > score(\tilde\pi[lca])$)
+        \State require($score(\tilde\pi[:lca]) > score(\pi[:lca])$)
         \State $DAG \gets DAG \cup \tilde\pi$
         \State $ancestors_s \gets findAncestors(DAG_s)$
         \State $events[e] \gets evaluatePredicate(ancestors_s, e)$
