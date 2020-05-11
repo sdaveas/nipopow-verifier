@@ -12,8 +12,8 @@ gas-efficient smart contracts several patterns have been proposed.
 Solidity smart contracts that results into massive gas optimization. This
 technique, which we term \emph{hash-and-resubmit}, is based on observing public
 data of the blockchain in order to leverage \emph{off-chain} operations. By
-utilizing this technique, the performance of the smart contract is improved
-considerably since computations are performed locally by the user, and
+utilizing \emph{hash-and-resubmit}, the performance of the smart contract is
+improved considerably since computations are performed locally by the user, and
 gas-heavy storage variables are discarded.
 
 The critical observation we make is that large structures, i.e. arrays, that
@@ -38,8 +38,9 @@ any node.
 \input{algorithms/observe-tx}
 
 As an example, we demonstrate a smart contract that implements a game between
-two players $P1$, $P2$, in which the player with the most valuable array wins.
-The contract consists of two phases: (a) Submit phase and (b) Contest phase.
+two players, $P1$ and $P2$, in which the player with the most valuable array
+wins. The contract consists of two phases: (a) Submit phase and (b) Contest
+phase.
 
 \noindent \textbf{Submit
 phase:} $P1$ submits an N-sized array, $array_1$ and becomes the
@@ -48,59 +49,55 @@ $holder$ of the contract.
 \noindent \textbf{Contest phase:} $P2$ submits $array_2$. If $array_2$ $>$
 $array_1$, then the holder of the contract is changed.
 
-In this example, $array_1$ $>$ $array_2$ is true if $array_1$[$i$] $>$
-$array_2$[$i$] is true for every $i$ $\in$ $array_1$.length. However, the
-hash-and-resubmit pattern is agnostic to the implementation of the operator.
+In this example, the comparison $array_1$ $>$ $array_2$ is true if
+$array_1$[$i$] $>$ $array_2$[$i$] is true for every $i$ $\in$ $array_1$.length.
+However, the pattern is agnostic to the implementation of the operator.
 
 The rationale is to demand from $P2$ to provide two arrays to the contract
-during contest phase: (a) $existing\_{array}$, which is a copy of the
-originally submitted array by $P1$, and (b) $new\_array$, which is the
+during contest phase: (a) $array_1^*$, which is a copy of the
+originally submitted array by $P1$, and (b) $array_2$, which is the
 contesting array. The challenge here, is twofold:
 
 \begin{enumerate}
 
     \item Availability: $P2$ must be able to retrieve a valid copy of
-        $existing\_array$, without the need of accessing on-chain data.
+        $array_1$, without the need of accessing on-chain data.
 
     \item Reliability: We must prevent $P2$ from dispatching a malformed
-        $existing\_array$ which differs from the originally submitted.
+        $array_1^*$ which differs from the originally submitted $array_1$.
 
 \end{enumerate}
 
 As its name suggests, \emph{hash-and-resubmit} technique is performed in two
-phases to face these challenges: the \emph{hash} phase, which addresses
-\emph{reliability}, and the \emph{resubmit} phase which addresses
+stages to face these challenges: (a) the \emph{hash} phase, which addresses
+\emph{reliability}, and (b) the \emph{resubmit} phase which addresses
 \emph{availability}.
 
 \noindent
-
 \textbf{Addressing Availability:} During submit-phase, $P1$ makes a call to the
-function \texttt{submitEventProof}. This transaction, which consists of (a) the
-function call and (b) the corresponding data, is added to a block by a miner.
-As a blockchain transaction, the data of the function call are public to the
-network. Due to blockchain's transparency, $P2$ can retrieve $array_1$ without
-the need of accessing contract data. Note that this process is done off-chain.
-$E_{cont}$ does not have to interact with the client.
+function \texttt{submit}. This transaction, which includes the function call
+and the corresponding data, is added to a block by a miner. Due to blockchain's
+transparency, $P2$  retrieves a copy of $array_1$ which we denote as
+$array_1^*$, without the need of accessing contract data, and performs the
+comparison off-chain to determine whether the contest is successful.
 
 \noindent
-
 \textbf{Addressing Reliability:} We prevent an adversary from altering
-$array_1$ by storing the hash of $array_1$ in contract's state during submit
-phase and then verifying that $P2$ did not alter the original array by
-verifying that the hash of claimed $array_1$ matches the hash of the original
-submitted. We calculate the digest by invoking the pre-compiled \texttt{sha256}
-hash function of Solidity:
-\[\texttt{digest = sha256(abi.encodePacked(array))}\] The size of the digest of
-a hash is 32 bytes. To persist such a small value in contract's memory only
-adds a constant, negligible cost overhead to our implementation. This low-cost
-technique allows us to provide vastly improved performance compared to the
-previous work as we will show in the following subsections.
+$array_1^*$ by storing the hash of $array_1$ in contract's state during
+\emph{submit phase}. We calculate the digest by invoking the pre-compiled
+\texttt{sha256} hash function of Solidity:
+\[hash = \texttt{sha256}(array_1)\]
+Then, during contest phase the verification is performed
+by matching the stored hash of $array_1$ against claimed the hash of
+$array_1^*$. \[\texttt{require}(hash = \texttt{sha256}(array_1^*)\]
 
-\noindent
-\textbf{Benchmarks.} We demonstrate the implementation of the above game storage in
-Algorithm~\ref{alg.compare-storage} and the hash-and-resubmit version in
-Algorithm~\ref{alg.compare-memory}. The gas consumption of the two algorithms
-is displayed in Figure~\ref{fig:har-example}.
+The size of the hash is 32 bytes. To persist such a small value in contract's
+memory only adds a constant, negligible cost overhead.
+
+\noindent \textbf{Benchmarks.} We demonstrate the storage implementation of the
+above game in Algorithm~\ref{alg.compare-storage} and the hash-and-resubmit
+version in Algorithm~\ref{alg.compare-memory}. The gas consumption of the two
+algorithms is displayed in Figure~\ref{fig:har-example}.
 
 \begin{figure}[h!]
 \begin{center}
@@ -112,93 +109,46 @@ decreased significantly by 93-95\%.}
 \label{fig:har-example}
 \end{figure}
 
-We observe that, by using the hash-and-resubmit, the gas consumption of the
-smart contracts is decreased by 93-95\%. This significantly affects the
-applicability of the contract. Note that, the storage implementation exceeds the
-Ethereum block gas limit\footnote{As of July 2020, the Ethereum block gas limit
-is 10,000,000 gas units} for arrays of size 500 and above, contrary to the
-hash-and-resubmit-optimized version, which consumes roughly 1/10th of the block
-gas limit for arrays of 1000 elements.
+By using the hash-and-resubmit, the gas consumption of the smart contract
+decreased by 93-95\%. This significantly affects the applicability of the
+contract. Note that, the storage implementation exceeds the Ethereum block gas
+limit\footnote{As of July 2020, the Ethereum block gas limit is 10,000,000 gas
+units} for arrays of size 500 and above, contrary to the
+hash-and-resubmit-optimized version, which consumes approximately 1/10th of the
+block gas limit for arrays of 1000 elements.
 
 \noindent \textbf{Enabling NIPoPoWs.} We now present how the
 \emph{hash-and-resubmit} pattern can used in the context of the NIPoPoW
-superlight client. Similar to our example game, the NIPoPoW verifier adheres to
-submit-contest-phase schema and the inputs of the functions are arrays that are
-processed on-chain. In \emph{submit-phase}, a \emph{proof} is submitted, and it
-can be contested by another user in \emph{contest-phase}. The user that
-initiates the contest, needs to monitor the traffic of the smart contract. This
-is a logical assumption as mentioned in the NIPoPoW paper. The input of
-\texttt{submit} function includes the \emph{proof} that indicates the
+superlight client. Similar to the aforementioned example, the NIPoPoW verifier
+adheres to a submit-contest-phase schema, and the inputs of the functions are
+arrays that are processed on-chain. In \emph{submit-phase}, a \emph{proof} is
+submitted, and it can be contested by another user in \emph{contest-phase}. The
+user that initiates the contest, needs to monitor the traffic of the smart
+contract. This is a logical assumption as mentioned in the NIPoPoW paper. The
+input of \texttt{submit} function includes the \emph{proof} that indicates the
 occurrence of an \emph{event} in the source chain and the input of
 \texttt{contest} function includes the \emph{contesting proof}. A successful
 challenge of the \emph{existing proof} is realized if the \emph{contesting
 proof} has better score. The process of score evaluation is irrelevant to the
 pattern and remains unchained.
 
-In previous work~\cite{gglou}, NIPoPoW strings are stored on-chain during
+In previous work~\cite{gglou}, NIPoPoW arrays are stored on-chain during
 submit-phase, and are processed during contest-phase. This operation is
-performed by utilizing storage, which considerably limits the applicability of
-the contract. In Algorithm~\ref{} we show how hash-and-resubmit pattern can be
-embedded in the NIPoPoW client.
+performed by utilizing storage, which limits the applicability of the contract
+considerably. In Algorithm~\ref{alg:har-nipopow} we show how hash-and-resubmit
+pattern can be embedded into the NIPoPoW client. In
+Figure~\ref{fig:har-nipopow} we display how the gas consumption differentiates
+from previous work for the aggregated cost of submit and contest phase.
+
 
 \input{algorithms/har-nipopow}
 
-% In previous work, storage was needed to persist submitted proofs and perform
-% contests. In this subsection we show our novel approach to securely verify
-% proofs without the utilization of persistent storage. We term this technique
-% \emph{hash-and-resubmit}.
-%
-% The rationale is to demand from $E_{cont}$ to provide two proofs to the
-% contract during contest phase: (a) $\pi_{exist}$, which is a copy of the
-% originally submitted proof $\pi_{orig}$, and (b) $\pi_{cont}$, which is the
-% contesting proof. The challenge here, is twofold:
-%
-% \begin{enumerate}
-%
-%     \item Availability: $E_{cont}$ must be able to retrieve a valid copy of $\pi_{orig}$,
-%         $\pi_{exist}$ without the need of accessing on-chain data.
-%
-%     \item Reliability: We must prevent $E_{cont}$ from dispatching
-%         $\tilde\pi_{exist}$ which differs from $\pi_{orig}$.
-%
-% \end{enumerate}
-%
-% As its name suggests, \emph{hash-and-resubmit} technique is performed in two
-% phases to face this challenge: the \emph{hash} phase which addresses
-% \emph{reliability}, and the \emph{resubmit} phase which addresses
-% \emph{availability}.
-%
-% The corresponding changes are displayed in
-% Algorithms~\ref{algorithm:submit_hash_and_resubmit}
-%
-% \paragraph{Addressing Availability:}
-%
-% During submit-phase, $E_{subm}$ makes a call to the function
-% \texttt{submitEventProof}. This transaction, which consists of (a) the function
-% call and (b) the corresponding data, is added to a block by a miner. As a
-% blockchain transaction, the data of the function call are public to the
-% network. Due to blockchain's transparency, $E_{cont}$ can retrieve
-% $\pi_{orig}$ without the need of accessing contract data. This data space is
-% called \emph{calldata}, and we make use of it to fetch $\pi_{exist}$, which is
-% an exact copy of $\pi_{orig}$, originally submitted by $E_{subm}$. Note that
-% this process is done off-chain. $E_{cont}$ does not have to interact with the
-% client.
-%
-% \paragraph{Addressing Reliability:}
-%
-% We prevent an adversary from altering $\pi_{exist}$ by storing the hash of
-% $\pi_{orig}$ in contract's state during submit phase and then verifying that
-% $\pi_{exist}$ has the same hash. The operation of hashing the proof and storing
-% the digest is cheap as shown in figure~\ref{figure:hash_proof_gas}. We
-% calculate the digest by invoking the pre-compiled \texttt{sha256} hash function
-% of Solidity:
-%
-% \[\texttt{digest = sha256(abi.encodePacked(proof))}\] The size of the digest of
-% a hash is 32 bytes. To persist such a small value in contract's memory only
-% adds a constant, negligible cost overhead to our implementation. This low-cost
-% technique allows us to provide vastly improved performance compared to the
-% previous work as we will show in the following subsections.
-%
-% \input{algorithms/hash_and_resubmit.tex}
-
-% \input{figures/hash_proof_gas.tex}
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[width=1\columnwidth]{figures/har-nipopows.pdf}
+    \end{center}
+    \caption{Performance improvement using hash-and-resubmit pattern in
+    NIPoPoWs related to previous work. The gas consumption decreased by
+    approximately 50\%}
+    \label{fig:har-nipopow}
+\end{figure}
