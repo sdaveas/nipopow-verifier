@@ -33,17 +33,24 @@ transaction occurred. A trivial way is to participate as a full node in both
 chains. This approach, however, is impractical because a sizeable amount of
 storage is needed to host entire chains as they grow with time. As of May 2020,
 Bitcoin~\cite{nakamoto} chain spans roughly 245 GB and Ethereum~\cite{wood,
-buterin} has exceeded 1 TB. Naturally, not all users are able to accommodate
-this size of data especially if portable media are used, such as mobile phones.
+    buterin} has exceeded 350 GB\footnote{The size of the Bitcoin chain was
+    derived from
+https://www.statista.com/statistics/647523/worldwide-bitcoin-blockchain-size/,
+and the size of the Ethereum chain by
+https://etherscan.io/chartsync/chaindefaults}. Naturally, not all users are
+able to accommodate this size of data especially if portable media are used,
+such as mobile phones.
 
 An early solution to compress the extensive space of blockchain was given by
 Nakamoto with the Simplified Payment Verification (SPV) protocol
 ~\cite{nakamoto}. In SPV, only the headers of blocks are stored, saving a
 considerable amount of storage.  However, even with this protocol, the process
 of downloading and validating all block headers can lead to unpleasant user
-experience. In Ethereum, for instance, headers sum up to roughly 4 GB of data.
-A mobile client needs several minutes, even hours to fetch all information
-needed in order to function as an SPV client.
+experience. In Ethereum, for instance, headers sum up to approximately 5.1
+GB\footnote{Calculated as the number of blocks (10,050,219) times the size of
+header (508 bytes). Statistics by https://etherscan.io/} of data. A mobile
+client needs several minutes, even hours to fetch all information needed in
+order to function as an SPV client.
 
 In order to deliver more practical solutions for blockchain verification, a new
 generation of \emph{superlight}
