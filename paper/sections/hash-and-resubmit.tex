@@ -16,14 +16,13 @@ utilizing \emph{hash-and-resubmit}, the performance of the smart contract is
 improved considerably since computations are performed locally by the user, and
 gas-heavy storage variables are discarded.
 
-The critical observation we make is that large structures, i.e. arrays, that
-are sent to smart contracts and remain immutable, can be eliminated. This is
-due to the fact that in the body of the Ethereum block, information regarding
-transactions is stored. Nodes have access to this information which include the
-signatures and input arguments of function invocations. Hence, a node can
-access the information of a transaction by reading the blockchain instead of
-invoking contract functions. This type of off-chain access can be applied by
-any node.
+The critical observation we make is that large, immutable input structures,
+i.e. static arrays, can be eliminated. This is due to the fact that in the body
+of the Ethereum block, information regarding transactions is stored. Nodes have
+access to this information which include the signatures and input arguments of
+function invocations. Hence, a node can access the information of a transaction
+by reading the blockchain instead of invoking contract functions. This type of
+off-chain access can be applied by any node.
 
 \begin{figure}[h]
     \begin{center}
@@ -73,28 +72,25 @@ stages to face these challenges: (a) the \emph{hash} phase, which addresses
 \emph{reliability}, and (b) the \emph{resubmit} phase which addresses
 \emph{availability}.
 
-\noindent
-\textbf{Addressing Availability:} During submit-phase, $P1$ makes a call to the
-function \texttt{submit}. This transaction, which includes the function call
-and the corresponding data, is added to a block by a miner. Due to blockchain's
-transparency, $P2$  retrieves a copy of $array_1$ which we denote as
-$array_1^*$, without the need of accessing contract data, and performs the
-comparison off-chain to determine whether the contest is successful.
+\noindent \textbf{Addressing Availability:} During submit-phase, $P1$ make the
+function call \texttt{submit}($array_1$). This transaction, which includes the
+function signature (\texttt{submit}) and the corresponding data ($array_1$), is
+added to a block by a miner.  Due to blockchain's transparency, the observer of
+\texttt{submit}, $P2$, retrieves a copy of $array_1$, without the need of
+accessing contract data. We denote as the copy of $array_1$ as $array_1^*$.
 
+\noindent \textbf{Addressing Reliability:} We prevent an adversary from
+altering $array_1^*$ by storing the hash of $array_1$ in contract's state
+during \emph{submit phase}. We make use of the pre-compiled \texttt{sha256}
+hash function of Solidity: \[hash = \texttt{sha256}(array_1)\] Then, during
+contest phase, a verification is performed by comparing the stored hash of
+$array_1$ against the hash of $array_1^*$.  \[\texttt{require}(hash =
+\texttt{sha256}(array_1^*)\]
 \noindent
-\textbf{Addressing Reliability:} We prevent an adversary from altering
-$array_1^*$ by storing the hash of $array_1$ in contract's state during
-\emph{submit phase}. We calculate the digest by invoking the pre-compiled
-\texttt{sha256} hash function of Solidity:
-\[hash = \texttt{sha256}(array_1)\]
-Then, during contest phase the verification is performed
-by matching the stored hash of $array_1$ against claimed the hash of
-$array_1^*$. \[\texttt{require}(hash = \texttt{sha256}(array_1^*)\]
-
 The size of the hash is 32 bytes. To persist such a small value in contract's
 memory only adds a constant, negligible cost overhead.
 
-\noindent \textbf{Benchmarks.} We demonstrate the storage implementation of the
+\noindent \textbf{Benchmarks.} We show the storage implementation of the
 above game in Algorithm~\ref{alg.compare-storage} and the hash-and-resubmit
 version in Algorithm~\ref{alg.compare-memory}. The gas consumption of the two
 algorithms is displayed in Figure~\ref{fig:har-example}.
@@ -109,28 +105,30 @@ decreased significantly by 93-95\%.}
 \label{fig:har-example}
 \end{figure}
 
-By using the hash-and-resubmit, the gas consumption of the smart contract
-decreased by 93-95\%. This significantly affects the applicability of the
-contract. Note that, the storage implementation exceeds the Ethereum block gas
-limit\footnote{As of July 2020, the Ethereum block gas limit is 10,000,000 gas
-units} for arrays of size 500 and above, contrary to the
-hash-and-resubmit-optimized version, which consumes approximately 1/10th of the
-block gas limit for arrays of 1000 elements.
+By using the hash-and-resubmit, the gas consumption decreased by 93-95\%. This
+significantly affects the applicability of the contract. Note that, the storage
+implementation exceeds the Ethereum block gas limit\footnote{As of July 2020,
+the Ethereum block gas limit approximates 10,000,000 gas units} for arrays of
+size 500 and above, contrary to the hash-and-resubmit-optimized version, which
+consumes approximately 1/10th of the block gas limit for arrays of 1000
+elements.
 
 \noindent \textbf{Enabling NIPoPoWs.} We now present how the
 \emph{hash-and-resubmit} pattern can used in the context of the NIPoPoW
 superlight client. Similar to the aforementioned example, the NIPoPoW verifier
-adheres to a submit-contest-phase schema, and the inputs of the functions are
-arrays that are processed on-chain. In \emph{submit-phase}, a \emph{proof} is
-submitted, and it can be contested by another user in \emph{contest-phase}. The
-user that initiates the contest, needs to monitor the traffic of the smart
-contract. This is a logical assumption as mentioned in the NIPoPoW paper. The
-input of \texttt{submit} function includes the \emph{proof} that indicates the
-occurrence of an \emph{event} in the source chain and the input of
-\texttt{contest} function includes the \emph{contesting proof}. A successful
-challenge of the \emph{existing proof} is realized if the \emph{contesting
-proof} has better score. The process of score evaluation is irrelevant to the
-pattern and remains unchained.
+adheres to a submit-and-contest-phase schema, and the inputs of the functions
+are arrays that are processed on-chain.
+
+In \emph{submit-phase}, a \emph{proof} is submitted, which can be contested by
+another user in \emph{contest-phase}.  The user that initiates the contest,
+needs to monitor the traffic of the smart contract. This is a logical
+assumption as mentioned in the NIPoPoW paper. The input of \texttt{submit}
+function includes the \emph{proof}, $\pi_{subm}$ that indicates the occurrence
+of an \emph{event}, \textbf{e} in the source chain, and the input of
+\texttt{contest} function includes the \emph{contesting proof}, $\pi_{cont}$. A
+successful challenge of the $\pi_{subm}$ is realized when $\pi_{cont}$ has
+better score. The process of score evaluation, which is described in
+~\cite{nipopows} is irrelevant to the pattern, and remains unchained.
 
 In previous work~\cite{gglou}, NIPoPoW arrays are stored on-chain during
 submit-phase, and are processed during contest-phase. This operation is
