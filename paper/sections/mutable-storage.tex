@@ -9,8 +9,7 @@ demonstrates, such an algorithm cannot be efficiently implemented in Solidity.
 This is not due to the lack of support of look-up structures, but because
 Solidity hashmaps can only be contained in storage. Other
 mutable structures, such as $ancestors$ that are stored in the persistent
-memory also affect performance. Thus, the use of $DAG$
-leads to expensive function calls, especially for large proofs.
+memory also affect performance, especially for large proofs.
 
 We make a keen observation regarding the possible position of the \emph{block
 of interest} in the proof which lead us the constriction of an architecture
@@ -22,16 +21,17 @@ interlinked blocks, which means that they can be perceived as chains. If
 $\pi_1$ differs from $\pi_2$, then a fork is created at the index of the last
 common ancestor ($lca$). The block of interest, $b$, lies at a certain index
 within $\pi_{subm}$ and indicates a stable predicate~\cite{nipopows,
-generic-client} that is true for $\pi_{subm}$.  We do not consider the absence
-of $b$ from $\pi_{subm}$, because in this case the submission automatically
-fails since the predicated is evaluated against $\pi_{subm}$. On the contrary,
-the entity that initiates the contest of $\pi_{subm}$, tries to prove the
+generic-client} that is true for $\pi_{subm}$. The case in which $b$ is absent
+from $\pi_{subm}$ is aimless, because the submission automatically fails since
+the predicated is evaluated against $\pi_{subm}$. We will refer to such aimless
+actions as \emph{irrational} and components that are included in such actions
+irrational components, i.e.  irrational proof, blocks etc. We will use the term
+\emph{rational} to describe non-irrational actions and components.
+
+The entity that initiates the contest of $\pi_{subm}$, tries to prove the
 falseness of the underlying predicate against $\pi_{cont}$. This means that, if
-the block of interest is included in $\pi_{cont}$, the contest is aimless. We
-will refer to such aimless actions as \emph{irrational} and components that are
-included in such actions irrational components, i.e. irrational proof, blocks
-etc, and we will use the term \emph{rational} to describe non-irrational
-actions and components.
+the block of interest is included in $\pi_{cont}$, then the contest is
+irrational.
 
 In the NIPoPoW protocol, proofs' segments $\pi_{subm}\{:lca\}$ and
 $\pi_{cont}\{:lca\}$ are merged to prevent adversaries from skipping or adding
@@ -39,7 +39,7 @@ blocks, and the predicate is evaluated against $\pi_{subm}\{:lca\} \cup
 \pi_{cont}\{:lca\}$. We observe that $\pi_{submit}\{:lca\}$ can be omitted
 because there is no block \{$B : B \notin \pi_{subm}\{:lca\} \land B \in
 \pi_{cont}\{:lca\}$\} that results to positive evaluation of the predicate.
-This is due to the fact that $b$ is not included in $\pi_{cont}[:lca]$, and,
+This is due to the fact that $b$ is not included in $\pi_{cont}\{:lca\}$, and,
 presumably there is no $B$ such that $b = B$.
 
 \begin{figure}[h]
