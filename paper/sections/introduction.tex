@@ -6,7 +6,7 @@ pos-sidechains,burn,crosschain-sok, gtklocker} communication can enable useful
 features across blockchains such as the transfer of asset from one chain to
 another (one-way peg) and back (one-way peg)~\cite{pow-sidechains}. To date,
 there is no commonly accepted decentralized protocol that enables cross-chain
-transactions.  Currently, crosschain operations are only available to the users
+transactions. Currently, crosschain operations are only available to the users
 via third-party applications, such as multi-currency wallets. However, this
 treatment is opposing to the nature of decentralized currencies.
 
@@ -17,7 +17,7 @@ operations:
 
 \begin{itemize}
 \item Crosschain trading: A user with deposits in blockchain A, can make a
-    payment to a user with funds in blockchain B.
+    payment to a user in blockchain B.
 \item Crosschain fund transfer: A user can transfers her funds from blockchain
     A to blockchain B. After this operation, the funds no longer exist in
     blockchain A. The user can later decide to transfer any portion of the
@@ -27,18 +27,18 @@ operations:
 
 \noindent
 
-In order to perform crosschain operations, there must be some mechanism to
-allow users of blockchain A discover events that occur in chain B, such that a
-transaction occurred. A trivial way is to participate as a full node in both
-chains. This approach, however, is impractical because a sizeable amount of
-storage is needed to host entire chains as they grow with time. As of May 2020,
-Bitcoin~\cite{nakamoto} chain spans roughly 245 GB and Ethereum~\cite{wood,
-    buterin} has exceeded 350 GB\footnote{The size of the Bitcoin chain was
-    derived from
-https://www.statista.com/statistics/647523/worldwide-bitcoin-blockchain-size/,
-and the size of the Ethereum chain by
+In order to perform crosschain operations, there must be a mechanism to allow
+for users of blockchain A to discover events that occur in chain B, such that a
+transaction occurred. A trivial manner to perform such an audit is to
+participate as a full node in both chains. This approach, however, is
+impractical because a sizeable amount of storage is needed to host entire
+chains as they grow with time. As of May 2020, Bitcoin~\cite{nakamoto} chain
+spans roughly 245 GB, and Ethereum~\cite{wood, buterin} has exceeded 350
+GB\footnote{The size of the Bitcoin chain was derived from
+    https://www.statista.com/statistics/647523/worldwide-bitcoin-blockchain-size/,
+    and the size of the Ethereum chain by
 https://etherscan.io/chartsync/chaindefaults}. Naturally, not all users are
-able to accommodate this size of data especially if portable media are used,
+able to accommodate this size of data, especially if portable media are used,
 such as mobile phones.
 
 An early solution to compress the extensive space of blockchain was given by
@@ -49,11 +49,11 @@ of downloading and validating all block headers can lead to unpleasant user
 experience. In Ethereum, for instance, headers sum up to approximately 5.1
 GB\footnote{Calculated as the number of blocks (10,050,219) times the size of
 header (508 bytes). Statistics by https://etherscan.io/} of data. A mobile
-client needs several minutes, even hours to fetch all information needed in
+client needs several minutes, even hours, to fetch all information needed in
 order to function as an SPV client.
 
-In order to deliver more practical solutions for blockchain verification, a new
-generation of \emph{superlight}
+In order to deliver more practical solutions for blockchain transaction
+verification, a new generation of \emph{superlight}
 clients~\cite{popow,nipopows,compactsuperblocks, flyclient} emerged. In these
 protocols, cryptographic proofs are generated, which prove the occurrence of
 events inside a blockchain. Better performance is achieved due to considerably
@@ -67,18 +67,17 @@ Bitcoin and Ethereum.
 
 \noindent
 
-\textbf{Related Work.} We use Non-Interactive Proofs of Proof of Work
-(NIPoPoWs)~\cite{nipopows} as the fundamental building block of our solution.
-This cryptographic primitive is \emph{provably secure} and provides
-\emph{succinct proofs} regarding the existence of an arbitrary event in a
-chain. Contrary to the linear growth rate of the underlying blockchain,
+\textbf{Related Work.} We use the Non-Interactive Proofs of Proof of Work
+(NIPoPoWs)~\cite{nipopows, pow-sidechains} as the fundamental building block
+of our solution. This cryptographic primitive is \emph{provably secure} and
+provides \emph{succinct proofs} regarding the existence of an arbitrary event
+in a chain. Contrary to the linear growth rate of the underlying blockchain,
 NIPoPoWs span polylogarithmic size of blocks.
 
 Christoglou~\cite{gglou}, has provided a Solidity smart contract which is the first
 ever implementation of crosschain events verification based on NIPoPoWs, where
 proofs are submitted and checked for their validity. This solution, however, is
-impossible to apply to the real blockchain due to extensive usage of resources
-and important security vulnerabilities such as premining.
+impossible to apply to the real blockchain due to extensive usage of resources.
 
 \noindent
 
@@ -93,22 +92,25 @@ to the Ethereum blockchain.
 pattern improves the performance of Ethereum smart contracts~\cite{wood,
 buterin} in terms of gas consumption by utilizing \emph{calldata} space to
 eliminate high-cost storage operations.
+\item We design an \emph{optimistic} schema for our client which can be used in
+the design of smart contracts replacing \emph{non-optimistic}
+architectures. This design achieves the improvement of smart contracts'
+performance enabling multiple phases of interactions.
 \item We prove via application that NIPoPoWs can be utilized in the real
 blockchain, making the cryptographic primitive the first ever provably secure
 construction of succinct proofs which is applied in a real setting.
-\item Optimistic vs non-optimistic constructions - Ask gtklocker
 \end{enumerate}
 
 \bigbreak
 Our implementation meets the following requirements:
 \begin{enumerate}
-\item Security: The client is invulnerable against all adversarial attacks.
-\item Is trust-less: The client is not dependent on third-party applications
+\item Secure: The client is invulnerable against all adversarial attacks.
+\item Trustless: The client is not dependent on third-party applications
 and operates in a transparent, decentralized manner.
-\item Applicability: The client can be utilized in the real blockchain and
+\item Practical: The client can be utilized in the real blockchain and
 comply with all environmental constraints, i.e.\ block gas limit and calldata
 size of Ethereum blockchain.
-\item Is cheap: The application is cheaper to use than the current state of the
+\item Cheap: The application is cheaper to use than the current state of the
 art technologies.
 \end{enumerate}
 
