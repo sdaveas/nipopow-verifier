@@ -1,0 +1,33 @@
+
+% hash-and-resubmit
+% notation
+\newcommand{\contract}{\mathsf{S}}
+\newcommand{\invoker}{\mathsf{E_{1}}}
+\newcommand{\observer}{\mathsf{E_{2}}}
+\newcommand{\data}{\mathsf{d}}
+\newcommand{\datas}{\mathsf{d^*}}
+%example
+\newcommand{\pla}{\mathsf{P_1}}
+\newcommand{\plb}{\mathsf{P_2}}
+\newcommand{\arra}{\mathsf{a_1}}
+\newcommand{\arras}{\mathsf{a_1^*}}
+\newcommand{\arrb}{\mathsf{a_2}}
+\newcommand{\holder}{\mathsf{holder}}
+
+%proofs notation
+\newcommand{\pis}{\pi_{subm}}
+\newcommand{\pisa}{\pi_{subm}^*}
+\newcommand{\pic}{\pi_{cont}}
+\newcommand{\pitr}{\pi_{cont}^{tr}}
+
+\algblockdefx[Contract]{Contract}{EndContract}
+[1]{\textbf{contract #1}}
+[0]{\textbf{end contract}}
+
+\algblockdefx[Payable]{Payable}{EndPayable}
+[2]{\textbf{payable function #1}(#2)}
+[0]{\textbf{end function}}
+
+\algblockdefx[Internal]{Internal}{EndInternal}
+[2]{\textbf{internal function #1}(#2)}
+[0]{\textbf{end function}}
