@@ -12,19 +12,20 @@ storage operations.
 % buterin}.  <<<<
 It is essential for smart contracts to store data in the blockchain. However,
 interacting with the storage of a contract is among the most expensive
-operations of the EVM. Therefore, only necessary data should be stored and
-redundancy should be avoided when possible. This is contrary to conventional
-software architecture, where storage is considered cheap. Usually, the
-performance of data access in traditional systems is related with time.
-However, in Ethereum performance is related to gas consumption. Access to
-persistent data costs a substantial amount of gas, which has a direct monetary
-value. One way to mitigate gas cost of reading variables from the blockchain is
-to declare them public.  This leads to the creation of a \emph{getter} function
-in the background, allowing free access to the value of the variable. But this
-treatment does not prevent the initial population of storage data, which is
-significantly costly, especially for large size of data. Towards the goal of
-implementing gas-efficient smart contracts, several patterns have been
-proposed~\cite{contract-opt-1, contract-opt-2, contract-opt-3}.
+operations of the EVM~\cite{wood, buterin}. Therefore, only necessary data
+should be stored and redundancy should be avoided when possible. This is
+contrary to conventional software architecture, where storage is considered
+cheap. Usually, the performance of data access in traditional systems is
+related with time.  However, in Ethereum performance is related to gas
+consumption. Access to persistent data costs a substantial amount of gas, which
+has a direct monetary value. One way to mitigate gas cost of reading variables
+from the blockchain is to declare them public.  This leads to the creation of a
+\emph{getter} function in the background, allowing free access to the value of
+the variable. But this treatment does not prevent the initial population of
+storage data, which is significantly expensive for large size of data.
+Towards the goal of implementing gas-efficient smart contracts, several
+patterns have been proposed~\cite{contract-opt-1, contract-opt-2,
+contract-opt-3}.
 
 By using the \emph{hash-and-resubmit} pattern, large storage variables are
 omitted entirety, and structures are contained in memory which results to
@@ -32,54 +33,52 @@ vastly improved performance. When a function call is performed, the arguments
 and signature of the function is included in the transactions field of the body
 of a block. The contents of blocks are public to the network, therefore this
 information is available to nodes. By simply observing blocks, a node retrieves
-data sent by other users, which be processed off-chain. To advertise the
-process of data to the public network, the node re-sends the retrieved data
-accompanied with complementary data depending on the context of the
-application. While the concept of resending data would be inefficient in
-conventional systems \[...\]
-% the cost of addressing memory is  storage is   in Solidity
+data sent by other users, which is processed off-chain. To interact with data
+originated by other users, the node resends the observed information to the
+public network, possibly accompanied by complementary data depending on the
+context of the application. The concept of resending data would be redundant in
+conventional systems. However, in Solidity this can be utilized very
+efficiently because function arguments are contained in memory rather than
+storage, which supports vastly cheaper operations.
 
 \noindent
 \textbf{Applicability.}
 We now list the cases in which the \emph{hash-and-resubmit} pattern is
 efficient to use:
 \begin{enumerate}
-    \item Avoid high gas cost due to extensive storage read/write and make
-        smart contracts that exceed block gas limit practical.
-    \item Interact with smart contract depending of previous actions of
-        other users
-    \item Process data off-chain
+    \item To reduce gas cost due to extensive read/write storage operations
+        and to make smart contracts that exceed block gas limit practical.
+    \item To interact with smart contract depending on prior actions of other
+        users
+    \item When a full node observes the traffic of a contract
 \end{enumerate}
 
-\newcommand{\contract}{\mathsf{S}}
-\newcommand{\client}{\mathsf{E_{1}}}
-\newcommand{\observer}{\mathsf{E_{2}}}
-\newcommand{\data}{\mathsf{d}}
-\newcommand{\datao}{\mathsf{d^*}}
-
-\noindent \textbf{Participants and collaborators.} The participants are the
-smart contract $\contract$ which accepts function calls, the client $\client$,
-who dispatches arbitrary data $\data$ to $contract$ \texttt{send($\data$)}, and
+\noindent \textbf{Participants and collaborators.} The first participant is the
+smart contract $\contract$ which accepts function calls. Another participant is
+the invoker $\invoker$, who dispatches arbitrary data $\data_0$ to $\contract$
+via a function \texttt{send$_1$($\data_0$)}. Note that $\data_0$ are
+potentially processed on-chain, resulting to $\data$. The last participant is
 the observer $\observer$, who is a node that observes transactions towards
 $\contract$ in the blockchain. After observation, $\observer$ retrieves data
-$\data$. Finally, $\observer$ acts as a client, making an interaction with
-$\contract$, \texttt{send($\data$)}. However, we need to consider that since
-the retrieval was realized off-chain, a malicious $\observer$ may alter $\data$
-before interacting with $\contract$. We will denote the potentially modified
-data as $\datao$. The verification that $\data = \datao$ consists a part of the
-pattern and is performed during \texttt{send($\datao$)}.
+$\data$. Finally, $\observer$ acts as an invoker, by making an interaction
+with $\contract$, \texttt{send$_2$($\data$)}. However, a malicious $\observer$
+may alter $\data$ before interacting with $\contract$. We will denote the
+potentially modified $\data$ as $\datas$. The verification that $\data =
+\datas$, which is a prerequisite for the secure functionality of the underlying
+contract consists a part of the pattern and is performed in
+\texttt{send$_2$($\datas$)}.
 
 \noindent \textbf{Implementation.} The implementation of this pattern is
-divided into two parts. The first part covers the way $\datao$ is retrieved by
-$\observer$, whereas the second part explains how the we verify that
-$\data=\datao$. The challenge here is twofold:
+divided into two parts. The first part covers how $\datas$ is retrieved by
+$\observer$, whereas the second part explains how the verification if
+$\data=\datas$ is realized. The challenge here is twofold:
 
 \begin{enumerate}
 
     \item Availability: $\observer$ must be able to retrieve $\data$ without
         the need of accessing on-chain data.
 
-    \item Consistency: $\observer$ must be prevented from dispatching $\datao$
+    \item Consistency: $\observer$ must be prevented from dispatching $\datas$
         that differs from the originally submitted $\data$.
 
 \end{enumerate}
@@ -90,52 +89,55 @@ stages to face these challenges: (a) the \emph{hash} phase, which addresses
 \emph{reliability}, and (b) the \emph{resubmit} phase which addresses
 \emph{availability}.
 
-\noindent \textsf{Addressing availability:} During \emph{hash} phase, $\client$
-makes the function call \texttt{send($\data$)}. This transaction, which
-includes a function signature (\texttt{send}) and the corresponding data
-($\data$), is added in a block by a miner.  Due to blockchain's transparency,
-the observer of \texttt{send}, $\observer$, retrieves a copy of $\data$,
-without the need of accessing contract data.
+\noindent \textsf{Addressing availability:} During \emph{hash} phase,
+$\invoker$ makes the function call \texttt{send($\data_0$)}. This transaction,
+which includes a function signature (\texttt{send$_1$}) and the corresponding
+data ($\data_0$), is added in a block by a miner. Due to blockchain's
+transparency, the observer of \texttt{send}, $\observer$, retrieves a copy of
+$\data_0$, without the need of accessing contract data. In turn, $\observer$
+performs \emph{locally} the same set of on-chain instructions operated on
+$\data_0$ generating $\data$.
 
 \noindent \textsf{Addressing reliability:} We prevent an adversary $\observer$
-from altering $\datao$ by storing the \emph{hash} of $\data$ in contract's
-state during the execution of \texttt{send($\data$)} by $\client$. Although we
-can make use of any cryptographic hash function it is convenient to use the
-pre-compiled \texttt{sha256} hash function of Solidity: \[hash =
-\texttt{sha256}(\data)\] Then, during contest phase, a verification is
-performed by comparing the stored hash of $\data$ with the hash of $\datao$.
-\[\texttt{require}(hash = \texttt{sha256}(datao)\]
-\noindent In solidity, the
-size of the hash is 32 bytes. To persist such a small value in contract's
+from altering $\datas$ by storing the \emph{hash} of $\data$ in contract's
+state during the execution of \texttt{send$_1$($\data$)} by $\invoker$.  The
+pre-compiled \texttt{sha256} is convenient to  use in Solidity, however we can
+make use of any cryptographic hash function \texttt{H()}: \[hash \gets
+\texttt{H(}\data\texttt{)}\] Then, during contest phase, verification is
+performed by comparing the stored hash of $\data$ with the hash of $\datas$.
+\[\texttt{require(}hash = \texttt{H(}\datas\texttt{))}\] \noindent In solidity,
+the size of the hash is 32 bytes. To persist such a small value in contract's
 memory only adds a constant, negligible cost overhead.
 
-\noindent \textbf{Sample.} We will now demonstrate the usage of the
+\noindent \textbf{Sample.} We now demonstrate the usage of the
 hash-and-resubmit pattern with a practical example. We create a smart contract
-that orchestrates a game between two players, $P1$ and $P2$. The winner is the
-player with the most valuable array. The interaction between the players and
+that orchestrates a game between two players, $\pla$ and $\plb$. The winner is
+the player with the most valuable array. The interaction between players and
 the smart contract is realized in two phases: (a) Submit phase and (b) Contest
 phase.
 
-\noindent \textsf{Submit phase:} $P1$ submits an N-sized array, $array_1$ and
-becomes the $holder$ of the contract.
+\noindent \textsf{Submit phase:} $\pla$ submits an N-sized array, $\arra$ and
+becomes the $\holder$ of the contract.
 
-\noindent \textsf{Contest phase:} $P2$ submits $array_2$. If $array_2$ $>$
-$array_1$, then the $holder$ of the contract is changed. The comparison between
-the two arrays can be implemented arbitrarily.
+\noindent \textsf{Contest phase:} $\plb$ submits $\arrb$. If $\arrb$ $>$
+$\arra$, then the $\holder$ of the contract is changed to $\plb$. We provide a
+simple implementation for the $>$ operator between arrays, but the comparison
+can be implemented arbitrarily.
 
-We make use of the \emph{hash-and-resubmit} pattern by demanding from $P2$ to
-provide \emph{two} arrays to the contract during contest phase: (a)
-$array_1^*$, which is a copy of the originally submitted array by $P1$, and (b)
-$array_2$, which is the contesting array.
+We make use of the \emph{hash-and-resubmit} pattern by prompting $\plb$ to
+provide \emph{two} arrays to the contract during contest phase: (a) $\arras$,
+which is the originally submitted array by $\pla$, possibly modified by $\plb$,
+and (b) $\arrb$, which is the contesting array.
 
-We show the storage implementation of the above game in
-Algorithm~\ref{alg.compare-storage} and the hash-and-resubmit version in
-Algorithm~\ref{alg.compare-memory}.
+We provide two implementations of the above described game.
+Algorithm~\ref{alg.compare-storage} is the implementation using storage, and
+Algorithm~\ref{alg.compare-memory} is the implementation embedding the
+\emph{hash-and-resubmit} pattern.
 
 \input{algorithms/observe-tx}
 
-\noindent \textbf{Gas analysis.} The gas consumption of the two
-algorithms is displayed in Figure~\ref{fig:har-example}.
+\noindent \textbf{Gas analysis.} The gas consumption of the two implementations
+is displayed in Figure~\ref{fig:har-example}.
 
 \begin{figure}[h!]
 \begin{center}
@@ -147,40 +149,66 @@ decreased significantly by 93-95\%.}
 \label{fig:har-example}
 \end{figure}
 
-By using the \emph{hash-and-resubmit} pattern, the gas consumption decreased by
-93-95\%. This significantly affects the applicability of the contract. Note
-that, the storage implementation exceeds the Ethereum block gas
+By using the \emph{hash-and-resubmit} pattern, the gas consumption is decreased
+by 93-95\%. This significantly affects the efficiency and applicability of the
+contract. Note that, the storage implementation exceeds the Ethereum block gas
 limit\footnote{As of July 2020, the Ethereum block gas limit approximates
 10,000,000 gas units} for arrays of size 500 and above, contrary to the
-hash-and-resubmit-optimized version, which consumes approximately 1/10th of the
-block gas limit for arrays of 1000 elements.
+optimized version, which consumes approximately $1/10^{th}$ of the block gas
+limit for arrays of 1000 elements.
 
-\noindent
-\textbf{Consequences}
+\noindent \textbf{Merkle-hash-and-resubmit.} Now consider a variation of the
+above game, in which $\pla$ calls \texttt{send(}$\arra$\texttt{)}, and then
+calls \texttt{pickSpan(}$n$\texttt{)} that determines the span $n$ of $\arra$
+which can be contested, where $n \leq |\arra|$. In reality, $\plb$ only needs
+to send $\arras[:n]$ and $\arrb[:n]$ in order to perform the comparison
+$\arra[:n] < \arrb[:n]$. However, the digest of $\arra$ is calculated by
+hashing the entire structure. Therefore, the $resubmit$ phase cannot be
+successfully performed with $\arras[:n]$, because \texttt{H(}$\arra$\texttt{)}
+$\ne$ \texttt{H(}$\arra[:n]$\texttt{)}.
+
+A different approach to address such scenarios is to adopt different hashing
+schemas that utilize constructions such as Merkle Trees (ref) or Merkle
+Mountain Ranges (ref) in order to facilitate selective specific rehashes of
+structure segments. In this variation of the pattern which we term
+\emph{merkle-hash-and-resubmit}, the signature of $\arra$ is generated by
+constructing the Merkle Root of $\arra$ in contract's state. In \emph{resubmit}
+phase, $\arra[:n]$ is dispatched, accompanied by the siblings that reconstruct
+the Merkle Root of $\arra$ which is used for verification.
+
+The size of the underlying data determines the performance of each variation of
+the pattern. In Table~\ref{tab:har-vs-mhar} we display the aggregated gas cost
+for hashing and verifying the underlying data for both variations as a function
+of data size. In Figure~\ref{fig:har-vs-mhar} we demonstrate how gas
+consumption changes with respect to different sizes of $\data$ and $\data_0$ =
+1Kb.
+
+\input{tables/har-vs-mhar}
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[width=1\columnwidth]{figures/har-vs-mhar.pdf}
+    \end{center}
+    \caption{Trade-offs between \emph{hash-and-resubmit} variations. Depending
+    on $\data_0$ and $\data$ size, there is an optimal implementation. In
+    vertical axis the gas consumption is displayed, and in vertical axis the
+    size of $\data$ as a function of $\data_0$. The size of $d_0$ is 1000
+    bytes, and the hash function we used is pre-compiled \texttt{sha256}.}
+    \label{fig:har-vs-mhar}
+\end{figure}
+
+\noindent \textbf{Consequences} The most obvious consequence of applying the
+\emph{hash-and-resubmit} pattern variations is the circumvention of storage
+structures, a benefit that saves a substantial amount of gas, especially in the
+cases where these structures are large. To that extend, contracts that exceed
+the Ethereum block gas limit become practical. Furthermore, the pattern enables
+off-chain transactions, significantly improving the performance of smart
+contracts.
 
 \noindent \textbf{Known uses.} To our knowledge, we are the first to combine
-the notion of the transparency of the blockchain with signatures of data
-structures to eliminate storage variables from Solidity smart contracts by
+the notion of the transparency of the blockchain with data structures
+signatures to eliminate storage variables from Solidity smart contracts by
 resubmitting data.
-
-\noindent \textbf{Hash-and-Resubmit.} We introduce a novel design pattern for
-Solidity smart contracts that results into massive gas optimization. This
-technique, which we term \emph{hash-and-resubmit}, is based on observing public
-data of the blockchain in order to leverage \emph{off-chain} operations. By
-utilizing \emph{hash-and-resubmit}, the performance of the smart contract is
-improved considerably since computations are performed locally by the user, and
-gas-heavy storage variables are discarded.
-
-The critical observation we make is that persistent data structures, i.e.
-arrays, can be migrated from storage to memory space. Such an adjustment
-results to substantial increase of smart contracts' performance due to the
-sizable discrepancy between persistent and temporary memory operations.
-
-This is due to the fact that in the body of
-the Ethereum block, information regarding transactions is stored. Nodes have
-access to this information which includes signatures and input arguments of
-function invocations, as shown in Figure~\ref{fig:observe-tx}. This type of
-\emph{off-chain} access can be applied by any node.
 
 \begin{figure}[h]
     \begin{center}
@@ -202,21 +230,22 @@ In \emph{submit-phase}, a \emph{proof} is submitted, which can be contested by
 another user in \emph{contest-phase}.  The user that initiates the contest,
 needs to monitor the traffic of the smart contract. This is a logical
 assumption as mentioned in the NIPoPoW paper. The input of \texttt{submit}
-function includes the \emph{submit proof}, $\pi_{subm}$, that indicates the
-occurrence of an \emph{event}, $e$, in the source chain, and the input of
-\texttt{contest} function includes the \emph{contesting proof}, $\pi_{cont}$. A
-successful contest of the $\pi_{subm}$ is realized when $\pi_{cont}$ a
-better score. The process of score evaluation, which is described in
-~\cite{nipopows} is irrelevant to the pattern, and remains unchained.
+function includes the \emph{submit proof} ($\pis$) that indicates the
+occurrence of an \emph{event} ($e$) in the source chain, and the input of
+\texttt{contest} function includes the contesting proof ($\pic$). A successful
+contest of $\pis$ is realized when $\pic$ has a better score. The process of
+score evaluation which is described in ~\cite{nipopows}, is irrelevant to the
+pattern and remains unchained.
 
-In previous work~\cite{gglou}, NIPoPoW arrays are stored on-chain during
-submit-phase, and are processed during contest-phase. This operation is
-performed by utilizing storage, which limits the applicability of the contract
+In previous work~\cite{gglou}, NIPoPoW arrays are saved on-chain, resulting to
+extensive storage operations that limit the applicability of the contract
 considerably. In Algorithm~\ref{alg:har-nipopow} we show how hash-and-resubmit
 pattern is embedded into the NIPoPoW client. In Figure~\ref{fig:har-nipopow} we
 display how the gas consumption differentiates from previous work for the
-aggregated cost of submit and contest phase.
-
+aggregated cost of submit and contest phase. We observe that by using the
+\emph{hash-and-resubmit} pattern, we achieve to increase the performance of the
+contract by reducing the gas consumption by 40\%. This is a decisive step
+towards creating a practical superlight client.
 
 \input{algorithms/har-nipopow}
 
@@ -226,6 +255,6 @@ aggregated cost of submit and contest phase.
     \end{center}
     \caption{Performance improvement using hash-and-resubmit pattern in
     NIPoPoWs related to previous work. The gas consumption decreased by
-    approximately 50\%}
+    approximately 40\%}
     \label{fig:har-nipopow}
 \end{figure}
