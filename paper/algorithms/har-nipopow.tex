@@ -1,43 +1,43 @@
+\newcommand{\genesis}{\textsf{G}}
+
 \begin{algorithm}
     \label{alg:har-nipopow}
     \caption{The \textsf{NIPoPoW} client using hash-and-resubmit pattern}
     \begin{algorithmic}[1]
-        \Function{\sf Constructor}{$genesis$}
-            \State $Gen \gets genesis$
-        \EndFunction
-    \vskip8pt
-    \end{algorithmic}
 
-    \begin{algorithmic}[1]
-        \Function{\sf Submit}{$\pi$, $e$}
-        \State require($\pi$[0] = $Gen$)
-        \State require($events[e].pred$ = false)
-        \State require($validInterlink(\pi)$)
-        \State $DAG_s \gets DAG_s \cup \pi$
-        \State $events[e].hash$ $\gets$ sha256($\pi$)
+    \Contract{crosschain}
+    \Function{\sf initialize}{$\genesis_{remote}$}
+        \State \genesis $\gets \genesis_{remote}$
+    \EndFunction
+    \Function{\sf Submit}{$\pis$, $e$}
+        \State \textsf{require}($\pis$[0] = $\genesis$)
+        \State \textsf{require}($\textsf{events$[e]$} = \bot$)
+        \State \textsf{require}($\textsf{validInterlink}(\pi)$)
+        \State \textsf{DAG} $\gets$ \textsf{DAG} $\cup$ $\pis$
+        \State \textsf{events$[e]$.hash} $\gets$ \textsf{H}($\pis$)
         \Comment{enable pattern}
-        \State $ancestors_s \gets findAncestors(DAG_s)$
-        \State $events[e].pred \gets evaluatePredicate(ancestors_s, e)$
-        \State delete $ancestors$
+        \State \textsf{ancestors} $\gets$ \textsf{findAncestors()}
+        \State \textsf{events$[e]$.pred} $\gets$
+            \textsf{evaluatePredicate}(\textsf{ancestors}, e)
+        \State \textsf{ancestors} $=$ $\bot$
     \EndFunction
-    \vskip8pt
-    \end{algorithmic}
-
-    \begin{algorithmic}[1]
-        \Function{\sf Contest}{$\pi$, $\tilde\pi$, $e$}
-        \Comment{dispatch $\pi_{sumb}^{*}\ and\ \pi_{cont}$}
-        \State require($events[e].hash$ = sha256($\pi$))
-        \Comment{verify $\pi_{subm}^*$}
-        \State require($\tilde\pi$[0] = $Gen$)
-        \State require($events[e].pred$ = true)
-        \State require($validInterlink(\tilde\pi)$)
-        \State $lca = findLca(\pi, \tilde\pi)$
-        \State require($score(\tilde\pi[:lca]) > score(\pi[:lca])$)
-        \State $DAG \gets DAG \cup \tilde\pi$
-        \State $ancestors_s \gets findAncestors(DAG_s)$
-        \State $events[e].pred \gets evaluatePredicate(ancestors_s, e)$
-        \State delete $ancestors$
+    \Function{\sf Contest}{$\pisa$, $\pic$, $e$}
+        \Comment{provide proofs}
+        \State \textsf{require}(\textsf{events$[e]$.hash} $=$ \textsf{H}($\pisa$))
+        \Comment{verify $\pisa$}
+        \State \textsf{require}($\pic$[0] = $\genesis$)
+        \State \textsf{require}(\textsf{events}$[e]$ $\ne$ $\bot$)
+        \State \textsf{require}(\textsf{validInterlink}($\pi_{cont}$))
+        \State \textsf{lca} = \textsf{findLca}($\pisa$, $\pic$)
+        \State \textsf{require}(\textsf{score}($\pic[:lca]$)
+            $>$ \textsf{score}($\pisa[:lca]$))
+        \State \textsf{DAG} $\gets$ \textsf{DAG} $\cup$ $\pic$
+        \State \textsf{ancestors} $\gets$ \textsf{findAncestors}(\textsf{DAG})
+        \State \textsf{events$[e]$.pred} $\gets$
+            \textsf{evaluatePredicate}(\textsf{ancestors}, e)
+        \State \textsf{ancestors} $=$ $\bot$
     \EndFunction
+    \EndContract
     \vskip8pt
     \end{algorithmic}
 \end{algorithm}

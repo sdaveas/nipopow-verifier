@@ -1,78 +1,67 @@
 \begin{algorithm}
-    \label{alg.compare-storage}
-    \caption{\textsf{Compare} N-sized arrays using storage}
+    \label{alg:compare-storage}
+    \caption{\textsf{best array} using storage}
     \begin{algorithmic}[1]
-        \Function{\sf Submit}{$array$}
-            \State $best\_array \gets array$
-            \Comment{array saved in storage}
-            \State $holder \gets msg.sender$
-            \State\Return{true}
+
+    \Contract{best-array}
+        \Function{\sf initialize}{}
+            \State{$\textsf{best} \gets \emptyset$;
+                   $\textsf{holder} \gets \emptyset$}
         \EndFunction
-    \vskip8pt
-    \end{algorithmic}
+        \Function{\sf submit}{$a$}
+        \State \textsf{best} $\gets a$
+            \Comment{array saved in storage}
+            \State \textsf{holder $\gets$ msg.sender}
+        \EndFunction
 
-    \begin{algorithmic}[1]
-        \Function{\sf Contest}{$new\_array$}
-        \If{!compare($new\_array$)}
-            \State\Return{false}
-        \EndIf
-        \State $holder \gets msg.sender$
-        \State\Return{true}
-    \EndFunction
-    \vskip8pt
-    \end{algorithmic}
+        \Function{\sf contest}{$a$}
+            \State \textsf{require}(\textsf{compare}($a$))
+            \State \textsf{holder} $\gets$ \textsf{msg.sender}
+        \EndFunction
 
-    \begin{algorithmic}[1]
-        \Function{\sf compare}{$new\_array$}
-            \For{$i$ in $best\_array$.length}
-            \If{$new\_array$[$i$] $\leq$ $best\_array$[$i$]}
-                    \State\Return{false}
+        \Function{\sf compare}{$a$}
+            \State \textsf{require}($|a|$ $\geq$ $|$\textsf{best}$|$)
+            \For{$i$ : $|$\textsf{best}$|$}
+            \If{$a[i]$ $\leq$ \textsf{best}[i]} \Return{false}
                 \EndIf
             \EndFor
-            \State\Return{true}
+            \State \Return{true}
         \EndFunction
+        \EndContract
         \vskip8pt
     \end{algorithmic}
 \end{algorithm}
 
 \begin{algorithm}
-    \label{alg.compare-memory}
-    \caption{\textsf{Compare} N-sized arrays using hash-and-resubmit pattern}
+    \label{alg:compare-memory}
+    \caption{\textsf{best array} using hash-and-resubmit pattern}
     \begin{algorithmic}[1]
-        \Function{\sf Submit}{$array[N]$}
-        \State $hash \gets sha256(array)$
+        \Contract{best-array}
+        \Function{\sf initialize}{}
+        \State{$\textsf{hash} \gets \emptyset$;
+               $\textsf{holder} \gets \emptyset$}
+        \EndFunction
+        \Function{\sf submit}{$\arra$}
+        \State $\textsf{hash} \gets \textsf{H}(\arra)$
             \Comment{hash saved in storage}
-            \State $holder \gets msg.sender$
-            \State\Return{true}
+            \State \textsf{holder} $\gets$ \textsf{msg.sender}
         \EndFunction
-    \vskip8pt
-    \end{algorithmic}
 
-    \begin{algorithmic}[1]
-    \Function{\sf Contest}{$existing\_array$, $new\_array$}
-    \If{hash256($existing\_array$) $\neq$ $hash$}
-        \State\Return{false}
-        \Comment{Invalid $original\_array$}
-    \EndIf
-
-    \If{!compare($original\_array$, $new\_array$)}
-        \State\Return{false}
-    \EndIf
-    \State $holder \gets msg.sender$
-    \State\Return{true}
+    \Function{\sf contest}{$\arra^*$, $\arrb$}
+    \State \textsf{require}(\textsf{hash256}($\arra^*$) $=$ $hash$)
+        \Comment{validate $\arra^*$}
+        \State \textsf{require}(\textsf{compare}($\arra^*$, $\arrb$))
+        \State \textsf{holder} $\gets$ \textsf{msg.sender}
     \EndFunction
+    \Function{\sf compare}{$\arra^*$, $\arrb$}
+        \State \textsf{require}($|\arra^*|$ $\geq$ $|\arrb|$)
+        \For{$i : |\arra^*|$}
+        \If{$\arra^*[i] \leq \arrb[i]$} \Return{false}
+            \EndIf
+        \EndFor
+    \EndFunction
+    \State \Return{true}
+    \EndContract
     \vskip8pt
-    \end{algorithmic}
-
-    \begin{algorithmic}[1]
-        \Function{\sf compare}{$array_1$, $array_2$}
-            \For{$i$ in $array_1$.length}
-                \If{$array_1$[$i$] $\leq$ $array_2$[$i$]}
-                    \State\Return{false}
-                \EndIf
-            \EndFor
-            \State\Return{true}
-        \EndFunction
-        \vskip8pt
     \end{algorithmic}
 \end{algorithm}
