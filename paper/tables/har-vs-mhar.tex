@@ -19,17 +19,14 @@
 \end{tabular}
 
 \caption{Summary of operations for \emph{hash-and-resubmit} and
-    \emph{merkle-hash-and-resubmit} patterns. The aggregated gas consumption is
-    determined by the size of the underlying data $d_0$ and $d$. $d_0$ is the
-    data as sent from the caller. $d$ is the product of on-chain operations on
-    $d_0$, and consist the subject of data comparison between the invoker and
-    the observer of the function. For each variation, different gas cost
-    functions are formulated. In the plain \emph{hash-and-resubmit} pattern,
-    during \emph{hash} phase the hash of \textsf{d} is calculated, which is
-    then verified in \emph{resubmit} phase. In the Merkle variation, a Merkle
-    Tree Root is constructed on-chain during \emph{hash} phase. In
-    \emph{resubmit} phase, the siblings of the Merkle Tree are dispatched, and
-    the verification is performed on-chain.}
+    \emph{merkle-hash-and-resubmit} pattern variations. $d_0$ is the data as
+    sent from the caller. $d$ is the product of on-chain operations on $d_0$,
+    and consist the subject of data comparison between the invoker and the
+    observer of the function. For each variation, different gas cost functions
+    are formulated. In the Merkle variation, a Merkle Tree Root is constructed
+    on-chain during \emph{hash} phase. In \emph{resubmit} phase, the siblings
+    of the Merkle Tree are dispatched, and the verification is performed
+    on-chain.}
 
 \label{tab:har-vs-mhar}
 \end{table}
