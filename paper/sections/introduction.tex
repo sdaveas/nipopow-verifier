@@ -1,8 +1,8 @@
 \section{Introduction}
 
 Blockchain interoperability~\cite{dionyziz} is the ability of distinct
-blockchains to communicate.  This \emph{cross-chain}~\cite{pow-sidechains,
-pos-sidechains,burn,crosschain-sok, gtklocker} communication can enable useful
+blockchains to communicate.  This \emph{crosschain}~\cite{pow-sidechains,
+pos-sidechains,burn,crosschain-sok, gtklocker} communication enables useful
 features across blockchains such as the transfer of asset from one chain to
 another (one-way peg) and back (one-way peg)~\cite{pow-sidechains}. To date,
 there is no commonly accepted decentralized protocol that enables cross-chain
@@ -12,14 +12,14 @@ treatment is opposing to the nature of decentralized currencies.
 
 \noindent
 
-In general, crosschain-enabled blockchains A, B would support the following
+In general, crosschain-enabled blockchains A, B support the following
 operations:
 
 \begin{itemize}
-\item Crosschain trading: A user with deposits in blockchain A, can make a
+\item Crosschain trading: A user with deposits in blockchain A, makes a
     payment to a user in blockchain B.
-\item Crosschain fund transfer: A user can transfers her funds from blockchain
-    A to blockchain B. After this operation, the funds no longer exist in
+\item Crosschain fund transfer: A user transfers her funds from blockchain
+    A to blockchain B. After the transfer, these funds no longer exist in
     blockchain A. The user can later decide to transfer any portion of the
     original amount to the blockchain of origin.
 \end{itemize}
@@ -30,9 +30,9 @@ operations:
 In order to perform crosschain operations, there must be a mechanism to allow
 for users of blockchain A to discover events that occur in chain B, such that a
 transaction occurred. A trivial manner to perform such an audit is to
-participate as a full node in both chains. This approach, however, is
+participate as a full node in multiple chains. This approach, however, is
 impractical because a sizeable amount of storage is needed to host entire
-chains as they grow with time. As of May 2020, Bitcoin~\cite{nakamoto} chain
+chains as they grow with time. As of July 2020, Bitcoin~\cite{nakamoto} chain
 spans roughly 245 GB, and Ethereum~\cite{wood, buterin} has exceeded 350
 GB\footnote{The size of the Bitcoin chain was derived from
     https://www.statista.com/statistics/647523/worldwide-bitcoin-blockchain-size/,
@@ -41,89 +41,88 @@ https://etherscan.io/chartsync/chaindefaults}. Naturally, not all users are
 able to accommodate this size of data, especially if portable media are used,
 such as mobile phones.
 
-An early solution to compress the extensive space of blockchain was given by
-Nakamoto with the Simplified Payment Verification (SPV) protocol
-~\cite{nakamoto}. In SPV, only the headers of blocks are stored, saving a
+One early solution to compress the extensive size of blockchain is addressed by
+Nakamoto~\cite{nakamoto} with the Simplified Payment Verification (SPV)
+protocol. In SPV, only the headers of blocks are stored, saving a
 considerable amount of storage.  However, even with this protocol, the process
-of downloading and validating all block headers can lead to unpleasant user
+of downloading and validating all block headers leads to unpleasant user
 experience. In Ethereum, for instance, headers sum up to approximately 5.1
 GB\footnote{Calculated as the number of blocks (10,050,219) times the size of
 header (508 bytes). Statistics by https://etherscan.io/} of data. A mobile
 client needs several minutes, even hours, to fetch all information needed in
 order to function as an SPV client.
 
-In order to deliver more practical solutions for blockchain transaction
-verification, a new generation of \emph{superlight}
+Towards the goal of delivering more practical solutions for blockchain
+transaction verification, a new generation of \emph{superlight}
 clients~\cite{popow,nipopows,compactsuperblocks, flyclient} emerged. In these
-protocols, cryptographic proofs are generated, which prove the occurrence of
-events inside a blockchain. Better performance is achieved due to considerably
-smaller size of proofs compared to the data needed in SPV. By utilizing
-superlight client protocols, a compressed proof for an event in chain A is
-constructed, and, if chain B supports smart contracts, the proof can then be
-verified automatically and transparently \emph{on-chain}.  Note that, this
-communication is realized without the intervention of third-party applications.
-An interesting application of such a protocol is the communication between
-Bitcoin and Ethereum.
+protocols, cryptographic proofs are generated, that prove the occurrence of
+events inside a blockchain. Better performance is achieved due to the
+considerably smaller size of proofs compared to the amount of data needed in
+SPV. By utilizing superlight client protocols, a compressed proof for an event
+in chain A is constructed. Under the consumption that chain B supports smart
+contracts, the proof is then verified automatically and transparently
+\emph{on-chain}. This communication is realized without the intervention of
+third-party applications.  An interesting application of such a protocol is the
+communication between Bitcoin and Ethereum.
 
 \noindent
 
-\textbf{Related Work.} We use the Non-Interactive Proofs of Proof of Work
+\textbf{Related Work.} We use Non-Interactive Proofs of Proof of Work
 (NIPoPoWs)~\cite{nipopows, pow-sidechains} as the fundamental building block
 of our solution. This cryptographic primitive is \emph{provably secure} and
 provides \emph{succinct proofs} regarding the existence of an arbitrary event
 in a chain. Contrary to the linear growth rate of the underlying blockchain,
 NIPoPoWs span polylogarithmic size of blocks.
 
-Christoglou~\cite{gglou}, has provided a Solidity smart contract which is the first
+Christoglou~\cite{gglou}, provided a Solidity smart contract which is the first
 ever implementation of crosschain events verification based on NIPoPoWs, where
 proofs are submitted and checked for their validity. This solution, however, is
-impossible to apply to the real blockchain due to extensive usage of resources.
+impossible to apply due to extensive usage of resources, widely exceeding the
+Ethereum block gas limit.
 
 \noindent
 
 \textbf{Our contributions.} We put forth the following contributions:
 \begin{enumerate}
-\item We developed the first ever decentralized client that securely verifies
-crosschain events and is applicable to the real blockchain. Our client
-establishes a safe, cheap and trust-less solution to the interoperability
-problem. We implemented our client in Solidity, and we verify Bitcoin events
-to the Ethereum blockchain.
-\item We present a novel pattern which we term \emph{hash-and-resubmit}. This
-pattern improves the performance of Ethereum smart contracts~\cite{wood,
-buterin} in terms of gas consumption by utilizing \emph{calldata} space to
-eliminate high-cost storage operations.
-\item We design an \emph{optimistic} schema for our client which can be used in
-the design of smart contracts replacing \emph{non-optimistic}
-architectures. This design achieves the improvement of smart contracts'
-performance enabling multiple phases of interactions.
-\item We prove via application that NIPoPoWs can be utilized in the real
-blockchain, making the cryptographic primitive the first ever provably secure
-construction of succinct proofs which is applied in a real setting.
+\item We developed the first decentralized client that securely verifies
+crosschain events and is practical. Our client establishes a trustless and
+efficient solution to the interoperability problem. We implement our client
+in Solidity, and we verify Bitcoin events to the Ethereum blockchain.
+\item We present a novel pattern which we term \emph{hash-and-resubmit}. Our
+pattern significantly improves performance of Ethereum smart
+contracts~\cite{wood, buterin} in terms of gas consumption by utilizing
+\emph{calldata} space of Ethereum blockchain to eliminate high-cost storage
+operations.
+\item We design an \emph{optimistic} schema for our client which we incorporate in
+the design of out client, replacing \emph{non-optimistic} architectures.
+This design achieves the improvement of smart contracts' performance enabling
+multiple phases of interactions.
+\item We prove via application that the NIPoPoW protocol is practical, making
+the cryptographic primitive the first provably secure construction of succinct
+proofs that is efficient to implement.
+\item Cryptoeconomics. Create the section first.
+
 \end{enumerate}
 
-\bigbreak
 Our implementation meets the following requirements:
 \begin{enumerate}
-\item Secure: The client is invulnerable against all adversarial attacks.
-\item Trustless: The client is not dependent on third-party applications
+\item Security: The client implements a provably secure protocol.
+\item Untrustability: The client is not dependent on third-party applications
 and operates in a transparent, decentralized manner.
-\item Practical: The client can be utilized in the real blockchain and
-comply with all environmental constraints, i.e.\ block gas limit and calldata
-size of Ethereum blockchain.
-\item Cheap: The application is cheaper to use than the current state of the
-art technologies.
+\item Efficiency: The client comply with all environmental constraints, i.e.\
+block gas limit and calldata size of Ethereum blockchain.
 \end{enumerate}
 
 We selected Bitcoin as source blockchain as it the most used cryptocurrency and
 enabling crosschain transactions in Bitcoin is beneficial to the vast majority
 of blockchain community. We selected Ethereum as the target blockchain because
-it is also very popular and it supports smart contracts, which is a requirement
+besides its popularity, it supports smart contracts, which is a requirement
 in order to perform on-chain verification.
 
 \noindent
 
-\textbf{Structure.} In Section 2 describe all blockchain technologies which are
-relevant to our work. In Section 3 we put forth .... In Section 4 we show
-... and, finally, in Section 5, we discuss ...
-
-
+\textbf{Structure.} In Section 2 describe the blockchain technologies that are
+relevant to our work. In Section 3 we put forth the \emph{hash-and-resubmit}
+pattern. We demonstrate the improved performance of smart contracts using the
+pattern, and how it is incorporated in our superlight client. In Section 4 we
+show ... and.  Finally, in Section 5, we discuss ...
