@@ -44,14 +44,14 @@ rather than storage, which are notable cheaper.
     \begin{center} \includegraphics[width=1\textwidth]{figures/har-pattern.pdf}
     \end{center}
 
-    \caption{The \emph{hash-and-resubmit} pattern. In stage 1, an invoker calls
+    \caption{The \emph{hash-and-resubmit} pattern. In Stage 1, an invoker calls
         \proc$_1$($\data_0$). $\data_0$ is processed on-chain and $\data$ is
         generated. The signature of $\data$ is stored in the blockchain as the
-        digest of a hash function \textsf{H}(). In stage 2, a full node that
+        digest of a hash function \textsf{H}(). In Stage 2, a full node that
         observes invocations of $\proc_1$ retrieves $\data_0$, and generates
         $\data$ by performing the analogous processing on $\data_0$
         \emph{off-chain}. An adversarial observer potentially alters $\data$.
-        Finally, in stage 3, the observer invokes $\proc_2$($\data^*$). In
+        Finally, in Stage 3, the observer invokes $\proc_2$($\data^*$). In
         $\proc_2$, the validation of $\data$ is performed, reverting the
         function call if the signatures of originally submitted $\data$ does
         not match the signature of $\data^*$. By applying the
@@ -289,14 +289,14 @@ are arrays that are processed on-chain.
 
 In \emph{submit} phase, a \emph{proof} is submitted, which can be contested by
 another user in \emph{contest} phase. The user that initiates the contest,
-monitors the traffic of the smart contract~\cite{nipopows}. This is a logical
-assumption as mentioned in the NIPoPoW paper. The input of \textsf{submit}
-function includes the submit proof ($\pis$) that indicates the occurrence of an
-\emph{event} ($e$) in the source chain, and the input of \textsf{contest}
-function includes the contesting proof ($\pic$). A successful contest of $\pis$
-is realized when $\pic$ has a better score. The score evaluation process is
-irrelevant to the pattern and remains unchained. The size of proofs is dictated
-by the value $m$. We consider $m$ = 15 sufficiently secure.
+monitors the traffic of the smart contract~\cite{nipopows}. The input of
+\textsf{submit} function includes the submit proof ($\pis$) that indicates the
+occurrence of an \emph{event} ($e$) in the source chain, and the input of
+\textsf{contest} function includes the contesting proof ($\pic$). A successful
+contest of $\pis$ is realized when $\pic$ has a better score. The score
+evaluation process is irrelevant to the pattern and remains unchained. The size
+of proofs is dictated by the value $m$. We consider $m$ = 15 sufficiently
+secure.
 
 In previous work~\cite{gglou}, NIPoPoW proofs are maintained on-chain,
 resulting to extensive storage operations that limit the applicability of the

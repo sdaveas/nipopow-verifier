@@ -62,7 +62,7 @@ SPV. By utilizing superlight client protocols, a compressed proof for an event
 in chain A is constructed. Under the consumption that chain B supports smart
 contracts, the proof is then verified automatically and transparently
 \emph{on-chain}. This communication is realized without the intervention of
-third-party applications.  An interesting application of such a protocol is the
+third-party applications. An interesting application of such a protocol is the
 communication between Bitcoin and Ethereum.
 
 Notably, no practical implementation exists for superlight clients to date. In
@@ -84,7 +84,7 @@ provides \emph{succinct proofs} regarding the existence of an arbitrary event
 in a chain. Contrary to the linear growth rate of the underlying blockchain,
 NIPoPoWs span polylogarithmic size of blocks.
 
-Christoglou~\cite{gglou}, provided a Solidity smart contract which is the first
+Christoglou~\cite{gglou} provided a Solidity smart contract which is the first
 ever implementation of crosschain events verification based on NIPoPoWs, where
 proofs are submitted and checked for their validity. This solution, however, is
 impossible to apply due to extensive usage of resources, widely exceeding the
@@ -92,7 +92,9 @@ Ethereum block gas limit.
 
 \noindent
 
-\textbf{Our contributions.} We put forth the following contributions:
+\textbf{Our contributions.}
+
+We put forth the following contributions:
 \begin{enumerate}
 \item We developed the first decentralized client that securely verifies
 crosschain events and is practical. Our client establishes a trustless and
@@ -117,10 +119,10 @@ proofs that is efficient to implement.
 Our implementation meets the following requirements:
 \begin{enumerate}
 \item Security: The client implements a provably secure protocol.
-\item Untrustability: The client is not dependent on third-party applications
+\item Decentralization: The client is not dependent on third-party applications
 and operates in a transparent, decentralized manner.
 \item Efficiency: The client comply with all environmental constraints, i.e.\
-block gas limit and calldata size of Ethereum blockchain.
+block gas limit and calldata size limit of Ethereum blockchain.
 \end{enumerate}
 
 We selected Bitcoin as source blockchain as it the most used cryptocurrency and
@@ -131,8 +133,8 @@ in order to perform on-chain verification.
 
 \noindent
 
-\textbf{Structure.} In Section 2 describe the blockchain technologies that are
-relevant to our work. In Section 3 we put forth the \emph{hash-and-resubmit}
-pattern. We demonstrate the improved performance of smart contracts using the
-pattern, and how it is incorporated in our superlight client. In Section 4 we
-show ... and.  Finally, in Section 5, we discuss ...
+\textbf{Structure.} In Section 2 we describe the blockchain technologies that
+are relevant to our work. In Section 3 we put forth the
+\emph{hash-and-resubmit} pattern. We demonstrate the improved performance of
+smart contracts using the pattern, and how it is incorporated in our superlight
+client. In Section 4 we show ... and.  Finally, in Section 5, we discuss ...
