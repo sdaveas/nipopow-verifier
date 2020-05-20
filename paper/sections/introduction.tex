@@ -65,16 +65,6 @@ contracts, the proof is then verified automatically and transparently
 third-party applications. An interesting application of such a protocol is the
 communication between Bitcoin and Ethereum.
 
-Notably, no practical implementation exists for superlight clients to date. In
-this paper, we focus on constructing a practical client for Non-Interactive
-Proofs of Proof of Work (NIPoPoWs). In the process of implementing our client,
-we refine the NIPoPoW protocol based on a series of keen observations. These
-refinements allow us to leverage useful techniques that construct a practical
-solution for proof verification. We believe that this achievement is a decisive
-step towards the establishment of NIPoPoWs to the application end, therefore a
-significant progress in order to provide a widely accepted protocol that
-enables crosschain transactions.
-
 \noindent
 
 \textbf{Related Work.} We use Non-Interactive Proofs of Proof of Work
@@ -92,26 +82,34 @@ Ethereum block gas limit.
 
 \noindent
 
-\textbf{Our contributions.}
-
-We put forth the following contributions:
+\textbf{Our contribution.} Notably, no practical implementation for superlight
+clients exists to date. In this paper, we focus on constructing a practical
+client for NIPoPoWs. For the implementation our client, we refine the
+NIPoPoW protocol based on a series of keen observations. These refinements
+allow us to leverage useful techniques that construct a practical solution for
+proof verification. We believe that this achievement is a decisive step towards
+the establishment of NIPoPoWs to the application end, therefore a significant
+progress in order to provide a widely accepted protocol that enables crosschain
+transactions. A summary of our contributions in this paper is as follows:
 \begin{enumerate}
 \item We developed the first decentralized client that securely verifies
 crosschain events and is practical. Our client establishes a trustless and
 efficient solution to the interoperability problem. We implement our client
-in Solidity, and we verify Bitcoin events to the Ethereum blockchain.
+in Solidity, and we verify Bitcoin events to the Ethereum blockchain. The
+security assumptions we make are no others than
+SPV~\cite{eclipse, eclipse-ethereum}.
 \item We present a novel pattern which we term \emph{hash-and-resubmit}. Our
 pattern significantly improves performance of Ethereum smart
 contracts~\cite{wood, buterin} in terms of gas consumption by utilizing
 \emph{calldata} space of Ethereum blockchain to eliminate high-cost storage
 operations.
-\item We design an \emph{optimistic} schema for our client which we incorporate in
-the design of out client, replacing \emph{non-optimistic} architectures.
+\item We design an \emph{optimistic} schema which we incorporate
+in the design of out client, that replaces \emph{non-optimistic} operations.
 This design achieves the improvement of smart contracts' performance enabling
 multiple phases of interactions.
-\item We prove via application that the NIPoPoW protocol is practical, making
-the cryptographic primitive the first provably secure construction of succinct
-proofs that is efficient to implement.
+\item We demonstrate via application that the NIPoPoW protocol is practical,
+making the cryptographic primitive the first provably secure construction of
+succinct proofs that is efficient to implement.
 \item Cryptoeconomics. Create the section first.
 
 \end{enumerate}
@@ -125,11 +123,13 @@ and operates in a transparent, decentralized manner.
 block gas limit and calldata size limit of Ethereum blockchain.
 \end{enumerate}
 
-We selected Bitcoin as source blockchain as it the most used cryptocurrency and
-enabling crosschain transactions in Bitcoin is beneficial to the vast majority
-of blockchain community. We selected Ethereum as the target blockchain because
-besides its popularity, it supports smart contracts, which is a requirement
-in order to perform on-chain verification.
+We selected Bitcoin as source blockchain as it the most used cryptocurrency,
+and enabling crosschain transactions in Bitcoin is beneficial to the vast
+majority of blockchain community. We selected Ethereum as the target blockchain
+because, besides its popularity, it supports smart contracts, which is a
+requirement in order to perform on-chain verification. Other attempts have been
+done to address the verification of Bitcoin transactions to the Ethereum
+blockchain, most notably BTC Relay~\cite{btcrelay}.
 
 \noindent
 

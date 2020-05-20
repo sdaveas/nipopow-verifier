@@ -25,21 +25,20 @@ the variable. But this treatment does not prevent the initial population of
 storage data, which is significantly expensive for large size of data.
 Towards the goal of implementing gas-efficient smart contracts, several
 patterns have been proposed~\cite{contract-opt-1, contract-opt-2,
-contract-opt-3}.
+contract-opt-3, contract-opt-4}.
 
-By using the \emph{hash-and-resubmit} pattern, large storage structures are
-omitted entirety, and are contained in memory which results into vastly
-improved performance. When a function call is performed, the arguments and
-signature of the function is included in the transactions field of the body of
-a block. The contents of blocks are public to the network, therefore this
-information is locally available to full nodes. By simply observing blocks, a
-node retrieves data sent by other users. To interact publicly with the data
-sent by other users without the utilization of on-chain storage, the node
-\emph{resends} the observed data to the blockchain. Consequently, this data
-does not need to be maintained in storage. The concept of resending data would
-be redundant in conventional systems. However, it is very efficient to
-utilizing the technique in Solidity because it leverages operations in memory
-rather than storage, which are notable cheaper.
+By using the \emph{hash-and-resubmit} pattern, large structures are omitted
+from storage entirety, and are contained in memory. When a function call is
+performed, the signature and arguments of the function is included in the
+transactions field of the body of a block. The contents of blocks are public to
+the network, therefore this information is locally available to full nodes. By
+simply observing blocks, a node retrieves data sent to the contract by other
+users. To interact publicly with this data without the utilization storage, the
+node \emph{resends} the observed data to the blockchain. The concept of
+resending data is redundant in conventional systems. However, this technique
+is very efficient to use in Solidity due to the significantly lower gas cost
+of memory operations in relation with storage operations.
+
 \begin{figure*}[h]
     \begin{center} \includegraphics[width=1\textwidth]{figures/har-pattern.pdf}
     \end{center}
@@ -66,30 +65,33 @@ rather than storage, which are notable cheaper.
 \textbf{Applicability.}
 We now list the cases in which the \emph{hash-and-resubmit} pattern is
 efficient to use:
+
+The situations in which the \emph{hash-and-resubmit} pattern can be applied are
+the following:
 \begin{enumerate}
-    \item To reduce gas inefficiencies caused by extensive read/write storage
-        operations and to make smart contracts that exceed block gas limit
-        practical.
-    \item To interact with smart contract depending on prior actions of other
-        users.
-    \item To leverage off-chain operations.
+    \item The application is a Solidity smart contract.
+    \item Read/write operations are performed in large arrays that exist in
+        storage. Rehashing variables of small size may result to negligible
+        gain or even performance loss.
+    \item The entity that operates on the structures is a full node and
+        observes function calls to the smart contract.
 \end{enumerate}
 
 \noindent \textbf{Participants and collaborators.} The first participant is the
 smart contract $\contract$ that accepts function calls. Another participant is
-the invoker $\invoker$, who dispatches arbitrary data $\data_0$ to $\contract$
-via a function \texttt{\proc$_1$}($\data_0$). Note that $\data_0$ are
+the invoker $\invoker$, who dispatches a large array $\data_0$ to $\contract$
+via a function \texttt{\proc$_1$}($\data_0$). Note that $\data_0$ is
 potentially processed in $\proc_1$, resulting to $\data$. The last participant
 is the observer $\observer$, who is a full node that observes transactions
-towards $\contract$ in the blockchain. This possible because nodes maintain
+towards $\contract$ in the blockchain. This is possible because nodes maintain
 the blockchain locally. After observation, $\observer$ retrieves data $\data$.
-Finally, $\observer$ acts as an invoker by making a new interaction with
-$\contract$, \texttt{\proc$_2$}($\data$). Since this is an off-chain operation,
-a malicious $\observer$ can alter $\data$ before interacting with $\contract$.
-We will denote the potentially modified $\data$ as $\datas$. The verification
-that $\data = \datas$, which is a prerequisite for the secure functionality of
-the underlying contract consists a part of the pattern and is performed in
-\texttt{\proc$_2$}($\datas$).
+Since this is an off-chain operation, a malicious $\observer$ potentially
+alters $\data$ before interacting with $\contract$. We denote the
+potentially modified $\data$ as $\datas$. Finally, $\observer$ acts as an
+invoker by making a new call to $\contract$, \texttt{\proc$_2$}($\datas$). The
+verification that $\data = \datas$, which is a prerequisite for the secure
+functionality of the underlying contract consists a part of the pattern and is
+performed in \texttt{\proc$_2$}.
 
 \noindent \textbf{Implementation.} The implementation of this pattern is
 divided in two parts. The first part covers how $\datas$ is retrieved by
@@ -122,11 +124,11 @@ turn, $\observer$ performs \emph{locally} the same set of on-chain instructions
 operated on $\data_0$ generating $\data$. Thus, availability is addressed
 through observability.
 
-\noindent \textsf{Addressing reliability:} We prevent an adversary $\observer$
+\noindent \textsf{Addressing consistency} We prevent an adversary $\observer$
 from altering $\datas$ by storing the \emph{signature} of $\data$ in contract's
 state during the execution of \texttt{\proc$_1$($\data$)} by $\invoker$. In the
 context of Solidity, a signature of a structure is the digest of the
-structures's \emph{hash}. The pre-compiled \texttt{sha256} is convenient to use
+structure's \emph{hash}. The pre-compiled \texttt{sha256} is convenient to use
 in Solidity, however we can make use of any cryptographic hash function
 \textsf{H()}: \[\textsf{hash} \gets \textsf{H}(\textsf{d})\] Then, in
 \emph{rehash} phase, the verification is performed by comparing the stored
@@ -139,20 +141,20 @@ We illustrate the application of the \emph{hash-and-resubmit} pattern in
 Figure~\ref{fig:har-pattern}.
 
 \noindent \textbf{Sample.} We now demonstrate the usage of the
-hash-and-resubmit pattern with a practical example. We create a smart contract
+hash-and-resubmit pattern with a simplistic example. We create a smart contract
 that orchestrates a game between two players, $\pla$ and $\plb$. The winner is
 the player with the most valuable array. The interaction between players
-through the smart contract is realized in two phases: (a) Submit phase and (b)
-Contest phase.
+through the smart contract is realized in two phases: (a) the submit phase and
+(b) the contest phase.
 
 \noindent \textsf{Submit phase:} $\pla$ submits an N-sized array, $\arra$ and
 becomes the $\holder$ of the contract.
 
-\noindent \textsf{Contest phase:} $\plb$ submits $\arrb$. If $\arrb$ $>$
-$\arra$, then the $\holder$ of the contract is changed to $\plb$. We provide a
-simple implementation for the $>$ operator between arrays, but we can consider
-any notion of comparison between arrays, since the pattern is abstracted from
-such implementation details.
+\noindent \textsf{Contest phase:} $\plb$ submits $\arrb$. If
+\textsf{compare}($\arrb$, $\arra$) is true, then the $\holder$ of the contract
+changes to $\plb$. We provide a simple implementation for \textsf{compare()},
+but we can consider any notion of comparison, since the pattern is abstracted
+from such implementation details.
 
 We make use of the \emph{hash-and-resubmit} pattern by prompting $\plb$ to
 provide \emph{two} arrays to the contract during contest phase: (a) $\arras$,
@@ -160,21 +162,22 @@ which is the originally submitted array by $\pla$, possibly modified by $\plb$,
 and (b) $\arrb$, which is the contesting array.
 
 We provide two implementations of the above described game.
-Algorithm~\ref{alg.compare-storage} is the storage implementation and
-Algorithm~\ref{alg.compare-memory} is the implementation embedding the
-\emph{hash-and-resubmit} pattern.
+In Algorithm~\ref{alg:game-storage} we display the storage implementation,
+while in Algorithm~\ref{alg:game-memory} we show the implementation
+embedding the \emph{hash-and-resubmit} pattern.
 
-\input{algorithms/observe-tx}
+\input{algorithms/har-game}
 
-\noindent \textbf{Gas analysis.} The gas consumption of the two implementations
-is displayed in Figure~\ref{fig:har-example}. By using the
-\emph{hash-and-resubmit} pattern, the overall gas consumption for
+\noindent \textbf{Gas analysis.} The gas consumption of the two above
+implementations is displayed in Figure~\ref{fig:har-example}. By using the
+\emph{hash-and-resubmit} pattern, the aggregated gas consumption for
 \textsf{submit} and \textsf{contest} is decreased by 95\%. This significantly
 affects the efficiency and applicability of the contract. Note that, the
-storage implementation exceeds the Ethereum block gas limit\footnote{As of July 2020, the Ethereum block gas limit approximates 10,000,000 gas units} for
-arrays of size 500 and above, contrary to the optimized version, which
-consumes approximately only $1/10^{th}$ of the block gas limit for arrays of
-1000 elements.
+storage implementation exceeds the Ethereum block gas limit\footnote{As of July
+2020, the Ethereum block gas limit approximates 10,000,000 gas units} for
+arrays of size 500 and above, contrary to the optimized version, which consumes
+approximately only $1/10^{th}$ of the block gas limit for arrays of 1000
+elements.
 
 \begin{figure}[h!]
 \begin{center}
@@ -187,28 +190,24 @@ consumes approximately only $1/10^{th}$ of the block gas limit for arrays of
 \end{figure}
 
 
-\noindent \textbf{Variations.} Now consider a variation of the above game, in
-which $\pla$ calls \texttt{\proc$_1$(}$\arra$\texttt{)}, and then calls
-\texttt{pickSpan(}$m, n$\texttt{)} that determines the span of $\arra$ which
-can be contested. In reality, $\plb$ only needs to re-send $\arras[m:n]$ in
-order to perform the comparison $\arra[m:n] < \arrb$. However, the digest of
-$\arra$ is calculated by hashing the entire structure. Therefore, the
-$resubmit$ phase cannot be successfully performed by rehashing $\arras[m:n]$,
-because \texttt{H(}$\arra$\texttt{)} $\ne$ \texttt{H(}$\arra[m:n]$\texttt{)}.
+\noindent \textbf{Variations.}
 
-An intuitive approach to address such scenarios in order to facilitate
-selective dispatch of structure segments is to adopt different hashing schemas
-that utilize constructions such as Merkle Trees (ref) or Merkle Mountain Ranges
-(ref). We will proceed by only mentioning Merkle Trees, but since the
-respective operations for proving and validating roots is of the same
-complexity, the same principle applies for Merkle Mountain Ranges.
+% Now consider a variation of the above game, in
+% which $\pla$ calls \texttt{\proc$_1$(}$\arra$\texttt{)}, and then calls
+% \texttt{pickSpan(}$m, n$\texttt{)} that determines the span of $\arra$ which
+% can be contested. In reality, $\plb$ only needs to re-send $\arras[m:n]$ in
+% order to perform the comparison $\arra[m:n] < \arrb$. However, the digest of
+% $\arra$ is calculated by hashing the entire structure. Therefore, the
+% $resubmit$ phase cannot be successfully performed by rehashing $\arras[m:n]$,
+% because \texttt{H(}$\arra$\texttt{)} $\ne$ \texttt{H(}$\arra[m:n]$\texttt{)}.
 
-In the Merkle variation of the pattern, which we term
-\emph{merkle-hash-and-resubmit}, the signature of $\arra$ is generated by
-constructing the Merkle Tree Root (MTR) of $\arra$ in contract's state. In
-\emph{resubmit} phase, $\arra[m:n]$ is dispatched, accompanied by the siblings
-that reconstruct the MTR of $\arra$ in order to perform the variation of
-$\arras[m:n]$.
+In order to enable selective dispatch of a segment of interest, different
+hashing schemas can be adopted, such as Merkle Trees (ref) and Merkle Mountain
+Ranges (ref). In this variation of the pattern, which we term
+\emph{merkle-hash-and-resubmit}, the signature of an array $\textsf{D}$ is
+Merkle Tree Root (MTR). In \emph{resubmit} phase, $\textsf{D}[m:n]$ is
+dispatched, accompanied by the siblings that reconstruct the MTR of
+$\textsf{D}$.
 
 \begin{figure*}[h]
     \begin{center}
@@ -224,36 +223,38 @@ $\arras[m:n]$.
 
 This variation of the pattern removes the burden of sending redundant data,
 however it implies on-chain construction and validation of the Merkle
-construction. In order to construct a MTR for an array \textsf{a} of size
-\textsf{n}, the hash function \textsf{H}($|$\textsf{a}$[n]|$) needs to be
-called approximately $2^{\lceil log_2(n) + 1 \rceil}$ times. In order to
-reconstruct the Merkle Tree Root for the verification, approximately $\lceil
-log_2{n} \rceil$ calls to \textsf{H}(.) are needed. The process of constructing
-and verifying the MTRoot is displayed in Figure ~\ref{fig:merkle-har}. Note
-that both operations need to be performed on-chain.
+construction. In order to construct a MTR for an array $\data$,
+$|\data|$ hashes are needed for the leafs of the MT, and $|\data| -
+1$ hashes are needed for the intermediate nodes. For the verification, the
+segment of interest $\data[m:n]$ and the siblings of the MT are hashed.
+The size of siblings is approximately $log_2(|\data|)$. The process of
+constructing and verifying the MTR is displayed in Figure
+~\ref{fig:merkle-har}.
 
-In Solidity, hashing operations are expensive compared to memory cost. An
-invocation of \textsf{sha256}(\textsf{a}), copies the data in memory, and then
-a \textsf{CALL} instruction is performed by the EVM to the pre-compiled
-\textsf{sha256} contract. In the current state of the EVM, \textsf{CALL} costs
-700 gas units, and the gas paid for every word when expanding memory is 3 gas
-units~\cite{wood}. Costs of all related operations are listed in
-Table~\ref{tab:operations-gas}. Due to this large discrepancy in gas costs, it
-is extremely more efficient to send data of size $|$\textsf{a}$|$ and perform
-$1 \times \textsf{sha256}(a)$ than sending data of size $log_2(|\textsf{a}|)$
-and perform $2^{log_2(\textsf)} \times$\textsf{sha}(1) operations. A different
-cost policy applies for \textsf{keccak}~\cite{keccak} hash function, where
-hashing costs 30 gas units plus 6 additional gas far each word for input data.
-Although the usage of \textsf{keccak} dramatically increases the performance in
-comparison with \textsf{sha256}, plain rehashing generally performs better.
+In Solidity, different hashing operations vary in cost. An invocation of
+\textsf{sha256}($\data$), copies $data$ in memory, and then the
+\emph{CALL} instruction is performed by the EVM that calls a pre-compiled
+contract. In the current state of the EVM, \emph{CALL} costs 700 gas units, and
+the gas paid for every word when expanding memory is 3 gas units~\cite{wood}.
+Consequently, the expression $1 \times \textsf{sha256}(\data)$ cost less that
+$|\data| \times $\textsf{sha}(1) operations. A different cost policy applies
+for \textsf{keccak}~\cite{keccak} hash function, where hashing costs 30 gas
+units plus 6 additional gas far each word for input data~\cite{wood}. The usage
+of \textsf{keccak} dramatically increases the performance in comparison with
+\textsf{sha256}, and performs better than plain rehashing if the product of
+on-chain processing is sufficiently larger that the originally dispatched data.
+Costs of all related operations are listed in Table~\ref{tab:operations-gas}.
+
+The merkle variation can be potentially improved by dividing $\data$ in larger
+chunks than 1 element. We leave this analysis for future work.
 
 \input{tables/operations-gas}
 
 In Table~\ref{tab:har-vs-mhar} we display the operations needed for hashing and
 verifying the underlying data for both variations of the pattern as a function
 of data size. In Figure~\ref{fig:har-vs-mhar} we demonstrate the gas
-consumption for $\data_0$ = 10KB and $\data$ varing from $0.01
-\times|\data_0|$ to $2\times|\data_0|$.
+consumption for dispatched data of 10KB, and varying size of on-chain
+process product.
 
 \input{tables/har-vs-mhar}
 
