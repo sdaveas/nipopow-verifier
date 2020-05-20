@@ -2,10 +2,9 @@
 \begin{tabular}{|c|c|}
 \hline
 \textbf{Operation} & \textbf{Gas cost} \\ \hline
-\textsf{load}($\data$)            & $68 \times |\data|$          \\ \hline
-\textsf{mem}($\data$)             & $4 \times |\data|$           \\ \hline
-\textsf{sha256}($\data$)          & $4 \times |\data| + 700$     \\ \hline
-\textsf{keccak}($\data$)          & $6 \times |\data| + 30$      \\ \hline
+\textsf{load}($\data$)            & $ \data_{bytes} \times 68 $          \\ \hline
+\textsf{sha256}($\data$)          & $\data_{words} \times 3 + 700 $     \\ \hline
+\textsf{keccak}($\data$)          & $\data_{words} \times 6 + 30 $      \\ \hline
 \end{tabular}
 \caption{Gas cost for operations as of July 2020.}
 \label{tab:operations-gas}

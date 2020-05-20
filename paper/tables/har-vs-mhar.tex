@@ -1,29 +1,34 @@
+\newcommand{\mydata}{\data}
+
 \begin{table}[h]
 \begin{tabular}{|c|c|c|}
 \hline
-\textbf{\begin{tabular}[c]{@{}c@{}}actions\end{tabular}} &
-\textbf{\begin{tabular}[c]{@{}c@{}}hash and \\ resubmit\end{tabular}} &
+\textbf{\begin{tabular}[c]{@{}c@{}}phase per\\variance\end{tabular}} &
+\textbf{\begin{tabular}[c]{@{}c@{}}plain hash\\and resubmit\end{tabular}} &
 \textbf{\begin{tabular}[c]{@{}c@{}}merkle hash\\ and resubmit\end{tabular}} \\ \hline
-\textit{hash} &
-\textsf{H}($\data$) &
+\textbf{hash} &
+\textsf{H}($\mydata$) &
 \begin{tabular}[c]{@{}c@{}}
-\textsf{load}($\data$) +\\\textsf{H}(1)  $\times 2^{\lceil log_2(|\data| + 1) \rceil}$ \\
+    \textsf{H}($\mydata_{elem}$) $\times\ |\mydata|$ \\ \textsf{H}(digest)
+$\times\ (|\mydata|-1)$
+
 \end{tabular} \\ \hline
-\textit{resubmit} &
-\textsf{load}($\data$) + \textsf{H}($\data$) &
+\textbf{resubmit} &
+\textsf{load}($\mydata$) + \textsf{H}($\mydata$) &
 \begin{tabular}[c]{@{}c@{}}
-    \textsf{load}($\data^{m:n})$ + \\
-    \textsf{load}($\lceil log_2(|\data|) \rceil$) + \\
-    \textsf{H}(1)$\times (\lceil log_2(|\data|) \rceil$)
+    \textsf{load}($\mydata[m:n])$ + \\
+    \textsf{load}($siblings$) + \\
+    \textsf{H}($\mydata[m:n])$ + \\
+    \textsf{H}($digest$)$\times |siblings|$
 \end{tabular} \\ \hline
 \end{tabular}
 
 \caption{Summary of operations for \emph{hash-and-resubmit} pattern variations.
-    $\data$ is the product of on-chain operations. In the Merkle variation, a
-    Merkle Tree Root is constructed on-chain during \emph{hash} phase. In
-    \emph{resubmit} phase, the siblings of the Merkle Tree are dispatched, and
-    the verification is performed on-chain. The number of siblings is
-    approximately $\lceil log_2(|\data|) \rceil$.}
+$\mydata$ is the product of on-chain operations and $\mydata_{elem}$ is an
+element of $\mydata$. \textsf{H} is a hash function, such as \textsf{sha256}
+or \textsf{keccak}, $digest$ is the product of \textsf{H}(.) and $siblings$ are
+the siblings of the Merkle Tree constructed for $\mydata$.
+}
 
 \label{tab:har-vs-mhar}
 \end{table}
