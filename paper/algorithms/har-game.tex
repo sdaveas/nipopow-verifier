@@ -1,13 +1,11 @@
 \begin{algorithm}
-    \label{alg:compare-storage}
+    \label{alg:game-storage}
     \caption{\textsf{best array} using storage}
     \begin{algorithmic}[1]
 
     \Contract{best-array}
-        \Function{\sf initialize}{}
-            \State{$\textsf{best} \gets \emptyset$;
-                   $\textsf{holder} \gets \emptyset$}
-        \EndFunction
+        \State{$\textsf{best} \gets \emptyset$;
+               $\textsf{holder} \gets \emptyset$}
         \Function{\sf submit}{$a$}
         \State \textsf{best} $\gets a$
             \Comment{array saved in storage}
@@ -21,9 +19,8 @@
 
         \Function{\sf compare}{$a$}
             \State \textsf{require}($|a|$ $\geq$ $|$\textsf{best}$|$)
-            \For{$i$ : $|$\textsf{best}$|$}
-            \If{$a[i]$ $\leq$ \textsf{best}[i]} \Return{false}
-                \EndIf
+            \For{$i$ \textbf{in} $|$\textsf{best}$|$}
+            \State \textsf{require}($a[i]$ $\geq$ \textsf{best}[i])
             \EndFor
             \State \Return{true}
         \EndFunction
@@ -33,14 +30,13 @@
 \end{algorithm}
 
 \begin{algorithm}
-    \label{alg:compare-memory}
+    \label{alg:game-memory}
     \caption{\textsf{best array} using hash-and-resubmit pattern}
     \begin{algorithmic}[1]
         \Contract{best-array}
-        \Function{\sf initialize}{}
         \State{$\textsf{hash} \gets \emptyset$;
                $\textsf{holder} \gets \emptyset$}
-        \EndFunction
+
         \Function{\sf submit}{$\arra$}
         \State $\textsf{hash} \gets \textsf{H}(\arra)$
             \Comment{hash saved in storage}
@@ -55,9 +51,8 @@
     \EndFunction
     \Function{\sf compare}{$\arra^*$, $\arrb$}
         \State \textsf{require}($|\arra^*|$ $\geq$ $|\arrb|$)
-        \For{$i : |\arra^*|$}
-        \If{$\arra^*[i] \leq \arrb[i]$} \Return{false}
-            \EndIf
+        \For{$i$ \textbf{in} $|\arra^*|$}
+            \State \textsf{require}($\arra^*[i] \geq \arrb[i]$)
         \EndFor
     \EndFunction
     \State \Return{true}
