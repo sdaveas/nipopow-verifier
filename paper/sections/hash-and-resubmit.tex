@@ -296,14 +296,35 @@ occurrence of an \emph{event} ($e$) in the source chain, and the input of
 \textsf{contest} function includes the contesting proof ($\pic$). A successful
 contest of $\pis$ is realized when $\pic$ has a better score. The score
 evaluation process is irrelevant to the pattern and remains unchained. The size
-of proofs is dictated by the value $m$. We consider $m$ = 15 sufficiently
+of proofs is dictated by the value $m$. We consider $m$ = 15 to be sufficiently
 secure.
 
 In previous work~\cite{gglou}, NIPoPoW proofs are maintained on-chain,
 resulting to extensive storage operations that limit the applicability of the
-contract considerably. In Algorithm~\ref{alg:har-nipopow} we show how
-hash-and-resubmit pattern is embedded into the NIPoPoW client. In
-Figure~\ref{fig:har-nipopow}, we display how results of the
+contract considerably. We make an analysis to examine the benefit of using the
+\emph{hash-and-resubmit} pattern. For our analysis, we create a chain similar
+to the Bitcoin chain with the addition of the interlink structure in each block
+as in~\cite{gglou}. Our chain spans 650,000 blocks, which are slightly more
+than Bitcoin's~\footnote{Bitcoin spans 631,056 blocks as on May 2020. Metrics
+by https://www.blockchain.com/}. Then we fork two chains that span 100 and 200
+additional blocks, respectively. We illustrate our fork in
+Figure~\ref{fig:chains}. We create $\pis$ that describes the smaller chain, and
+$\pic$ that describes the larger. In this case, a proof is submitted, and then
+contested by a better proof. We select this setting as it provides the maximum
+code coverage, and it descries the most gas-heavy scenario.
+
+In Algorithm~\ref{alg:har-nipopow} we show how
+hash-and-resubmit pattern is embedded into the NIPoPoW client.
+
+\begin{figure}[!h]
+    \begin{center}
+        \includegraphics[width=1\columnwidth]{figures/nipopow-subm-cont}
+    \end{center}
+    \caption{Forked chains for our gas analysis.}
+    \label{fig:chains}
+\end{figure}
+
+In Figure~\ref{fig:har-nipopow}, we display how results of the
 \emph{hash-and-resubmit} implementation differentiate from previous work for
 the aggregated cost of \emph{submit} and \emph{contest} phases.  We observe
 that by using the \emph{hash-and-resubmit} pattern, we achieve to increase the
