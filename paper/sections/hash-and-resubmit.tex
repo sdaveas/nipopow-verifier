@@ -191,7 +191,6 @@ elements.
 
 
 \noindent \textbf{Variations.}
-
 % Now consider a variation of the above game, in
 % which $\pla$ calls \texttt{\proc$_1$(}$\arra$\texttt{)}, and then calls
 % \texttt{pickSpan(}$m, n$\texttt{)} that determines the span of $\arra$ which
@@ -200,14 +199,13 @@ elements.
 % $\arra$ is calculated by hashing the entire structure. Therefore, the
 % $resubmit$ phase cannot be successfully performed by rehashing $\arras[m:n]$,
 % because \texttt{H(}$\arra$\texttt{)} $\ne$ \texttt{H(}$\arra[m:n]$\texttt{)}.
-
 In order to enable selective dispatch of a segment of interest, different
 hashing schemas can be adopted, such as Merkle Trees (ref) and Merkle Mountain
 Ranges (ref). In this variation of the pattern, which we term
-\emph{merkle-hash-and-resubmit}, the signature of an array $\textsf{D}$ is
-Merkle Tree Root (MTR). In \emph{resubmit} phase, $\textsf{D}[m:n]$ is
+\emph{merkle-hash-and-resubmit}, the signature of an array $\data$ is
+Merkle Tree Root (MTR). In \emph{resubmit} phase, $\data[m{:}n]$ is
 dispatched, accompanied by the siblings that reconstruct the MTR of
-$\textsf{D}$.
+$\data$.
 
 \begin{figure*}[h]
     \begin{center}
@@ -226,7 +224,7 @@ however it implies on-chain construction and validation of the Merkle
 construction. In order to construct a MTR for an array $\data$,
 $|\data|$ hashes are needed for the leafs of the MT, and $|\data| -
 1$ hashes are needed for the intermediate nodes. For the verification, the
-segment of interest $\data[m:n]$ and the siblings of the MT are hashed.
+segment of interest $\data[m{:}n]$ and the siblings of the MT are hashed.
 The size of siblings is approximately $log_2(|\data|)$. The process of
 constructing and verifying the MTR is displayed in Figure
 ~\ref{fig:merkle-har}.
@@ -236,8 +234,8 @@ In Solidity, different hashing operations vary in cost. An invocation of
 \emph{CALL} instruction is performed by the EVM that calls a pre-compiled
 contract. In the current state of the EVM, \emph{CALL} costs 700 gas units, and
 the gas paid for every word when expanding memory is 3 gas units~\cite{wood}.
-Consequently, the expression $1 \times \textsf{sha256}(\data)$ cost less that
-$|\data| \times $\textsf{sha}(1) operations. A different cost policy applies
+Consequently, the expression $1 \times \textsf{sha256}(\data)$ costs less than
+$|\data| \times $\textsf{sha256}(1) operations. A different cost policy applies
 for \textsf{keccak}~\cite{keccak} hash function, where hashing costs 30 gas
 units plus 6 additional gas far each word for input data~\cite{wood}. The usage
 of \textsf{keccak} dramatically increases the performance in comparison with
@@ -283,38 +281,45 @@ signatures to eliminate storage variables from Solidity smart contracts by
 resubmitting data.
 
 \noindent \textbf{Enabling NIPoPoWs.} We now present how the
-\emph{hash-and-resubmit} pattern can used in the context of the NIPoPoW
-superlight client. Similar to the aforementioned example, the NIPoPoW verifier
-adheres to a submit-and-contest-phase schema, and the inputs of the functions
-are arrays that are processed on-chain.
+\emph{hash-and-resubmit} pattern is used in the context of the NIPoPoW
+superlight client. The NIPoPoW verifier adheres to a submit-and-contest-phase
+schema, and the inputs of the functions are arrays that are processed on-chain.
+It is, therefore, a suitable case for our pattern.
 
-In \emph{submit} phase, a \emph{proof} is submitted, which can be contested by
-another user in \emph{contest} phase. The user that initiates the contest,
-monitors the traffic of the smart contract~\cite{nipopows}. The input of
-\textsf{submit} function includes the submit proof ($\pis$) that indicates the
-occurrence of an \emph{event} ($e$) in the source chain, and the input of
-\textsf{contest} function includes the contesting proof ($\pic$). A successful
-contest of $\pis$ is realized when $\pic$ has a better score. The score
-evaluation process is irrelevant to the pattern and remains unchained. The size
-of proofs is dictated by the value $m$. We consider $m$ = 15 to be sufficiently
-secure.
+In \emph{submit} phase, a \emph{proof} is submitted, which, in the case of
+falsity, it is contested by another user in \emph{contest} phase. The user that
+initiates the contest is a node and monitors the traffic of the verifier.  The
+input of \textsf{submit} function includes the submit proof ($\pis$) that
+indicates the occurrence of an \emph{event} ($e$) in the source chain, and the
+input of \textsf{contest} function includes the contesting proof ($\pic$). A
+successful contest of $\pis$ is realized when $\pic$ has a better score. The
+score evaluation process is irrelevant to the pattern and remains unchained.
+The size of proofs is dictated by the value $m$. We consider $m$ = 15 to be
+sufficiently secure.
 
-In previous work~\cite{gglou}, NIPoPoW proofs are maintained on-chain,
-resulting to extensive storage operations that limit the applicability of the
-contract considerably. We make an analysis to examine the benefit of using the
-\emph{hash-and-resubmit} pattern. For our analysis, we create a chain similar
-to the Bitcoin chain with the addition of the interlink structure in each block
-as in~\cite{gglou}. Our chain spans 650,000 blocks, which are slightly more
-than Bitcoin's~\footnote{Bitcoin spans 631,056 blocks as on May 2020. Metrics
-by https://www.blockchain.com/}. Then we fork two chains that span 100 and 200
-additional blocks, respectively. We illustrate our fork in
-Figure~\ref{fig:chains}. We create $\pis$ that describes the smaller chain, and
-$\pic$ that describes the larger. In this case, a proof is submitted, and then
-contested by a better proof. We select this setting as it provides the maximum
-code coverage, and it descries the most gas-heavy scenario.
+In previous work, NIPoPoW proofs are maintained on-chain, resulting to
+extensive storage operations that limit the applicability of the contract
+considerably. In our implementation, proofs are not stored on-chain, and $\pis$
+is retrieved by the node from calldata. Since we assume a trustless network,
+$\pis$ potentially alters by the node. We denote the potentially changed $\pis$
+as $\pisa$. In \emph{contest} phase, $\pisa$ and $\pic$ are dispatched in order
+to enable the \emph{hash-and-resubmit} pattern.
 
-In Algorithm~\ref{alg:har-nipopow} we show how
-hash-and-resubmit pattern is embedded into the NIPoPoW client.
+For our analysis, we create a chain similar to the Bitcoin chain with the
+addition of the interlink structure in each block as in~\cite{gglou}. Our chain
+spans 650,000 blocks, which represent a slightly enhanced Bitcoin
+chain\footnote{Bitcoin spans 631,056 blocks as on May 2020. Metrics by
+https://www.blockchain.com/}. From the tip of our chain, we branch two chains
+that span 100 and 200 additional blocks, respectively, as illustrated in
+Figure~\ref{fig:chains}. Then, we use the smaller chain to create  $\pis$, ,
+and the larger chain to create $\pic$. By applying the protocol, $\pis$ is
+submitted, and a contest is initiated with $\pic$. The contest is successful,
+since $\pis$ represents a chain consisting of fewer blocks than $\pic$,
+therefore encapsulating less proof of work. We select this setting as it
+provides maximum code coverage, and it descries the most gas-heavy scenario.
+
+In Algorithm~\ref{alg:har-nipopow} we show how \emph{hash-and-resubmit} pattern
+is embedded into the NIPoPoW client.
 
 \begin{figure}[!h]
     \begin{center}

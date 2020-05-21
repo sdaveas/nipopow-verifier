@@ -38,7 +38,7 @@ GB\footnote{The size of the Bitcoin chain was derived from
     https://www.statista.com/statistics/647523/worldwide-bitcoin-blockchain-size/,
     and the size of the Ethereum chain by
 https://etherscan.io/chartsync/chaindefaults}. Naturally, not all users are
-able to accommodate this size of data, especially if portable media are used,
+able to accommodate this size of data, especially if portable devices are used,
 such as mobile phones.
 
 One early solution to compress the extensive size of blockchain is addressed by
@@ -59,11 +59,11 @@ protocols, cryptographic proofs are generated, that prove the occurrence of
 events inside a blockchain. Better performance is achieved due to the
 considerably smaller size of proofs compared to the amount of data needed in
 SPV. By utilizing superlight client protocols, a compressed proof for an event
-in chain A is constructed. Under the consumption that chain B supports smart
-contracts, the proof is then verified automatically and transparently
-\emph{on-chain}. This communication is realized without the intervention of
-third-party applications. An interesting application of such a protocol is the
-communication between Bitcoin and Ethereum.
+in chain A is constructed and dispatched to chain B. Under the condition that
+chain B supports smart contracts, the proof is then verified automatically and
+transparently \emph{on-chain}. This communication is realized without the
+intervention of third-party applications. An interesting application of such a
+protocol is the communication between Bitcoin and Ethereum.
 
 \noindent
 
@@ -75,22 +75,27 @@ in a chain. Contrary to the linear growth rate of the underlying blockchain,
 NIPoPoWs span polylogarithmic size of blocks.
 
 Christoglou~\cite{gglou} provided a Solidity smart contract which is the first
-ever implementation of crosschain events verification based on NIPoPoWs, where
+implementation of crosschain events verification based on NIPoPoWs, where
 proofs are submitted and checked for their validity. This solution, however, is
-impossible to apply due to extensive usage of resources, widely exceeding the
-Ethereum block gas limit.
+impractical due to extensive usage of resources, widely exceeding the Ethereum
+block gas limit.
+
+Other attempts have been done to address the verification of Bitcoin
+transactions to the Ethereum blockchain, most notably BTC
+Relay~\cite{btcrelay}.
 
 \noindent
 
 \textbf{Our contribution.} Notably, no practical implementation for superlight
 clients exists to date. In this paper, we focus on constructing a practical
-client for NIPoPoWs. For the implementation our client, we refine the
+client for NIPoPoWs. For the implementation of our client, we refine the
 NIPoPoW protocol based on a series of keen observations. These refinements
 allow us to leverage useful techniques that construct a practical solution for
 proof verification. We believe that this achievement is a decisive step towards
-the establishment of NIPoPoWs to the application end, therefore a significant
-progress in order to provide a widely accepted protocol that enables crosschain
-transactions. A summary of our contributions in this paper is as follows:
+the establishment of NIPoPoWs to the application end, therefore it is a
+significant progress in order to provide a widely accepted protocol that
+enables crosschain transactions. A summary of our contributions in this paper
+is as follows:
 \begin{enumerate}
 \item We developed the first decentralized client that securely verifies
 crosschain events and is practical. Our client establishes a trustless and
@@ -104,9 +109,9 @@ contracts~\cite{wood, buterin} in terms of gas consumption by utilizing
 \emph{calldata} space of Ethereum blockchain to eliminate high-cost storage
 operations.
 \item We design an \emph{optimistic} schema which we incorporate
-in the design of out client, that replaces \emph{non-optimistic} operations.
-This design achieves the improvement of smart contracts' performance enabling
-multiple phases of interactions.
+in the design of our client, that replaces \emph{non-optimistic} operations.
+This design achieves the improvement of smart contracts' performance by
+enabling multiple phases of interactions.
 \item We demonstrate via application that the NIPoPoW protocol is practical,
 making the cryptographic primitive the first provably secure construction of
 succinct proofs that is efficient to implement.
@@ -127,10 +132,7 @@ We selected Bitcoin as source blockchain as it the most used cryptocurrency,
 and enabling crosschain transactions in Bitcoin is beneficial to the vast
 majority of blockchain community. We selected Ethereum as the target blockchain
 because, besides its popularity, it supports smart contracts, which is a
-requirement in order to perform on-chain verification. Other attempts have been
-done to address the verification of Bitcoin transactions to the Ethereum
-blockchain, most notably BTC Relay~\cite{btcrelay}.
-
+requirement in order to perform on-chain verification.
 \noindent
 
 \textbf{Structure.} In Section 2 we describe the blockchain technologies that
