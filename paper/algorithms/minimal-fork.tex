@@ -1,31 +1,47 @@
+\renewcommand{\genesis}{\textsf{G}}
+
 \begin{algorithm}
+
     \label{alg:minimal-fork}
     \caption{The \textsf{NIPoPoW} client using the minimal fork technique}
 
     \begin{algorithmic}[1]
-        \Function{\sf Submit}{$\pi$, $e$}
-        \State require($\pi$[0] = $Gen$)
-        \State require($events[e]$ = false)
-        \State require($validInterlink(\pi)$)
-        \State $events[e].pred \gets evaluatePredicate(\pi, e)$
-        \State $events[e].hash$ $\gets$ sha256($\pi$)
-    \EndFunction
-    \vskip8pt
-    \end{algorithmic}
 
-    \begin{algorithmic}[1]
-        \Function{\sf Contest}{$\pi$, $\tilde\pi$, $e$, $f$}
-        \Comment{$f$: fork index in $\pi$}
-        \State require($\tilde\pi$[0] = $\pi[f]$)
-        \Comment{check min. fork head}
-        \State require($events[e].hash$ = sha256($\pi$))
-        \State require($events[e].pred$ = true)
-        \State require($validInterlink(\tilde\pi)$)
-        \State require($disjoint(\pi[f+1:], \tilde\pi[1:])$)
-        \Comment{check min. fork}
-        \State require($score(\tilde\pi) > score(\pi[f:])$)
-        \State $events[e].pred \gets evaluatePredicate(\tilde\pi, e)$
+    \Contract{crosschain}
+    \State $\textsf{events} \gets \bot;$ $\genesis \gets \bot$
+    \Function{\sf initialize}{$\genesis_{remote}$}
+        \State \genesis $\gets \genesis_{remote}$
     \EndFunction
+    \Function{\sf submit}{$\pis$, $e$}
+        \State \textsf{require}($\pis$[0] = $\genesis$)
+        \State \textsf{require}($\textsf{events$[e]$} = \bot$)
+        \State \textsf{require}($\textsf{valid-interlink}(\pis)$)
+        \State \textsf{events$[e]$.hash} $\gets$ \textsf{H}($\pis$)
+        \State \textsf{events$[e]$.pred} $\gets$
+        \textsf{evaluate-predicate}(\textsf{$\pis$}, $e$)
+    \EndFunction
+    \Function{\sf contest}{$\pisa$, $\pitr$, $e$, $f$}
+        \Comment{$f$: fork index}
+        \State \textsf{require}($\pitr$[0] = $\pisa[f]$)
+        \Comment{check fork head}
+        \State \textsf{require}(\textsf{events}$[e]$ $\ne$ $\bot$)
+        \State \textsf{require}(\textsf{events$[e]$.hash} $=$ \textsf{H}($\pisa$))
+        \State \textsf{require}(\textsf{valid-interlink}($\pitr$))
+        \State \textsf{require}(\textsf{minimal-fork}($\pisa$,
+        $\pitr$, $f$))
+        \State \textsf{require}(\textsf{score}($\pitr$)
+            $>$ \textsf{score}($\pisa[f:]$))
+        \State \textsf{events$[e]$.pred} $\gets$
+            \textsf{evaluate-predicate}($\pitr$, $e$)
+    \EndFunction
+    \Function{\sf minimal-fork}{$\pi_1$, $\pi_2$, $f$}
+        \For{$p\ in\ \pi_1$}
+            \If{$p \in \pi_2$}
+                \State\Return false
+            \EndIf
+        \EndFor
+    \EndFunction
+    \EndContract
     \vskip8pt
     \end{algorithmic}
 \end{algorithm}

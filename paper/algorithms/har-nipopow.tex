@@ -6,35 +6,36 @@
     \begin{algorithmic}[1]
 
     \Contract{crosschain}
+    \State $\textsf{events} \gets \bot;$ $\genesis \gets \bot$
     \Function{\sf initialize}{$\genesis_{remote}$}
         \State \genesis $\gets \genesis_{remote}$
     \EndFunction
-    \Function{\sf Submit}{$\pis$, $e$}
+    \Function{\sf submit}{$\pis$, $e$}
         \State \textsf{require}($\pis$[0] = $\genesis$)
         \State \textsf{require}($\textsf{events$[e]$} = \bot$)
-        \State \textsf{require}($\textsf{validInterlink}(\pi)$)
+        \State \textsf{require}($\textsf{valid-interlink}(\pi)$)
         \State \textsf{DAG} $\gets$ \textsf{DAG} $\cup$ $\pis$
         \State \textsf{events$[e]$.hash} $\gets$ \textsf{H}($\pis$)
         \Comment{enable pattern}
-        \State \textsf{ancestors} $\gets$ \textsf{findAncestors()}
+        \State \textsf{ancestors} $\gets$ \textsf{find-ancestors()}
         \State \textsf{events$[e]$.pred} $\gets$
-            \textsf{evaluatePredicate}(\textsf{ancestors}, e)
+            \textsf{evaluate-predicate}(\textsf{ancestors}, e)
         \State \textsf{ancestors} $=$ $\bot$
     \EndFunction
-    \Function{\sf Contest}{$\pisa$, $\pic$, $e$}
+    \Function{\sf contest}{$\pisa$, $\pic$, $e$}
         \Comment{provide proofs}
         \State \textsf{require}(\textsf{events$[e]$.hash} $=$ \textsf{H}($\pisa$))
         \Comment{verify $\pisa$}
         \State \textsf{require}($\pic$[0] = $\genesis$)
         \State \textsf{require}(\textsf{events}$[e]$ $\ne$ $\bot$)
-        \State \textsf{require}(\textsf{validInterlink}($\pi_{cont}$))
-        \State \textsf{lca} = \textsf{findLca}($\pisa$, $\pic$)
+        \State \textsf{require}(\textsf{valid-interlink}($\pi_{cont}$))
+        \State $lca$ = \textsf{find-lca}($\pisa$, $\pic$)
         \State \textsf{require}(\textsf{score}($\pic[:lca]$)
             $>$ \textsf{score}($\pisa[:lca]$))
         \State \textsf{DAG} $\gets$ \textsf{DAG} $\cup$ $\pic$
-        \State \textsf{ancestors} $\gets$ \textsf{findAncestors}(\textsf{DAG})
+        \State \textsf{ancestors} $\gets$ \textsf{find-ancestors}(\textsf{DAG})
         \State \textsf{events$[e]$.pred} $\gets$
-            \textsf{evaluatePredicate}(\textsf{ancestors}, e)
+            \textsf{evaluate-predicate}(\textsf{ancestors}, $e$)
         \State \textsf{ancestors} $=$ $\bot$
     \EndFunction
     \EndContract
