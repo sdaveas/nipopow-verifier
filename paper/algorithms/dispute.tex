@@ -19,15 +19,16 @@
         \State \textsf{events$[e]$.pred} $\gets$
         \textsf{evaluate-predicate}(\textsf{$\pis$}, $e$)
     \EndFunction
-    \Function{\sf dispute}{$\pisa$, $e$, $index$}
+    \Function{\sf dispute}{$\pisa$, $e$, $i$}
+        \Comment{$i$: dispute index}
         \State \textsf{require}(\textsf{events}$[e]$ $\ne$ $\bot$)
         \State \textsf{require}(\textsf{events$[e]$.hash} $=$ \textsf{H}($\pisa$))
-        \State \textsf{require}($\neg \textsf{valid-block}(\pis, index)$)
+        \State \textsf{require}($\neg \textsf{valid-block}(\pis, i)$)
         \State \textsf{events$[e]$} $\gets$ $\bot$
     \EndFunction
     \Function{\sf valid-block}{$\pi$, $i$}
-        \If{\textsf{H}($\pi$[$i$].ilink) $\neq$
-        $\pi$[$i+1$].prev-ilink-hash}
+        \State $l\gets\pi[i].\mathsf{level}$
+        \If{$\pi[i{+}1].\mathsf{intelink}[l] = \pi[i]$}
         \State \Return true
         \EndIf
         \State \Return false
