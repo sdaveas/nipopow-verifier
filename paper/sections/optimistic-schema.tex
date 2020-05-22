@@ -1,30 +1,32 @@
 \section{Leveraging An Optimistic Schema}
 
 We discussed how the verification in the NIPoPoW protocol is realized in two
-phases. In \emph{submit} phase, the verification of the $\pis$ is realized.
+phases. In \emph{submit} phase, the verification of the $\pis$ is performed.
 This is necessary in order to prevent adversaries from injecting blocks that do
-not belong to the chain, or changing existing blocks. A proof is valid if it is
-\emph{structurally correct}. The correctly structured NIPoPoW has the following
-requirements:
+not belong to the chain, or changing existing blocks. A proof is valid for
+submission if it is \emph{structurally correct}. The correctly structured
+NIPoPoW has the following requirements:
+
 \begin{enumerate}
-    \item the first block of the proof is the genesis block of the underlying
+    \item The first block of the proof is the genesis block of the underlying
         blockchain.
-    \item every block has a valid interlink.
+    \item Every block has a valid interlink.
 \end{enumerate}
 
-Asserting the existence of genesis is an inexpensive operation of constant
-complexity. However, confirming the interlink correctness of all blocks is a
-process of linear complexity to size of the proof. Albeit the verification is
-performed in memory, sufficiently large proofs result in costly submissions,
-and it consists the most demanding function of \emph{submit} phase. In
-Table~\ref{tab:valid-interlink-cost} we display the cost of
-\textsf{valid-interlink} function which determines the structural correctness
-of a proof in comparison with the overall gas used in \textsf{submit}.
+Asserting the existence of genesis in the first index of a chain is an
+inexpensive operation of constant complexity. However, confirming the interlink
+correctness of all blocks is a process of linear complexity to the size of the
+proof. Albeit the verification is performed in memory, sufficiently large
+proofs result into costly submissions, and it consists the most demanding
+function of \emph{submit} phase. In Table~\ref{tab:valid-interlink-cost} we
+display the cost of \textsf{valid-interlink} function which determines the
+structural correctness of a proof in comparison with the overall gas used in
+\textsf{submit}.
 
 \input{tables/valid-interlink-cost}
 
 \newcommand{\dispute}{\emph{dispute\ }} \noindent \textbf{Dispute phase.} We
-observe that an additional phase in our protocol alleviates the burden of
+observe that the addition of a phase in our protocol alleviates the burden of
 verifying all elements of the proof by enabling the indication of an incorrect
 block. This phase, which we term \dispute phase leverages selective
 verification of the submitted proof at a certain index, which, as a constant
@@ -32,22 +34,27 @@ operation, significantly reduces the gas cost of the verification process.
 
 In the protocol where \emph{dispute} is incorporated, when an invalid proof
 $\pis$ is submitted by $\es$, a node, $\ec$, retrieves the proof from the
-calldata. Then, the proof is checked for it validity \emph{off-chain}. In order
+calldata. Then, the proof is checked for its validity \emph{off-chain}. In order
 to prove that $\pis$ is invalid, $\ec$ only needs to indicate the index in
-which $\pis$ fails the verification. In turn, $\pic$ calls
+which $\pis$ fails the interlink verification. In turn, $\ec$ calls
 $\textsf{dispute}$($\pisa$, $i$), where $i$ indicates the disputing index of
-$\pisa$. Note that, the this additional phase phase does not imply more rounds
+$\pisa$. Note that, this additional phase does not imply increased rounds
 of interactions between $\es$ and $\ec$. In the case where $\pis$ is
-invalidated in \emph{dispute} phase, the $\textsf{contest}$ function is not
-needed. Similarly, in the case in which $pis$ is structurally correct, but
-represents a chain that is not valid, then the call of $\textsf{contest}$ is
-sufficient.
+invalidated by \emph{dispute} phase, \emph{contest} phase is skipped.
+Similarly, in the case in which $\pis$ is structurally correct, but
+represents a chain that is not valid, then $\ec$ proceeds directly to
+\emph{contest} phase.
 
-In Table~\ref{tab:dispute-cost} we display the gas consumption with of
-a cycle of interactions \emph{submit} + \emph{dispute} for a case where $\pis$
-is structurally incorrect, and \emph{submit} + \emph{contest} for a case where
-$\pis$ is structurally correct, but represents a dishonest chain. In
-Algorithm~\ref{alg:dispute}, we show the implementation of \emph{dispute}
+In Table~\ref{tab:dispute-cost} we display the gas consumption for
+two independent cycles of interactions:
+\begin{enumerate}
+    \item Phases \emph{submit} + \emph{dispute} for a case where $\pis$
+is structurally incorrect,
+    \item Phases \emph{submit} + \emph{contest} for a case where
+$\pis$ is structurally correct, but represents a dishonest chain.
+\end{enumerate}
+\noindent
+In Algorithm~\ref{alg:dispute}, we show the implementation of \emph{dispute}
 phase. In Figure ~\ref{fig:dispute}, we illustrate the performance gain of the
 client using \emph{dispute} phase. The \textsf{contest} function remains
 unchanged.
@@ -58,8 +65,20 @@ unchanged.
 
 \begin{figure}[!h]
     \begin{center}
+        \includegraphics[width=1\columnwidth]{figures/score-at-levels.pdf}
+    \end{center}
+    \caption{Calculation of best score. In the first upper chain, the best
+    score is of level 2. In the below chain the best score is of level 3. The
+    blocks in solid boxes participate to the formulation of best score of each
+    chain.}
+    \label{fig:score-at-levels}
+\end{figure}
+
+\begin{figure}[!h]
+    \begin{center}
         \includegraphics[width=1\columnwidth]{figures/dispute.pdf}
     \end{center}
     \caption{Caption}
     \label{fig:dispute}
 \end{figure}
+
