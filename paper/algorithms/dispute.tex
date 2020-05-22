@@ -1,8 +1,4 @@
-\renewcommand{\genesis}{\textsf{G}}
-
 \begin{algorithm}
-
-
     \caption{\label{alg:dispute}The \textsf{NIPoPoW} client using dispute phase}
 
     \begin{algorithmic}[1]
@@ -10,7 +6,7 @@
     \Contract{crosschain}
     \State $\textsf{events} \gets \bot;$ $\genesis \gets \bot$
     \Function{\sf initialize}{$\genesis_{remote}$}
-        \State \genesis $\gets \genesis_{remote}$
+        \State $\genesis$ $\gets \genesis_{remote}$
     \EndFunction
     \Function{\sf submit}{$\pis$, $e$}
         \State \textsf{require}($\pis$[0] = $\genesis$)
