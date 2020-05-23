@@ -4,8 +4,8 @@ We discussed how the verification in the NIPoPoW protocol is realized in two
 phases. In \emph{submit} phase, the verification of the $\pis$ is performed.
 This is necessary in order to prevent adversaries from injecting blocks that do
 not belong to the chain, or changing existing blocks. A proof is valid for
-submission if it is \emph{structurally correct}. The correctly structured
-NIPoPoW has the following requirements:
+submission if it is \emph{structurally correct}. Correctly structured
+NIPoPoWs has the following requirements:
 
 \begin{enumerate}
     \item The first block of the proof is the genesis block of the underlying
@@ -13,11 +13,11 @@ NIPoPoW has the following requirements:
     \item Every block has a valid interlink.
 \end{enumerate}
 
-Asserting the existence of genesis in the first index of a chain is an
+Asserting the existence of genesis in the first index of a proof is an
 inexpensive operation of constant complexity. However, confirming the interlink
 correctness of all blocks is a process of linear complexity to the size of the
 proof. Albeit the verification is performed in memory, sufficiently large
-proofs result into costly submissions, and it consists the most demanding
+proofs result into costly submissions. This consists the most demanding
 function of \emph{submit} phase. In Table~\ref{tab:valid-interlink-cost} we
 display the cost of \textsf{valid-interlink} function which determines the
 structural correctness of a proof in comparison with the overall gas used in
@@ -27,16 +27,16 @@ structural correctness of a proof in comparison with the overall gas used in
 
 \newcommand{\dispute}{\emph{dispute\ }} \noindent \textbf{Dispute phase.} We
 observe that the addition of a phase in our protocol alleviates the burden of
-verifying all elements of the proof by enabling the indication of an incorrect
-block. This phase, which we term \dispute phase leverages selective
+verifying all elements of the proof by enabling the indication of an individual
+incorrect block. This phase, which we term \dispute phase, leverages selective
 verification of the submitted proof at a certain index, which, as a constant
 operation, significantly reduces the gas cost of the verification process.
 
 In the protocol where \emph{dispute} is incorporated, when an invalid proof
-$\pis$ is submitted by $\es$, a node, $\ec$, retrieves the proof from the
-calldata. Then, the proof is checked for its validity \emph{off-chain}. In order
-to prove that $\pis$ is invalid, $\ec$ only needs to indicate the index in
-which $\pis$ fails the interlink verification. In turn, $\ec$ calls
+$\pis$ is submitted by $\es$, and retrieved by a node $\ec$ from the calldata.
+Then, the proof is checked for its validity \emph{off-chain}. In order to prove
+that $\pis$ is invalid, $\ec$ only needs to indicate the index in which $\pis$
+fails the interlink verification. Subsequently, $\ec$ calls
 $\textsf{dispute}$($\pisa$, $i$), where $i$ indicates the disputing index of
 $\pisa$. Therefore, only one block is interpreted \emph{on-chain}, contrary to
 the entire span of $\pisa$.
