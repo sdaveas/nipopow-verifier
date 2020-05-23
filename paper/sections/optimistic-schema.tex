@@ -38,12 +38,14 @@ calldata. Then, the proof is checked for its validity \emph{off-chain}. In order
 to prove that $\pis$ is invalid, $\ec$ only needs to indicate the index in
 which $\pis$ fails the interlink verification. In turn, $\ec$ calls
 $\textsf{dispute}$($\pisa$, $i$), where $i$ indicates the disputing index of
-$\pisa$. Note that, this additional phase does not imply increased rounds
-of interactions between $\es$ and $\ec$. In the case where $\pis$ is
-invalidated by \emph{dispute} phase, \emph{contest} phase is skipped.
-Similarly, in the case in which $\pis$ is structurally correct, but
-represents a chain that is not valid, then $\ec$ proceeds directly to
-\emph{contest} phase.
+$\pisa$. Therefore, only one block is interpreted \emph{on-chain}, contrary to
+the entire span of $\pisa$.
+
+Note that, this additional phase does not imply increased rounds of
+interactions between $\es$ and $\ec$. In the case where $\pis$ is invalidated
+by \emph{dispute} phase, \emph{contest} phase is skipped.  Similarly, in the
+case in which $\pis$ is structurally correct, but represents a chain that is
+not honest, then $\ec$ proceeds directly to \emph{contest} phase.
 
 In Table~\ref{tab:dispute-cost} we display the gas consumption for
 two independent cycles of interactions:
@@ -54,31 +56,31 @@ is structurally incorrect,
 $\pis$ is structurally correct, but represents a dishonest chain.
 \end{enumerate}
 \noindent
-In Algorithm~\ref{alg:dispute}, we show the implementation of \emph{dispute}
-phase. In Figure ~\ref{fig:dispute}, we illustrate the performance gain of the
+In Algorithm~\ref{alg:dispute-best-level}, we show the implementation of
+\emph{dispute} phase in \textsf{submit} and \textsf{valid-single-interlink}. In
+Figure ~\ref{fig:dispute-best-level}, we illustrate the performance gain of the
 client using \emph{dispute} phase. The \textsf{contest} function remains
 unchanged.
 
 \input{tables/dispute-cost}
 
-\input{algorithms/dispute}
+\input{algorithms/dispute-best-level}
 
 \begin{figure}[!h]
     \begin{center}
-        \includegraphics[width=1\columnwidth]{figures/score-at-levels.pdf}
+        \includegraphics[width=1\columnwidth]{figures/blocks-of-best-level.pdf}
     \end{center}
-    \caption{Calculation of best score. In the first upper chain, the best
-    score is of level 2. In the below chain the best score is of level 3. The
-    blocks in solid boxes participate to the formulation of best score of each
-    chain.}
+    \caption{Fork of two proofs. Colored blocks after the lca determine the
+    score of each proof. Black blocks belong to the level that
+    has the best score. Only such blocks are part of the contesting proof.}
     \label{fig:score-at-levels}
 \end{figure}
 
 \begin{figure}[!h]
     \begin{center}
-        \includegraphics[width=1\columnwidth]{figures/dispute.pdf}
+        \includegraphics[width=1\columnwidth]{figures/dispute-best-level.pdf}
     \end{center}
     \caption{Caption}
-    \label{fig:dispute}
+    \label{fig:dispute-best-level}
 \end{figure}
 

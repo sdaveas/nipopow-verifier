@@ -1,0 +1,60 @@
+\begin{algorithm}
+    \caption{\label{alg:dispute-best-level}The \textsf{NIPoPoW} client enhanced
+        with dispute phase and best-level contesting}
+
+    \begin{algorithmic}[1]
+
+    \Contract{crosschain}
+    \State $\textsf{events} \gets \bot;$ $\genesis \gets \bot$
+    \Function{\sf initialize}{$\genesis_{remote}$}
+        \State $\genesis$ $\gets \genesis_{remote}$
+    \EndFunction
+    \Function{\sf submit}{$\pis$, $e$}
+        \State \textsf{require}($\pis$[0] = $\genesis$)
+        \State \textsf{require}($\textsf{events$[e]$} = \bot$)
+        \State \textsf{events$[e]$.hash} $\gets$ \textsf{H}($\pis$)
+        \State \textsf{events$[e]$.pred} $\gets$
+        \textsf{evaluate-predicate}(\textsf{$\pis$}, $e$)
+    \EndFunction
+    \Function{\sf dispute}{$\pisa$, $e$, $i$}
+        \Comment{$i$: dispute index}
+        \State \textsf{require}(\textsf{events}$[e]$ $\ne$ $\bot$)
+        \State \textsf{require}(\textsf{events$[e]$.hash} $=$ \textsf{H}($\pisa$))
+        \State \textsf{require}($\neg \textsf{valid-single-interlink}(\pis, i)$)
+        \State \textsf{events$[e]$} $\gets$ $\bot$
+    \EndFunction
+    \Function{\sf valid-single-interlink}{$\pi$, $i$}
+        \State $l\gets\pi[i].\mathsf{level}$
+        \If{$\pi[i{+}1].\mathsf{intelink}[l] = \pi[i]$}
+        \State \Return true
+        \EndIf
+        \State \Return false
+    \EndFunction
+    \Function{\sf contest}{$\pisa$, $\pitrl$, $e$, $f$}
+        \State \textsf{require}($\pitr$[0] = $\pisa[f]$)
+        \State \textsf{require}(\textsf{events}$[e]$ $\ne$ $\bot$)
+        \State \textsf{require}(\textsf{events$[e]$.hash} $=$ \textsf{H}($\pisa$))
+        \State \textsf{require}(\textsf{valid-interlinks}($\pitr$))
+        \State \textsf{require}(\textsf{minimal-fork}($\pisa$,
+        $\pitr$, $f$))
+        \State \textsf{require}(\textsf{score-at-level}($\pitr$)
+        $>$ \textsf{score}($\pisa[f{:}]$))
+        \State \textsf{events$[e]$.pred} $\gets$
+            \textsf{evaluate-predicate}($\pitr$, $e$)
+    \EndFunction
+    \Function{\sf score-at-level}{$\pi$}
+        \State $l \gets \pi[-1].\textsf{level}$
+        \Comment{pick proof level from a block}
+        \State $score \gets 0$
+        \Comment{set score counter to 0}
+        \For{b in $\pi$}
+            \State \textsf{require}(b.\textsf{level} = $l$)
+            \State $score \gets score {+} 2^l$
+        \EndFor
+        \State \Return{score}
+    \EndFunction
+    \EndContract
+    \vskip8pt
+    \end{algorithmic}
+\end{algorithm}
+
