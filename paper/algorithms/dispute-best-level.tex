@@ -31,16 +31,16 @@
         \State \Return false
     \EndFunction
     \Function{\sf contest}{$\pisa$, $\pitrl$, $e$, $f$}
-        \State \textsf{require}($\pitr$[0] = $\pisa[f]$)
+        \State \textsf{require}($\pitrl$[0] = $\pisa[f]$)
         \State \textsf{require}(\textsf{events}$[e]$ $\ne$ $\bot$)
         \State \textsf{require}(\textsf{events$[e]$.hash} $=$ \textsf{H}($\pisa$))
-        \State \textsf{require}(\textsf{valid-interlinks}($\pitr$))
+        \State \textsf{require}(\textsf{valid-interlinks}($\pitrl$))
         \State \textsf{require}(\textsf{minimal-fork}($\pisa$,
-        $\pitr$, $f$))
-        \State \textsf{require}(\textsf{score-at-level}($\pitr$)
+        $\pitrl$, $f$))
+        \State \textsf{require}(\textsf{score-at-level}($\pitrl$)
         $>$ \textsf{score}($\pisa[f{:}]$))
         \State \textsf{events$[e]$.pred} $\gets$
-            \textsf{evaluate-predicate}($\pitr$, $e$)
+            \textsf{evaluate-predicate}($\pitrl$, $e$)
     \EndFunction
     \Function{\sf score-at-level}{$\pi$}
         \State $l \gets \pi[-1].\textsf{level}$
