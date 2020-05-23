@@ -11,7 +11,7 @@
     \Function{\sf submit}{$\pis$, $e$}
         \State \textsf{require}($\pis$[0] = $\genesis$)
         \State \textsf{require}($\textsf{events$[e]$} = \bot$)
-        \State \textsf{require}($\textsf{valid-interlink}(\pis)$)
+        \State \textsf{require}($\textsf{valid-interlinks}(\pis)$)
         \State \textsf{events$[e]$.hash} $\gets$ \textsf{H}($\pis$)
         \State \textsf{events$[e]$.pred} $\gets$
         \textsf{evaluate-predicate}(\textsf{$\pis$}, $e$)
@@ -22,11 +22,11 @@
         \Comment{check fork head}
         \State \textsf{require}(\textsf{events}$[e]$ $\ne$ $\bot$)
         \State \textsf{require}(\textsf{events$[e]$.hash} $=$ \textsf{H}($\pisa$))
-        \State \textsf{require}(\textsf{valid-interlink}($\pitr$))
+        \State \textsf{require}(\textsf{valid-interlinks}($\pitr$))
         \State \textsf{require}(\textsf{minimal-fork}($\pisa$,
         $\pitr$, $f$))
         \State \textsf{require}(\textsf{score}($\pitr$)
-            $>$ \textsf{score}($\pisa[f:]$))
+        $>$ \textsf{score}($\pisa[f{:}]$))
         \State \textsf{events$[e]$.pred} $\gets$
             \textsf{evaluate-predicate}($\pitr$, $e$)
     \EndFunction
