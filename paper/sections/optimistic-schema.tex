@@ -57,14 +57,41 @@ $\pis$ is structurally correct, but represents a dishonest chain.
 \end{enumerate}
 \noindent
 In Algorithm~\ref{alg:dispute-best-level}, we show the implementation of
-\emph{dispute} phase in \textsf{submit} and \textsf{valid-single-interlink}. In
-Figure ~\ref{fig:dispute-best-level}, we illustrate the performance gain of the
-client using \emph{dispute} phase. The \textsf{contest} function remains
-unchanged.
+\emph{dispute} phase in \textsf{submit} and \textsf{valid-single-interlink}.
+
 
 \input{tables/dispute-cost}
 
-\input{algorithms/dispute-best-level}
+\textbf{Processing fewer blocks.} As discussed, \emph{dispute} and
+\emph{contest} phases are mutually explosive. Unfortunately, constant-time
+verification cannot be applied in a contest without increasing the rounds
+of interactions for the users. However, we derive a different major gas
+optimization for \emph{contest} phase by observing the process of score
+evaluation.
+
+In NIPoPoWs, after the last common ancestor is found, each fork of the proofs
+is evaluated in terms of score of proof of work. Each level encapsulates
+different amount of proof of work, and the level with the best score is the
+representative of the underlying proof. Since the common portion of the two
+proofs has the same score, only the disjoint portions need to be addressed.
+Consequently, the position of the $\lca$ determines the span of the proofs that
+will be included in the score evaluation process. Furthermore, it is impossible
+to determine the score of a proof in \emph{contest} phase.
+
+On the contrary, when $\pis$ is known, the score of both proofs can be
+calculated. This means that, after $\pis$ is retrieved from the calldata, the
+scores of $\pis$ and $\pic$ is known to $\ec$, as well as the level in which
+each proof encapsulates the most proof of work. In turn, $\ec$ can only submit
+the blocks which consist the best level of $\pic$. The number of these blocks
+is constant, because it is determined by the security parameter $m$, which is
+irrelevant to the underlying blockchain size.
+
+Calculation of best level of $\pic$ is an \emph{off-chain} process. Naturally,
+an adversarial $\ec$ can intentionally dispatch a level of $\pic$ which is
+different than the best level. However, this is an irrational act, since
+different levels only undermine the score of $\pic$. On the contrary, due to
+the consistency property of \emph{hash-and-resumbit}, $\pis$ cannot be altered.
+We denote the best level of $\pitr$ as $\pitrl$.
 
 \begin{figure}[!h]
     \begin{center}
@@ -76,6 +103,30 @@ unchanged.
     \label{fig:score-at-levels}
 \end{figure}
 
+The utilization of \emph{best-level} methodology greatly increases the
+performance of the client, because the complexity of the majority of
+$\textsf{contest}$ functions is related to the size of $\pic$. In
+Table~\ref{tab:best-level-cost}, we demonstrate the difference in
+\emph{contest} phase after using \emph{best-level}. We observe that the
+performance of most functions is increased by approximately 85\%. This is due
+to the fact that the size of $\pic$ is decreased accordingly. For $m=15$,
+$\pitrl$ consists of is 31 blocks, while $\pitr$ consists of 200 blocks.
+Notably, the calculation of score for $\pitrl$ needs 0.97\% less gas. We
+observe such a discrepancy because the process of score calculation for
+multiple levels demands a hashmap which is a storage structure, in contrast
+with the evaluation of score of a individual level which is done entirely in
+memory.
+
+\input{tables/best-level-cost}
+
+In Figure ~\ref{fig:dispute-best-level}, we illustrate the performance gain of
+the client using \emph{dispute} phase and best-level contesting proof. The
+aggregated size of \emph{submit} and \emph{contest} phases is greatly reduced
+to 3,500,000 gas. This is critical threshold regarding applicability, since
+a cycle of interactions fit effortlessly inside a single Ethereum block.
+
+\input{algorithms/dispute-best-level}
+
 \begin{figure}[!h]
     \begin{center}
         \includegraphics[width=1\columnwidth]{figures/dispute-best-level.pdf}
@@ -83,4 +134,3 @@ unchanged.
     \caption{Caption}
     \label{fig:dispute-best-level}
 \end{figure}
-
