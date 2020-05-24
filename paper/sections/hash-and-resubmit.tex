@@ -207,17 +207,16 @@ Merkle Tree Root (MTR). In \emph{resubmit} phase, $\data[m{:}n]$ is
 dispatched, accompanied by the siblings that reconstruct the MTR of
 $\data$.
 
-\begin{figure*}[h]
+\begin{figure}[h]
     \begin{center}
-        \includegraphics[width=0.8\textwidth]{figures/merkle-har.pdf}
+        \includegraphics[width=0.8\linewidth]{figures/merkle-har.pdf}
     \end{center}
     \caption{\textbf{I.} The calculation of root in \emph{hash} phase.
     \textbf{II.} The verification of the root in \emph{resubmit} phase.
     \textsf{H}($k$) denotes the digest of element $k$. \textsf{H}($kl$) denotes the
-    result of \textsf{H}(\textsf{H}($k$) $|$ \textsf{H}($l$))
-}
+    result of \textsf{H}(\textsf{H}($k$) $|$ \textsf{H}($l$))}
     \label{fig:merkle-har}
-\end{figure*}
+\end{figure}
 
 This variation of the pattern removes the burden of sending redundant data,
 however it implies on-chain construction and validation of the Merkle
