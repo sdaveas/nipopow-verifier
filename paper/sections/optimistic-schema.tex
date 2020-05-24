@@ -111,11 +111,11 @@ Table~\ref{tab:best-level-cost}, we demonstrate the difference in
 performance of most functions is increased by approximately 85\%. This is due
 to the fact that the size of $\pic$ is decreased accordingly. For $m=15$,
 $\pitrl$ consists of is 31 blocks, while $\pitr$ consists of 200 blocks.
-Notably, the calculation of score for $\pitrl$ needs 0.97\% less gas. We
-observe such a discrepancy because the process of score calculation for
-multiple levels demands a hashmap which is a storage structure, in contrast
-with the evaluation of score of a individual level which is done entirely in
-memory.
+Notably, the calculation of score for $\pitrl$ needs 97\% less gas. We achieve
+such a discrepancy because the process of score calculation for multiple levels
+demands the temporary use of a hashmap which is a storage structure, in
+contrast with the evaluation of score of a individual level which is done
+entirely in memory.
 
 \input{tables/best-level-cost}
 
@@ -123,7 +123,7 @@ In Figure ~\ref{fig:dispute-best-level}, we illustrate the performance gain of
 the client using \emph{dispute} phase and best-level contesting proof. The
 aggregated size of \emph{submit} and \emph{contest} phases is greatly reduced
 to 3,500,000 gas. This is critical threshold regarding applicability, since
-a cycle of interactions fit effortlessly inside a single Ethereum block.
+a cycle of interactions fits effortlessly inside a single Ethereum block.
 
 \input{algorithms/dispute-best-level}
 
