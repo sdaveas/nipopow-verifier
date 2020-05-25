@@ -200,8 +200,8 @@ elements.
 % $resubmit$ phase cannot be successfully performed by rehashing $\arras[m:n]$,
 % because \texttt{H(}$\arra$\texttt{)} $\ne$ \texttt{H(}$\arra[m:n]$\texttt{)}.
 In order to enable selective dispatch of a segment of interest, different
-hashing schemas can be adopted, such as Merkle Trees (ref) and Merkle Mountain
-Ranges (ref). In this variation of the pattern, which we term
+hashing schemas can be adopted, such as Merkle Trees ~\cite{merkle} and Merkle Mountain
+Ranges ~\cite{mmr}. In this variation of the pattern, which we term
 \emph{merkle-hash-and-resubmit}, the signature of an array $\data$ is
 Merkle Tree Root (MTR). In \emph{resubmit} phase, $\data[m{:}n]$ is
 dispatched, accompanied by the siblings that reconstruct the MTR of

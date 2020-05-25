@@ -1,18 +1,18 @@
 \section{Cryptoeconomics}
 
-We now present our economical analysis on RePoPoW. We have already discussed
-that the NIPoPoW protocol is performed in distinct phases. In each phase,
-different entities are prompted to act. As in SPV, we make the security
-assumption that at least one honest node monitors the transaction to the
-verifier contract in order to serve honest proofs. However, the process of
-contesting a submitted proof by a honest node does not come without expenses.
-Such an expense is the computational power a node has to consume in order to
-fetch a submitted proof from the calldata and construct a contesting proof,
-but most importantly, the gas that has to be paid in order to dispatch a
-contesting proof to the Ethereum blockchain. Therefore, it is essential to
-provide motives to nodes. On the contrary, adversaries have to be dishearten
-from submitting invalid proofs.  We refer to the principle of promoting honest
-actions against adversarial actions as "fairness".
+textbf{Fairness.} We now present our economical analysis on RePoPoW. We have
+already discussed that the NIPoPoW protocol is performed in distinct phases. In
+each phase, different entities are prompted to act. As in SPV, the security
+assumption that is made is that at least one honest node is connected to the
+verifier contract and serves honest proofs. However, the process of contesting
+a submitted proof by a honest node does not come without expenses.  Such an
+expense is the computational power a node has to consume in order to fetch a
+submitted proof from the calldata and construct a contesting proof, but most
+importantly, the gas that has to be paid in order to dispatch a the proof to
+the Ethereum blockchain. Therefore, it is essential to provide motives to
+nodes, while, on the contrary, adversaries have to be dishearten from
+submitting invalid proofs.  We refer to the principle of promoting honest
+actions against adversarial actions as {"}fairness{"}.
 
 In NIPoPoWs, fairness is addressed by the establishment of a monetary value
 termed collateral. In \emph{submit} phase, the user pays this collateral in
@@ -23,47 +23,47 @@ the original issuer. This treatment incentivizes nodes to participate to the
 protocol, and discourages adversaries from joining. It is critical that the
 collateral covers all the expenses of the entity issuing the contest.
 
-The determination of a fair collateral is not trivial. Thorough analysis has to
-be made regarding to the gas consumption of all involved phases, as well as the
-immediacy of required actions. In Solidity, the priority of transactions is
-determined by the gas price(ref) a user assigns to the underlying
-transaction. This means that the user can chose the estimated time in which
-transactions are published. Since the duration of contest period in NIPoPoWs is
-bounded by a finite number of rounds $n$, the probability that the contesting
-proof is included within the following $n$ blocks must be decisive. Otherwise,
-it is possible for an invalid proof to be established due to the lack of
-challenge. Albeit the user that initiates the submission may demand a direct
-interaction, and thus selects a high gas price, this does not affect the value
-of the collateral, as the burden of the node is not affected by the quickness
-of initial proof's publication.
+\noindent \textbf{Collaterlal.} The determination of a fair collateral is not
+trivial. Thorough analysis has to be made regarding to the gas consumption of
+all involved phases, as well as the immediacy of required actions. In Solidity,
+the priority of transactions is determined by the gas price~\cite{wood} a user assigns
+to the underlying transaction. This means that the user can chose the estimated
+time in which transactions are published. Since the duration of contest period
+in NIPoPoWs is bounded by a finite number of rounds $n$, the probability that
+the contesting proof is included within the following $n$ blocks must be
+decisive. Otherwise, it is possible for an invalid proof to be established due
+to the lack of challenge. Albeit the user that initiates the submission may
+demand a direct interaction, and thus selects a high gas price, this does not
+affect the value of the collateral, as the burden of the node is not affected
+by the priority of initial proof's publication.
 
-We examine various cases in which an invalid submission is followed by a
-successful contest. Generally, we expect for an adversary to provide a proof of
-a chain that is a fork of the honest chain at some point relatively close to
-the tip. This is due to the fact that the ability of an adversary to sustain a
-fork chain is exponentially weakened as the honest chain progresses. We
-consider a fork of 100 blocks sufficient to describe an attempt of a power
-adversary. However, we examine further cases. Our experiments include fraud
-proofs of chains that fork a Bitcoin-like honest chain $100$, $100{,}000$ and
-$650{,}000$ blocks prior to the tip. The last experiment essentially represents
-the case of selfish mining(ref) from Bitcoin's genesis. We define $\textsf{Z}$
-as the profit the node gains in case of a successful contest so that $
-\text{collateral} = \textsf{Z} + \text{gas expended}$. We consider \textsf{Z} =
-$0.1$ Ether (\$2) a sufficient amount. Different gas prices formulate different
-costs for contest.
+\noindent \textbf{Analysis.} We examine various cases in which an invalid
+submission is followed by a successful contest. Generally, we expect for an
+adversary to provide a proof of a chain that is a fork of the honest chain at
+some point relatively close to the tip. This is due to the fact that the
+ability of an adversary to sustain a fork chain is exponentially weakened as
+the honest chain progresses. We consider a fork of 100 blocks sufficient to
+describe an attempt of a power adversary. However, we examine further cases.
+Our experiments include fraud proofs of chains that fork a Bitcoin-like honest
+chain $100$, $100{,}000$ and $650{,}000$ blocks prior to the tip. The last
+experiment essentially represents the case of selfish mining~\cite{selfish} from
+Bitcoin's genesis.  We define $\textsf{Z}$ as the profit the node gains in case
+of a successful contest so that collateral equals to \textsf{Z} + the gas
+expended. We consider \textsf{Z} = $0.1$ Ether (\$2) a sufficient amount.
+Different gas prices formulate different costs for contest.
 
 We used ETH Gas Station~\cite{eth-gas-station} to calculate the probabilities
-of transactions inclusions with respect to gas price. In
-Figure~\ref{fig:cryptoeconomics} we illustrate our economical analysis of out
+of transactions' inclusions with respect to gas price. In
+Figure~\ref{fig:cryptoeconomics} we illustrate our economical analysis of our
 client. Green and blue solid lines in each graph display the transaction cost
-in USD for each phase as a function of the gas price. The solid red line in
+in USD for each phase as a function of the gas price. The red solid line in
 each graph represents the collateral as a function of the probability of the
-inclusion of contest transaction in the following 200 blocks. As this
+contest transaction's inclusion in the following 200 blocks. As this
 probability approaches 1, the gas price needs to be increased. Dashed lines
 illustrate the total cost of a submission in USD for several selections of
-collateral depending on the desired value of gas price.  The selection of gas
-price of the submission does not affect the collateral, but dictates the
-immediacy of the transaction.
+collateral, as a product of desired value of gas price. The selection for gas
+price of the submit phase does not affect collateral, but dictates the
+immediacy of the transaction by the user.
 
 In Figure~\ref{fig:cryptoeconomics-100} we observe that the transaction cost of
 a submission for a chain that equals the length of Bitcoin as a mid priority
@@ -72,7 +72,7 @@ transaction (80\% probability of getting accepted in the next 200 blocks) is
 of being included in the next 200 blocks) is \$7.99. The collateral in this
 case is \$9.99 (contest cost+\textsf{Z}).
 
-\begin{figure}[!h]
+\begin{figure}[h]
 \begin{subfigure}{0.97\linewidth}
     \begin{center}
         \includegraphics[width=1\columnwidth]{figures/cryptoeconomics-100.pdf}
@@ -99,3 +99,5 @@ case is \$9.99 (contest cost+\textsf{Z}).
 \caption{Economical analysis of RePoPoW.}
 \label{fig:cryptoeconomics}
 \end{figure}
+
+
