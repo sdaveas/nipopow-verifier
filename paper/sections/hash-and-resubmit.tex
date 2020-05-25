@@ -23,9 +23,6 @@ from the blockchain is to declare them public.  This leads to the creation of a
 \emph{getter} function in the background, allowing free access to the value of
 the variable. But this treatment does not prevent the initial population of
 storage data, which is significantly expensive for large size of data.
-Towards the goal of implementing gas-efficient smart contracts, several
-patterns have been proposed~\cite{contract-opt-1, contract-opt-2,
-contract-opt-3, contract-opt-4}.
 
 By using the \emph{hash-and-resubmit} pattern, large structures are omitted
 from storage entirety, and are contained in memory. When a function call is
@@ -38,6 +35,19 @@ node \emph{resends} the observed data to the blockchain. The concept of
 resending data is redundant in conventional systems. However, this technique
 is very efficient to use in Solidity due to the significantly lower gas cost
 of memory operations in relation with storage operations.
+
+\noindent \textbf{Related patterns.} Towards the goal of implementing
+gas-efficient smart contracts~\cite{contract-opt-1, contract-opt-2,
+contract-opt-3}, several patterns have been proposed. Towards eliminating
+storage operations using data signatures, the utilization of IPFS~\cite{ipfs}
+is proposed by \cite{ipfs-1} and~\cite{ipfs-2}. However, these solutions do not
+address availability, which is a main requirement in our application.
+\cite{logs} uses logs to replace storage in a similar manner sparing a great
+amount of gas.  However, this approach does not address consistency, which is
+consists also a critical one of our critical target. Lastly,
+~\cite{contract-opt-4} proposes an efficient manner to replace read storage
+operations, but does not address write operations.
+
 
 \begin{figure*}[h]
     \begin{center} \includegraphics[width=1\textwidth]{figures/har-pattern.pdf}
