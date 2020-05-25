@@ -38,14 +38,14 @@ of memory operations in relation with storage operations.
 
 \noindent \textbf{Related patterns.} Towards the goal of implementing
 gas-efficient smart contracts~\cite{contract-opt-1, contract-opt-2,
-contract-opt-3}, several patterns have been proposed. Towards eliminating
+slither, madmax}, several patterns have been proposed. Towards eliminating
 storage operations using data signatures, the utilization of IPFS~\cite{ipfs}
 is proposed by \cite{ipfs-1} and~\cite{ipfs-2}. However, these solutions do not
 address availability, which is a main requirement in our application.
 \cite{logs} uses logs to replace storage in a similar manner sparing a great
 amount of gas.  However, this approach does not address consistency, which is
 consists also a critical one of our critical target. Lastly,
-~\cite{contract-opt-4} proposes an efficient manner to replace read storage
+~\cite{memory-array} proposes an efficient manner to replace read storage
 operations, but does not address write operations.
 
 
