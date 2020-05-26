@@ -139,4 +139,13 @@ requirement in order to perform on-chain verification.
 are relevant to our work. In Section 3 we put forth the
 \emph{hash-and-resubmit} pattern. We demonstrate the improved performance of
 smart contracts using the pattern, and how it is incorporated in our superlight
-client. In Section 4 we show ... and.  Finally, in Section 5, we discuss ...
+client. In Section 4, we present an alteration of the NIPoPoW protocol that
+enables the elimination of look-up structures that allows for efficient
+interactions due to the considerably smaller size of dispatched proofs. In
+Section 5, we put forth an optimistic schema that significantly lowers the
+complexity of proofs' structural verification from linear to constant, by
+introducing a new interaction which we term \emph{dispute phase}. Furthermore,
+we present a technique that leverages the dispatch of constant number of blocks
+in contest phase. Finally, in Section 6, we present our cryptoeconomic analysis
+on \name. We establish the monetary value of collateral parameters, as well
+as the cost of each interaction with the client for different gas prices.
