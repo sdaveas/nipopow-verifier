@@ -108,14 +108,16 @@ pattern significantly improves performance of Ethereum smart
 contracts~\cite{wood, buterin} in terms of gas consumption by utilizing
 \emph{calldata} space of Ethereum blockchain to eliminate high-cost storage
 operations.
-\item We design an \emph{optimistic} schema which we incorporate
-in the design of our client, that replaces \emph{non-optimistic} operations.
-This design achieves the improvement of smart contracts' performance by
-enabling multiple phases of interactions.
+\item We create an \emph{optimistic} schema which we incorporate in the design
+of our client. This design achieves significant performance improvement by
+replacing linear complexity verification of proofs, with constant complexity
+verification.
 \item We demonstrate via application that the NIPoPoW protocol is practical,
 making the cryptographic primitive the first provably secure construction of
 succinct proofs that is efficient to implement.
-\item Cryptoeconomics. Create the section first.
+\item We present an econometric analysis on NIPoPoWs. This analysis allows us
+to provide concrete values of collateral parameters in fiat, as well as the
+cost of submit and contest actions under different gas price configurations.
 
 \end{enumerate}
 
