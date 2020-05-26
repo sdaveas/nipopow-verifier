@@ -18,14 +18,14 @@ are only contained in storage. This affects the performance of the client,
 especially for large proofs.
 
 We make a keen observation regarding potential positions of the \emph{block of
-interest} in proofs, which leads us to the construction of an architecture
-that does not require DAG, ancestors or other complementary structures. To
-support this claim, we adopt the notation from~\cite{nipopows}.
-Additionally, we denote the initially submitted proof as $\pis$ and the
-contesting proof as $\pic$. In this context, we consider the predicate $\pred$
-to be "does block $\boi$ exists inside proof $\pr$?", where $\boi$ denotes
-the block of interest. The entity that initiates a submission is $\es$, and the
-entity that initiates a contest is $\ec$.
+interest} in proofs, which leads us to the construction of an architecture that
+does not require DAG, ancestors or other complementary structures. To support
+this claim, we adopt the notation from~\cite{nipopows}.  Additionally, we
+denote the initially submitted proof as $\pis$ and the contesting proof as
+$\pic$. In this context, we consider the predicate $\pred$ to be "does block
+$\boi$ exists inside proof $\pr$?", where $\boi$ denotes the block of interest
+of proof $\pr$. The entity that initiates a submission is $\es$, and the entity
+that initiates a contest is $\ec$.
 
 \noindent \textbf{Position of block of interest.} NIPoPoWs are sets of sampled
 interlinked blocks, which means that they can be perceived as chains. If
@@ -51,7 +51,7 @@ block $\block$ exists such that \{$\block : \block \notin \pis\{{:}\lca\} \land
 \block \in \pic\{{:}\lca\}$\} where $\block$ results into positive evaluation
 of the predicate. This is due to the fact that, in a rational contest, $\boi$
 is not included in $\pic$. Consequently, $\pic$ is only rational if it forks
-$\pis$ in a block is prior to $\boi$.
+$\pis$ at a block that is prior to $\boi$.
 
 \renewcommand{\block}{}
 
@@ -69,14 +69,14 @@ $\pis$ in a block is prior to $\boi$.
 \end{figure}
 
 In Figure~\ref{fig:boi-position} we display a fork of two proofs. Solid lines
-connect blocks of $\pis$ and dashed lines connect blocks of $\pic$.  Examining
-which scenarios are rational depending on different positions of the block of
-interest, we observe that blocks \texttt{B}, \texttt{C} and \texttt{E} do not
-qualify, because they are included only in $\pic$. Block \texttt{A} is included
-in $\pis\{{:}\lca\}$, which means that $\pic$ is an irrational contest because
-the $\lca$ comes after $\boi$. Therefore A is an irrational block as a component
-of an irrational contest. Given this configuration, the only rational block of
-interest is \texttt{D} and its predecessors (which we do not display).
+connect blocks of $\pis$ and dashed lines connect blocks of $\pic$. By
+examining which scenarios are rational depending on different positions of the
+block of interest, we observe that blocks \texttt{B}, \texttt{C} and \texttt{E}
+do not qualify, because they are included only in $\pic$. Block \texttt{A} is
+included in $\pis\{{:}\lca\}$, which means that $\pic$ is an irrational contest
+because the $\lca$ comes after $\boi$. Therefore A is an irrational block as a
+component of an irrational contest. Given this configuration, the only rational
+block of interest is \texttt{D} and its predecessors.
 
 \noindent \textbf{Minimal forks.} By combining the above observations, we
 derive that, $\pic$ can be truncated into $\pic\{{:}\lca\}$ without
@@ -124,5 +124,3 @@ improves. We use the same test case as in \emph{hash-and-resubmit}.
     \caption{}
     \label{fig:minimal-fork}
 \end{figure}
-
-TODO: comment results
