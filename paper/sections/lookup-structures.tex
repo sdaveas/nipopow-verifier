@@ -115,6 +115,11 @@ incorporated into our client replacing the DAG and ancestors. In
 Figure~\ref{fig:minimal-fork} we show how the performance of the client
 improves. We use the same test case as in \emph{hash-and-resubmit}.
 
+By applying the minimal-fork technique, he achieve to decrease gas consumption
+by 55\%: \emph{submit} phase costs {4{,}700{,}000} gas, and \emph{contest}
+phase costs {4{,}900{,}000} million gas. This is a notable result, since each
+phase is now below the block gas limit.
+
 \input{algorithms/minimal-fork}
 
 \begin{figure}[h]
