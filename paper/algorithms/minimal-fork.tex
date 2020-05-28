@@ -25,8 +25,7 @@
         \State \textsf{require}(\textsf{valid-interlinks}($\pitr$))
         \State \textsf{require}(\textsf{minimal-fork}($\pisa$,
         $\pitr$, $f$))
-        \State \textsf{require}(\textsf{score}($\pitr$)
-        $>$ \textsf{score}($\pisa[f{:}]$))
+        \State \textsf{require}($\pitr$ $\geq_m$ $\pisa$)
         \State \textsf{events$[e]$.pred} $\gets$
             \textsf{evaluate-predicate}($\pitr$, $e$)
     \EndFunction

@@ -37,12 +37,12 @@
         \State \textsf{require}(\textsf{valid-interlinks}($\pitrl$))
         \State \textsf{require}(\textsf{minimal-fork}($\pisa$,
         $\pitrl$, $f$))
-        \State \textsf{require}(\textsf{score-at-level}($\pitrl$)
-        $>$ \textsf{score}($\pisa[f{:}]$))
+        \State \textsf{require}(\textsf{arg-at-level}($\pitrl$)
+        $>$ \textsf{best-arg}($\pisa[f{:}]$))
         \State \textsf{events$[e]$.pred} $\gets$
             \textsf{evaluate-predicate}($\pitrl$, $e$)
     \EndFunction
-    \Function{\sf score-at-level}{$\pi$}
+    \Function{\sf arg-at-level}{$\pi$}
         \State $l \gets \pi[-1].\textsf{level}$
         \Comment{pick proof level from a block}
         \State $score \gets 0$
