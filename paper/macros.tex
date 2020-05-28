@@ -26,9 +26,9 @@
 \newcommand{\pic}{\mathsf{\pi_{cont}}}
 \newcommand{\pitr}{\mathsf{\pi_{cont}^{mf}}}
 \newcommand{\pitrl}{\mathsf{\pi_{cont}^{mf, bl}}}
-\newcommand{\boi}{\mathsf{b}}
-\newcommand{\pred}{\mathsf{e}}
-\newcommand{\lca}{\mathsf{lca}}
+\newcommand{\boi}{\mathsf{B}}
+\newcommand{\pred}{\mathsf{p}}
+\newcommand{\lca}{\mathsf{LCA}}
 
 \algblockdefx[Contract]{Contract}{EndContract}
 [1]{\textbf{contract #1}}
@@ -41,3 +41,26 @@
 \algblockdefx[Internal]{Internal}{EndInternal}
 [2]{\textbf{internal function #1}(#2)}
 [0]{\textbf{end function}}
+
+\newcommand{\CommentLine}[1]{
+    \State \(\triangleright\) \textit{#1}
+}
+
+\newcommand{\conc}{\mathbin{\|}}
+\DeclareMathOperator{\Ex}{\mathbb{E}}
+
+%prelims
+\newcommand{\chain}{\mathsf{C}}
+\newcommand{\upchain}{\negthickspace\uparrow}
+\newcommand{\downchain}{\negthickspace\downarrow\,}
+\newcommand{\tx}{\mathsf{tx}}
+\newcommand{\coinbase}{\mathsf{tx}_{\mathsf{cb}}}
+
+\def\Let#1#2{\State $#1\gets#2$}
+\algblockdefx[Operator]{Operator}{EndOperator}
+[1]{\textbf{operator #1}}
+[0]{\textbf{end operator}}
+\newcommand{\true}{\textsf{true}}
+\newcommand{\false}{\textsf{false}}
+
+\newcommand{\coll}{$z$}
