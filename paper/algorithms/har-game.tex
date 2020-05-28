@@ -1,3 +1,4 @@
+\newcommand{\arr}{\textsf{a}}
 \begin{algorithm}
     \caption{\label{alg:game-storage}\textsf{best array} using storage}
     \begin{algorithmic}[1]
@@ -5,21 +6,21 @@
     \Contract{best-array}
         \State{$\textsf{best} \gets \emptyset$;
                $\textsf{holder} \gets \emptyset$}
-        \Function{\sf submit}{$a$}
-        \State \textsf{best} $\gets a$
+        \Function{\sf submit}{$\arr$}
+        \State \textsf{best} $\gets \arr$
             \Comment{array saved in storage}
             \State \textsf{holder $\gets$ msg.sender}
         \EndFunction
 
-        \Function{\sf contest}{$a$}
-            \State \textsf{require}(\textsf{compare}($a$))
+        \Function{\sf contest}{$\arr$}
+            \State \textsf{require}(\textsf{compare}($\arr$))
             \State \textsf{holder} $\gets$ \textsf{msg.sender}
         \EndFunction
 
-        \Function{\sf compare}{$a$}
-            \State \textsf{require}($|a|$ $\geq$ $|$\textsf{best}$|$)
+        \Function{\sf compare}{$\arr$}
+            \State \textsf{require}($|\arr|$ $\geq$ $|$\textsf{best}$|$)
             \For{$i$ \textbf{in} $|$\textsf{best}$|$}
-            \State \textsf{require}($a[i]$ $\geq$ \textsf{best}[i])
+            \State \textsf{require}($\arr[i]$ $\geq$ \textsf{best}[i])
             \EndFor
             \State \Return{true}
         \EndFunction
