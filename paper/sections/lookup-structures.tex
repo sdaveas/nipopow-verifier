@@ -1,7 +1,7 @@
 \section{Removing Look-up Structures}
 
 Now that we can freely retrieve large array structures, we can focus on other
-types of storage variables. A challenge we faced is that the protocol of
+types of storage variables. The challenge we face is that the protocol of
 NIPoPoWs dependents on a Directed Acyclic Graph (DAG) of blocks which is a
 mutable hashmap. This DAG is needed because interlinks of superblocks can be
 adversarially defined. By using DAG, the set of ancestor blocks of a block is
@@ -22,9 +22,9 @@ interest} in proofs, which leads us to the construction of an architecture that
 does not require DAG, ancestors or other complementary structures. To support
 this claim, we adopt the notation from~\cite{nipopows}.  Additionally, we
 denote the initially submitted proof as $\pis$ and the contesting proof as
-$\pic$. In this context, we consider the predicate $\pred$ to be "does block
-$\boi$ exists inside proof $\pr$?", where $\boi$ denotes the block of interest
-of proof $\pr$. The entity that initiates a submission is $\es$, and the entity
+$\pic$. In this context, we consider the predicate $\pred$ to be of the fork: "does block
+$\boi$ exist inside proof $\pr$?", where $\boi$ denotes the block of interest
+of proof $\pr$. The entity that performs the submission is $\es$, and the entity
 that initiates a contest is $\ec$.
 
 \noindent \textbf{Position of block of interest.} NIPoPoWs are sets of sampled

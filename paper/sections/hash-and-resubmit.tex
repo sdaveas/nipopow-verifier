@@ -2,14 +2,12 @@
 
 We now introduce a novel design pattern for Solidity smart contracts that
 results into massive gas optimization due to the elimination of expensive
-storage operations.
+storage operations. We first introduce the pattern, and display how smart
+contracts benefit by using it. Then, we proceed into integrating the pattern
+into the NIPoPoW client, and we analyze the performance in comparison with
+previous work.
 
 \textbf{Motivation.}
-% This part is maybe too shallow. Consider deleting it. >>>> In the Ethereum
-% blockchain, Turing-complete smart contracts were introduced. In order to
-% prevent accidental or adversarial DoS phenomena such as infinite loops of
-% code, contract invocations are bounded by an amount of gas units~\cite{wood,
-% buterin}.  <<<<
 It is essential for smart contracts to store data in the blockchain. However,
 interacting with the storage of a contract is among the most expensive
 operations of the EVM~\cite{wood, buterin}. Therefore, only necessary data
@@ -293,9 +291,9 @@ resubmitting data in a manner that addresses consistency and availability.
 \emph{hash-and-resubmit} pattern is used in the context of the NIPoPoW
 superlight client. The NIPoPoW verifier adheres to a submit-and-contest-phase
 schema, and the inputs of the functions are arrays that are processed on-chain.
-It is, therefore, a suitable case for our pattern.
+It consists, therefore, a suitable case for our pattern.
 
-In \emph{submit} phase, a \emph{proof} is submitted, which, in the case of
+In \emph{submit} phase, a \emph{proof} is submitted. In the case of
 falsity, it is contested by another user in \emph{contest} phase. The user that
 initiates the contest is a node and monitors the traffic of the verifier.  The
 input of \textsf{submit} function includes the submit proof ($\pis$) that
@@ -319,7 +317,7 @@ addition of the interlink structure in each block as in~\cite{gglou}. Our chain
 spans 650,000 blocks, which represent a slightly enhanced Bitcoin
 chain\footnote{Bitcoin spans 631,056 blocks as on May 2020. Metrics by
 https://www.blockchain.com/}. From the tip of our chain, we branch two chains
-that span 100 and 200 additional blocks, respectively, as illustrated in
+that span 100 and 200 additional blocks respectively, as illustrated in
 Figure~\ref{fig:chains}. Then, we use the smaller chain to create  $\pis$, ,
 and the larger chain to create $\pic$. By applying the protocol, $\pis$ is
 submitted, and a contest is initiated with $\pic$. The contest is successful,
