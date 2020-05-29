@@ -124,18 +124,17 @@ include a pointer to the most recently preceding $\mu$-superblock, for every
 $\mu$, as illustrated in Figure~\ref{fig.hierarchy}. As these levels are only
 $\log|\chain|$, this only adds $\log|\chain|$ extra pointers to each block
 header.
-
 \input{algorithms/prelims/alg.nipopow-prover.tex}
 
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.9\columnwidth,keepaspectratio]{figures/prelims/level-shadows.pdf}
-    \caption{The interlinked blockchain. Each superblock is drawn taller
-    according to its achieved level. Each block links to all the blocks that are
-    not being overshadowed by their descendants. The most recent (right-most)
-    block links to the four blocks it has direct line-of-sight to.}
-    \label{fig.hierarchy}
-\end{figure}
+% \begin{figure}[ht]
+%     \centering
+%     \includegraphics[width=0.9\columnwidth,keepaspectratio]{figures/prelims/level-shadows.pdf}
+%     \caption{The interlinked blockchain. Each superblock is drawn taller
+%     according to its achieved level. Each block links to all the blocks that are
+%     not being overshadowed by their descendants. The most recent (right-most)
+%     block links to the four blocks it has direct line-of-sight to.}
+%     \label{fig.hierarchy}
+% \end{figure}
 
 The exact NIPoPoW protocol works like this: The prover holds a full chain
 $\chain$. When the verifier requests a proof, the prover sends the last $k$
@@ -177,6 +176,8 @@ Algorithm~\ref{alg.nipopow-verifier}.
 
 \input{algorithms/prelims/alg.nipopow-verifier.tex}
 
+\input{algorithms/prelims/alg.nipopow-verifier-inf.tex}
+
 In the case of the infix proofs there are some additional things that need to
 be considered. An adversary prover could skip the blocks of interest and
 present an honest and longer chain that, if only the suffix verifier where to
@@ -186,8 +187,6 @@ but also combine the two proofs by including all of the ancestor blocks of the
 losing proof. This is guaranteed to include the blocks of interest. The
 resulting best proof is stored as a DAG(Directed Acyclic Graph), as in
 Algorithm~\ref{alg.nipopow-verifier-infix}
-
-\input{algorithms/prelims/alg.nipopow-verifier-inf.tex}
 
 \noindent
 \textbf{Hard Forks.}
