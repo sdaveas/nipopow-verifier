@@ -48,23 +48,22 @@ operations, but does not address write operations.
 
 
 \begin{figure*}[h]
-    \begin{center} \includegraphics[width=1\textwidth]{figures/har-pattern.pdf}
+    \begin{center} \includegraphics[width=0.8\textwidth]{figures/har-pattern.pdf}
     \end{center}
 
-    \caption{The \emph{hash-and-resubmit} pattern. In Stage 1, an invoker calls
+    \caption{The \emph{hash-and-resubmit} pattern. First, an invoker calls
         \proc$_1$($\data_0$). $\data_0$ is processed on-chain and $\data$ is
         generated. The signature of $\data$ is stored in the blockchain as the
-        digest of a hash function \textsf{H}(). In Stage 2, a full node that
+        digest of a hash function \textsf{H}($\data$). Then, a full node that
         observes invocations of $\proc_1$ retrieves $\data_0$, and generates
         $\data$ by performing the analogous processing on $\data_0$
-        \emph{off-chain}. An adversarial observer potentially alters $\data$.
-        Finally, in Stage 3, the observer invokes $\proc_2$($\data^*$). In
-        $\proc_2$, the validation of $\data$ is performed, reverting the
-        function call if the signatures of originally submitted $\data$ does
-        not match the signature of $\data^*$. By applying the
-        \emph{hash-and-resubmit pattern}, only fixed-size signatures of data
-        need to be maintained on the blockchain replacing arbitrarily large
-        structures.}
+        \emph{off-chain}. An adversarial observer potentially alters $\data$ to
+        $\data^*$.  Finally, the node invokes $\proc_2$(.). In $\proc_2$, the
+        validation of input data is performed, reverting the function call if
+        the signatures of $\data$ does not match the signature of the input. By
+        applying the \emph{hash-and-resubmit pattern}, only the fixed-size
+        signature of $\data$ is stored on the blockchain, replacing arbitrarily
+        large structures.}
 
         \label{fig:har-pattern}
 \end{figure*}
@@ -195,83 +194,6 @@ elements.
     avoiding gas-heavy storage operations, the aggregated cost of
     \textsf{submit} and \textsf{contest} is decreased significantly by 95\%.}
 \label{fig:har-example}
-\end{figure}
-
-
-\noindent \textbf{Variations.}
-% Now consider a variation of the above game, in
-% which $\pla$ calls \texttt{\proc$_1$(}$\arra$\texttt{)}, and then calls
-% \texttt{pickSpan(}$m, n$\texttt{)} that determines the span of $\arra$ which
-% can be contested. In reality, $\plb$ only needs to re-send $\arras[m:n]$ in
-% order to perform the comparison $\arra[m:n] < \arrb$. However, the digest of
-% $\arra$ is calculated by hashing the entire structure. Therefore, the
-% $resubmit$ phase cannot be successfully performed by rehashing $\arras[m:n]$,
-% because \texttt{H(}$\arra$\texttt{)} $\ne$ \texttt{H(}$\arra[m:n]$\texttt{)}.
-In order to enable selective dispatch of a segment of interest, different
-hashing schemas can be adopted, such as Merkle Trees ~\cite{merkle} and Merkle Mountain
-Ranges ~\cite{mmr-1, mmr-2}. In this variation of the pattern, which we term
-\emph{merkle-hash-and-resubmit}, the signature of an array $\data$ is
-Merkle Tree Root (MTR). In \emph{resubmit} phase, $\data[m{:}n]$ is
-dispatched, accompanied by the siblings that reconstruct the MTR of
-$\data$.
-
-\begin{figure}[h]
-    \begin{center}
-        \includegraphics[width=0.8\linewidth]{figures/merkle-har.pdf}
-    \end{center}
-    \caption{\textbf{I.} The calculation of root in \emph{hash} phase.
-    \textbf{II.} The verification of the root in \emph{resubmit} phase.
-    \textsf{H}($k$) denotes the digest of element $k$. \textsf{H}($kl$) denotes the
-    result of \textsf{H}(\textsf{H}($k$) $|$ \textsf{H}($l$))}
-    \label{fig:merkle-har}
-\end{figure}
-
-This variation of the pattern removes the burden of sending redundant data,
-however it implies on-chain construction and validation of the Merkle
-construction. In order to construct a MTR for an array $\data$,
-$|\data|$ hashes are needed for the leafs of the MT, and $|\data| -
-1$ hashes are needed for the intermediate nodes. For the verification, the
-segment of interest $\data[m{:}n]$ and the siblings of the MT are hashed.
-The size of siblings is approximately $log_2(|\data|)$. The process of
-constructing and verifying the MTR is displayed in Figure
-~\ref{fig:merkle-har}.
-
-In Solidity, different hashing operations vary in cost. An invocation of
-\textsf{sha256}($\data$), copies $data$ in memory, and then the
-\emph{CALL} instruction is performed by the EVM that calls a pre-compiled
-contract. In the current state of the EVM, \emph{CALL} costs 700 gas units, and
-the gas paid for every word when expanding memory is 3 gas units~\cite{wood}.
-Consequently, the expression $1 \times \textsf{sha256}(\data)$ costs less than
-$|\data| \times $\textsf{sha256}(1) operations. A different cost policy applies
-for \textsf{keccak}~\cite{keccak} hash function, where hashing costs 30 gas
-units plus 6 additional gas far each word for input data~\cite{wood}. The usage
-of \textsf{keccak} dramatically increases the performance in comparison with
-\textsf{sha256}, and performs better than plain rehashing if the product of
-on-chain processing is sufficiently larger that the originally dispatched data.
-Costs of all related operations are listed in Table~\ref{tab:operations-gas}.
-
-The merkle variation can be potentially improved by dividing $\data$ in larger
-chunks than 1 element. We leave this analysis for future work.
-
-\input{tables/operations-gas}
-
-In Table~\ref{tab:har-vs-mhar} we display the operations needed for hashing and
-verifying the underlying data for both variations of the pattern as a function
-of data size. In Figure~\ref{fig:har-vs-mhar} we demonstrate the gas
-consumption for dispatched data of 10KB, and varying size of on-chain
-process product.
-
-\input{tables/har-vs-mhar}
-
-\begin{figure}[h]
-    \begin{center}
-        \includegraphics[width=1\columnwidth]{figures/har-vs-mhar.pdf}
-    \end{center}
-    \caption{Trade-offs between \emph{hash-and-resubmit} variations. In the
-    vertical axis the gas consumption is displayed, and in vertical axis the
-    size of $\data$ as a function of $\data_0$. The size of $d_0$ is 10KB
-    bytes, and the hash function we used is pre-compiled \texttt{sha256}.}
-    \label{fig:har-vs-mhar}
 \end{figure}
 
 \noindent \textbf{Consequences.} The most obvious consequence of applying the
