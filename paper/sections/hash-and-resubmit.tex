@@ -1,11 +1,11 @@
 \section{The Hash-and-Resubmit Pattern}
 
 We now introduce a novel design pattern for Solidity smart contracts that
-results into massive gas optimization due to the elimination of expensive
+results into significant gas optimization due to the elimination of expensive
 storage operations. We first introduce the pattern, and display how smart
 contracts benefit by using it. Then, we proceed into integrating the pattern
-into the NIPoPoW client, and we analyze the performance in comparison with
-previous work.
+into the NIPoPoW client, and we analyze the performance in comparison with the
+previous work~\cite{gglou}.
 
 \textbf{Motivation.}
 It is essential for smart contracts to store data in the blockchain. However,
@@ -52,18 +52,19 @@ operations, but does not address write operations.
     \end{center}
 
     \caption{The \emph{hash-and-resubmit} pattern. First, an invoker calls
-        \proc$_1$($\data_0$). $\data_0$ is processed on-chain and $\data$ is
-        generated. The signature of $\data$ is stored in the blockchain as the
-        digest of a hash function \textsf{H}($\data$). Then, a full node that
-        observes invocations of $\proc_1$ retrieves $\data_0$, and generates
-        $\data$ by performing the analogous processing on $\data_0$
-        \emph{off-chain}. An adversarial observer potentially alters $\data$ to
-        $\data^*$.  Finally, the node invokes $\proc_2$(.). In $\proc_2$, the
-        validation of input data is performed, reverting the function call if
-        the signatures of $\data$ does not match the signature of the input. By
-        applying the \emph{hash-and-resubmit pattern}, only the fixed-size
-        signature of $\data$ is stored on the blockchain, replacing arbitrarily
-        large structures.}
+        \proc$_1$($\data_0$). $\data_0$ is processed \emph{on-chain} and
+        $\data$ is generated. The signature of $\data$ is stored in the
+        blockchain as the digest of a hash function \textsf{H}($\data$). Then,
+        a full node that observes invocations of $\proc_1$ retrieves $\data_0$,
+        and generates $\data$ by performing the analogous processing on
+        $\data_0$ \emph{off-chain}. An adversarial observer dispatches
+        $\datas$, where $\datas$$\neq$$\data$. Finally, the node invokes
+        $\proc_2$(.). In $\proc_2$, the validation of input data is performed,
+        reverting the function call if the signatures of the input does not
+        match with the signature of the originally processed data. By applying
+        a \emph{hash-and-resubmit pattern}, only the fixed-size signature of
+        $\data$ is stored to the contract's state, replacing arbitrarily large
+        structures.}
 
         \label{fig:har-pattern}
 \end{figure*}
@@ -260,10 +261,18 @@ is embedded into the NIPoPoW client.
 
 In Figure~\ref{fig:har-nipopow}, we display how results of the
 \emph{hash-and-resubmit} implementation differentiate from previous work for
-the aggregated cost of \emph{submit} and \emph{contest} phases.  We observe
-that by using the \emph{hash-and-resubmit} pattern, we achieve to increase the
+the aggregated cost of \emph{submit} and \emph{contest} phases. We observe
+that, by using the \emph{hash-and-resubmit} pattern, we achieve to increase the
 performance of the contract 50\%. This is a decisive step towards creating a
 practical superlight client.
+
+Note that, the gas consumption generally follows an ascending trend, however it
+is not a monotonically increasing function. This is due to the fact that
+NIPoPoWs are probabilistic structures, the size of which is determined by the
+distribution of superblocks within the underlying chain. A proof that is
+constructed for a chain of a certain size can be larger than a proof
+constructed for a slightly smaller chain, resulting to non-monotonic increase
+of gas consumption between consecutive values of proof sizes.
 
 \input{algorithms/har-nipopow}
 
