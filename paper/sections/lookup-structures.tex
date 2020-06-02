@@ -7,7 +7,7 @@ mutable hashmap. This DAG is needed because interlinks of superblocks can be
 adversarially defined. By using DAG, the set of ancestor blocks of a block is
 extracted by performing a simple graph search. For the evaluation of the
 predicate, the set of \emph{ancestors} of the best blockchain tip is used.
-Ancestors are included to avoid an adversary who presents an honest chain but
+Ancestors are created to avoid an adversary who presents an honest chain but
 skips the blocks of interest.
 
 This logic is intuitive and efficient to implement in most traditional
@@ -19,20 +19,19 @@ especially for large proofs.
 
 We make a keen observation regarding potential positions of the \emph{block of
 interest} in proofs, which leads us to the construction of an architecture that
-does not require DAG, ancestors or other complementary structures. To support
-this claim, we adopt the notation from~\cite{nipopows}.  Additionally, we
-denote the initially submitted proof as $\pis$ and the contesting proof as
-$\pic$. In this context, we consider the predicate $\pred$ to be of the fork:
-``does block $\boi$ exist inside proof $\pr$?'', where $\boi$ denotes the block
-of interest of proof $\pr$. The entity that performs the submission is $\es$,
-and the entity that initiates a contest is $\ec$.
+does not require a DAG, the ancestors or other complementary structures. To
+support this claim, we adopt the notation from~\cite{nipopows}. As
+in~\cite{nipopows}, we consider the predicate $\pred$ to be of the type: ``does
+block $\boi$ exist inside proof $\pr$?'', where $\boi$ denotes the block of
+interest of proof $\pr$. The entity that performs the submission is $\es$, and
+the entity that initiates a contest is $\ec$.
 
 \noindent \textbf{Position of block of interest.} NIPoPoWs are sets of sampled
 interlinked blocks, which means that they can be perceived as chains. If
-$\pr_1$ differs from $\pr_2$, then a fork is created at the index of the last
+$\pr_1$ differs from $\pr_2$, then a fork is created at the index of their last
 common ancestor ($\lca$). The block of interest lies at a certain index within
 $\pis$ and indicates a stable predicate~\cite{nipopows, generic-client} that is
-true for $\pis$. A submission in which $\boi$ is absent from $\pis$ is aimless,
+\true for $\pis$. A submission in which $\boi$ is absent from $\pis$ is aimless,
 because it automatically fails since no element of $\pis$ satisfies $\pred$. On
 the contrary, $\pic$ tries to prove the \emph{falseness} of the underlying
 predicate. This means that, if the block of interest is included in $\pic$,
@@ -70,16 +69,17 @@ $\pis$ at a block that is prior to $\boi$.
 
 In Figure~\ref{fig:boi-position} we display a fork of two proofs. Solid lines
 connect blocks of $\pis$ and dashed lines connect blocks of $\pic$. By
-examining which scenarios are rational depending on different positions of the
+examining which scenarios are meaningful based on different positions of the
 block of interest, we observe that blocks \texttt{B}, \texttt{C} and \texttt{E}
-do not qualify, because they are included only in $\pic$. Block \texttt{A} is
-included in $\pis\{{:}\lca\}$, which means that $\pic$ is an irrational contest
-because the $\lca$ comes after $\boi$. Therefore A is an irrational block as a
-component of an irrational contest. Given this configuration, the only rational
-block of interest is \texttt{D} and its predecessors.
+do not qualify, because they are included in $\pic$. Block \texttt{A} is
+included in $\pis\{{:}\lca\}$, which means that $\pic$ is an aimless contest
+because the $\lca$ comes after $\boi$. Therefore, A is an aimless block as a
+component of an aimless contest. Given this configuration, the only meaningful
+block of interest is \texttt{D} and its predecessors (which are not displayed
+in the figure).
 
 \noindent \textbf{Minimal forks.} By combining the above observations, we
-derive that, $\pic$ can be truncated into $\pic\{{:}\lca\}$ without affecting
+derive that $\pic$ can be truncated into $\pic\{{:}\lca\}$ without affecting
 the correctness of the protocol. We term this truncated proof $\pitr$.
 Security is preserved by requiring $\pitr$ to be a \emph{minimal fork} of
 $\pis$. A minimal fork is a fork chain that shares exactly one common block
@@ -108,8 +108,8 @@ Such an attempt is displayed in Figure~\ref{fig:adversary-minimal-fork}.
     \label{fig:adversary-minimal-fork}
 \end{figure}
 
-In Algorithm~\ref{alg:minimal-fork}, we show how minimal fork technique is
-incorporated into our client replacing the DAG and ancestors. In
+In Algorithm~\ref{alg:minimal-fork}, we show how the minimal fork technique is
+incorporated into our client replacing DAG and ancestors. In
 Figure~\ref{fig:minimal-fork} we show how the performance of the client
 improves. We use the same test case as in \emph{hash-and-resubmit}.
 

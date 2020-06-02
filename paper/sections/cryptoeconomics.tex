@@ -10,7 +10,7 @@ expense is the computational power a node has to consume in order to fetch a
 submitted proof from the calldata and construct a contesting proof, but most
 importantly, the gas that has to be paid in order to dispatch a the proof to
 the Ethereum blockchain. Therefore, it is essential to provide motives to
-nodes, while, on the contrary, adversaries have to be dishearten from
+nodes, while, adversaries have to be dishearten from
 submitting invalid proofs.  We refer to the principle of promoting honest
 actions against adversarial actions as ``fairness''.
 
@@ -35,7 +35,7 @@ following $n$ blocks must be significant. Otherwise, it is possible for an inval
 proof to be established due to the lack of challenge. Albeit the user that
 initiates the submission may demand a direct interaction, and thus selects a
 high gas price, the value of the collateral is not affected, as the burden
-of the node is not determined by the priority of the publication of the initial
+of the contester is not determined by the priority of the publication of the initial
 proof.
 
 \noindent \textbf{Analysis.} We examine various cases in which an invalid
@@ -51,7 +51,8 @@ experiment essentially represents the case of selfish mining~\cite{selfish}
 from Bitcoin's genesis. We define as $\textsf{Z}$ the profit the node gains in
 case of a successful contest so that the collateral equals to \textsf{Z} + the
 expended gas. We consider $0.1$ Ether (\$2) to be a sufficient amount for
-\textsf{Z}. Different gas prices formulate different costs for contest.
+\textsf{Z}. Note that, different gas prices formulate different costs for
+contest.
 
 We use ETH Gas Station~\cite{eth-gas-station} to calculate the probabilities of
 transactions' inclusions with respect to gas price, a tool that is widely used

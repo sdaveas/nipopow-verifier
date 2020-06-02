@@ -10,7 +10,7 @@
             \For{$\textsf{id} \in B.\textsf{interlink}$}
                 \If{$\textsf{id} \in \textsf{blockById}$}
                     \Let{B'}{\textsf{blockById}[\textsf{id}]}
-                    \CommentLine{Collect into DAG}
+                    \Comment{Collect into DAG}
                     \Let{\chain}{\chain \cup \textsf{ancestors}(B', \textsf{blockById})}
                 \EndIf
             \EndFor
