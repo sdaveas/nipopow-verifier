@@ -32,14 +32,14 @@ interlinked blocks, which means that they can be perceived as chains. If
 $\pr_1$ differs from $\pr_2$, then a fork is created at the index of the last
 common ancestor ($\lca$). The block of interest lies at a certain index within
 $\pis$ and indicates a stable predicate~\cite{nipopows, generic-client} that is
-true for $\pis$. A submission in which $\boi$ is absent from $\pis$ is
-aimless, because it automatically fails since no element of $\pis$ satisfies
-$\pred$. On the contrary, $\pic$, tries to prove the \emph{falseness} of the
-underlying predicate. This means that, if the block of interest is included in
-$\pic$, then the contest is aimless. We refer to such aimless actions as
-\emph{irrational} and components that are included in such actions as
-irrational components, i.e.  irrational proof, blocks etc. We use the term
-\emph{rational} to describe non-irrational actions and components.
+true for $\pis$. A submission in which $\boi$ is absent from $\pis$ is aimless,
+because it automatically fails since no element of $\pis$ satisfies $\pred$. On
+the contrary, $\pic$ tries to prove the \emph{falseness} of the underlying
+predicate. This means that, if the block of interest is included in $\pic$,
+then the contest is aimless. We freely use the term aimless to also
+characterize components that are included in such actions i.e.\ aimless proof,
+aimless blocks etc. We use the term meaningful to describe non-aimless actions
+and components.
 
 \newcommand{\block}{\mathsf{B}}
 
@@ -49,8 +49,8 @@ blocks, and the predicate is evaluated against $\pis\{{:}\lca\} \cup
 \pic\{{:}\lca\}$. We observe that $\pic\{{:}\lca\}$ can be omitted, because no
 block $\block$ exists such that \{$\block : \block \notin \pis\{{:}\lca\} \land
 \block \in \pic\{{:}\lca\}$\} where $\block$ results into positive evaluation
-of the predicate. This is due to the fact that, in a rational contest, $\boi$
-is not included in $\pic$. Consequently, $\pic$ is only rational if it forks
+of the predicate. This is due to the fact that, in a meaningful contest, $\boi$
+is not included in $\pic$. Consequently, $\pic$ is only meaningful if it forks
 $\pis$ at a block that is prior to $\boi$.
 
 \renewcommand{\block}{}
@@ -59,11 +59,11 @@ $\pis$ at a block that is prior to $\boi$.
     \begin{center}
         \includegraphics[width=1\columnwidth]{figures/boi-position.pdf}
     \end{center}
-    \caption{Fork of two chains. Solid lines connect blocks of $\pis$
+    \caption{Fork of two chains. Solid lines connect blocks of $\pis$,
     and dashed lines connect blocks of $\pi_{cont}$. In this configuration,
-    blocks in dashed circles are irrational blocks of interest, and the block
-    in the solid circle is a rational block of interest. Blocks B, C and E are
-    irrational because they exist in $\pic$. Block A is irrational because it
+    blocks in dashed circles are aimless blocks of interest, and the block
+    in the solid circle is a meaningful block of interest. Blocks B, C and E are
+    aimless because they exist in $\pic$. Block A is aimless because it
     belongs to the subchain $\pis\{{:}\lca\}$}
     \label{fig:boi-position}
 \end{figure}
@@ -79,14 +79,12 @@ component of an irrational contest. Given this configuration, the only rational
 block of interest is \texttt{D} and its predecessors.
 
 \noindent \textbf{Minimal forks.} By combining the above observations, we
-derive that, $\pic$ can be truncated into $\pic\{{:}\lca\}$ without
-affecting the correctness of the protocol. We will term this truncated proof
-$\pitr$\footnote{We cannot proceed to further truncation of $\pitr$, because
-in the NIPoPoW protocol blocks within segment $\pi\{{:}\lca\}$ of each proof
-are required for the score calculation.}. Security is preserved by requiring
-$\pitr$ to be a \emph{minimal fork} of $\pis$. A minimal fork is a fork chain
-that shares exactly one common block with the main chain. A proof $\tilde\pi$,
-which is minimal fork of $\pi$, has the following attributes:
+derive that, $\pic$ can be truncated into $\pic\{{:}\lca\}$ without affecting
+the correctness of the protocol. We term this truncated proof $\pitr$.
+Security is preserved by requiring $\pitr$ to be a \emph{minimal fork} of
+$\pis$. A minimal fork is a fork chain that shares exactly one common block
+with the main chain. A proof $\tilde\pi$, which is minimal fork of $\pi$, has
+the following attributes:
 
 \begin{enumerate}
 \item $\pi\{lca\} = \tilde\pi[0]$

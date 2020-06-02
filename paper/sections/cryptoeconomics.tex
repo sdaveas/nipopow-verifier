@@ -1,6 +1,6 @@
 \section{Cryptoeconomics}
 
-textbf{Fairness.} We now present our economical analysis on RePoPoW. We have
+\textbf{Fairness.} We now present our economical analysis on RePoPoW. We have
 already discussed that the NIPoPoW protocol is performed in distinct phases. In
 each phase, different entities are prompted to act. As in SPV, the security
 assumption that is made is that at least one honest node is connected to the
@@ -25,45 +25,46 @@ collateral covers all the expenses of the entity issuing the contest.
 
 \noindent \textbf{Collaterlal.} The determination of a fair collateral is not
 trivial. Thorough analysis has to be made regarding to the gas consumption of
-all involved phases, as well as the immediacy of required actions. In Solidity,
-the priority of transactions is determined by the gas price~\cite{wood} a user assigns
-to the underlying transaction. This means that the user can chose the estimated
-time in which transactions are published. Since the duration of contest period
-in NIPoPoWs is bounded by a finite number of rounds $n$, the probability that
-the contesting proof is included within the following $n$ blocks must be
-decisive. Otherwise, it is possible for an invalid proof to be established due
-to the lack of challenge. Albeit the user that initiates the submission may
-demand a direct interaction, and thus selects a high gas price, this does not
-affect the value of the collateral, as the burden of the node is not affected
-by the priority of initial proof's publication.
+all involved phases, as well as the immediacy of required actions. In the
+Ethereum blockchain, the priority of transactions is determined by the gas
+price~\cite{wood} a user assigns to the underlying transaction. This means that
+the user can chose the estimated time in which transactions are published.
+Since the duration of contest period in NIPoPoWs is bounded by a finite number
+of rounds $n$, the probability of the contesting proof to be included within the
+following $n$ blocks must be significant. Otherwise, it is possible for an invalid
+proof to be established due to the lack of challenge. Albeit the user that
+initiates the submission may demand a direct interaction, and thus selects a
+high gas price, the value of the collateral is not affected, as the burden
+of the node is not determined by the priority of the publication of the initial
+proof.
 
 \noindent \textbf{Analysis.} We examine various cases in which an invalid
 submission is followed by a successful contest. Generally, we expect for an
 adversary to provide a proof of a chain that is a fork of the honest chain at
-some point relatively close to the tip. This is due to the fact that the
+some index relatively close to the tip. This is due to the fact that the
 ability of an adversary to sustain a fork chain is exponentially weakened as
 the honest chain progresses. We consider a fork of 100 blocks sufficient to
 describe an attempt of a power adversary. However, we examine further cases.
-Our experiments include fraud proofs of chains that fork a Bitcoin-like honest
+Our experiments include fraud proofs of chains that fork an honest Bitcoin-like
 chain $100$, $100{,}000$ and $650{,}000$ blocks prior to the tip. The last
-experiment essentially represents the case of selfish mining~\cite{selfish} from
-Bitcoin's genesis.  We define $\textsf{Z}$ as the profit the node gains in case
-of a successful contest so that collateral equals to \textsf{Z} + the gas
-expended. We consider \textsf{Z} = $0.1$ Ether (\$2) a sufficient amount.
-Different gas prices formulate different costs for contest.
+experiment essentially represents the case of selfish mining~\cite{selfish}
+from Bitcoin's genesis. We define as $\textsf{Z}$ the profit the node gains in
+case of a successful contest so that the collateral equals to \textsf{Z} + the
+expended gas. We consider $0.1$ Ether (\$2) to be a sufficient amount for
+\textsf{Z}. Different gas prices formulate different costs for contest.
 
-We used ETH Gas Station~\cite{eth-gas-station} to calculate the probabilities
-of transactions' inclusions with respect to gas price. In
-Figure~\ref{fig:cryptoeconomics} we illustrate our economical analysis of our
-client. Green and blue solid lines in each graph display the transaction cost
-in USD for each phase as a function of the gas price. The red solid line in
-each graph represents the collateral as a function of the probability of the
-contest transaction's inclusion in the following 200 blocks. As this
-probability approaches 1, the gas price needs to be increased. Dashed lines
-illustrate the total cost of a submission in USD for several selections of
-collateral, as a product of desired value of gas price. The selection for gas
-price of the submit phase does not affect collateral, but dictates the
-immediacy of the transaction by the user.
+We use ETH Gas Station~\cite{eth-gas-station} to calculate the probabilities of
+transactions' inclusions with respect to gas price, a tool that is widely used
+by the Ethereum community. In Figure~\ref{fig:cryptoeconomics}, we illustrate
+the economical analysis of our client. Green and blue solid lines in each graph
+display the transaction cost in USD for each phase as a function of the gas
+price. The red solid line in each graph represents the collateral as a function
+of the probability of the contest transaction's inclusion in the following 200
+blocks. As this probability approaches 1, the gas price needs to be increased.
+Dashed lines illustrate the total cost of a submission in USD for several
+selections of collateral, as a product of desired value of gas price. The
+selection for gas price of the submit phase does not affect collateral, but
+dictates the immediacy of the transaction by the user.
 
 In Figure~\ref{fig:cryptoeconomics-100} we observe that the transaction cost of
 a submission for a chain that equals the length of Bitcoin as a mid priority
