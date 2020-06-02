@@ -5,10 +5,7 @@
     \begin{algorithmic}[1]
 
     \Contract{crosschain}
-    \State $\textsf{events} \gets \bot;$ $\genesis \gets \bot$
-    \Function{\sf initialize}{$\genesis_{remote}$}
-        \State $\genesis$ $\gets \genesis_{remote}$
-    \EndFunction
+    \State ...
     \Function{\sf submit}{$\pis$, $e$}
         \State \textsf{require}($\pis$[0] = $\genesis$)
         \State \textsf{require}($\textsf{events$[e]$} = \bot$)
