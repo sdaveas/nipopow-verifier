@@ -104,26 +104,25 @@ proof-of-work. The protocol is parametrized by a constant security parameter
 $m$. The parameter determines how many superblocks will be sent by the prover to
 the verifier and security is proven with overwhelming probability in $m$.
 
-\noindent
-\textbf{Prover.}
-The prover selects various levels $\mu$ and for each such level sends a
-carefully chosen portion of its $\mu$-level \emph{superchain}
-$\chain\upchain^\mu$ to the verifier. In standard blockchain protocols such as
-Bitcoin and Ethereum, each block $\chain[i + 1]$ in $\chain$ points to its
-previous block $\chain[i]$, but each $\mu$-superblock $\chain\upchain^\mu[i +
-1]$ does not point to its previous $\mu$-superblock $\chain\upchain^\mu[i]$. It
-is imperative that an adversarial prover does not reorder the blocks within a
-superchain, but the verifier cannot verify this unless each $\mu$-superblock
-points to its most recently preceding $\mu$-superblock. The proposal is
-therefore to \emph{interlink} the chain by having each $\mu$-superblock include
-an extra pointer to its most recently preceding $\mu$-superblock. To ensure
-integrity, this pointer must be included in the block header and verified by
-proof-of-work. However, the miner does not know which level a candidate block
-will attain prior to mining it. For this purpose, each block is proposed to
-include a pointer to the most recently preceding $\mu$-superblock, for every
-$\mu$, as illustrated in Figure~\ref{fig.hierarchy}. As these levels are only
-$\log|\chain|$, this only adds $\log|\chain|$ extra pointers to each block
-header.
+\noindent \textbf{Prover.} The prover selects various levels $\mu$ and for each
+such level sends a carefully chosen portion of its $\mu$-level
+\emph{superchain} $\chain\upchain^\mu$ to the verifier. In standard blockchain
+protocols such as Bitcoin and Ethereum, each block $\chain[i + 1]$ in $\chain$
+points to its previous block $\chain[i]$, but each $\mu$-superblock
+$\chain\upchain^\mu[i + 1]$ does not point to its previous $\mu$-superblock
+$\chain\upchain^\mu[i]$. It is imperative that an adversarial prover does not
+reorder the blocks within a superchain, but the verifier cannot verify this
+unless each $\mu$-superblock points to its most recently preceding
+$\mu$-superblock. The proposal is therefore to \emph{interlink} the chain by
+having each $\mu$-superblock include an extra pointer to its most recently
+preceding $\mu$-superblock. To ensure integrity, this pointer must be included
+in the block header and verified by proof-of-work. However, the miner does not
+know which level a candidate block will attain prior to mining it. For this
+purpose, each block is proposed to include a pointer to the most recently
+preceding $\mu$-superblock, for every $\mu$.
+% as illustrated in Figure~\ref{fig.hierarchy}.
+As these levels are only $\log|\chain|$, this only adds $\log|\chain|$ extra
+pointers to each block header.
 \input{algorithms/prelims/alg.nipopow-prover.tex}
 
 % \begin{figure}[ht]
