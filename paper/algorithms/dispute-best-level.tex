@@ -9,12 +9,11 @@
     \Function{\sf submit}{$\pis$, $e$}
         \State \textsf{require}($\pis$[0] = $\genesis$)
         \State \textsf{require}($\textsf{events$[e]$} = \bot$)
+        \State \textsf{require}(\textsf{evaluate-predicate}(\textsf{$\pis$}, $e$))
         \State \textsf{events$[e]$.hash} $\gets$ \textsf{H}($\pis$)
-        \State \textsf{events$[e]$.pred} $\gets$
-        \textsf{evaluate-predicate}(\textsf{$\pis$}, $e$)
     \EndFunction
     \Function{\sf dispute}{$\pisa$, $e$, $i$}
-        \Comment{$i$: dispute index}
+        \Comment{$i$: Dispute index}
         \State \textsf{require}(\textsf{events}$[e]$ $\ne$ $\bot$)
         \State \textsf{require}(\textsf{events$[e]$.hash} $=$ \textsf{H}($\pisa$))
         \State \textsf{require}($\neg \textsf{valid-single-interlink}(\pis, i)$)
@@ -28,7 +27,6 @@
         \State \Return false
     \EndFunction
     \Function{\sf contest}{$\pisa$, $\pitrl$, $e$, $f$}
-        \State \textsf{require}($\pitrl$[0] = $\pisa[f]$)
         \State \textsf{require}(\textsf{events}$[e]$ $\ne$ $\bot$)
         \State \textsf{require}(\textsf{events$[e]$.hash} $=$ \textsf{H}($\pisa$))
         \State \textsf{require}(\textsf{valid-interlinks}($\pitrl$))
@@ -36,16 +34,18 @@
         $\pitrl$, $f$))
         \State \textsf{require}(\textsf{arg-at-level}($\pitrl$)
         $>$ \textsf{best-arg}($\pisa[f{:}]$))
-        \State \textsf{events$[e]$.pred} $\gets$
-            \textsf{evaluate-predicate}($\pitrl$, $e$)
+        \State \textsf{require}(\textsf{$\neg$evaluate-predicate}($\pitrl$, $e$))
+        \State \textsf{events$[e]$} $\gets$ $\bot$
     \EndFunction
     \Function{\sf arg-at-level}{$\pi$}
         \State $l \gets \pi[-1].\textsf{level}$
-        \Comment{pick proof level from a block}
+        \Comment{Pick proof level from a block}
         \State $score \gets 0$
-        \Comment{set score counter to 0}
+        \Comment{Set score counter to 0}
         \For{b in $\pi$}
-            \State \textsf{require}(b.\textsf{level} = $l$)
+        \If{(b.\textsf{level}$\neq$$l$)}
+        \State{\textbf{continue}}
+        \EndIf
             \State $score \gets score {+} 2^l$
         \EndFor
         \State \Return{score}
