@@ -6,56 +6,42 @@ $ pytest -v -s test_storage_vs_memory.py
 """
 output:
 
-[Storage] 0 -> 22449
-[Memory]  0 -> 22341
-[Storage] 10 -> 145097
-[Memory]  10 -> 45446
-[Storage] 20 -> 278919
-[Memory]  20 -> 104449
-[Storage] 30 -> 412741
-[Memory]  30 -> 199453
-[Storage] 40 -> 546564
-[Memory]  40 -> 330459
-[Storage] 50 -> 680388
-[Memory]  50 -> 497467
-[Storage] 60 -> 814212
-[Memory]  60 -> 700476
-[Storage] 70 -> 948038
-[Memory]  70 -> 939487
-[Storage] 80 -> 1081864
-[Memory]  80 -> 1214499
-[Storage] 90 -> 1215691
-[Memory]  90 -> 1525513
 """
 
+from pprint import pprint
+from tqdm import tqdm
 import sys
 
 sys.path.append("../tools/interface/")
-import contract_interface
+from contract_interface import ContractInterface
 
 
-def call(function_name, function_args=[], constructor_arguments=[]):
+def run(size):
     """
-    Deploys the contract with contructor_arguments and runs a function with function_args
+    Deploys the contract and runs with_storage and with_memory functions
+    printing the gas usage
     """
 
-    contract_path = "./contracts/storage_vs_memory.sol"
-    interface = contract_interface.ContractInterface(
-        contract_path, backend="ganache", constructor_arguments=constructor_arguments
+    interface = ContractInterface(
+        {"path": "./contracts/storage_vs_memory.sol", "ctor": [size]},
+        backend="ganache",
     )
-    my_contract = interface.get_contract()
-    from_address = interface.w3.eth.accounts[0]
-    function = my_contract.get_function_by_name(function_name)
-    res = function(*function_args).call({"from": from_address})
-    tx_hash = function().transact({"from": from_address})
-    receipt = interface.w3.eth.waitForTransactionReceipt(tx_hash)
+    storage_gas = interface.call("with_storage")["gas"]
+    memory_gas = interface.call("with_memory")["gas"]
     interface.end()
-    return {"result": res, "gas": receipt["gasUsed"]}
+    return storage_gas, memory_gas
 
 
+def main():
+    _from = 1
+    _to = 100
+    gases = []
+    for i in tqdm(range(_from, _to + 1)):
+        (storage, memory) = run(i)
+        gases.append([i, storage, memory])
 
-print("[Storage]", call("with_storage", constructor_arguments=[1000])["gas"])
+    for g in gases:
+        print(g[0], "\t", g[1], "\t", g[2])
 
-# for i in range(0, 100, 10):
-#     print("[Storage]", i, "->", call("with_storage", constructor_arguments=[i])["gas"])
-#     print("[Memory] ", i, "->", call("with_memory", constructor_arguments=[i])["gas"])
+
+main()

@@ -1,0 +1,20 @@
+\begin{figure}
+\centering
+\begin{tikzpicture}
+    \begin{axis}[
+        y tick label style={/pgf/number format/.cd,%
+          set thousands separator={,},
+          fixed},
+        legend pos=north west,
+        scaled y ticks = false,
+        grid=major,
+        xlabel={Array size},
+        ylabel={Gas consumption}]
+    \addplot table [mark=none, col sep=comma] {data/storage.csv};
+    \addplot table [mark=none, col sep=comma] {data/memory.csv};
+    \legend{storage,memory};
+\end{axis}
+\end{tikzpicture}
+\caption{Gas consumption for memory and storage}
+\label{figure:memory_vs_storage}
+\end{figure}

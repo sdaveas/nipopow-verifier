@@ -1,0 +1,40 @@
+\begin{figure}[ht]
+\centering
+\begin{subfigure}[b]{.49\textwidth}
+\begin{tikzpicture}
+    \begin{axis}[
+        scaled y ticks = true,
+        scaled x ticks = false,
+        grid=major,
+        width=\textwidth,
+        xlabel={Chain size},
+        ylabel={Gas consumption}
+        ]
+    \addplot table [col sep=comma] {data/old_gas_per_chain.csv};
+\end{axis}
+\end{tikzpicture}
+\centering
+\caption{Gas consumption per chain size}
+\label{figure:old_gas_per_chain}
+\end{subfigure}
+\begin{subfigure}[b]{.49\textwidth}
+\begin{tikzpicture}
+    \begin{axis}[
+        scaled y ticks = true,
+        scaled x ticks = false,
+        grid=major,
+        width=\textwidth,
+        xlabel={Proof size},
+        ylabel={Gas consumption}
+        ]
+    \addplot table [col sep=comma] {data/old_gas_per_proof.csv};
+\end{axis}
+\end{tikzpicture}
+\centering
+\caption{Gas consumption per proof size}
+\label{figure:old_gas_per_proof}
+\end{subfigure}
+\caption{Gas consumption with respect to chain and corresponding proof size}
+\label{figure:old_gas_per_chain_proof}
+\end{figure}
+

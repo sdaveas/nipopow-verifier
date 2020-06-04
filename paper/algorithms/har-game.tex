@@ -1,0 +1,61 @@
+\newcommand{\arr}{\textsf{a}}
+\begin{algorithm}
+    \caption{\label{alg:game-storage}\textsf{best array} using storage}
+    \begin{algorithmic}[H]
+
+    \Contract{best-array}
+        \State{$\textsf{best} \gets \emptyset$;
+               $\textsf{holder} \gets \emptyset$}
+        \Function{\sf submit}{$\arr$}
+        \State \textsf{best} $\gets \arr$
+            \Comment{array saved in storage}
+            \State \textsf{holder $\gets$ msg.sender}
+        \EndFunction
+
+        \Function{\sf contest}{$\arr$}
+            \State \textsf{require}(\textsf{compare}($\arr$))
+            \State \textsf{holder} $\gets$ \textsf{msg.sender}
+        \EndFunction
+
+        \Function{\sf compare}{$\arr$}
+            \State \textsf{require}($|\arr|$ $\geq$ $|$\textsf{best}$|$)
+            \For{$i$ \textbf{in} $|$\textsf{best}$|$}
+            \State \textsf{require}($\arr[i]$ $\geq$ \textsf{best}[i])
+            \EndFor
+            \State \Return{true}
+        \EndFunction
+        \EndContract
+        \vskip8pt
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+    \caption{\label{alg:game-memory}\textsf{best array} using hash-and-resubmit pattern}
+    \begin{algorithmic}[H]
+        \Contract{best-array}
+        \State{$\textsf{hash} \gets \emptyset$;
+               $\textsf{holder} \gets \emptyset$}
+
+        \Function{\sf submit}{$\arra$}
+        \State $\textsf{hash} \gets \textsf{H}(\arra)$
+            \Comment{hash saved in storage}
+            \State \textsf{holder} $\gets$ \textsf{msg.sender}
+        \EndFunction
+
+    \Function{\sf contest}{$\arras$, $\arrb$}
+    \State \textsf{require}(\textsf{hash256}($\arras$) $=$ $hash$)
+        \Comment{validate $\arras$}
+        \State \textsf{require}(\textsf{compare}($\arras$, $\arrb$))
+        \State \textsf{holder} $\gets$ \textsf{msg.sender}
+    \EndFunction
+    \Function{\sf compare}{$\arras$, $\arrb$}
+        \State \textsf{require}($|\arras|$ $\geq$ $|\arrb|$)
+        \For{$i$ \textbf{in} $|\arras|$}
+            \State \textsf{require}($\arras[i] \geq \arrb[i]$)
+        \EndFor
+    \EndFunction
+    \State \Return{true}
+    \EndContract
+    \vskip8pt
+    \end{algorithmic}
+\end{algorithm}

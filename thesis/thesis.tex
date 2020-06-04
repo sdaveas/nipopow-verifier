@@ -1,101 +1,57 @@
-\documentclass{article}
-\usepackage[utf8]{inputenc}
+\documentclass[11pt, a4paper]{report}
 
-\title{A gas-efficient superlight Bitcoin client in Solidity}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{wrapfig, blindtext}
+\usepackage[official]{eurosym}
+\usepackage{float}
+\usepackage{xcolor}
+\newcommand\myworries[1]{\textcolor{red}{#1}}
+\newcommand\todo[1]{\textcolor{blue}{#1}}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.5}
+\usepackage{pgf-pie}
+\usepackage{subcaption}
+\usepackage[shortlabels]{enumitem}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage[noend]{algpseudocode}
+\usepackage{graphicx}
+\graphicspath{{./images/}}
+
+\lstdefinestyle{customc}{
+    numbers=left,
+    belowcaptionskip=1\baselineskip,
+    breaklines=true,
+    frame=single,
+    xleftmargin=\parindent,
+    showstringspaces=false,
+    basicstyle=\footnotesize\ttfamily,
+    stringstyle=\color{orange},
+}
+
 \begin{document}
 
-\maketitle
+\input{title.tex}
+\thispagestyle{empty}
+\null
 
-\begin{abstract}
-Place abstract here
-\end{abstract}
+\input{abstract}
 
-\section{Introduction}
-This is the intro
-\subsection{Motivation}
-Added value of the project
-\subsection{Our contributions}
-Added value of the project
+\thispagestyle{empty}
+\newpage
 
-\section{Background}
-Relevant technologies
-\subsection{Primitives}
-Describe primitives
-\subsection{Bitcoin}
-Describe Bitcoin blockchain
-\subsection{Ethereum}
-Describe Ethereum blockchain
-\subsubsection{Solidity}
-Describe the use of solidity language
-\subsubsection{Smark contracts}
-Describe the use of smart contracts
-\subsubsection{Ethereum Virtual Machine}
-The Ethereum Virtual Machine (EVM) is a sandboxed virtual stack embedded within each full Ethereum node, responsible for executing contract bytecode. Contracts are typically written in higher level languages, like Solidity, then compiled to EVM bytecode.
+\addtocontents{toc}{}
+\tableofcontents
+\thispagestyle{empty}
+\setcounter{page}{1}
 
-This means that the machine code is completely isolated from the network, filesystem or any processes of the host computer. Every node in the Ethereum network runs an EVM instance which allows them to agree on executing the same instructions. The EVM is Turing complete, which refers to a system capable of performing any logical step of a computational function. JavaScript, the programming language which powers the worldwide web, widely uses Turing completeness.
+\input{chapters/1_introduction.tex}
+\input{chapters/2_background.tex}
+\input{chapters/3_implementation.tex}
+\chapter{Results}
+\chapter{Conclusion}
+\chapter{Future Work}
 
-Ethereum Virtual Machines have been successfully implemented in various programming languages including C++, Java, JavaScript, Python, Ruby, and many others.
-
-The EVM is essential to the Ethereum Protocol and is instrumental to the consensus engine of the Ethereum system. It allows anyone to execute code in a trustless ecosystem in which the outcome of an execution can be guaranteed and is fully deterministic (i.e.) executing smart contracts.
-\subsection{Non-Interactive Proofs Of Proof Of Work}
-Describe the rationale behind NIPoPoWs, what they provide
-\subsubsection{Prefix Proofs}
-Describe prefix proofs
-\subsubsection{Suffix Proofs}
-Describe suffix proofs
-\subsubsection{Infix Proofs}
-Describe infix proofs
-\subsection{Forks}
-Soft, hard and velvet fork
-
-\section{Implementation}
-In this section, the implementation steps are described. We also outline the difficulties we faced.
-
-\subsection{Setting up test environment}
-A testing environment is a setup of software to execute test cases. Test bed or test environment is configured as per the need of the application under test. Setting up a right test environment ensures software testing success.
-
-In the case of solidity applications, smart contracts are deployed on the EVM. The functionality of the deployed application is tested by making calls to the contract's functions and asserting the correctness of the results. In order to ensure that the contract always operates appropriately, all test-cases must be covered. A common practice for developers is to create a local, in-memory blockchain to deploy and test applications.
-
-There is variety of EVMs one can use. We experimented with are Ganache,Geth and Py-EVM.
-
-\subsubsection{Ganache}
-\subsubsection{Geth}
-\subsubsection{Py-EVM}
-
-\subsection{Targeting vulnerabilities and costly functionalities}
-\begin{itemize}
-\item 0. Knowledge that extensive gas usage is due to large storage allocation
-\item 1. Make old contract compatible with the last version of solidity compiler
-\item 2. Create tests for all functionalities
-\item 3. Identify and fix vulnerabilities
-
-Gas was very high due to storage variables
-
-Contract is vulnerable to premining
-\item 4. Profile contract gas usage
-\item 5. Identify expensive operations
-\end{itemize}
-\subsection{Fixing vulnerabilities and restricting gas usage}
-
-\begin{itemize}
-
-\item Add verification of genesis
-\item Reconsider DAG and ancestors methodology and redesign submission and contest schema
-\item Submit doesn't need to save in the proof in storage. Contest can provide the existing proof during contesting.
-
-\item Use subset: P1\{:lca\} $>$ P2\{:lca\}, P1 is the existing, P2 is the contesting
-
-This prevents expensive storage for DAG and ancestors.
-
-\item Even the check of subset can be skipped. The contesting proof cannot benefit from pre-lca malformed proof. If Pa is valid, then we just need to check Pb[lca:]
-
-\item This is not vulnerable to DOS attacks
-
-\item Observe the network and contest with the appropriate proof if submitted is not correct.
-
-\end{itemize}
-
-\section{Results}
-\section{Conclusion}
-\section{Future Work}
 \end{document}

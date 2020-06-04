@@ -1,0 +1,156 @@
+\section{Introduction}
+
+Blockchain interoperability~\cite{dionyziz} is the ability of distinct
+blockchains to communicate.  This \emph{crosschain}~\cite{pow-sidechains,
+pos-sidechains,burn,crosschain-sok, gtklocker} communication enables useful
+features across blockchains such as the transfer of asset from one chain to
+another (one-way peg) and back (two-way peg)~\cite{pow-sidechains}. To date,
+there is no commonly accepted decentralized protocol that enables cross-chain
+transactions. Currently, crosschain operations are only available to the users
+via third-party applications, such as multi-currency wallets. However, this
+treatment is opposing to the nature of decentralized currencies.
+
+\noindent
+
+In general, crosschain-enabled blockchains A, B support the following
+operations:
+
+\begin{itemize}
+\item Crosschain trading: a user with deposits in blockchain A, makes a
+    payment to a user in blockchain B.
+\item Crosschain fund transfer: a user transfers her funds from blockchain
+    A to blockchain B. After the transfer, these funds no longer exist in
+    blockchain A. The user can later decide to transfer any portion of the
+    original amount to the blockchain of origin.
+\end{itemize}
+
+
+\noindent
+
+In order to perform crosschain operations, there must be a mechanism that
+allows users of blockchain A to discover events that have occurred in chain B,
+such as transactions. A trivial manner to perform such an audit is to
+participate as a full node in multiple chains. This approach, however, is
+impractical because a sizeable amount of storage is needed to host entire
+chains as they grow in time. As of June 2020, Bitcoin~\cite{nakamoto} chain
+spans roughly 245 GB, and Ethereum~\cite{wood, buterin} has exceeded 350
+GB\footnote{The size of the Bitcoin chain was derived from
+    https://www.statista.com/statistics/647523/worldwide-bitcoin-blockchain-size/,
+    and the size of the Ethereum chain by
+https://etherscan.io/chartsync/chaindefaults}. Naturally, not all users are
+able to accommodate this size of data, especially if portable devices are used,
+such as mobile phones.
+
+One early solution to compress the extensive size of blockchain is addressed by
+Nakamoto~\cite{nakamoto} with the Simplified Payment Verification (SPV)
+protocol. In SPV, only the headers of blocks are stored, saving a considerable
+amount of storage.  However, even with this protocol, the process of
+downloading and validating all block headers still demands a considerable
+amount of resources since they growth linearly to the size of the blockchain.
+In Ethereum, for instance, headers sum up to approximately 5.1
+GB\footnote{Calculated as the number of blocks (10,050,219) times the size of
+header (508 bytes). Statistics by https://etherscan.io/} of data. A mobile
+client needs several minutes, even hours, to fetch all information needed in
+order to function as an SPV client.
+
+Towards the goal of delivering more practical solutions for blockchain
+transaction verification, a new generation of \emph{superlight}
+clients~\cite{popow, nipopows, compactsuperblocks, flyclient} emerged. In these
+protocols, cryptographic proofs are generated, that prove the occurrence of
+events inside a blockchain. These proofs require only polylogarithmic size of
+data compared to the SPV model, resulting into better performance. By utilizing
+superlight client protocols, a compressed proof for an event in chain A is
+constructed and dispatched to chain B. If chain B supports smart contracts, the
+proof is then verified automatically and transparently \emph{on-chain}. This
+communication is realized without the intervention of third-party applications.
+An interesting application of such a protocol is the communication between
+Bitcoin and Ethereum.
+
+\noindent
+
+\textbf{Related Work.} We use Non-Interactive Proofs of Proof of Work
+(NIPoPoWs)~\cite{nipopows, pow-sidechains} as the fundamental building block of
+our solution. This cryptographic primitive is \emph{provably secure} and
+provides \emph{succinct proofs} regarding the existence of an arbitrary event
+in a chain. Contrary to the linear growth rate of the underlying blockchain,
+NIPoPoWs span polylogarithmic size of blocks. A few cryptocurrencies already
+include build-in NIPoPoWs support. ERGO~\cite{ergo}, Nimiq~\cite{nimiq}, and
+WebDollar~\cite{webdollar} have added support since their genesis.
+
+Christoglou~\cite{gglou} provided a Solidity smart contract which is the first
+implementation of crosschain events verification based on NIPoPoWs, where
+proofs are submitted and checked for their validity. This solution, however, is
+impractical due to extensive usage of resources, widely exceeding the Ethereum
+block gas limit.
+
+Other attempts have been done to address the verification of Bitcoin
+transactions to the Ethereum blockchain, most notably BTC
+Relay~\cite{btcrelay}.
+
+\noindent
+
+\textbf{Our contribution.} Notably, no practical implementation for superlight
+clients exists to date. In this paper, we focus on constructing a practical
+client for NIPoPoWs. For the implementation of our client, we refine the
+NIPoPoW protocol based on a series of keen observations. These refinements
+allow us to leverage useful techniques that construct a practical solution for
+proof verification. We believe that this achievement is a decisive step towards
+the establishment of NIPoPoWs to the application end, therefore it is a
+significant progress in order to provide a widely accepted protocol that
+enables crosschain transactions. A summary of our contributions in this paper
+is as follows:
+\begin{enumerate}
+\item We developed the first decentralized client that securely verifies
+crosschain events and is practical. Our client establishes a trustless and
+efficient solution to the interoperability problem. We implement our client
+in Solidity, and we verify Bitcoin events to the Ethereum blockchain. The
+security assumptions we make are no other than
+SPV~\cite{eclipse, eclipse-ethereum}.
+\item We present a novel pattern which we term \emph{hash-and-resubmit}. Our
+pattern significantly improves performance of Ethereum smart
+contracts~\cite{wood, buterin} in terms of gas consumption by utilizing
+\emph{calldata} space of Ethereum blockchain to eliminate high-cost storage
+operations.
+\item We create an \emph{optimistic} schema which we incorporate into the design
+of our client. This design achieves significant performance improvement by
+replacing linear complexity verification of proofs, with constant complexity
+verification.
+\item We demonstrate via application that the NIPoPoW protocol is practical,
+making the cryptographic primitive the first provably secure construction of
+succinct proofs that is efficient to implement.
+\item We present an econometric analysis on NIPoPoWs. This analysis allows us
+to provide concrete values of collateral parameters in fiat, as well as the
+cost of submit and contest actions under different gas price configurations.
+
+\end{enumerate}
+
+Our implementation meets the following requirements:
+\begin{enumerate}
+\item Security: The client implements a provably secure protocol.
+\item Decentralization: The client is not dependent on third-party applications
+and operates in a transparent, decentralized manner.
+\item Efficiency: The client comply with all environmental constraints, i.e.\
+block gas limit and calldata size limit of Ethereum blockchain.
+\end{enumerate}
+
+We selected Bitcoin as source blockchain as it the most used cryptocurrency,
+and enabling crosschain transactions in Bitcoin is beneficial to the vast
+majority of blockchain community. We selected Ethereum as the target blockchain
+because, besides its popularity, it supports smart contracts, which is a
+requirement in order to perform on-chain verification.
+\noindent
+
+\textbf{Structure.} In Section 2 we describe the blockchain technologies that
+are relevant to our work. In Section 3 we put forth the
+\emph{hash-and-resubmit} pattern. We demonstrate the improved performance of
+smart contracts using the pattern, and how it is incorporated into our
+client. In Section 4, we present an alteration of the NIPoPoW protocol that
+enables the elimination of look-up structures. This allows for efficient
+interactions due to the considerably smaller size of dispatched proofs. In
+Section 5, we put forth an optimistic schema that significantly lowers the
+complexity of a proof's structural verification from linear to constant, by
+introducing a new interaction which we term \emph{dispute phase}. Furthermore,
+we present a technique that leverages the dispatch of constant number of blocks
+in contest phase. Finally, in Section 6, we present our cryptoeconomic analysis
+on \name. We establish the monetary value of collateral parameters, as well
+as the cost of each interaction with the client for different gas prices.

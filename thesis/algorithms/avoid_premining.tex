@@ -1,0 +1,50 @@
+\begin{algorithm}[H]
+    \caption{Contract Constructor}
+    \label{algo:avoid_premining_ctor}
+    \KwIn{\texttt{Block} $genesis$}
+    \colorbox{green}{$genesis_{s}$ $\leftarrow$ $genesis$}
+    \newline
+\end{algorithm}
+\vspace{0.1cm}
+\begin{algorithm}[H]
+    \caption{Submit Event Proof}
+    \label{algo:avoid_premining_submit}
+    \KwIn{\texttt{Proof} $\pi$, \texttt{Predicate} $predicate$}
+    \KwData{
+        \colorbox{green}{\texttt{Block} $genesis_{s}$},
+        \texttt{Proof} $\pi_{s}$,
+        \texttt{hashmap} $DAG_{s}$,
+        \texttt{bool} $predicateExists_{s}$
+    }
+    \colorbox{green}{require $\pi[0]$ = $genesis_{s}$ }\\
+    require($predicateExists_{s}$ $=$ $false$) \\
+    require($validInterlink(\pi$))\\
+    $DAG_{s}$ $\leftarrow$ $DAG_{s}$ $\cup$ $\pi$\\
+    $\pi_{s}$ $\leftarrow$ $\pi$\\
+    $ancestors_{s}$ $\leftarrow$ $findAncestors(DAG_{s}$)\\
+    $predicateExists_{s}$ $\leftarrow$ $evaluatePredicate(ancestors_{s}$,
+    $predicate$)\\
+    delete $ancestors_{s}$\\
+\end{algorithm}
+\vspace{0.1cm}
+\begin{algorithm}
+    \caption{Submit Contest Proof}
+    \label{algo:avoid_premining_contest}
+    \KwIn{\texttt{Proof} $\tilde\pi$, \texttt{Predicate} $predicate$}
+    \KwData{
+        \colorbox{green}{\texttt{Block} $genesis_{s}$},
+        \texttt{Proof} $\pi_{s}$,
+        \texttt{hashmap} $DAG_{s}$,
+        \texttt{bool} $predicateExists_{s}$
+    }
+    \colorbox{green}{require $\tilde\pi[0]$ = $genesis_{s}$ }\\
+    require($predicateExists_{s}$ = $true$) \\
+    $lca$ $\leftarrow$ findLca($\pi_{s}$, $\tilde\pi$)\\
+    require($score(\tilde\pi[lca:])$ $>$ $score(\tilde\pi_{s}[lca:])$) \\
+    $DAG_{s}$ $\leftarrow$ $DAG_{s}$ $\cup$ $\pi'$\\
+    $ancestors_{s}$ $\leftarrow$ $findAncestors(DAG_{s})$\\
+    $predicateExists_{s}$ $\leftarrow$ $evaluatePredicate(ancestors_{s}, predicate)$\\
+    delete $ancestors_{s}$\\
+\end{algorithm}
+
+
