@@ -34,18 +34,17 @@ resending data is redundant in conventional systems. However, this technique
 is very efficient to use in Solidity due to the significantly lower gas cost
 of memory operations in relation with storage operations.
 
-\noindent \textbf{Related patterns.} Towards the goal of implementing
-gas-efficient smart contracts~\cite{contract-opt-1, contract-opt-2,
-slither, madmax}, several methodologies have been proposed. In order to
-eliminate
-storage operations using data signatures, the utilization of IPFS~\cite{ipfs}
-is proposed by \cite{ipfs-1} and~\cite{ipfs-2}. However, these solutions do not
-address availability, which consists one of our main requirements.
+\noindent \textbf{Related patterns.} Towards implementing gas-efficient smart
+contracts~\cite{contract-opt-1, contract-opt-2, slither, madmax}, several
+methodologies have been proposed. In order to eliminate storage operations
+using data signatures, the utilization of IPFS~\cite{ipfs} is proposed by
+\cite{ipfs-1} and~\cite{ipfs-2}. However, these solutions do not address
+availability, which consists one of our main requirements. Furthermore,
 \cite{logs} uses logs to replace storage in a similar manner, sparing a great
-amount of gas. However, this approach does not address consistency, which is
-also one of our critical target. Lastly,
-~\cite{memory-array} proposes an efficient manner to replace read storage
-operations, but does not address write operations.
+amount of gas.  However, this approach does not address consistency, which is
+also one of our critical target. Lastly, ~\cite{memory-array} proposes an
+efficient manner to replace read storage operations, but does not address write
+operations.
 
 
 \begin{figure*}[h]
@@ -72,11 +71,9 @@ operations, but does not address write operations.
 
 \noindent
 \textbf{Applicability.}
-We now list the cases in which the \emph{hash-and-resubmit} pattern is
-efficient to use:
+We now list the requirements an application needs to meet in order to benefit
+from the \emph{hash-and-resubmit} pattern:
 
-The situations in which the \emph{hash-and-resubmit} pattern can be applied are
-the following:
 \begin{enumerate}
     \item The application is a Solidity smart contract.
     \item Read/write operations are performed in large arrays that exist in
@@ -143,10 +140,9 @@ hash function \textsf{H()}: \[\textsf{hash} \gets \textsf{H}(\textsf{d})\]
 Then, in \emph{rehash} phase, the verification is performed by comparing the
 stored digest of $\data$ with the digest of $\datas$:
 \[\textsf{require}(\textsf{hash} = \texttt{H}(\datas))\] \noindent In Solidity,
-the size of such digests is 32 bytes. To persist such a small value in
-contract's memory only adds a constant, negligible cost overhead.
-
-We illustrate the application of the \emph{hash-and-resubmit} pattern in
+the size of this digest is 32 bytes. To persist such a small value in
+contract's memory only adds a constant, negligible cost overhead. We illustrate
+the application of the \emph{hash-and-resubmit} pattern in
 Figure~\ref{fig:har-pattern}.
 
 \noindent \textbf{Sample.} We now demonstrate the usage of the
@@ -156,13 +152,14 @@ the player with the most valuable array. The interaction between players
 through the smart contract is realized in two phases: (a) the submit phase and
 (b) the contest phase.
 
-\noindent \textsf{Submit phase:} $\pla$ submits an N-sized array, $\arra$ and
+\noindent \textsf{Submit phase:} $\pla$ submits an N-sized array, $\arra$, and
 becomes the $\holder$ of the contract.
 
-\noindent \textsf{Contest phase:} $\plb$ submits $\arrb$. If
-\textsf{compare}($\arrb$, $\arra$) is \true, then $\plb$ becomes the holder. We provide a simple implementation for \textsf{compare()},
-but we can consider any notion of comparison, since the pattern is abstracted
-from such implementation details.
+\noindent \textsf{Contest phase:} $\plb$ submits $\arrb$. If the result of
+\textsf{compare}($\arrb$, $\arra$) is \true, then $\plb$ becomes the holder. We
+provide a simple implementation for \textsf{compare}, but we can consider any
+notion of comparison, since the pattern is abstracted from such implementation
+details.
 
 We make use of the \emph{hash-and-resubmit} pattern by prompting $\plb$ to
 provide \emph{two} arrays to the contract during contest phase: (a) $\arras$,
@@ -200,53 +197,55 @@ is better). By avoiding gas-heavy storage operations, the aggregated cost of
 \noindent \textbf{Consequences.} The most obvious consequence of applying the
 \emph{hash-and-resubmit} pattern variations is the circumvention of storage
 structures, a benefit that saves a substantial amount of gas, especially when
-these structures are large. To that extend, smart contracts that exceed the
-Ethereum block gas limit become more practical. Furthermore, the pattern
-enables off-chain transactions, significantly improving the performance of
-smart contracts.
+these structures are large. To that extend, smart contracts that exceeded the
+Ethereum block gas limit and benefit sufficiently for the alleviation of
+storage structures become practical. Furthermore, the pattern enables off-chain
+transactions, significantly improving the performance of smart contracts.
 
-\noindent \textbf{Known uses.} To our knowledge, we are the first to combine
-the notion of the transparency of the blockchain with data structures
-signatures to eliminate storage variables from Solidity smart contracts by
-resubmitting data in a manner that addresses consistency and availability.
+\noindent \textbf{Known uses.} To our knowledge, we are the first to address
+consistency and availability by combining blockchain's transparency with data
+structures signatures in a manner that eliminates storage variables from
+smart contracts.
 
 \noindent \textbf{Enabling NIPoPoWs.} We now present how the
 \emph{hash-and-resubmit} pattern is used in the context of the NIPoPoW
-superlight client. The NIPoPoW verifier adheres to a submit-and-contest
-schema, and the inputs of the functions are arrays that are processed on-chain.
-Therefore, it consists a suitable case for our pattern.
+superlight client. The NIPoPoW verifier adheres to a submit-and-contest schema,
+where the inputs of the functions are arrays that are processed on-chain, and a
+node observes the function calls towards the smart contract.  Therefore, it
+consists a suitable case for our pattern.
 
 In \emph{submit} phase, a \emph{proof} is submitted. In the case of falsity, it
-is contested by another user in \emph{contest} phase. The user that initiates
-the contest is a node and monitors the traffic of the verifier. The input of
-\textsf{submit} function includes the submit proof ($\pis$) that indicates the
-occurrence of an \emph{event} ($e$) in the source chain, and the input of
-\textsf{contest} function includes a contesting proof ($\pic$). A successful
-contest of $\pis$ is realized when $\pic$ has a better score~\cite{nipopows}.
-The score evaluation process is irrelevant to the pattern and remains unchained
-in this section. The size of proofs is dictated by the value $m$. We consider
-$m$ = 15 to be sufficiently secure ~\cite{nipopows}.
+is contested by another user in \emph{contest} phase. The contester is a node
+that monitors the traffic of the verifier. The input of \textsf{submit}
+function includes the submit proof ($\pis$) that indicates the occurrence of an
+\emph{event} ($e$) in the source chain, and the input of \textsf{contest}
+function includes a contesting proof ($\pic$). A successful contest of $\pis$
+is realized when $\pic$ has a better score~\cite{nipopows}. In this section, we
+will not examine the score evaluation process since it is irrelevant to the
+pattern. The size of proofs is dictated by the value $m$. We consider $m$ = 15
+to be sufficiently secure~\cite{nipopows}.
 
 In previous work, NIPoPoW proofs are maintained on-chain, resulting to
-extensive storage operations that limits the applicability of the verifier
+extensive storage operations that limit the applicability of the verifier
 considerably. In our implementation, proofs are not stored on-chain, and $\pis$
-is retrieved by the node that initiates the contest from the calldata. Since we
-assume a trustless network, $\pis$ potentially alters by the node. We denote
+is retrieved by the contester from the calldata. Since we
+assume a trustless network, $\pis$ is altered by an adversarial contester. We denote
 the potentially changed $\pis$ as $\pisa$. In \emph{contest} phase, $\pisa$ and
 $\pic$ are dispatched in order to enable the \emph{hash-and-resubmit} pattern.
 
-For our analysis, we create a chain similar to the Bitcoin chain with the
+For our analysis, we create a blockchain similar to the Bitcoin chain with the
 addition of the interlink structure in each block as in~\cite{gglou}. Our chain
 spans 650,000 blocks, representing a slightly enhanced Bitcoin
-chain\footnote{Bitcoin spans 631,056 blocks as on May 2020. Metrics by
-https://www.blockchain.com/}. From the tip of our chain, we branch two chains
-that span 100 and 200 additional blocks respectively, as illustrated in
-Figure~\ref{fig:chains}. Then, we use the smaller chain to create $\pis$, and
-the larger chain to create $\pic$. We apply the protocol by submitting $\pis$,
-and contesting with $\pic$. The contest is successful, since $\pis$ represents
-a chain consisting of fewer blocks than $\pic$, therefore encapsulating less
-proof of work. We select this setting as it provides maximum code coverage, and
-it descries the most gas-heavy scenario.
+chain\footnote{Bitcoin spans $633{,}022$ blocks as on June 2020. Metrics by
+https://www.blockchain.com/}. From the tip of our chain, we branch two
+sub-chains that span 100 and 200 additional blocks respectively, as illustrated
+in Figure~\ref{fig:chains}. Then, we use the smaller chain to create $\pis$,
+and the larger chain to create $\pic$. We apply the protocol by submitting
+$\pis$, and contesting with $\pic$. The contest is successful, since $\pic$
+represents a chain consisting of greater number of blocks than $\pis$,
+therefore encapsulating more proof-of-work. We select this setting as it
+provides maximum code coverage, and it describes the most gas-heavy scenario
+for the verifier.
 
 In Algorithm~\ref{alg:har-nipopow} we show how \emph{hash-and-resubmit} pattern
 is embedded into the NIPoPoW client.
@@ -260,7 +259,7 @@ is embedded into the NIPoPoW client.
 \end{figure}
 
 In Figure~\ref{fig:har-nipopow}, we display how the \emph{hash-and-resubmit}
-provides an improved implementation compared with the previous work. The graph
+provides an improved implementation compared to previous work. The graph
 illustrates the aggregated cost of \emph{submit} and \emph{contest} phases for
 each implementation. We observe that, by using the \emph{hash-and-resubmit}
 pattern, we achieve to increase the performance of the contract by 50\%. This

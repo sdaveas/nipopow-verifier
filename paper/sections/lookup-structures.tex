@@ -1,6 +1,6 @@
 \section{Removing Look-up Structures}
 
-Now that we can freely retrieve large array structures, we can focus on other
+Now that we freely eliminate large arrays, we can focus on other
 types of storage variables. The challenge we face is that the protocol of
 NIPoPoWs dependents on a Directed Acyclic Graph (DAG) of blocks which is a
 mutable hashmap. This DAG is needed because interlinks of superblocks can be
@@ -27,23 +27,23 @@ interest of proof $\pr$. The entity that performs the submission is $\es$, and
 the entity that initiates a contest is $\ec$.
 
 \noindent \textbf{Position of block of interest.} NIPoPoWs are sets of sampled
-interlinked blocks, which means that they can be perceived as chains. If
-$\pr_1$ differs from $\pr_2$, then a fork is created at the index of their last
-common ancestor ($\lca$). The block of interest lies at a certain index within
-$\pis$ and indicates a stable predicate~\cite{nipopows, generic-client} that is
-\true for $\pis$. A submission in which $\boi$ is absent from $\pis$ is aimless,
-because it automatically fails since no element of $\pis$ satisfies $\pred$. On
-the contrary, $\pic$ tries to prove the \emph{falseness} of the underlying
-predicate. This means that, if the block of interest is included in $\pic$,
-then the contest is aimless. We freely use the term aimless to also
-characterize components that are included in such actions i.e.\ aimless proof,
-aimless blocks etc. We use the term meaningful to describe non-aimless actions
-and components.
+interlinked blocks, meaning that they can be perceived as chains. If proofs
+$\pr_1$ and $\pr_2$ differ, then a fork is created at the index of
+their last common ancestor ($\lca$). The block of interest lies at a certain
+index within $\pis$ and indicates a stable predicate~\cite{nipopows,
+generic-client} that is \true for $\pis$. A submission in which $\boi$ is
+absent from $\pis$ is aimless, because it automatically fails since no element
+of $\pis$ satisfies $\pred$. On the contrary, $\pic$ tries to prove the
+\emph{falseness} of the underlying predicate. This means that, if the block of
+interest is included in $\pic$, then the contest is aimless. We freely use the
+term aimless to also characterize components that are included in such actions
+i.e.\ aimless proof, aimless blocks etc. We use the term meaningful to describe
+non-aimless actions and components.
 
 \newcommand{\block}{\mathsf{B}}
 
 In the NIPoPoW protocol, proofs' segments $\pis\{{{:}}\lca\}$ and
-$\pic\{{:}\lca\}$ are merged to prevent adversaries from skipping or adding
+$\pic\{{:}\lca\}$ are merged to prevent adversaries from skipping
 blocks, and the predicate is evaluated against $\pis\{{:}\lca\} \cup
 \pic\{{:}\lca\}$. We observe that $\pic\{{:}\lca\}$ can be omitted, because no
 block $\block$ exists such that \{$\block : \block \notin \pis\{{:}\lca\} \land
@@ -75,8 +75,8 @@ do not qualify, because they are included in $\pic$. Block \texttt{A} is
 included in $\pis\{{:}\lca\}$, which means that $\pic$ is an aimless contest
 because the $\lca$ comes after $\boi$. Therefore, A is an aimless block as a
 component of an aimless contest. Given this configuration, the only meaningful
-block of interest is \texttt{D} and its predecessors (which are not displayed
-in the figure).
+block of interest is \texttt{D} and its predecessors (which we leave out from
+the figure).
 
 \noindent \textbf{Minimal forks.} By combining the above observations, we
 derive that $\pic$ can be truncated into $\pic\{{:}\lca\}$ without affecting
@@ -114,9 +114,9 @@ Figure~\ref{fig:minimal-fork} we show how the performance of the client
 improves. We use the same test case as in \emph{hash-and-resubmit}.
 
 By applying the minimal-fork technique, he achieve to decrease gas consumption
-by 55\%: \emph{submit} phase costs {4{,}700{,}000} gas, and \emph{contest}
+by 55\%. \emph{Submit} phase now costs {4{,}700{,}000} gas, and \emph{contest}
 phase costs {4{,}900{,}000} million gas. This is a notable result, since each
-phase is now below the block gas limit.
+phase now fits inside an Ethereum block.
 
 \input{algorithms/minimal-fork}
 
