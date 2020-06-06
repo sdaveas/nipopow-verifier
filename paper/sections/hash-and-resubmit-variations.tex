@@ -11,7 +11,7 @@ In order to enable selective dispatch of a segment of interest, different
 hashing schemas can be adopted, such as Merkle Trees ~\cite{merkle} and Merkle Mountain
 Ranges ~\cite{mmr-1, mmr-2}. In this variation of the pattern, which we term
 \emph{merkle-hash-and-resubmit}, the signature of an array $\data$ is
-Merkle Tree Root (MTR). In \emph{resubmit} phase, $\data[m{:}n]$ is
+Merkle Tree Root (MTR). In the \emph{resubmit} phase, $\data[m{:}n]$ is
 dispatched, accompanied by the siblings that reconstruct the MTR of
 $\data$.
 
@@ -50,7 +50,7 @@ for \textsf{keccak}~\cite{keccak} hash function, where hashing costs 30 gas
 units plus 6 additional gas far each word for input data~\cite{wood}. The usage
 of \textsf{keccak} dramatically increases the performance in comparison with
 \textsf{sha256}, and performs better than plain rehashing if the product of
-on-chain processing is sufficiently larger that the originally dispatched data.
+on-chain processing is sufficiently larger than the originally dispatched data.
 Costs of all related operations are listed in Table~\ref{tab:operations-gas}.
 
 The merkle variation can be potentially improved by dividing $\data$ in larger
