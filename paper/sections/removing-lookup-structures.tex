@@ -2,7 +2,7 @@
 
 Now that we freely eliminate large arrays, we can focus on other
 types of storage variables. The challenge we face is that the protocol of
-NIPoPoWs dependents on a Directed Acyclic Graph (DAG) of blocks which is a
+NIPoPoWs depends on a Directed Acyclic Graph (DAG) of blocks which is a
 mutable hashmap. This DAG is needed because interlinks of superblocks can be
 adversarially defined. By using DAG, the set of ancestor blocks of a block is
 extracted by performing a simple graph search. For the evaluation of the
@@ -31,7 +31,7 @@ interlinked blocks, meaning that they can be perceived as chains. If proofs
 $\pr_1$ and $\pr_2$ differ, then a fork is created at the index of
 their last common ancestor ($\lca$). The block of interest lies at a certain
 index within $\pis$ and indicates a stable predicate~\cite{nipopows,
-generic-client} that is \true for $\pis$. A submission in which $\boi$ is
+generic-client} that is $\true$ for $\pis$. A submission in which $\boi$ is
 absent from $\pis$ is aimless, because it automatically fails since no element
 of $\pis$ satisfies $\pred$. On the contrary, $\pic$ tries to prove the
 \emph{falseness} of the underlying predicate. This means that, if the block of
@@ -101,7 +101,7 @@ Such an attempt is displayed in Figure~\ref{fig:adversary-minimal-fork}.
     \end{center}
 
     \caption{An adversary attests to contest with a malformed proof. Adversary
-        proof consists of blocks \{A, X, B, C, D'\} that achieves better score
+        proof consists of blocks \{A, X, B, C, D'\} that achieve better score
         against submit proof \{A, B, C, D\}. This attempt is rejected due to
         the minimal-fork requirement.}
 
@@ -113,10 +113,10 @@ incorporated into our client replacing DAG and ancestors. In
 Figure~\ref{fig:minimal-fork} we show how the performance of the client
 improves. We use the same test case as in \emph{hash-and-resubmit}.
 
-By applying the minimal-fork technique, he achieve to decrease gas consumption
-by 55\%. \emph{Submit} phase now costs {4{,}700{,}000} gas, and \emph{contest}
-phase costs {4{,}900{,}000} million gas. This is a notable result, since each
-phase now fits inside an Ethereum block.
+By applying the minimal-fork technique, he achieve a 55\% decrease in gas
+consumption. \emph{Submit} phase now costs {4{,}700{,}000} gas, and
+the \emph{contest} phase costs {4{,}900{,}000} million gas. This is a notable
+result, since each phase now fits inside an Ethereum block.
 
 \input{algorithms/minimal-fork}
 
