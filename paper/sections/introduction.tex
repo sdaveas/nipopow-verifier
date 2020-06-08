@@ -138,8 +138,13 @@ and enabling crosschain transactions in Bitcoin is beneficial to the vast
 majority of the blockchain community. We selected Ethereum as the target blockchain
 because, besides its popularity, it supports smart contracts, which is a
 requirement in order to perform on-chain verification.
-\noindent
 
+Bitcoin does not include interlink structures in blocks. The setting we refer
+to is a hard fork~\cite{hard-fork}, but a velvet~\cite{velvet-fork} fork can
+also be supported as it does not add significant overhead to the verifier as
+shown in ~\cite{andri}.
+
+\noindent
 \textbf{Structure.} In Section 2 we describe the blockchain technologies that
 are relevant to our work. In Section 3 we put forth the
 \emph{hash-and-resubmit} pattern. We demonstrate the improved performance of
