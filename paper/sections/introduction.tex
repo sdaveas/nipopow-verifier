@@ -33,7 +33,7 @@ such as transactions. A trivial manner to perform such an audit is to
 participate as a full node in multiple chains. This approach, however, is
 impractical because a sizable amount of storage is needed to host entire
 chains as they grow in time. As of June 2020, Bitcoin~\cite{nakamoto} chain
-spans roughly 245 GB, and Ethereum~\cite{wood, buterin} has exceeded 350
+spans roughly 245 GB, and Ethereum~\cite{wood, buterin} has exceeded 300
 GB\footnote{The size of the Bitcoin chain was derived from
     https://www.statista.com/statistics/647523/worldwide-bitcoin-blockchain-size/,
     and the size of the Ethereum chain by
@@ -47,7 +47,7 @@ protocol. In SPV, only the headers of blocks are stored, saving a considerable
 amount of storage.  However, even with this protocol, the process of
 downloading and validating all block headers still demands a considerable
 amount of resources since they grow linearly to the size of the blockchain.
-In Ethereum, for instance, headers sum up to approximately 5.1
+In Ethereum, for instance, headers sum up to approximately 4.8
 GB\footnote{Calculated as the number of blocks (10,050,219) times the size of
 header (508 bytes). Statistics by https://etherscan.io/} of data. A mobile
 client needs several minutes, even hours, to fetch all information needed in
