@@ -44,14 +44,15 @@ adversary to provide a proof of a chain that is a fork of the honest chain at
 some index relatively close to the tip. This is due to the fact that the
 ability of an adversary to sustain a fork chain is exponentially weakened as
 the honest chain progresses. We consider a fork of 100 blocks sufficient to
-describe an attempt of a power adversary. However, we examine further cases.
+describe an attempt of a powerful adversary. However, we examine further cases.
 Our experiments include fraud proofs of chains that fork an honest Bitcoin-like
 chain $100$, $100{,}000$ and $650{,}000$ blocks prior to the tip. The last
 experiment essentially represents the case of selfish mining~\cite{selfish}
-from Bitcoin's genesis. We define as $\textsf{Z}$ the profit the node gains in
-case of a successful contest so that the collateral equals to \textsf{Z} + the
+from Bitcoin's genesis. We define as $\textsf{P}$ the profit the node makes in
+case of a successful contest so that the collateral (\textsf{Z}) equals to
+\textsf{P} + the
 expended gas. We consider $0.1$ Ether (\$2) to be a sufficient amount for
-\textsf{Z}. Note that, different gas prices formulate different costs for
+\textsf{P}. Note that, different gas prices formulate different costs for
 contests.
 
 We use ETH Gas Station~\cite{eth-gas-station} to calculate the probabilities of
@@ -59,7 +60,7 @@ transactions' inclusions with respect to gas price, a tool that is widely used
 by the Ethereum community. In Figure~\ref{fig:cryptoeconomics}, we illustrate
 the economical analysis of our client. Green and blue solid lines in each graph
 display the transaction cost in USD for each phase as a function of the gas
-price. The red solid line in each graph represents the collateral as a function
+price. The red solid line in each graph represents the textsf{Z} as a function
 of the probability of the contest transaction's inclusion in the following 200
 blocks. As this probability approaches 1, the gas price needs to be increased.
 Dashed lines illustrate the total cost of a submission in USD for several
@@ -70,9 +71,9 @@ dictates the immediacy of the transaction by the user.
 In Figure~\ref{fig:cryptoeconomics-100} we observe that the transaction cost of
 a submission for a chain that equals the length of Bitcoin as a mid priority
 transaction (80\% probability of getting accepted in the next 200 blocks) is
-\$9.25, while the contest transaction has very high priority (100\% probability
+\$9.25, while the contest transaction with very high priority (100\% probability
 of being included in the next 200 blocks) is \$7.99. The collateral in this
-case is \$9.99 (contest cost+\textsf{Z}).
+case is \$9.99 (contest cost+\textsf{P}).
 
 \begin{figure}[h]
 \begin{subfigure}{0.97\linewidth}
