@@ -186,13 +186,16 @@ approximately only $1/10^{th}$ of the block gas limit for arrays of $1{,}000$
 elements.
 
 \begin{figure}[h!]
+\vspace*{-5mm}
 \begin{center}
 \includegraphics[width=1 \columnwidth]{figures/har-example.pdf}
 \end{center}
+\vspace*{-5mm}
 \caption{Gas-cost reduction using the \emph{hash-and-resubmit} pattern (lower
 is better). By avoiding gas-heavy storage operations, the aggregated cost of
 \textsf{submit} and \textsf{contest} is decreased by 95\%.}
 \label{fig:har-example}
+\vspace*{-5mm}
 \end{figure}
 
 \noindent \textbf{Consequences.} The most obvious consequence of applying the
@@ -258,6 +261,7 @@ is embedded into the NIPoPoW client.
     \end{center}
     \caption{Forked chains for our gas analysis.}
     \label{fig:chains}
+\vspace*{-5mm}
 \end{figure}
 
 In Figure~\ref{fig:har-nipopow}, we display how the \emph{hash-and-resubmit}
@@ -281,8 +285,10 @@ of gas consumption between consecutive values of proof sizes.
     \begin{center}
         \includegraphics[width=1\columnwidth]{figures/har-nipopows.pdf}
     \end{center}
+\vspace*{-5mm}
     \caption{Performance improvement using hash-and-resubmit pattern in
         NIPoPoWs compared to previous work for a secure value of $m$ (lower is
         better). The gas consumption is decreased by approximately 50\%.}
     \label{fig:har-nipopow}
+\vspace*{-5mm}
 \end{figure}

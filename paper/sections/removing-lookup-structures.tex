@@ -55,9 +55,11 @@ $\pis$ at a block that is prior to $\boi$.
 \renewcommand{\block}{}
 
 \begin{figure}[h]
+\vspace*{-5mm}
     \begin{center}
         \includegraphics[width=1\columnwidth]{figures/boi-position.pdf}
     \end{center}
+\vspace*{-5mm}
     \caption{Fork of two chains. Solid lines connect blocks of $\pis$,
     and dashed lines connect blocks of $\pi_{cont}$. In this configuration,
     blocks in dashed circles are aimless blocks of interest, and the block
@@ -65,6 +67,7 @@ $\pis$ at a block that is prior to $\boi$.
     aimless because they exist in $\pic$. Block A is aimless because it
     belongs to the subchain $\pis\{{:}\lca\}$}
     \label{fig:boi-position}
+\vspace*{-5mm}
 \end{figure}
 
 In Figure~\ref{fig:boi-position} we display a fork of two proofs. Solid lines
@@ -99,7 +102,7 @@ Such an attempt is displayed in Figure~\ref{fig:adversary-minimal-fork}.
     \begin{center}
         \includegraphics[width=0.85\columnwidth]{figures/adversary-minimal-fork.pdf}
     \end{center}
-
+\vspace*{-5mm}
     \caption{An adversary attests to contest with a malformed proof. Adversary
         proof consists of blocks \{A, X, B, C, D'\} that achieve better score
         against submit proof \{A, B, C, D\}. This attempt is rejected due to
@@ -124,7 +127,9 @@ result, since each phase now fits inside an Ethereum block.
     \begin{center}
         \includegraphics[width=1\columnwidth]{figures/minimal-fork.pdf}
     \end{center}
+\vspace*{-5mm}
     \caption{Performance improvement using minimal fork (lower is better). The
         gas consumption is decreased by approximately 55\%.}
     \label{fig:minimal-fork}
+\vspace*{-5mm}
 \end{figure}
