@@ -43,7 +43,7 @@
         \EndFunction
 
     \Function{\sf contest}{$\arras$, $\arrb$}
-    \State \textsf{require}(\textsf{hash256}($\arras$) $=$ $hash$)
+    \State \textsf{require}(\textsf{hash256}($\arras$) $=$ \textsf{hash})
         \Comment{validate $\arras$}
         \State \textsf{require}(\textsf{compare}($\arras$, $\arrb$))
         \State \textsf{holder} $\gets$ \textsf{msg.sender}

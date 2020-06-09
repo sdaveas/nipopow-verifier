@@ -40,9 +40,9 @@ constructing and verifying the MTR is displayed in Figure
 ~\ref{fig:merkle-har}.
 
 In Solidity, different hashing operations vary in cost. An invocation of
-\textsf{sha256}($\data$), copies $data$ in memory, and then the
+\textsf{sha256}($\data$), copies $\data$ in memory, and then the
 \emph{CALL} instruction is performed by the EVM that calls a pre-compiled
-contract. In the current state of the EVM, \emph{CALL} costs 700 gas units, and
+contract. At the current state of the EVM, \emph{CALL} costs 700 gas units, and
 the gas paid for every word when expanding memory is 3 gas units~\cite{wood}.
 Consequently, the expression $1 \times \textsf{sha256}(\data)$ costs less than
 $|\data| \times $\textsf{sha256}(1) operations. A different cost policy applies
@@ -53,8 +53,8 @@ of \textsf{keccak} dramatically increases the performance in comparison with
 on-chain processing is sufficiently larger than the originally dispatched data.
 Costs of all related operations are listed in Table~\ref{tab:operations-gas}.
 
-The merkle variation can be potentially improved by dividing $\data$ in larger
-chunks than 1 element. We leave this analysis for future work.
+The merkle variation can be potentially improved by dividing $\data$ in
+chunks larger than 1 element. We leave this analysis for future work.
 
 \begin{figure}[H]
     \vspace*{-5mm}

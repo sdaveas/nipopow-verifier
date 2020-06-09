@@ -7,7 +7,7 @@ assumption that is made is that at least one honest node is connected to the
 verifier contract and serves honest proofs. However, the process of contesting
 a submitted proof by an honest node does not come without expenses.  Such an
 expense is the computational power a node has to consume in order to fetch a
-submitted proof from the calldata and construct a contesting proof, but most
+submitted proof from the calldata and construct a contesting proof, but, most
 importantly, the gas that has to be paid in order to dispatch the proof to
 the Ethereum blockchain. Therefore, it is essential to provide motives to
 nodes, while adversaries must be discouraged from
@@ -60,7 +60,7 @@ transactions' inclusions with respect to gas price, a tool that is widely used
 by the Ethereum community. In Figure~\ref{fig:cryptoeconomics}, we illustrate
 the economical analysis of our client. Green and blue solid lines in each graph
 display the transaction cost in USD for each phase as a function of the gas
-price. The red solid line in each graph represents the textsf{Z} as a function
+price. The red solid line in each graph represents the \textsf{Z} as a function
 of the probability of the contest transaction's inclusion in the following 200
 blocks. As this probability approaches 1, the gas price needs to be increased.
 Dashed lines illustrate the total cost of a submission in USD for several

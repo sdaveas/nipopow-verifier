@@ -1,28 +1,28 @@
 \section{Processing fewer blocks}
 
 The complexity of most demanding on-chain operations of the verifier are linear
-to proof size. This includes the proof validation and the evaluation of score.
-We now present techniques that allow for equivalent operations of constant
-complexity.
+to the size of the proof. This includes the proof validation and the evaluation
+of score. We now present two techniques that allow for equivalent operations of
+constant complexity.
 
-\textsf{Optimistic schemes.} In smart contracts, in order to
-ensure that users comply with the underlying application's rules, certain
-actions need to be performed on-chain, e.g.\ verification of data, balance
-checks, etc. In a different approach, actions that deviate from the protocol are
-reverted after honest users indicate them, not allowing diverging entities to
-gain advantages.  Such applications that do not check the validity of actions
-by default, but rather depend on the intervention of other users are
-characterized ``optimistic''. In the Ethereum community, several projects
-~\cite{piza, plasma, rollups-1, rollups-2} have emerged that incorporate
-the notion of \emph{optimistic interactions}. We observe that such a schema can
-be embedded into the NIPoPoW protocol, resulting in significant performance gain.
+\textsf{Optimistic schemes.} In smart contracts, in order to ensure that users
+comply with the underlying application's rules, certain actions need to be
+performed on-chain, e.g.\ verification of data, balance checks, etc. In a
+different approach, actions that deviate from the protocol are reverted after
+honest users indicate them, not allowing diverging entities to gain advantages.
+Such applications that do not check the validity of actions by default, but
+rather depend on the intervention of honest users are characterized
+``optimistic''. In the Ethereum community, several projects ~\cite{piza,
+plasma, rollups-1, rollups-2} have emerged that incorporate the notion of
+optimistic interactions. We observe that such a schema can be embedded into the
+NIPoPoW protocol, resulting in significant performance gain.
 
 We discussed how the verification in the NIPoPoW protocol is realized in
 two phases. In \emph{submit} phase, the verification of the $\pis$ is
 performed.  This is necessary in order to prevent adversaries from injecting
 blocks that do not belong to the chain, or changing existing blocks. A proof is
 valid for submission if it is \emph{structurally correct}. Correctly structured
-NIPoPoWs has the following requirements:
+NIPoPoWs have the following requirements:
 
 \begin{enumerate}
     \item The first block of the proof is the genesis block of the underlying
@@ -63,7 +63,7 @@ Note that this additional phase does not imply increased rounds of
 interactions between $\es$ and $\ec$. If $\pis$ is invalidated in
 \emph{dispute} phase, then \emph{contest} phase is skipped. Similarly, if
 $\pis$ is structurally correct, but represents a dishonest chain, then $\ec$
-proceeds directly to \emph{contest} phase.
+proceeds directly to \emph{contest} phase without the invocation of \emph{dispute}.
 
 In Table~\ref{tab:dispute-cost} we display the gas consumption for
 two independent cycles of interactions:
@@ -88,16 +88,16 @@ we derive a major optimization for the \emph{contest} phase by observing the
 process of score evaluation.
 
 In NIPoPoWs, after the last common ancestor is found, each proof fork
-is evaluated in terms of proof-of-work score. Each level encapsulates different
-scores of proof-of-work, and the level with the best score is representative
+is evaluated in terms of proof-of-work score. Each level encapsulates a different
+score of proof-of-work, and the level with the best score is representative
 of the underlying proof. Since the common blocks of the two proofs naturally
 gather the same score, only the disjoint portions need to be addressed.
 Consequently, the position of the $\lca$ determines the span of the proofs that
 will be included in the score evaluation process. Furthermore, it is impossible
 to determine the score of a proof in the \emph{submit} phase because the position
-of $\lca$ is unknown.
+of $\lca$ is yet unknown.
 
-After $\pis$ is retrieved from the call data, the score of both proofs is
+After $\pis$ is retrieved from the calldata, the score of both proofs is
 calculated. This means that the level in which each proof encapsulates the
 most proof-of-work for each proof is known to $\ec$. In the light of this
 observation, $\ec$ only submits the blocks which consist the \emph{best level}
@@ -119,7 +119,7 @@ We denote the best level of $\pitr$ as $\pitrl$.
     \begin{center}
         \includegraphics[width=1\columnwidth]{figures/blocks-of-best-level.pdf}
     \end{center}
-    \caption{Fork of two proofs. Gray blocks after the lca determine the
+    \caption{Fork of two proofs. Striped blocks determine the
     score of each proof. Black blocks belong to the level that
     has the best score. Only black blocks are part of the best level of the
     contesting proof.}
@@ -129,7 +129,7 @@ We denote the best level of $\pitr$ as $\pitrl$.
 
 In Algorithm~\ref{alg:dispute-best-level}, we show the implementation of the
 \emph{contest} phase under the best-level enhancement. The utilization of
-\emph{best-level} methodology greatly increases the performance of the client,
+this methodology greatly increases the performance of the client,
 because the complexity of the majority of $\textsf{contest}$ functions is
 related to the size of $\pic$. In Table~\ref{tab:best-level-cost}, we
 demonstrate the difference in gas consumption in the \emph{contest} phase after
