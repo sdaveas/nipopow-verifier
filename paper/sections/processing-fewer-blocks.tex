@@ -17,18 +17,14 @@ plasma, rollups-1, rollups-2} have emerged that incorporate the notion of
 optimistic interactions. We observe that such a schema can be embedded into the
 NIPoPoW protocol, resulting in significant performance gain.
 
-We discussed how the verification in the NIPoPoW protocol is realized in
-two phases. In \emph{submit} phase, the verification of the $\pis$ is
-performed.  This is necessary in order to prevent adversaries from injecting
-blocks that do not belong to the chain, or changing existing blocks. A proof is
-valid for submission if it is \emph{structurally correct}. Correctly structured
-NIPoPoWs have the following requirements:
-
-\begin{enumerate}
-    \item The first block of the proof is the genesis block of the underlying
-        blockchain.
-    \item Every block has a valid interlink.
-\end{enumerate}
+We discussed how the verification in the NIPoPoW protocol is realized in two
+phases. In \emph{submit} phase, the verification of the $\pis$ is performed.
+This is necessary in order to prevent adversaries from injecting blocks that do
+not belong to the chain, or changing existing blocks. A proof is valid for
+submission if it is \emph{structurally correct}. Correctly structured NIPoPoWs
+have the following requirements: (a) The first block of the proof is the
+genesis block of the underlying blockchain and (b) every block has a valid
+interlink.
 
 Asserting the existence of genesis in the first index of a proof is an
 inexpensive operation of constant complexity. However, confirming the interlink
@@ -65,20 +61,20 @@ interactions between $\es$ and $\ec$. If $\pis$ is invalidated in
 $\pis$ is structurally correct, but represents a dishonest chain, then $\ec$
 proceeds directly to \emph{contest} phase without the invocation of \emph{dispute}.
 
+\input{tables/dispute-cost}
+
 In Table~\ref{tab:dispute-cost} we display the gas consumption for
 two independent cycles of interactions:
 \begin{enumerate}
-    \item Phases \emph{submit} and \emph{dispute} for the case in which $\pis$
-        is structurally incorrect.
-    \item Phases \emph{submit} and \emph{contest} for the case in which
-        $\pis$ is structurally correct, but represents a dishonest chain.
+    \item \emph{Submit} and \emph{dispute} for is structurally incorrect
+        $\pis$.
+    \item \emph{Submit} and \emph{contest} for structurally correct
+        $\pis$ that represents a dishonest chain.
 \end{enumerate}
 
 \noindent In Algorithm~\ref{alg:dispute-best-level}, we show the implementation
 of the \emph{dispute} phase. The integration of \emph{dispute} phase leaves
 \textsf{contest} unchanged.
-
-\input{tables/dispute-cost}
 
 \noindent \textbf{Isolating the best level.} As we discussed, \emph{dispute}
 and \emph{contest} phases are mutually exclusive. Unfortunately, the same
@@ -114,10 +110,10 @@ different levels only undermine the score of $\pic$. On the contrary, due to
 the consistency property of \emph{hash-and-resubmit}, $\pis$ cannot be altered.
 We denote the best level of $\pitr$ as $\pitrl$.
 
-\begin{figure}[H]
+\begin{figure}[!h]
 \vspace*{-5mm}
     \begin{center}
-        \includegraphics[width=1\columnwidth]{figures/blocks-of-best-level.pdf}
+        \includegraphics[width=0.8\columnwidth]{figures/blocks-of-best-level.pdf}
     \end{center}
     \caption{Fork of two proofs. Striped blocks determine the
     score of each proof. Black blocks belong to the level that
@@ -156,7 +152,7 @@ single Ethereum block.
 \begin{figure}[!h]
 \vspace*{-3mm}
     \begin{center}
-        \includegraphics[width=1\columnwidth]{figures/dispute-best-level.pdf}
+        \includegraphics[width=0.9\columnwidth]{figures/dispute-best-level.pdf}
     \end{center}
 \vspace*{-5mm}
     \caption{Performance improvement using optimistic schema in submit phase

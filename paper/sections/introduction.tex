@@ -34,10 +34,8 @@ participate as a full node in multiple chains. This approach, however, is
 impractical because a sizable amount of storage is needed to host entire
 chains as they grow in time. As of June 2020, Bitcoin~\cite{nakamoto} chain
 spans roughly 245 GB, and Ethereum~\cite{wood, buterin} has exceeded 300
-GB\footnote{The size of the Bitcoin chain was derived from
-    https://www.statista.com/statistics/647523/worldwide-bitcoin-blockchain-size/,
-    and the size of the Ethereum chain by
-https://etherscan.io/chartsync/chaindefaults}. Naturally, not all users are
+GB\footnote{Size of blockchain derived from https://www.statista.com,
+https://etherscan.io}. Naturally, not all users are
 able to accommodate this size of data, especially if portable devices are used,
 such as mobile phones.
 
@@ -139,10 +137,10 @@ majority of the blockchain community. We selected Ethereum as the target blockch
 because, besides its popularity, it supports smart contracts, which is a
 requirement in order to perform on-chain verification.
 
-Bitcoin does not include interlink structures in blocks. The setting we refer
-to is a hard fork~\cite{hard-fork}, but a velvet~\cite{velvet-fork} fork can
-also be supported as it does not add significant overhead to the verifier as
-shown in ~\cite{andri}.
+% Bitcoin does not include interlink structures in blocks. The setting we refer
+% to is a hard fork~\cite{hard-fork}, but we believe that a
+% velvet~\cite{velvet-fork} fork can also be supported as it does not add
+% significant overhead to the verifier as shown in ~\cite{andri}.
 
 \noindent
 \textbf{Structure.} In Section 2 we describe the blockchain technologies that
