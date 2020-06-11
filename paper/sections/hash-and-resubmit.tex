@@ -79,8 +79,8 @@ from the \emph{hash-and-resubmit} pattern:
 \begin{enumerate}
     \item The application is a Solidity smart contract.
     \item Read/write operations are performed in large arrays that exist in
-        storage. Rehashing variables of small size may result in negligible
-        gain or even performance loss.
+        storage. Using the pattern for variables of small size may result in
+        negligible gain or even performance loss.
     \item A full node observes function calls to the smart contract.
 \end{enumerate}
 
