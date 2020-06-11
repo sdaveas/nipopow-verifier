@@ -179,12 +179,11 @@ embedding the \emph{hash-and-resubmit} pattern.
 implementations is displayed in Figure~\ref{fig:har-example}. By using the
 \emph{hash-and-resubmit} pattern, the aggregated gas consumption for
 \textsf{submit} and \textsf{contest} is decreased by 95\%. This significantly
-affects the efficiency and applicability of the contract. Note that the
-storage implementation exceeds the Ethereum block gas limit\footnote{As of July
-2020, the Ethereum block gas limit approximates 10,000,000 gas units} for
-arrays of size 500 and above, contrary to the optimized version, which consumes
-approximately only $1/10^{th}$ of the block gas limit for arrays of $1{,}000$
-elements.
+affects the efficiency and applicability of the contract. Note that the storage
+implementation exceeds the Ethereum block gas limit ($10{,}000{,}000$ gas as of
+June 2020), for arrays of size 500 and above, contrary to the optimized
+version, which consumes approximately only $1/10^{th}$ of the block gas limit
+for arrays of $1{,}000$ elements.
 
 \begin{figure}[!h]
 \vspace*{-5mm}
