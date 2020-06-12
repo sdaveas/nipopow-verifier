@@ -156,27 +156,7 @@ saved in storage is constant and small in size (32 bytes).
 
 % \input{algorithms/avoid_premining.tex}
 
-\section{Storage Elimination}
-
-A series of keen observations, the application of gas-efficient practices and
-the utilization of modern Solidity features led us to the design of a new
-verifier architecture. As mentioned above, the bottleneck we had to eliminate
-was the extensive usage of storage. our implementation is bases on a new
-architecture that allow us to discard all expensive store operations and
-utilize memory instead, which led to massive decrease of gas consumption. We
-call this technique \emph{hash-and-resubmit}.
-
-In this section, we present the performance difference in gas consumption
-between storage and memory utilization. Then, we show how a gas-efficient,
-superlight Bitcoin client can be implemented in Solidity without persisting
-proofs, utilizing our novel technique.
-
-We will use extend our annotation with the content of
-Table~\ref{table:notation_verifier}.
-
-\input{tables/notation_verifier.tex}
-
-\subsection{Storage vs Memory}
+\section{Storage vs Memory}
 
 We will first demonstrate the difference in gas usage between storage and
 memory for a smart contract in Solidity. Suppose we have the following simple
@@ -188,17 +168,18 @@ caption={Solidity test for storage and memory}]{code/StorageVsMemory.sol}
 
 Function \texttt{withStorage()} populates an array saved in storage and
 function \texttt{withMemory()} populates an array saved in memory. We
-initialize the sizes of the arrays by passing the variable \texttt{size} to the
+initialize the sizes of the arrays by passing the variable \textsf{size} to the
 contract constructor. We run this piece of code for \texttt{size} from 1 to
 100. The results are displayed at Figure~\ref{figure:memory_vs_storage}. For
-\texttt{size} = 100, the gas expended is 53,574 gas units using memory and
-2,569,848 using storage which is almost 50 times more expensive. This code was
-compiled with Solidity version 0.6.6 with optimizations enabled\footnote{This
-version of Solidity compiler, which was the latest at the time this paper was
-published, did not optimize-out any of the variables.}. The EVM we used  was
-Ganache at the latest Constantinople(ref) fork. It is obvious that if there is
-the option to use memory instead of storage in the design of smart contracts,
-the choice of memory greatly benefits the users.
+\textsf{size} equal to 100, the gas expended is 53,574 gas units using memory
+and 2,569,848 using storage which is almost 50 times more expensive. This code
+was compiled with Solidity version 0.6.6 with optimizations
+enabled\footnote{This version of Solidity compiler, which was the latest at the
+time this paper was published, did not optimize-out any of the variables.}. The
+EVM we used  was Ganache at the latest Constantinople~\cite{constantinople}
+fork. It is obvious that, if there is the option to use memory instead of
+storage in the design of smart contracts, the choice of memory greatly benefits
+the user.
 
 \input{figures/memory_vs_storage.tex}
 
