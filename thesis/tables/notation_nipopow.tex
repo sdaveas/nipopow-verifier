@@ -2,17 +2,16 @@
 \begin{tabular}{ll}
 \hline
 \multicolumn{1}{|c|}{Symbol} & \multicolumn{1}{c|}{Description}\\ \hline
-$|C|$           & The number of blocks in blockchain $C$. \\
-$C${[}i{]}      & The $i$-th block of $C$. \\
-$C${[}-i{]}     & The $C[|C|-i]$ block. \\
-$C${[}i:j{]}    & The sub-blockchain $C[i]$, $C[i+1]$, ... , $C[j-1]$. \\
-$C${[}i:{]}     & The sub-blockchain from $C[i]$ until the last block of $C$. \\
-$C${[}:j{]}     & The sub-blockchain from the first block of $C$ until the $C[j-1]$. \\
-$C\{B :\}$      & The sub-blockchain starting from the block with block id $B$. \\
-$C_1 \cap C_1$  & The sub-blockchain $\{B : B \in C_1 \land B \in C_2 \}$. \\
-LCA($C_1$, $C_2$) & The sub-blockchain $(C_1 \cap C_2)[-1]$. \\
-$Gen_c$           & Block $C[0]$; The $genesis$ block of blockchain $C$. \\
-
+$|\chain|$           & The number of blocks in blockchain $\chain$. \\
+$\chain${[}i{]}      & The $i$-th block of $\chain$. \\
+$\chain${[}-i{]}     & The $\chain[|\chain|-i]$ block. \\
+$\chain${[}i:j{]}    & The sub-blockchain $\chain[i]$, $\chain[i+1]$, ... , $\chain[j-1]$. \\
+$\chain${[}i:{]}     & The sub-blockchain from $\chain[i]$ until the last block of $\chain$. \\
+$\chain${[}:j{]}     & The sub-blockchain from the first block of $\chain$ until the $\chain[j-1]$. \\
+$\chain\{B :\}$      & The sub-blockchain starting from the block with block id $B$. \\
+$\chain_1 \cap \chain_1$  & The sub-blockchain $\{B : B \in \chain_1 \land B \in \chain_2 \}$. \\
+LCA($\chain_1$, $\chain_2$) & The sub-blockchain $(\chain_1 \cap \chain_2)[-1]$. \\
+$\genesis$           & Block $\chain[0]$; The $genesis$ block of blockchain $\chain$. \\
 \end{tabular}
 \caption{Notation}
 \label{table:notation_nipopow}
