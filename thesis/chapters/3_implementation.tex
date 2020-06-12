@@ -1,17 +1,19 @@
 \chapter{Implementation}
 
-In this chapter, we put forth our research and implementation. First, present
-the analysis of previous work regarding gas consumption, cost in fiat and
-security. Then we gradually describe our improved methodology that eliminates
-storage by utilizing hash-and-resubmit technique and delivers a gas-efficient,
-superlight Bitcoin client implementation. \todo{extend intro}
+\todo{write intro}
+
+% In this chapter, we put forth our research and implementation. First, we
+% analyze previous work regarding gas consumption, cost in fiat and security.
+% Then we gradually describe our improved methodology that eliminates storage by
+% utilizing hash-and-resubmit technique and delivers a gas-efficient, superlight
+% Bitcoin client implementation.
 
 \section{Analysis of Previous Work}
 
-In this section, we analyse the verifier by Christoglou et. al. First we
+In this section, we analyse previous work by Christoglou et. al. First we
 discuss the process needed to prepare the code for our analysis. Then, we show
 the gas usage of all internal functions of the verifier, and the cost of using
-that implementation. Finally, we present the vulnerabilities we discovered, and
+this implementation. Finally, we present the vulnerabilities we discovered, and
 how we mitigated them in our work.
 
 \subsection{Porting from old Solidity version}
@@ -21,9 +23,9 @@ perform this analysis, we needed to port the verifier from version Solidity 0.4
 to version 0.6. The changes we needed to perform were mostly syntactic. These
 includes the usage of \texttt{abi.encodePacked}, explicit \texttt{memory} and
 \texttt{storage} declaration and explicit cast from \texttt{address} to
-\texttt{payable address}. We also used our configured EVMs with EIP 2028(ref)
-enabled to benefit from low cost function calls. The functionality of the
-contract remained equivalent.
+\texttt{payable address}. We also used our configured EVMs with EIP
+2028~\cite{EIP2028} enabled to benefit from low cost function calls. The
+functionality of the contract remained equivalent.
 
 \todo{
 The prover’s output is a Proof of Proof of Work that satisfies the above
@@ -44,11 +46,10 @@ gas usage of the functionalities of the verifier is shown in Table
 \ref{table:old_gas_usage}.
 
 \input{figures/proofs_65-10+20.tex}
-\input{tables/old_gas_usage.tex}
 
 In this scenario, the original proof is created by an adversary for an event
 that does not exist in the honest chain. The proof is contested by an honest
-party. We selected this configuration because it includes both phases
+party. We select this configuration because it includes both phases
 (submit and contest) and provides full code coverage of each phase since all
 underlying operations are executed and no early returns occur.
 
@@ -56,11 +57,11 @@ For a chain of 75 blocks, each phase of the contract needed more than 10
 million gas units. Although the size of this test chain is only a very small
 faction of the size of a realistic chain, the gas usage already exceeds the
 limit of Ethereum blockchain, which is slightly below 10 million. In
-particular, the submit of a 500,0000-blocks chain demands 47,280,453 gas. In
-Figure \ref{figure:old_gas_per_chain_proof}, we show gas consumption for submit
+particular, the submit of a 650,0000-blocks chain demands 47,280,453 gas. In
+Figure \ref{figure:old_gas_per_chain_proof}, we show gas consumption of the submit
 phase for different chain sizes and their corresponding proofs sizes. We
-demonstrate results for chains sizes from 100 blocks (corresponding proof size
-25) to 500,000 blocks (corresponding to proof size 250).
+demonstrate results for chain sizes from 100 blocks (corresponding to proof size
+25) to 650,000 blocks (corresponding to proof size 250).
 
 The linear relation displayed in Figure \ref{figure:old_gas_per_proof} implies
 that the gas consumption of the verifier is determined by the size of the
@@ -81,16 +82,16 @@ Ethereum blockchain by far. While Ethereum adapts to community demands and
 build-in parameters can change, it seem improbable to ever incorporate such a
 high block gas limit. However, even in this extreme case, the verifier would
 still be impractical due to the high cost of the operations in fiat. We call
-this amount \emph{toll}, because it is the cost of using the "bridge" between
+this amount \emph{toll}, because it is the cost of using the ``bridge'' between
 two blockchains. We list these tolls in Table \ref{table:old_cost_in_fiat}. For
-this price, we used gas price equal to 5 Gwei, which is considered an average
-amount to complete transactions. With this gas price, the probability
-approximately that the transaction will be included in one of the next 200
-blocks is 33\%. Note that average gas price will not be sufficient for
-contesting phase, and it has to be performed with higher gas price because of
-the limited contesting period. We will later analyze thoroughly the entire
-spectrum of gas prices and tolls for realistic usage of both submit and contest
-phases.
+this price, we used gas price equal to 5 Gwei, which is considered a
+particularly low amount to complete transactions. With this gas price, the
+probability approximately that the transaction will be included in one of the
+next 200 blocks is 33\%. Note that low and average gas price will not be
+sufficient for contesting phase, and it has to be performed with higher gas
+price because of the limited contesting period. We will later analyze
+thoroughly the entire spectrum of gas prices and tolls for realistic usage of
+both submit and contest phases.
 
 \subsection{Security Analysis}
 
