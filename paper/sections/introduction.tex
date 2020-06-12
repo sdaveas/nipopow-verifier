@@ -24,7 +24,7 @@ operations:
 
 In order to perform crosschain operations, mechanism that
 allows users of blockchain A to discover events that have occurred in chain B,
-such as transactions, must be introduced. One tricky aspect is to ensure the atomicity of such
+such as settled transactions, must be introduced. One tricky aspect is to ensure the atomicity of such
 operations, which require that either the transactions take place in \emph{both}
 chains, or in \emph{neither}.
 This is achievable through atomic swaps~\cite{tiernolan,herlihy2018atomic}.
@@ -34,7 +34,7 @@ another. For many applications, a richer set of
 functionalities is needed~\cite{pow-sidechains,derivatives}.
 To communicate the fact that an event took place in a source blockchain,
 a na\"ive approach is to have users relay all the source blockchain blocks to a
-smart contract residing in the target chain, which functions as a blockchain
+smart contract residing in the target chain, which functions as a 
 client for the remote chain and validates all incoming information~\cite{btcrelay}.
 This approach, however, is
 impractical because a sizable amount of storage is needed to host entire
@@ -60,7 +60,7 @@ Towards the goal of delivering more practical solutions for blockchain
 transaction verification, a new generation of \emph{superlight}
 clients has emerged~\cite{popow,nipopows,compactsuperblocks,flyclient}. In these
 protocols, cryptographic proofs are generated, that prove the occurrence of
-events inside a blockchain. These proofs require only a polylogarithmic size of
+events in a blockchain. These proofs require only a polylogarithmic size of
 data compared to the SPV model, resulting in better performance. By utilizing
 superlight client protocols, a compressed proof for an event in chain A is
 constructed and dispatched to chain B. If chain B supports smart contracts, the
@@ -78,7 +78,7 @@ our solution.
 
 \noindent
 \textbf{Related Work.} NIPoPoWs
-were introduced by Kiayias et al.~\cite{nipopows} and their
+were introduced by Kiayias, Miller and Zindros~\cite{nipopows} and their
 application to cross-chain communication was described in follow-up
 work~\cite{pow-sidechains}, but only theoretically and without providing
 an implementation. A few cryptocurrencies already
