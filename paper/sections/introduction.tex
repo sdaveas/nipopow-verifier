@@ -34,7 +34,7 @@ another. For many applications, a richer set of
 functionalities is needed~\cite{pow-sidechains,derivatives}.
 To communicate the fact that an event took place in a source blockchain,
 a na\"ive approach is to have users relay all the source blockchain blocks to a
-smart contract residing in the target chain, which functions as a 
+smart contract residing in the target chain, which functions as a
 client for the remote chain and validates all incoming information~\cite{btcrelay}.
 This approach, however, is
 impractical because a sizable amount of storage is needed to host entire
@@ -88,7 +88,7 @@ in cross-chain protocols.
 Christoglou~\cite{gglou} provided a Solidity smart contract which is the first
 implementation of crosschain events verification based on NIPoPoWs, where
 proofs are submitted and checked for their validity, marking the first
-implementation of a cross-chain \emph{destination}. This solution, however, is
+implementation of an \emph{on-chain} verifier. This solution, however, is
 impractical due to extensive usage of resources, widely exceeding the Ethereum
 block gas limit.
 Other attempts have been made to address the verification of Bitcoin

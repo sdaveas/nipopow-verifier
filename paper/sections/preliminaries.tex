@@ -11,20 +11,6 @@ transaction is confirmed. The full nodes therefore also function as
 \emph{provers} for the verifiers. Each verifier connects to multiple provers, at
 least one of which is assumed to be honest.
 
-We model full nodes according to the Backbone model~\cite{backbone}. There are
-$n$ full nodes, of which $t$ are adversarial and $n - t$ are honest. All $t$
-adversarial parties are controlled by one colluding adversary $\mathcal{A}$. The
-parties have access to a hash function $H$ which is modelled as a common Random
-Oracle~\cite{ro}. To each novel query, the random oracle outputs $\kappa$ bits
-of fresh randomness. Time is split into distinct \emph{rounds} numbered by the
-integers $1, 2, \cdots$. Our treatment is in the \emph{synchronous model}, so we
-assume messages \emph{diffused} (broadcast) by an honest party at the end of a
-round are received by all honest parties at the beginning of the next round.
-This is equivalent to a network connectivity assumption in which the round
-duration is taken to be the known time needed for a message to cross the
-diameter of the network. The adversary can inject messages, reorder them, sybil
-attack by creating multiple messages, but not suppress messages.
-
 \noindent
 \textbf{Blockchain.} Each honest full node locally maintains a \emph{chain} $\chain$, a sequence of
 blocks. In understanding that we are developing an improvement on top of SPV, we
@@ -47,7 +33,7 @@ known as the \emph{block id}.
 Blockchains are finite block sequences obeying the \emph{blockchain property}:
 that in every block in the chain there exists a pointer to its previous block. A
 chain is \emph{anchored} if its first block is \emph{genesis}, denoted $\mathcal{G}$,
-a special block known to all parties. This is the only node the verifier knows about
+a special block known to all parties. This is the only block the verifier knows about
 when it boots up. For chain addressing we use Python brackets $\chain[\cdot]$. A
 zero-based positive number in a bracket indicates the indexed block in the
 chain. A negative index indicates a block from the end, e.g., $\chain[-1]$ is
@@ -72,15 +58,14 @@ it and broadcast the new chain. Upon receiving a new chain $\chain'$ from the
 network, an honest party compares its length $|\chain'|$ against its currently
 adopted chain $\chain$ and adopts the newly received chain if it is longer. It
 is assumed that the honest parties control the majority of the computational
-power of the network. This \emph{honest majority assumption} states that there
-is some $\delta$ such that $t < (1 -  \delta)(n - t)$. If so, the protocol
+power of the network. If so, the protocol
 ensures consensus among the honest parties: There is a constant $k$, the
 \emph{Common Prefix} parameter, such that, at any round, all the chains
 belonging to honest parties share a common prefix of blocks; the chains can
 deviate only up to $k$ blocks at the end of each chain~\cite{backbone}.
 Concretely, if at some round $r$ two honest parties have $\chain_1$ and
 $\chain_2$ respectively, then either $\chain_1[{:}-k]$ is a prefix of $\chain_2$
-or vice versa.
+or $\chain_2[{:}-k]$ is a prefix of $\chain_1$.
 
 \noindent
 \textbf{Superblocks.}
@@ -104,8 +89,15 @@ proof-of-work. The protocol is parametrized by a constant security parameter
 $m$. The parameter determines how many superblocks will be sent by the prover to
 the verifier and security is proven with overwhelming probability in $m$.
 
-\noindent \textbf{Prover.} The prover selects various levels $\mu$ and for each
-such level sends a carefully chosen portion of its $\mu$-level
+\noindent \textbf{Prover.} The prover is a friendly but untrusted node that
+submits proofs of events that happen on a \emph{source} chain. These proofs are
+advertised to a different \emph{target} chain and their validity is ensured by
+other honest nodes. Provers need to monitor both source and target chains in
+order to (a) create proofs of events from the source chain and (b) validate
+proofs that are submitted by other nodes to the target chain.
+
+The prover selects various levels $\mu$ and, for each
+such level, sends a carefully chosen portion of its $\mu$-level
 \emph{superchain} $\chain\upchain^\mu$ to the verifier. In standard blockchain
 protocols such as Bitcoin and Ethereum, each block $\chain[i + 1]$ in $\chain$
 points to its previous block $\chain[i]$, but each $\mu$-superblock
@@ -123,6 +115,17 @@ preceding $\mu$-superblock, for every $\mu$.
 % as illustrated in Figure~\ref{fig.hierarchy}.
 As these levels are only $\log|\chain|$, this only adds $\log|\chain|$ extra
 pointers to each block header.
+
+Albeit a proof can be structurally correct, an adversary prover can dispatch a
+proof of an dishonest chain. This is addressed by establishing a contest
+period, in which honest provers can submit honest proofs that invalidate
+the originally submitted. The rational behind this is that the honest chain
+encapsulates the most proof-of-work, and thus achieves better score among
+other proofs that represent shorter, dishonest chains. To provide incentives for honest
+nodes to contest fraud proofs, a collateral is included to the submission of
+proofs which is paid to the party that achieves to present a better proofs than
+the originally submitted. If no contest happen, the collateral is returned to
+the original issuer.
 \input{algorithms/prelims/alg.nipopow-prover.tex}
 
 % \begin{figure}[ht]
@@ -135,54 +138,53 @@ pointers to each block header.
 %     \label{fig.hierarchy}
 % \end{figure}
 
-The exact NIPoPoW protocol works like this: The prover holds a full chain
-$\chain$. When the verifier requests a proof, the prover sends the last $k$
-blocks of their chain, the suffix $\chi = \chain[-k{:}]$, in full. From the
-larger prefix $\chain[{:}-k]$, the prover constructs a proof $\pi$ by selecting
-certain superblocks as representative samples of the proof-of-work that took
-place. The blocks are picked as follows. The prover selects the \emph{highest}
-level $\mu^*$ that has at least $m$ blocks in it and includes all these blocks
-in their proof (if no such level exists, the chain is small and can be sent in
-full). The prover then iterates from level $\mu = \mu^* - 1$ down to $0$. For
-every level $\mu$, it includes sufficient $\mu$-superblocks to cover the last
-$m$ blocks of level $\mu + 1$, as illustrated in
-Algorithm~\ref{alg.nipopow-prover}. Because the density of blocks doubles as
-levels are descended, the proof will contain in expectation $2m$ blocks for each
-level below $\mu^*$. As such, the total proof size $\pi \chi$ will be
-$\Theta(m\log|\chain| + k)$. Such proofs that are polylogarithmic in the chain
-size constitute an exponential improvement over traditional SPV clients and are
-called \emph{succinct}.
-
-\noindent \textbf{Verifier.} Upon receiving two proofs $\pi_1\chi_1,
-\pi_2\chi_2$ of this form, the NIPoPoW verifier first checks that $\lvert
-\chi_1 \rvert = \lvert \chi_2 \rvert = k$ and that $\pi_1 \chi_1$ and $\pi_2
-\chi_2$ form valid chains. To check that they are valid chains, the verifier
-ensures every block in the proof contains a pointer to its previous block
-inside the proof through either the \emph{previd} pointer in the block header,
-or in the interlink vector. If any of these checks fail, the proof is rejected.
-It then compares $\pi_1$ against $\pi_2$ using the $\leq_m$ operator, which
-works as follows. It finds the lowest common ancestor block $b = (\pi_1 \cap
-\pi_2)[-1]$; that is, $b$ is the most recent block shared among the two proofs.
-Subsequently, it chooses the level $\mu_1$ for $\pi_1$ such that $\lvert
-\pi_1\{b{:}\}\upchain^{\mu_1} \rvert \geq m$ (i.e., $\pi_1$ has at least $m$
-superblocks of level $\mu_1$ following block $b$) and the value $2^{\mu_1}
-\lvert \pi_1\{b{:}\}\upchain^{\mu_1} \rvert$ is maximized.  It chooses a level
-$\mu_2$ for $\pi_2$ in the same fashion. The two proofs are compared by
-checking whether $2^{\mu_1} \lvert \pi_1\{b{:}\}\upchain^{\mu_1} \rvert \geq
-2^{\mu_2} \lvert \pi_2\{b{:}\}\upchain^{\mu_2} \rvert$ and the proof with the
-largest score is deemed the winner. The comparison is illustrated in
-Algorithm~\ref{alg.nipopow-verifier}.
+\noindent \textbf{Verifier.} The verifier is an application that performs
+operations on proofs and does not need to be aware of the state of each chain.
+Upon receiving two proofs, $\pi_1$ and $\pi_2$, the NIPoPoW verifier first
+checks that they form valid chains. To check that they are valid chains, the
+verifier ensures every block in the proof contains a pointer to its previous
+block inside the proof through either the \emph{previd} pointer in the block
+header, or in the interlink vector. If any of these checks fail, the proof is
+rejected.  It then compares $\pi_1$ against $\pi_2$ using the $\leq_m$
+operator, which works as follows. It finds the lowest common ancestor block $b
+= (\pi_1 \cap \pi_2)[-1]$; that is, $b$ is the most recent block shared among
+the two proofs.  Subsequently, it chooses the level $\mu_1$ for $\pi_1$ such
+that $\lvert \pi_1\{b{:}\}\upchain^{\mu_1} \rvert \geq m$ (i.e., $\pi_1$ has at
+least $m$ superblocks of level $\mu_1$ following block $b$) and the value
+$2^{\mu_1} \lvert \pi_1\{b{:}\}\upchain^{\mu_1} \rvert$ is maximized.  It
+chooses a level $\mu_2$ for $\pi_2$ in the same fashion. The two proofs are
+compared by checking whether $2^{\mu_1} \lvert \pi_1\{b{:}\}\upchain^{\mu_1}
+\rvert \geq 2^{\mu_2} \lvert \pi_2\{b{:}\}\upchain^{\mu_2} \rvert$ and the
+proof with the largest score is deemed the winner. The comparison is
+illustrated in Algorithm~\ref{alg.nipopow-verifier}.
 
 \input{algorithms/prelims/alg.nipopow-verifier.tex}
 
 \input{algorithms/prelims/alg.nipopow-verifier-inf.tex}
 
-In the case of the infix proofs there are some additional things that need to
-be considered. An adversary prover could skip the blocks of interest and
-present an honest and longer chain that, if only the suffix verifier where to
-be used, is considered a better proof. For that reason, the last step of the
-algorithm in the suffix verifier is changed to not only store the best proof
-but also combine the two proofs by including all of the ancestor blocks of the
-losing proof. This is guaranteed to include the blocks of interest. The
-resulting best proof is stored as a DAG(Directed Acyclic Graph), as in
-Algorithm~\ref{alg.nipopow-verifier-infix}.
+An adversary prover could skip the blocks of interest and present an honest and
+longer chain that is considered a better proof. For that reason, the last step
+of the algorithm in the suffix verifier is changed to not only store the best
+proof but also combine the two proofs by including all of the ancestor blocks
+of the losing proof. This is called infix verification and is guaranteed to
+include the blocks of interest. The resulting best proof is stored as a
+DAG(Directed Acyclic Graph), as in Algorithm~\ref{alg.nipopow-verifier-infix}.
+
+% The exact NIPoPoW protocol works like this: The prover holds a full chain
+% $\chain$. When the verifier requests a proof, the prover sends the last $k$
+% blocks of their chain, the suffix $\chi = \chain[-k{:}]$, in full. From the
+% larger prefix $\chain[{:}-k]$, the prover constructs a proof $\pi$ by selecting
+% certain superblocks as representative samples of the proof-of-work that took
+% place. The blocks are picked as follows. The prover selects the \emph{highest}
+% level $\mu^*$ that has at least $m$ blocks in it and includes all these blocks
+% in their proof (if no such level exists, the chain is small and can be sent in
+% full). The prover then iterates from level $\mu = \mu^* - 1$ down to $0$. For
+% every level $\mu$, it includes sufficient $\mu$-superblocks to cover the last
+% $m$ blocks of level $\mu + 1$, as illustrated in
+% Algorithm~\ref{alg.nipopow-prover}. Because the density of blocks doubles as
+% levels are descended, the proof will contain in expectation $2m$ blocks for each
+% level below $\mu^*$. As such, the total proof size $\pi \chi$ will be
+% $\Theta(m\log|\chain| + k)$. Such proofs that are polylogarithmic in the chain
+% size constitute an exponential improvement over traditional SPV clients and are
+% called \emph{succinct}.
+
