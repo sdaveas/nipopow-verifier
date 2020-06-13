@@ -1,6 +1,6 @@
 \newcommand{\arr}{\textsf{a}}
 \begin{algorithm}
-    \caption{\label{alg:game-storage}\textsf{best array} using storage}
+    \caption{\label{alg:game-storage}\emph{best array} using storage}
     \begin{algorithmic}[H]
 
     \Contract{best-array}
@@ -18,9 +18,9 @@
         \EndFunction
 
         \Function{\sf compare}{$\arr$}
-            \State \textsf{require}($|\arr|$ $\geq$ $|$\textsf{best}$|$)
-            \For{$i$ \textbf{in} $|$\textsf{best}$|$}
-            \State \textsf{require}($\arr[i]$ $\geq$ \textsf{best}[i])
+            \State \textsf{require}($|\arr| \geq |\textsf{best}|$)
+            \For{$i \gets 1$ to $|\textsf{best}|$}
+                \State \textsf{require}($\arr[i]$ $\geq$ \textsf{best}[i])
             \EndFor
             \State \Return{true}
         \EndFunction
@@ -30,7 +30,7 @@
 \end{algorithm}
 
 \begin{algorithm}
-    \caption{\label{alg:game-memory}\textsf{best array} using hash-and-resubmit pattern}
+    \caption{\label{alg:game-memory}\emph{best array} using hash-and-resubmit}
     \begin{algorithmic}[H]
         \Contract{best-array}
         \State{$\textsf{hash} \gets \emptyset$;
@@ -43,14 +43,14 @@
         \EndFunction
 
     \Function{\sf contest}{$\arras$, $\arrb$}
-    \State \textsf{require}(\textsf{hash256}($\arras$) $=$ \textsf{hash})
+    \State \textsf{require}($\textsf{H}(\arras) = \textsf{hash}$)
         \Comment{validate $\arras$}
         \State \textsf{require}(\textsf{compare}($\arras$, $\arrb$))
         \State \textsf{holder} $\gets$ \textsf{msg.sender}
     \EndFunction
     \Function{\sf compare}{$\arras$, $\arrb$}
         \State \textsf{require}($|\arras|$ $\geq$ $|\arrb|$)
-        \For{$i$ \textbf{in} $|\arras|$}
+        \For{$i \gets 1$ to $|\arras|$}
             \State \textsf{require}($\arras[i] \geq \arrb[i]$)
         \EndFor
     \EndFunction
