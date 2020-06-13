@@ -26,7 +26,7 @@
         \State \textsf{require}(\textsf{events$[e]$.hash} $=$ \textsf{H}($\pisa$))
         \Comment{verify $\pisa$}
         \State \textsf{require}($\pic$[0] = $\genesis$)
-        \State \textsf{require}(\textsf{valid-interlinks}($\pi_{cont}$))
+        \State \textsf{require}(\textsf{valid-interlinks}($\pic$))
         \State $lca$ = \textsf{find-lca}($\pisa$, $\pic$)
         \State \textsf{require}($\pic$ $\geq_m$ $\pisa$)
         \State \textsf{DAG} $\gets$ \textsf{DAG} $\cup$ $\pic$

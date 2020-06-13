@@ -18,7 +18,8 @@
         e))
         \State \textsf{ancestors} $=$ $\bot$
         \State \textsf{events$[e]$.hash} $\gets$ \textsf{H}($\pis$)
-        \Comment{enable pattern}
+        \Comment{enable pattern by storing the hash of $\pis$ instead of
+        $\pis$}
         \EndFunction
     \Function{\sf contest}{$\pisa$, $\pic$, $e$}
         \Comment{provide proofs}
