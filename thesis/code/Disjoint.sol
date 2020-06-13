@@ -1,4 +1,4 @@
-function disjoint(
+function minimalFork(
     Proof memory exist, uint256 lca
     Proof memory cont
 ) internal pure returns (bool) {
