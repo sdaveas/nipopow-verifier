@@ -1,0 +1,27 @@
+\usepackage[margin=1in]{geometry}           % set up page margins
+\usepackage{wrapfig, blindtext}             % tables in text
+\usepackage[official]{eurosym}              % euro sign
+\newcommand\todo[1]{\textcolor{blue}{#1}}   % add todos
+\usepackage{booktabs}                       % rulers in tables
+\usepackage{pgfplots}                       % plot pdfs
+\usepackage{subcaption}                     % subfigures
+\usepackage[shortlabels]{enumitem}          % enumerate with letters
+\usepackage{algorithm}                      % algorithms
+\usepackage{algpseudocode}                  % algorithm
+
+\usepackage{graphicx}
+\graphicspath{{./images/}}
+
+\usepackage{listings}                       % code listing
+\lstdefinestyle{customc}{                   % listing config
+    numbers=left,
+    belowcaptionskip=1\baselineskip,
+    breaklines=true,
+    frame=single,
+    xleftmargin=\parindent,
+    showstringspaces=false,
+    basicstyle=\footnotesize\ttfamily,
+    stringstyle=\color{orange},
+}
+
+\input{macros}
