@@ -27,13 +27,6 @@ includes the usage of \texttt{abi.encodePacked}, explicit \texttt{memory} and
 2028~\cite{EIP2028} enabled to benefit from low cost function calls. The
 functionality of the contract remained equivalent.
 
-\todo{
-The prover’s output is a Proof of Proof of Work that satisfies the above
-security parameters. The prover needed to be enhanced in order to create
-special test cases (Section(ref)) and enable our optimized architecture
-(Section(ref)).
-}
-
 \subsection{Gas analysis}
 
 Our profiler measures gas usage per line of code. This is very helpful to
@@ -44,6 +37,7 @@ used a chain of 75 blocks and a forked chain at index 55 that spans 10
 additional blocks as displayed in Figure \ref{figure:proofs_65-10+20}. Detailed
 gas usage of the functionalities of the verifier is shown in Table
 \ref{table:old_gas_usage}.
+\input{tables/old_gas_usage}
 
 \input{figures/proofs_65-10+20.tex}
 
@@ -65,14 +59,11 @@ demonstrate results for chain sizes from 100 blocks (corresponding to proof size
 
 The linear relation displayed in Figure \ref{figure:old_gas_per_proof} implies
 that the gas consumption of the verifier is determined by the size of the
-proofs. As shown in Figure \ref{figure:size_of_nipopows} \todo{insert figure
-for proof size with relation to the chain in Background}, the size of the
+proofs. As shown in Figure \ref{figure:old_gas_per_chain}, the size of the
 proofs grows logarithmically to the size of the chain, and this is also
 reflected to the gas consumption curve.
 
 \input{figures/old_gas_per_proof}
-
-\input{tables/old_cost_in_fiat.tex}
 
 \paragraph{Pricing}
 
@@ -93,18 +84,20 @@ price because of the limited contesting period. We will later analyze
 thoroughly the entire spectrum of gas prices and tolls for realistic usage of
 both submit and contest phases.
 
+\input{tables/old_cost_in_fiat.tex}
+
 \subsection{Security Analysis}
 
-We observed that previous work is vulnerable to \emph{premining attack}. Here,
-we lay out the attack and show how our work mitigates the threat.
+We observed that previous work is vulnerable to \emph{premining attack}. We now
+lay out an attack, and show how our work mitigates the threat.
 \subsubsection{Premining} Premining is the creation of a number of
-cryptocurrency coins before the cryptocurrency is launched to the public. Many
-altcoins are based on premining~\cite{premine}. Bitcoin, however, is \emph{not}
-a premined cryptocurrency. It is proven that every Bitcoin has been created
-after 3/Jan/2009, as we describe in Section \ref{premine}. In a blockchain
-where such a guarantee did not exist, the creator of the chain could quietly
-mine blocks for a long time before initiating the public network as displayed
-in ~\ref{figure:premining_attack}. The adversary could then publish the
+cryptocurrency coins before the cryptocurrency is launched to the public. There
+are altcoins that are based on premining such as AuroraCoin~\cite{aurora}.
+Bitcoin, however, is \emph{not} a premined cryptocurrency, since it is proven
+that the genesis was created after 3/Jan/2009. In a blockchain where such a
+guarantee did not exist, the creator of the chain could quietly mine blocks for
+a long time before initiating the public network as displayed in
+Figure~\ref{figure:premining_attack}. An adversary could then publish the
 private, longer chain, invalidating the public chain which is adopted by the
 honest users and hosts all their funds.
 
@@ -112,9 +105,8 @@ honest users and hosts all their funds.
 
 The NIPoPoW protocol takes into consideration the $genesis$ block of the
 underlying blockchain. We remind that the first block of the chain is always
-included in the NIPoPoW by construction. As we discuss in
-Section~\ref{NIPoPoWs}, in the NIPoPoW protocol a proof is structurally correct
-if two properties are satisfied:
+included in the NIPoPoW by construction. In the NIPoPoW protocol a proof is
+structurally correct if two properties are satisfied:
 
 \begin{enumerate}[(a)]
 
@@ -148,23 +140,21 @@ We can mitigate this vulnerability by initializing the smart contract with the
 $genesis$ block of the underlying blockchain (in our case, Bitcoin) persisting
 $genesis$ in storage. For every phase, we add an assertion that the first block
 of the proof must be equal to $genesis$. The needed changes are shown in
-Algorithms~\ref{algo:avoid_premining_ctor}, ~\ref{algo:avoid_premining_submit}
-and~\ref{algo:avoid_premining_contest}.
+Algorithm~\ref{alg:avoid-premining}.
 
 These operation do not affect the cost of the verifier because the extra data
 saved in storage is constant and small in size (32 bytes).
 
-% \input{algorithms/avoid_premining.tex}
+\input{algorithms/avoid_premining.tex}
 
 \section{Storage vs Memory}
 
 We will first demonstrate the difference in gas usage between storage and
-memory for a smart contract in Solidity. Suppose we have the following simple
-contract:
+memory for a smart contract in Solidity. Suppose that we have the following
+simple contract:
 
-\lstinputlisting[style=customc, captionpos=b, label={listing:storage_memory},
+\lstinputlisting[language=Solidity, label={listing:storage_memory},
 caption={Solidity test for storage and memory}]{code/StorageVsMemory.sol}
-\todo{Highlight code}
 
 Function \texttt{withStorage()} populates an array saved in storage and
 function \texttt{withMemory()} populates an array saved in memory. We
@@ -176,7 +166,8 @@ and 2,569,848 using storage which is almost 50 times more expensive. This code
 was compiled with Solidity version 0.6.6 with optimizations
 enabled\footnote{This version of Solidity compiler, which was the latest at the
 time this paper was published, did not optimize-out any of the variables.}. The
-EVM we used  was Ganache at the latest Constantinople~\cite{constantinople}
+EVM we used  was Ganache at the latest Istanbul\footnote{A summary of Istanbul
+fork can be found in the following link: https://eth.wiki/roadmap/istanbul}
 fork. It is obvious that, if there is the option to use memory instead of
 storage in the design of smart contracts, the choice of memory greatly benefits
 the user.
@@ -625,6 +616,49 @@ we leave out from this figure).
     \label{fig:boi-position}
 \end{figure}
 
+\subsection{Subset of Proofs}
+
+Now that we have achieved to freely retrieve $\pis$, we can start
+sketching methodologies that benefit from this schema but another challenge we
+had to face is that the protocol of NIPoPoWs dependents on DAG which is a
+hashmap data structure
+
+Our first realization was that instead of creating a DAG of $\pis$ and
+$\pic$, we can rather require
+
+\[ \pis\{:\textrm{LCA}\} \subseteq \pic\{:\textrm{LCA}\} \]
+This way, we avoid the burden of maintaining auxiliary structures DAG and
+ancestors on-chain. The implementation of \texttt{subset} is displayed in
+listing~\ref{listing:subset}. The complexity of the function is \[
+\mathcal{O}(|\pis\{:LCA\}| + |\pic\{:LCA\}]|) \]
+
+\lstinputlisting[language=Solidity, label={listing:subset},
+caption={Implementation of subset}]{code/Subset.sol}
+
+\input{figures/subset_usage.tex}
+
+The gas consumption difference between $subset$ and $DAG+ancestors$ is
+displayed at figure~\ref{figure:DAG_vs_subset}. $Subset$ solution is
+approximately 2.7 times more efficient.
+
+\input{figures/DAG_vs_subset.tex}
+
+\subsubsection{Subset complexity and limitations}
+
+Requiring $\pis$ to be a subset of $\pic$ greatly reduces gas, but
+the complexity of the $subset$ algorithm is high since both proofs have to be
+iterated from $Gen$ until $lca_e$ and $lca_c$, respectively. Generally, we
+expect from an adversary to provide a proof of a chain that is a fork of the
+honest chain at some point relatively close to the tip. This is due to the fact
+that the ability of an adversary to sustain a fork chain exponentially weakens
+as the honest chain progresses. This means that the length of $\pi$, $|\pi|$ is
+expected to be considerably close to $|\pi\{{:}lca\}|$, and thus the complexity of
+\texttt{subset()} effectively becomes $\mathcal{O}(2|\pi|)$.
+
+In realistic cases, where LCA lies around index 250 of the proof, the gas cost
+of \texttt{subset()} is approximately $20{,}000{,}000$ gas units, which makes it
+inapplicable for real chains since it exceeds the block gas limit of the
+Ethereum blockchain by far.
 
 \subsection{Minimal Fork} By combining the above observations, we
 derive that $\pic$ can be truncated into $\pic\{\lca{:}\}$ without affecting
@@ -635,8 +669,8 @@ with the main chain. A proof $\tilde\pi$, which is minimal fork of $\pi$, has
 the following attributes:
 
 \begin{enumerate}
-\item $\pi\{lca\} = \tilde\pi[0]$
-\item $\pi\{lca{:}\} \cap \tilde\pi[1{:}] = \emptyset$
+\item $\pi\{\lca\} = \tilde\pi[0]$
+\item $\pi\{\lca{:}\} \cap \tilde\pi[1{:}] = \emptyset$
 \end{enumerate}
 
 By requiring $\pitr$ to be a minimal fork of $\pis$, we prevent adversaries
@@ -654,6 +688,13 @@ Such an attempt is displayed in Figure~\ref{fig:adversary-minimal-fork}.
     \label{fig:adversary-minimal-fork}
 \end{figure}
 
+The implementation of minimal-fork is shown in listing~\ref{listing:disjoint}.
+The complexity of \texttt{minimalFork()} is: \[ \mathcal{O}(|\pis\{\lca{:\}}|
+\times |\pitr|) \]
+
+\lstinputlisting[language=Solidity, label={listing:disjoint},
+caption={Implementation for minimal fork}]{code/Disjoint.sol}
+
 In Algorithm~\ref{alg:minimal-fork}, we show how the minimal fork technique is
 incorporated into our client replacing DAG and ancestors. In
 Figure~\ref{fig:minimal-fork} we show how the performance of the client
@@ -666,8 +707,7 @@ consumption. \emph{Submit} phase now costs {4{,}700{,}000} gas, and
 the \emph{contest} phase costs {4{,}900{,}000} million gas. This is a notable
 result, since each phase now fits inside an Ethereum block.
 
-
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[width=0.6\columnwidth]{figures/minimal-fork.pdf}
     \end{center}
@@ -839,6 +879,7 @@ single Ethereum block.
 \end{figure}
 \newpage
 
+\section{Resilience Against DDOS Attacks}
 
 % \begin{itemize}
 %
