@@ -234,28 +234,6 @@ also one of our critical targets. Lastly, ~\cite{memory-array} proposes an
 efficient manner to replace read storage operations, but does not address write
 operations.
 
-\begin{figure*}[h]
-    \begin{center} \includegraphics[width=0.8\textwidth]{figures/har-pattern.pdf}
-    \end{center}
-
-    \caption{The \emph{hash-and-resubmit} pattern. First, an invoker calls
-        \proc$_1$($\data_0$). $\data_0$ is processed \emph{on-chain} and
-        $\data$ is generated. The signature of $\data$ is stored in the
-        blockchain as the digest of a hash function \textsf{H}(.). Then,
-        a full node that observes invocations of $\proc_1$ retrieves $\data_0$,
-        and generates $\data$ by performing the analogous processing on
-        $\data_0$ \emph{off-chain}. An adversarial observer dispatches
-        $\datas$, where $\datas$$\neq$$\data$. Finally, the nodes invoke
-        $\proc_2$(.). In $\proc_2$, the validation of input data is performed,
-        reverting the function call if the signatures of the input does not
-        match with the signature of the originally processed data. By applying
-        a \emph{hash-and-resubmit pattern}, only the fixed-size signature of
-        $\data$ is stored to the contract's state, replacing arbitrarily large
-        structures.}
-
-        \label{fig:har-pattern}
-\end{figure*}
-
 \subsection{Applicability}
 We now list the requirements an application needs to meet in order to benefit
 from the \emph{hash-and-resubmit} pattern:
@@ -329,6 +307,29 @@ the size of this digest is 32 bytes. To persist such a small value in the
 contract's memory only adds a constant, negligible cost overhead. We illustrate
 the application of the \emph{hash-and-resubmit} pattern in
 Figure~\ref{fig:har-pattern}.
+
+\begin{figure*}[h]
+    \begin{center} \includegraphics[width=0.8\textwidth]{figures/har-pattern.pdf}
+    \end{center}
+
+    \caption{The \emph{hash-and-resubmit} pattern. First, an invoker calls
+        \proc$_1$($\data_0$). $\data_0$ is processed \emph{on-chain} and
+        $\data$ is generated. The signature of $\data$ is stored in the
+        blockchain as the digest of a hash function \textsf{H}(.). Then,
+        a full node that observes invocations of $\proc_1$ retrieves $\data_0$,
+        and generates $\data$ by performing the analogous processing on
+        $\data_0$ \emph{off-chain}. An adversarial observer dispatches
+        $\datas$, where $\datas$$\neq$$\data$. Finally, the nodes invoke
+        $\proc_2$(.). In $\proc_2$, the validation of input data is performed,
+        reverting the function call if the signatures of the input does not
+        match with the signature of the originally processed data. By applying
+        a \emph{hash-and-resubmit pattern}, only the fixed-size signature of
+        $\data$ is stored to the contract's state, replacing arbitrarily large
+        structures.}
+
+        \label{fig:har-pattern}
+\end{figure*}
+
 
 \subsection{Sample} We now demonstrate the usage of the
 hash-and-resubmit pattern with a simplistic example. We create a smart contract
@@ -755,7 +756,7 @@ two independent cycles of interactions:
 of the \emph{dispute} phase. The integration of \emph{dispute} phase leaves
 \textsf{contest} unchanged.
 
-\subsection{Isolating the best level.} As we discussed, \emph{dispute}
+\subsection{Isolating the Best Level} As we discussed, \emph{dispute}
 and \emph{contest} phases are mutually exclusive. Unfortunately, the same
 constant-time verification as in the \emph{dispute} phase cannot be applied in a
 contest without increasing the rounds of interactions for the users. However,
@@ -864,7 +865,7 @@ nodes to participate to the protocol, and discourages adversaries from joining.
 It is critical that the collateral covers all the expenses of the entity
 issuing the contest and in particular the gas costs of the contestation.
 
-\subsection{Collateral Versus Contestation Period} The contestation
+\subsection{Collateral vs Contestation Period} The contestation
 period and the collateral are generally inversely proportional quantities and
 are both hard-coded in a particular deployment of the NIPoPoW verifier smart
 contract.  If the contestation period is large, the collateral can be allowed
