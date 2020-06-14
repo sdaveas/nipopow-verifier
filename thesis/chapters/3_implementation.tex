@@ -8,6 +8,42 @@
 % utilizing hash-and-resubmit technique and delivers a gas-efficient, superlight
 % Bitcoin client implementation.
 
+\section{Setting Up a Development Environmnet}
+
+The first step towards implementation is to set up a comfortable and adjustable
+environment. There are several environments one can use to build Solidity
+applications, most popular of which are
+Truffle\footnote{\url{https://trufflesuite.com/}},
+Remix\footnote{\url{https://remix.ethereum.org/}} and
+Embark\footnote{\url{https://framework.embarklabs.io/}}. However, none of the
+aforementioned applications delivered the experience we needed in the scope of
+our project, due to the lack of speed and customization options. That led us
+to the creation of a custom environment for importing, compiling, deploying
+and testing smart contracts.
+
+We used Python 3.8\footnote{\url{https://python.org/}} to build our environment,
+since it is a powerful and convenient programming language, and all
+dependencies we needed had available Python implementations. We developed our
+environment in Linux\footnote{\url{https://archlinux.org/}}.
+
+The components we used as building blocks are
+Web3\footnote{\url{https://py.readthedocs.io/}}
+which is a powerful library for interacting with Ethereum and the Solidity
+v0.6.10 compiler\footnote{\url{https://solidity.readthedocs.io/}}.  For
+the purpose of our project, we deploy a private blockchain. This is a common
+practice for Ethereum development since it greatly facilitates testing
+procedures. Our environment supports multiple EVMs, namely
+Geth\footnote{\url{https://geth.ethereum.org/}},
+Ganache\footnote{\url{https://trufflesuite.com/ganache}} and
+Py-EVM\footnote{\url{https://pypi.org/project/py-evm/}}.
+
+\subsection {Configuration}
+
+We observe that selecting and using an EVM for testing purposes is not trivial.
+The set of configurations we used for each EVM can be found in our public
+repository\footnote{\url{https://github.com/sdaveas/setup-geth}}. We hope that this
+will facilitate future work.
+
 \section{Analysis of Previous Work}
 
 In this section, we analyse previous work by Christoglou et. al. First we
