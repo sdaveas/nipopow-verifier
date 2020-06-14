@@ -1,318 +1,550 @@
 \chapter{Background}
 
-Relevant technologies
+\section{Cryptographic Hash Functions}
 
-\section{Primitives}
+A cryptographic hash function is a hash function that is suitable for use
+in cryptography. It is a mathematical algorithm that maps data of arbitrary
+size (often called the ``message'') to a bit string of a fixed size (the ``hash
+value'', ``hash'', or ``message digest'') and is a one-way function, that is, a
+function which is practically infeasible to invert. Ideally, the only way to
+find a message that produces a given hash is to attempt a brute-force search of
+possible inputs to see if they produce a match, or use a rainbow table of
+matched hashes. Cryptographic hash functions are a basic tool of modern
+cryptography.
 
-Describe primitives
+The ideal cryptographic hash function has the following main properties:
+
+\begin{enumerate}
+\item it is deterministic, meaning that the same message always results in the same hash
+\item it is quick to compute the hash value for any given message
+\item it is infeasible to generate a message that yields a given hash value
+\item it is infeasible to find two different messages with the same hash value
+\item a small change to a message should change the hash value so extensively that the new hash value appears uncorrelated with the old hash value (avalanche effect)
+\end{enumerate}
+
+\section{Merkle Trees}
+
+A Merkle Tree~\cite{merkle}, also known as a Binary Hash Tree is a data structure used for
+efficiently summarizing and verifying the integrity of large sets of data.
+Merkle Trees are binary trees containing cryptographic hashes. The term
+``tree'' is used in computer science to describe a branching data structure,
+but these trees are usually displayed upside down with the ``root'' at the top
+and the ``leaves'' at the bottom of a diagram, as you will see in the examples
+that follow.
+
+Merkle trees are used in Bitcoin to summarize all the transactions in a block,
+producing an overall digital fingerprint of the entire set of transactions,
+providing a very efficient process to verify if a transaction is included in a
+block. A Merkle Tree is constructed by recursively hashing pairs of nodes until
+there is only one hash, called the root, or merkle root. The cryptographic hash
+algorithm used in Bitcoin’s Merkle Trees is SHA256 applied twice, also known as
+double-SHA256.
+
+When N data elements are hashed and summarized in a Merkle Tree, you can check
+to see if any one data element is included in the tree with at most 2*log2(N)
+calculations,making this a very efficient data structure.
+
+The Merkle Tree is constructed bottom-up. In the example below, we
+start with four transactions A, B, C and D, which form the leaves
+of the Merkle Tree, shown in the diagram at the bottom. The transactions
+are not stored in the Merkle Tree, rather their data is hashed and the
+resulting hash is stored in each leaf node as \textsf{H$_A$}, \textsf{H$_B$},
+\textsf{H$_C$} and \textsf{H$_D$}:
+
+\[\textsf{H$_A$} = \textsf{SHA256}(\textsf{SHA256}(\textrm{Transaction A})) \]
+
+Consecutive pairs of leaf nodes are then summarized in a parent node, by
+concatenating the two hashes and hashing them together. For example, to
+construct the parent node \textsf{H$_{AB}$}, the two 32-byte hashes of the
+children are concatenated to create a 64-byte string.That string is then
+double-hashed to produce the parent node’s hash:
+
+\[ \textsf{H$_{AB}$} = \textsf{SHA256}(\textsf{SHA256}(\textsf{H$_A$} +
+\textsf{H$_B$}))\]
+
+The process continues until there is only one node at the top, the node known
+as the Merkle Root. That 32-byte hash is stored in the block header and
+summarizes all the data in all four transactions. This is displayed in Figure
+~\ref{fig:merkle-tree}
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=0.6\columnwidth]{images/merkle.png}
+  \end{center}
+  \caption{Merkle Tree}
+  \label{fig:merkle-tree}
+\end{figure}
+
+\section{Blockchain}
+
+A blockchain is a decentralized, distributed, and oftentimes public, digital
+ledger consisting of records called blocks that is used to record transactions
+across many computers so that any involved block cannot be altered
+retroactively, without the alteration of all subsequent blocks. This allows the
+participants to verify and audit transactions independently and relatively
+inexpensively. A blockchain database is managed autonomously using a
+peer-to-peer network and a distributed timestamping server. They are
+authenticated by mass collaboration powered by collective self-interests. Such
+a design facilitates robust workflow where participants' uncertainty regarding
+data security is marginal. The use of a blockchain removes the characteristic
+of infinite reproducibility from a digital asset. It confirms that each unit of
+value was transferred only once, solving the long-standing problem of double
+spending. A blockchain has been described as a value-exchange protocol. A
+blockchain can maintain title rights because, when properly set up to detail
+the exchange agreement, it provides a record that compels offer and acceptance.
+
+\subsection{Blocks}
+
+Blocks hold batches of valid transactions that are hashed and encoded into a
+Merkle tree. Each block includes the cryptographic hash of the prior block in
+the blockchain, linking the two. The linked blocks form a chain. This iterative
+process confirms the integrity of the previous block, all the way back to the
+original genesis block. Sometimes separate blocks can be produced concurrently,
+creating a temporary fork. In addition to a secure hash-based history, any
+blockchain has a specified algorithm for scoring different versions of the
+history so that one with a higher score can be selected over others. Blocks not
+selected for inclusion in the chain are called orphan blocks. Peers supporting
+the database have different versions of the history from time to time. They
+keep only the highest-scoring version of the database known to them. Whenever a
+peer receives a higher-scoring version (usually the old version with a single
+new block added) they extend or overwrite their own database and retransmit the
+improvement to their peers. There is never an absolute guarantee that any
+particular entry will remain in the best version of the history forever.
+Blockchains are typically built to add the score of new blocks onto old blocks
+and are given incentives to extend with new blocks rather than overwrite old
+blocks. Therefore, the probability of an entry becoming superseded decreases
+exponentially as more blocks are built on top of it, eventually becoming very
+low. For example, Bitcoin uses a proof-of-work system, where the chain with the
+most cumulative proof-of-work is considered the valid one by the network. There
+are a number of methods that can be used to demonstrate a sufficient level of
+computation. Within a blockchain the computation is carried out redundantly
+rather than in the traditional segregated and parallel manner.
+
+\subsection{Block Time}
+
+The block time is the average time it takes for the network to generate one
+extra block in the blockchain. Some blockchains create a new block as
+frequently as every five seconds. By the time of block completion, the included
+data becomes verifiable. In cryptocurrency, this is practically when the
+transaction takes place, so a shorter block time means faster transactions. The
+block time for Ethereum is set to between 14 and 15 seconds, while for Bitcoin
+it is on average 10 minutes.
 
 \section{Bitcoin}
 
-Describe Bitcoin blockchain
+Bitcoin~\cite{nakamoto} is a cryptocurrency. It is a decentralized digital
+currency without a central bank or single administrator that can be sent from
+user to user on the peer-to-peer Bitcoin network without the need for
+intermediaries.
+
+Transactions are verified by network nodes through cryptography and recorded in
+a public distributed ledger called a blockchain. Bitcoin was invented in 2008
+by an unknown person or group of people using the name Satoshi Nakamoto and
+started in 2009 when its source code was released as open-source software.
+Bitcoins are created as a reward for a process known as mining. They can be
+exchanged for other currencies, products, and services.
+
+The Bitcoin blockchain is displayed in Figure~\ref{fig:Bitcoin-blockchain}.
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=0.6\columnwidth]{images/Bitcoin-blockchain.png}
+  \end{center}
+  \caption{The Bitcoin blockchain}
+  \label{fig:Bitcoin-blockchain}
+\end{figure}
+
+\subsection{Transactions}
+
+Transactions are defined using a
+Forth-like\footnote{https://www.taygeta.com/forth/dpans.html} scripting
+language. Transactions consist of one or more inputs and one or more outputs.
+When a user sends Bitcoins, the user designates each address and the amount of
+Bitcoin being sent to that address in an output. To prevent double spending,
+each input must refer to a previous unspent output in the blockchain. The use
+of multiple inputs corresponds to the use of multiple coins in a cash
+transaction. Since transactions can have multiple outputs, users can send
+Bitcoins to multiple recipients in one transaction. As in a cash transaction,
+the sum of inputs (coins used to pay) can exceed the intended sum of payments.
+In such a case, an additional output is used, returning the change back to the
+payer. Any input satoshis not accounted for in the transaction outputs become
+the transaction fee.
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=0.6\columnwidth]{images/transactions.png}
+  \end{center}
+  \caption{Bitcoin transactions}
+  \label{fig:transactions}
+\end{figure}
+
+\subsection{Mining}
+
+Early Bitcoin miners used GPUs for mining, as they were better suited to the
+proof-of-work algorithm than CPUs. Later amateurs mined Bitcoins with
+specialized FPGA and ASIC chips. The chips pictured have become obsolete due to
+increasing difficulty. Today, Bitcoin mining companies dedicate facilities to
+housing and operating large amounts of high-performance mining hardware.
+Semi-log plot of relative mining difficulty
+
+Mining is a record-keeping service done through the use of computer processing
+power. Miners keep the blockchain consistent, complete, and unalterable by
+repeatedly grouping newly broadcast transactions into a block, which is then
+broadcast to the network and verified by recipient nodes. Each block
+contains a SHA-256 cryptographic hash of the previous block, thus linking
+it to the previous block and giving the blockchain its name.
+
+To be accepted by the rest of the network, a new block must contain a
+proof-of-work (PoW). The system used is based on Adam Back's 1997 anti-spam
+scheme, Hashcash~\cite{hashcash}. The PoW requires miners to find a
+number called a nonce, such that when the block content is hashed along with
+the nonce, the result is numerically smaller than the network's difficulty
+target. This proof is easy for any node in the network to verify, but
+extremely time-consuming to generate, as for a secure cryptographic hash,
+miners must try many different nonce values (usually the sequence of tested
+values is the ascending natural numbers: 0, 1, 2, 3, ... , 8) before
+meeting the difficulty target.
+
+Every 2,016 blocks (approximately 14 days at roughly 10 min per block), the
+difficulty target is adjusted based on the network's recent performance, with
+the aim of keeping the average time between new blocks at ten minutes. In this
+way the system automatically adapts to the total amount of mining power on the
+network. Between 1 March 2014 and 1 March 2015, the average number of
+nonces miners had to try before creating a new block increased from 16.4
+quintillion to 200.5 quintillion.
+
+The proof-of-work system, alongside the chaining of blocks, makes modifications
+of the blockchain extremely hard, as an attacker must modify all subsequent
+blocks in order for the modifications of one block to be accepted. As new
+blocks are mined all the time, the difficulty of modifying a block increases as
+time passes and the number of subsequent blocks (also called confirmations of
+the given block) increases.
+
+\subsection{Simple payment verification - SPV}
+
+The Bitcoin blockchain has generated more than 600,000 blocks since its
+genesis\footnote{Genesis block is the first block mined in the blockchain}
+block. At the time of writing, a full node needs about 250GB of disk space to
+store the whole blockchain. Suppose a Bitcoin user wants to verify that their
+transaction has been mined successfully to the main chain. The only way to do
+it is to check the history of the transactions since the genesis block. Of
+course, the user only cares about their transactions and not every transaction
+that has ever occurred in the blockchain.
+
+Satoshi's paper describes a method called the \textit {Simple payment
+verification}(SPV) which tackles the problem in an efficient manner. Instead of
+downloading the whole blockchain, the user can request from a full node only
+the block headers. The size of all of the block headers of the main chain to
+date is around 80MB which is easily manageable for modern computers and smart
+phones. In order to avoid connecting to malicious nodes, it is often
+recommended for users to connect to multiple nodes and request information
+until they are convinced they have the longest chain. The longest chain is the
+chain with the most proof of work and not the chain with the most blocks. To
+prove that the network has accepted the transaction, the user has to link the
+transaction to a certain block in the main chain and ensure that blocks are
+added to the chain which means that more work is added to the chain.
 
 \section{Ethereum}
 
-Describe Ethereum blockchain
+Ethereum is an open source, public, blockchain-based distributed computing
+platform featuring smart contract (scripting) functionality. Ether is the
+cryptocurrency generated by the Ethereum platform as a reward to mining nodes
+for computations performed and is the only currency accepted in the payment of
+transaction fees on the platform. Ethereum is the second-largest
+cryptocurrency platform by market capitalization, behind Bitcoin.
 
-\subsection{Solidity}
+Ethereum provides a decentralized virtual machine, the Ethereum Virtual Machine
+(EVM), which can execute scripts using an international network of public
+nodes. The virtual machine's instruction set, in contrast to others like
+Bitcoin Script, is Turing-complete. ``Gas'', an internal transaction pricing
+mechanism, is used to mitigate spam and allocate resources on the network.
 
-Describe the use of solidity language
-
-\subsection{Smart contracts}
-
-Describe the use of smart contracts
+Ethereum was proposed in late 2013 by Vitalik Buterin, a cryptocurrency
+researcher and programmer. Development was funded by an online crowdsale that
+took place between July and August 2014. The system then went live on 30
+July 2015, with 72 million coins minted. This accounts for about 65
+percent of the total circulating supply in April 2020.
 
 \subsection{Ethereum Virtual Machine}
 
-The Ethereum Virtual Machine (EVM) is a sandboxed virtual stack
-embedded within each full Ethereum node, responsible for executing
-contract bytecode. Contracts are typically written in higher level
-languages, like Solidity, then compiled to EVM bytecode.
+The Ethereum Virtual Machine (EVM) is the runtime environment for smart
+contracts in Ethereum. It is a 256-bit register stack, designed to run the same
+code exactly as intended. It is the fundamental consensus mechanism for
+Ethereum. The formal definition of the EVM is specified in the Ethereum Yellow
+Paper. Ethereum Virtual Machines have been implemented in C++, C\#, Go,
+Haskell, Java, JavaScript, Python, Ruby, Rust, Elixir, Erlang.
 
-This means that the machine code is completely isolated from the
-network, filesystem or any processes of the host computer. Every node
-in the Ethereum network runs an EVM instance which allows them to
-agree on executing the same instructions. The EVM is Turing complete,
-which refers to a system capable of performing any logical step of a
-computational function. JavaScript, the programming language which
-powers the worldwide web, widely uses Turing completeness.
+\subsection{Smart Contracts}
 
-Ethereum Virtual Machines have been successfully implemented in
-various programming languages including C++, Java, JavaScript, Python,
-Ruby, and many others.
+Ethereum's smart contracts are based on different computer languages, which
+developers use to program their own functionalities. Smart contracts are
+high-level programming abstractions that are compiled down to EVM bytecode and
+deployed to the Ethereum blockchain for execution. They can be written in
+Solidity (a language library with similarities to C and JavaScript), Serpent
+(similar to Python, but deprecated), LLL (a low-level Lisp-like language), and
+Mutan (Go-based, but deprecated). There is also a research-oriented language
+under development called Vyper (a strongly-typed Python-derived decidable
+language).
 
-The EVM is essential to the Ethereum Protocol and is instrumental to
-the consensus engine of the Ethereum system. It allows anyone to
-execute code in a trustless ecosystem in which the outcome of an
-execution can be guaranteed and is fully deterministic (i.e.)
-executing smart contracts.
+One issue related to using smart contracts on a public blockchain is that bugs,
+including security holes, are visible to all but cannot be fixed quickly.
+One example of this is the 17 June 2016 attack on The DAO, which could not be
+quickly stopped or reversed.
 
-\section{Environment Set-Up}
+There is ongoing research on how to use formal verification to express and
+prove non-trivial properties. A Microsoft Research report noted that writing
+solid smart contracts can be extremely difficult in practice, using The DAO
+hack to illustrate this problem. The report discussed tools that Microsoft had
+developed for verifying contracts, and noted that a large-scale analysis of
+published contracts is likely to uncover widespread vulnerabilities. The report
+also stated that it is possible to verify the equivalence of a Solidity program
+and the EVM code.
 
-\subsection{Existing Environments}
+\subsection{EVM Implementations}
 
-The first step towards implementation is to set up a comfortable and adjustable
-environment. There are several environments one can use to build Solidity
-applications, most popular of which are Truffle(ref), Remix(ref) and
-Embark(ref). However, none of the aforementioned applications delivered the
-experience we needed in the scope of our project, due to the lack of speed and
-customization options. That led us to the creation of a custom environment for
-importing, compiling, deploying and testing smart contracts.
+\textbf{Py-EVM} is an evolving EVM which is created mainly for testing. The
+ease of access and use, the configuration freedom of its underlying test chain
+and its effectiveness for small size of data helped our first steps. However,
+as the input data size started to grow, the effectiveness of the tool rapidly
+fell.
 
-We used Python(ref) to build our environment, since it is a powerful and
-convenient programming language, and all dependencies we needed had available
-Python implementations. We developed our environment in Linux(ref).
+\noindent
+\textbf{Ganache} is a popular EVM developed by the Truffle team. Its
+speed and configuration freedom are its main advantages. However, its extreme
+memory requirement made it impossible to use when the sizes of the input became
+analogous to the Bitcoin blockchain size.
 
-\subsection{Solidity Compiler}
-
-\subsection{Web3}
-
-The components we used as building blocks are Web3(ref) which is a powerful
-library for interacting with Ethereum, the Solidity v0.6.6 compiler(ref), and
-EthereumTester which is a set of tools for testing Ethereum-based applications.
-For the purpose of our project, a private blockchain running an Ethereum
-Virtual Machine (EVM) was deployed.  This is a common practice for Ethereum
-development since it greatly facilitates testing procedures. Our environment
-supports multiple EVMs, namely Geth(ref), Ganache(ref) and Py-EVM(ref).
-
-\subsection{Ethereum Virtual Machines}
-
-All aforementioned EVMs deliver implementations that comply with the
-specifications described at the Ethereum yellow paper(ref). However, different
-implementations provide unique choices to the developer, each of which helped
-us to progress effortlessly during different stages of our work.
-
-\subsubsection {Py-EVM:} Py-EVM is an evolving EVM which is created mainly for
-testing. The ease of access and use, the configuration freedom of its
-underlying test chain and its effectiveness for small size of data helped our
-first steps. However, as the input data size started to grow, the effectiveness
-of the tool rapidly fell(ref).
-
-\subsubsection {Ganache:} Ganache is a popular EVM developed by the Truffle team.
-Its speed and configuration freedom are its main advantages. However, its
-extreme memory requirement made it impossible to use when the sizes of the
-input became analogous to the Bitcoin blockchain size.
-
-\subsubsection {Geth:} Geth is another popular EVM which is created by the Ethereum
+\noindent
+\textbf{Geth} is another popular EVM which is created by the Ethereum
 team. It supports heavy customization while its memory usage is very limited
 compared to Ganache, even for extensive inputs. It has, however, higher
 execution times than Ganache for our purposes because Geth doesn't natively
 support auto-mining. That is the capability to mine new blocks only when new
 transactions are available. In order to avoid intense use of the CPU, we
 injected a function in Geth's \texttt{miner} object be only invoked when a new
-transaction is available.  This, together with the fact that mining is
+transaction is available. This, together with the fact that mining is
 probabilistic, put an extra overhead at the execution time.
 
-\subsubsection {Configuration:} We observed that selecting and using an EVM for
-testing purposes is not trivial. The set of configurations we used for each EVM
-can be found in our public repository(ref). We hope this will facilitate future
-work.
+\section{Gas Profiling}
 
-\todo{figure of Py-EVM vs Ganache vs Geth}
+One useful utility we used is
+solidity-gas-profiler\footnote{https://github.com/yushih/solidity-gas-profiler},
+a profiling utility. This experimental software displays the gas usage in a
+smart contract for each line of code. It gave us great insights regarding the
+gas usage across contract’s functions, and consequently helped us target the
+functionalities that needed to be refined. An example of the execution of the
+gas profiled is displayed in listing~\ref{listing:gas-profile}
 
-\subsection{Gas Profiling}
-\todo{extend this. Show other existing profiling tools, why we used this
-Yushi-sama}
-
-Another useful utility we used is solidity-gas-profiler(ref), a profiling
-utility by Yushih. This experimental software displays the gas usage in a smart
-contract for each line of code. It gave us great insights regarding the gas
-usage across contract’s functions, and consequently helped us target the
-functionalities that needed to be refined.
-
-\todo{figure of gas profiling}
+\lstinputlisting[language=Solidity, label={listing:gas-profile},
+caption={Gas profile}]{code/GasProfile.sol}
 
 \section{Non-Interactive Proofs Of Proof Of Work}
 
-\subsection{Notation}
-
-We introduce the notation used in previous work in
-Table~\ref{table:notation_nipopow}. We will use this notation extensively.
-
-
-\input{tables/notation_nipopow.tex}
-
-\subsection{Prefix Proofs}
-
-Describe prefix proofs
-
-\subsection{Suffix Proofs}
-
-Describe suffix proofs
-
-\subsection{Infix Proofs}
-
-Describe infix proofs
-
-\section{Forks}
-
-Soft, hard and velvet fork
-
-\section{NIPoPoW verifier in Solidity}
-
-\subsection{Methodology}
-
-Here, we refer to work from Giorgos et. al. We used this implementation as a
-basis for our implementation. Since we adopted common primitives, we used some
-of the tools the authors used for functionalities such as constructing
-blockchains and proofs. For the purposes of our work, we needed to enhance
-the functionality of the existing tools in some cases. We are thankful to the
-writers for sharing their implementation. This greatly facilitated our work.
-
-In this subsection, we describe the model of Non-Interactive Proofs of Proof of
-Work in the context of the verifier implementation in Solidity. This includes
-the following:
-
-\begin{enumerate}
-    \item
-        Construction of a blockchain
-    \item
-        Construction of a proof for an event in the blockchain
-    \item
-        Verification of the proof
-\end{enumerate}
+\subsection{Model}
+We consider a setting where the blockchain network consists of two different
+types of nodes: The first kind, \emph{full nodes}, are responsible for the
+maintenance of the chain including verifying it and mining new blocks. The
+second kind, \emph{verifiers}, connect to full nodes and wish to learn facts
+about the blockchain without downloading it, for example whether a particular
+transaction is confirmed. The full nodes therefore also function as
+\emph{provers} for the verifiers. Each verifier connects to multiple provers, at
+least one of which is assumed to be honest.
 
 
-\subsubsection{Blockchain}
 
-The tool that creates the blockchain was created by Andrew Miller, one of the
-writers of Non-Interactive Proofs of Proof of Work(ref) paper.  The tool is
-using the Bitcoin library(ref) to construct a blockchain similar to Bitcoin’s.
-The interlink pointers are organized into a Merkle(ref) tree and the index is
-determined by their level. For details regarding the level calculation, see
-section(ref). The Merkle root of the interlink tree is a 32-bit value, and is
-included in the block header as an additional value. The new size of the block
-header is 112 bytes. In order to ensure security, it is important for the
-interlink root to be included in the block header, as it is part of the proof.
-Otherwise, attackers could attack the proofs by reordering or including stray
-blocks. Miners can easily verify that the Merkle root is correct.
-
-\todo{figure of blockchain}
-
-\subsubsection{Superblock Levels}
-
-We assume that the difficulty target of mined blocks is constant. As discussed
-in section(ref), this is not the actual setting of the Bitcoin blockchain. The
-definition of superblocks is changed to a simpler definition and the level is
-determined by the number of leading zeros of the block header hash. Although
-this change does not take into account the difficulty target, the scoring of
-proofs does not generate security holes in the protocol. \todo{ref to variable
-difficulty}
-
-\subsubsection{Proof}
-
-The tool that creates proofs was also created by Andrew Miller. The
-prover receives the following inputs:
-
-\begin{itemize}
-    \item
-        A blockchain with interlinks
-    \item
-        The security parameter $k$
-    \item
-        The security parameter $m$
-\end{itemize}
-
-Security parameters $k$, $m$ are part of the NIPoPoW model and are explained in
-Section(ref).
-
-\todo{figure of verifier proof}
-
-\subsection{Phases}
-
-The goal of the verifier is to securely determine if an event has occurred in
-the honest blockchain. For this, the concept of NIPoPoWs is used. A proof is
-submitted in combination with a predicate. The proof is considered valid if it
-is constructively correct(ref) and the predicate is true for the chain
-described by the proof. The predicate represents the existence of an event
-in the source blockchain, such as the occurrence of a transaction. In this
-context, the predicate indicates the existence of a block in the proof.
-
-The verifier functions in two main phases: (a) \textbf{submit phase} and (b)
-\textbf{contest phase}. Each phase has different input and functionality, and
-is performed by different entities.
-
-\subsubsection{Submit phase:} In \textbf{submit phase}, an entity submits a proof
-and an event. We assume that at least one honest full node is aware of the
-submission. This is also a part of the model of NIPoPoWs, and is a logical
-assumption as explained in the paper. In order to claim the occurrence of an
-event, one must provide a proof and a predicate regarding the underlying event.
-If $r$ rounds pass, the value of the predicate becomes immutable. The passing
-of rounds is indicated by the mining of new blocks atop of the block containing
-the submitted proof. The value of the predicate can change if a different entity
-successfully contests the submitted proof at some round $r_{c} < r$.
-
-\subsubsection{Contesting phase:} In \textbf{contesting phase}, a new proof is
-submitted. If this proof is better, then the predicate is evaluated against the
-new proof. The contesting proof is considered better only if it is structurally
-correct and it represents a chain that encapsulates more Proof of Work than the
-originally submitted proof, as described in the NIPoPoWs paper.  In order to
-contest, one must provide the new proof and the predicate that is claimed to be
-true by the originally submitted proof.\\
-
-The expected functionality of a NIPoPoW verifier is the following:
-\begin{itemize}
-
-    \item
-        If an \textit{honest} party submits a proof and no contest occurs, then
-        the $predicate$ becomes $true$.
-
-    \item
-        If an \textit{honest} party submits a proof and it is contested by an
-        \textit{adversary}, then the contest should be unsuccessful and the
-        $predicate$ should remain $true$.
-
-    \item
-        If an \textit{adversary} submits a proof, then an \textit{honest} party
-        should make a contest. The contest should invalidate the original
-        submission and the $predicate$ should become $false$.
-
-    \item
-        The scenario in which an \textit{adversary} submits a proof an
-        \textit{honest} does not contest should not take place due to the
-        assumption that at least one honest party observes the traffic of the
-        contract.
-
-\end{itemize}
-
-\subsection{Considerations}
-
-As mentioned in the NIPoPoWs(ref Algorithm 7) paper, in order to construct a
-verifier, a Directed Acyclic Graph (DAG) needs to be maintained in memory. This
-structure is stored in the form of a hashmap(ref), and is used to host blocks
-of all different proofs. This process aims to prevent adversarial proofs which
-are structurally valid but blocks are intentionally skipped. Such a scenario is
-displayed in Figure~\ref{figure:DAG_usage}. The DAG is then used to construct
-ancestors structure by performing a simple graph search. By iterating
-ancestors, we can securely determine the value of the predicate.
-
-\input{figures/DAG_usage.tex}
-
-This logic is intuitive and efficient to implement in most traditional
-programming languages (C++, JAVA, Python, JavaScript, etc). However, as our
-analysis proves, such an algorithm cannot be efficiently implemented in
-Solidity as is. This is not due to the lack of features, such as the existence
-of hashmaps, but because Solidity treats storage differently than traditional
-programming languages. In smart contracts, the caller needs to pay in gas for
-the execution of operations such as accessing and storing data. Reading from
-and writing to persistent memory are very expensive operations in Solidity, as
-stated in the Ethereum yellow paper(ref). A summary of gas costs for storage
-and memory access if is displayed in Table~\ref{table:ethereum_gas_list}. This
-fact was observed by Giorgos et al.\ and was recognized as the bottleneck of
-the application.
-
-\input{tables/yellow_paper_gas.tex}
-
-\subsubsection{Solidity Algorithms}
-
-We describe each phase of previous implementation in
-Algorithms~\ref{algo:submit_old} and~\ref{algo:contest_old}. We denote
-structures that access persistent memory as $struct_{s}$. Note that deleting
-from persistent memory is also considered a storage operation.
+% \section{NIPoPoW verifier in Solidity}
+%
+% \subsection{Methodology}
+%
+% Here, we refer to work from Giorgos et. al. We used this implementation as a
+% basis for our implementation. Since we adopted common primitives, we used some
+% of the tools the authors used for functionalities such as constructing
+% blockchains and proofs. For the purposes of our work, we needed to enhance
+% the functionality of the existing tools in some cases. We are thankful to the
+% writers for sharing their implementation. This greatly facilitated our work.
+%
+% In this subsection, we describe the model of Non-Interactive Proofs of Proof of
+% Work in the context of the verifier implementation in Solidity. This includes
+% the following:
+%
+% \begin{enumerate}
+%   \item
+%     Construction of a blockchain
+%   \item
+%     Construction of a proof for an event in the blockchain
+%   \item
+%     Verification of the proof
+% \end{enumerate}
+%
+%
+% \subsubsection{Blockchain}
+%
+% The tool that creates the blockchain was created by Andrew Miller, one of the
+% writers of Non-Interactive Proofs of Proof of Work(ref) paper. The tool is
+% using the Bitcoin library(ref) to construct a blockchain similar to Bitcoin’s.
+% The interlink pointers are organized into a Merkle(ref) tree and the index is
+% determined by their level. For details regarding the level calculation, see
+% section(ref). The Merkle root of the interlink tree is a 32-bit value, and is
+% included in the block header as an additional value. The new size of the block
+% header is 112 bytes. In order to ensure security, it is important for the
+% interlink root to be included in the block header, as it is part of the proof.
+% Otherwise, attackers could attack the proofs by reordering or including stray
+% blocks. Miners can easily verify that the Merkle root is correct.
+%
+% \todo{figure of blockchain}
+%
+% \subsubsection{Superblock Levels}
+%
+% We assume that the difficulty target of mined blocks is constant. As discussed
+% in section(ref), this is not the actual setting of the Bitcoin blockchain. The
+% definition of superblocks is changed to a simpler definition and the level is
+% determined by the number of leading zeros of the block header hash. Although
+% this change does not take into account the difficulty target, the scoring of
+% proofs does not generate security holes in the protocol. \todo{ref to variable
+% difficulty}
+%
+% \subsubsection{Proof}
+%
+% The tool that creates proofs was also created by Andrew Miller. The
+% prover receives the following inputs:
+%
+% \begin{itemize}
+%   \item
+%     A blockchain with interlinks
+%   \item
+%     The security parameter $k$
+%   \item
+%     The security parameter $m$
+% \end{itemize}
+%
+% Security parameters $k$, $m$ are part of the NIPoPoW model and are explained in
+% Section(ref).
+%
+% \todo{figure of verifier proof}
+%
+% \subsection{Phases}
+%
+% The goal of the verifier is to securely determine if an event has occurred in
+% the honest blockchain. For this, the concept of NIPoPoWs is used. A proof is
+% submitted in combination with a predicate. The proof is considered valid if it
+% is constructively correct(ref) and the predicate is true for the chain
+% described by the proof. The predicate represents the existence of an event
+% in the source blockchain, such as the occurrence of a transaction. In this
+% context, the predicate indicates the existence of a block in the proof.
+%
+% The verifier functions in two main phases: (a) \textbf{submit phase} and (b)
+% \textbf{contest phase}. Each phase has different input and functionality, and
+% is performed by different entities.
+%
+% \subsubsection{Submit phase:} In \textbf{submit phase}, an entity submits a proof
+% and an event. We assume that at least one honest full node is aware of the
+% submission. This is also a part of the model of NIPoPoWs, and is a logical
+% assumption as explained in the paper. In order to claim the occurrence of an
+% event, one must provide a proof and a predicate regarding the underlying event.
+% If $r$ rounds pass, the value of the predicate becomes immutable. The passing
+% of rounds is indicated by the mining of new blocks atop of the block containing
+% the submitted proof. The value of the predicate can change if a different entity
+% successfully contests the submitted proof at some round $r_{c} < r$.
+%
+% \subsubsection{Contesting phase:} In \textbf{contesting phase}, a new proof is
+% submitted. If this proof is better, then the predicate is evaluated against the
+% new proof. The contesting proof is considered better only if it is structurally
+% correct and it represents a chain that encapsulates more Proof of Work than the
+% originally submitted proof, as described in the NIPoPoWs paper. In order to
+% contest, one must provide the new proof and the predicate that is claimed to be
+% true by the originally submitted proof.\\
+%
+% The expected functionality of a NIPoPoW verifier is the following:
+% \begin{itemize}
+%
+%   \item
+%     If an \textit{honest} party submits a proof and no contest occurs, then
+%     the $predicate$ becomes $true$.
+%
+%   \item
+%     If an \textit{honest} party submits a proof and it is contested by an
+%     \textit{adversary}, then the contest should be unsuccessful and the
+%     $predicate$ should remain $true$.
+%
+%   \item
+%     If an \textit{adversary} submits a proof, then an \textit{honest} party
+%     should make a contest. The contest should invalidate the original
+%     submission and the $predicate$ should become $false$.
+%
+%   \item
+%     The scenario in which an \textit{adversary} submits a proof an
+%     \textit{honest} does not contest should not take place due to the
+%     assumption that at least one honest party observes the traffic of the
+%     contract.
+%
+% \end{itemize}
+%
+% \subsection{Considerations}
+%
+% As mentioned in the NIPoPoWs(ref Algorithm 7) paper, in order to construct a
+% verifier, a Directed Acyclic Graph (DAG) needs to be maintained in memory. This
+% structure is stored in the form of a hashmap(ref), and is used to host blocks
+% of all different proofs. This process aims to prevent adversarial proofs which
+% are structurally valid but blocks are intentionally skipped. Such a scenario is
+% displayed in Figure~\ref{figure:DAG_usage}. The DAG is then used to construct
+% ancestors structure by performing a simple graph search. By iterating
+% ancestors, we can securely determine the value of the predicate.
+%
+% \input{figures/DAG_usage.tex}
+%
+% This logic is intuitive and efficient to implement in most traditional
+% programming languages (C++, JAVA, Python, JavaScript, etc). However, as our
+% analysis proves, such an algorithm cannot be efficiently implemented in
+% Solidity as is. This is not due to the lack of features, such as the existence
+% of hashmaps, but because Solidity treats storage differently than traditional
+% programming languages. In smart contracts, the caller needs to pay in gas for
+% the execution of operations such as accessing and storing data. Reading from
+% and writing to persistent memory are very expensive operations in Solidity, as
+% stated in the Ethereum yellow paper(ref). A summary of gas costs for storage
+% and memory access if is displayed in Table~\ref{table:ethereum_gas_list}. This
+% fact was observed by Giorgos et al.\ and was recognized as the bottleneck of
+% the application.
+%
+% \input{tables/yellow_paper_gas.tex}
+%
+% \subsubsection{Solidity Algorithms}
+%
+% We describe each phase of previous implementation in
+% Algorithms~\ref{algo:submit_old} and~\ref{algo:contest_old}. We denote
+% structures that access persistent memory as $struct_{s}$. Note that deleting
+% from persistent memory is also considered a storage operation.
 
 % \input{algorithms/old_contract.tex}
 
+% \subsection{Existing Environments}
+%
+% The first step towards implementation is to set up a comfortable and adjustable
+% environment. There are several environments one can use to build Solidity
+% applications, most popular of which are Truffle(ref), Remix(ref) and
+% Embark(ref). However, none of the aforementioned applications delivered the
+% experience we needed in the scope of our project, due to the lack of speed and
+% customization options. That led us to the creation of a custom environment for
+% importing, compiling, deploying and testing smart contracts.
+%
+% We used Python(ref) to build our environment, since it is a powerful and
+% convenient programming language, and all dependencies we needed had available
+% Python implementations. We developed our environment in Linux(ref).
+%
+% \subsection{Solidity Compiler}
+%
+% \subsection{Web3}
+%
+% The components we used as building blocks are Web3(ref) which is a powerful
+% library for interacting with Ethereum, the Solidity v0.6.6 compiler(ref), and
+% EthereumTester which is a set of tools for testing Ethereum-based applications.
+% For the purpose of our project, a private blockchain running an Ethereum
+% Virtual Machine (EVM) was deployed. This is a common practice for Ethereum
+% development since it greatly facilitates testing procedures. Our environment
+% supports multiple EVMs, namely Geth(ref), Ganache(ref) and Py-EVM(ref).
 
-\section{Difficulty}
-
-Describe constant and non-constant difficulty
+% \subsubsection {Configuration:} We observed that selecting and using an EVM for
+% testing purposes is not trivial. The set of configurations we used for each EVM
+% can be found in our public repository(ref). We hope this will facilitate future
+% work.
+%
+% \todo{figure of Py-EVM vs Ganache vs Geth}
