@@ -1,0 +1,34 @@
+\begin{algorithm}
+    \caption{\label{alg.nipopow-verifier}The \textsf{Verify} algorithm
+    for the NIPoPoW protocol}
+    \begin{algorithmic}[1]
+        \Function{{\sf best-arg}$_m$}{$\pi, b$}
+            \Let{M}{\{\mu: |\pi\upchain^\mu\{b:\}| \geq m\} \cup \{0\}}
+            \Comment{Valid levels}
+            \State\Return{$\max_{\mu \in M}\{2^\mu  \cdot |\pi\upchain^\mu\{b:\}|\}$}
+            \Comment{Score for level}
+        \EndFunction
+        \Operator{$\pi_A \geq_m \pi_B$}
+            \Let{b}{(\pi_A \cap \pi_B)[-1]}
+              \Comment LCA
+            \State\Return{$\textsf{best-arg}_m(\pi_A, b) \geq
+                           \textsf{best-arg}_m(\pi_B, b)$}
+        \EndOperator
+        \Function{\sf Verify$^Q_{m,k}$}{$\mathcal{P}$}
+            \Let{\tilde\pi}{(\text{Gen})}
+              \Comment{Trivial anchored blockchain}
+            \For{$(\pi, \chi) \in \mathcal{P}$}
+                \Comment{Examine each proof in $\mathcal{P}$}
+                \If{$\mathsf{validChain}(\pi \chi)
+                    \land |\chi| = k
+                    \land \pi \geq_m \tilde\pi$}
+                    \State{$\tilde\pi \gets \pi$}
+                    \State{$\tilde\chi \gets \chi$}
+                    \Comment{Update current best}
+                \EndIf
+            \EndFor
+            \State\Return{$\tilde{Q}(\tilde\chi)$}
+        \EndFunction
+    \vskip8pt
+    \end{algorithmic}
+\end{algorithm}
