@@ -97,8 +97,8 @@ all incoming information~\cite{btcrelay}.  This approach, however, is
 impractical because a sizable amount of storage is needed to host entire chains
 as they grow in time. As of June 2020, Bitcoin~\cite{nakamoto} chain spans
 roughly 245 GB, and Ethereum~\cite{wood, buterin} has exceeded 300
-GB\footnote{Size of blockchain derived from https://www.statista.com,
-https://etherscan.io}.
+GB\footnote{Size of blockchain derived from \url{https://www.statista.com},
+\url{https://etherscan.io}}.
 
 One early solution to compress the extensive size of blockchain and improve the
 efficient of a client is addressed by
@@ -109,7 +109,7 @@ downloading and validating all block headers still demands a considerable
 amount of resources since they grow linearly in the size of the blockchain.
 In Ethereum, for instance, headers sum up to approximately 4.8
 GB\footnote{Calculated as the number of blocks (10,050,219) times the size of
-header (508 bytes). Statistics by https://etherscan.io/.} of data.
+header (508 bytes). Statistics by \url{https://etherscan.io/}.} of data.
 These numbers quickly become impractical when it comes to consuming and storing the
 data within a smart contract.
 
@@ -163,7 +163,7 @@ A summary of our contributions in this paper is as follows:
 crosschain events and is practical. Our client establishes a trustless and
 efficient solution to the interoperability problem. We implement\footnote{Our
 implementation, unit tests and experiments can be found in
-https://github.com/sdaveas/nipopow-verifier.} our client
+\url{https://github.com/sdaveas/nipopow-verifier}.} our client
 in Solidity, and we verify Bitcoin events to the Ethereum blockchain. The
 security assumptions we make are no other than
 SPV's~\cite{eclipse, eclipse-ethereum}.

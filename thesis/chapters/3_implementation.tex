@@ -203,12 +203,13 @@ was compiled with Solidity version 0.6.6 with optimizations
 enabled\footnote{This version of Solidity compiler, which was the latest at the
 time this paper was published, did not optimize-out any of the variables.}. The
 EVM we used  was Ganache at the latest Istanbul\footnote{A summary of Istanbul
-fork can be found in the following link: https://eth.wiki/roadmap/istanbul}
-fork. It is obvious that, if there is the option to use memory instead of
-storage in the design of smart contracts, the choice of memory greatly benefits
-the user.
+fork can be found in the following link:
+\url{https://eth.wiki/roadmap/istanbul}} fork. It is obvious that, if there is
+the option to use memory instead of storage in the design of smart contracts,
+the choice of memory greatly benefits the user.
 
 \input{figures/memory_vs_storage.tex}
+
 
 \section{The Hash-and-Resubmit Pattern}
 
@@ -454,7 +455,7 @@ For our analysis, we create a blockchain similar to the Bitcoin chain with the
 addition of the interlink structure in each block as in~\cite{gglou}. Our chain
 spans 650,000 blocks, representing a slightly enhanced Bitcoin
 chain\footnote{Bitcoin spans $633{,}022$ blocks as of June 2020. Metrics by
-https://www.blockchain.com/}. From the tip of our chain, we branch two
+\url{https://blockchain.com/}}. From the tip of our chain, we branch two
 sub-chains that span 100 and 200 additional blocks respectively, as illustrated
 in Figure~\ref{fig:chains}. Then, we use the smaller chain to create $\pis$,
 and the larger chain to create $\pic$. We apply the protocol by submitting
