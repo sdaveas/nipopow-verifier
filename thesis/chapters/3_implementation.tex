@@ -335,7 +335,7 @@ becomes the $\holder$ of the contract.
 \noindent\textbf{Contest phase:} $\plb$ submits $\arrb$. If the result of
 \textsf{compare}($\arrb$, $\arra$) is \true, then $\plb$ becomes the holder.
 
-\input{algorithms/har-game}
+% \input{algorithms/har-game}
 
 We provide a simple implementation for \textsf{compare}, but we can consider
 any notion of comparison, since the pattern is abstracted from such
@@ -346,11 +346,13 @@ provide \emph{two} arrays to the contract during contest phase: (a) $\arras$,
 which is the originally submitted array by $\pla$, possibly modified by $\plb$,
 and (b) $\arrb$, which is the contesting array.
 
-We provide two implementations of the above described game.
-In Algorithm~\ref{alg:game-storage} we display the storage implementation,
-while in Algorithm~\ref{alg:game-memory} we show the implementation
-embedding the \emph{hash-and-resubmit} pattern.
+We provide two implementations of the above described game.  In
+Listing~\ref{listing:har-sample} we display the storage implementation (left),
+and the memory implementation (right) embedding the \emph{hash-and-resubmit}
+pattern.
 
+\lstinputlisting[float=t, language=Solidity, label={listing:har-sample},
+caption={Implementation of sample.}]{code/HarGame.sol}
 
 \subsection{Gas analysis} The gas consumption of the two above
 implementations is displayed in Figure~\ref{fig:har-example}. By using the
