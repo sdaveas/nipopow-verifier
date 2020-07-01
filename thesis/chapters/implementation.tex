@@ -743,3 +743,27 @@ single Ethereum block.
 \newpage
 
 \section{Resilience Against DOS Attacks}
+
+We will now examine whether an adversary can perform an attack to the verifier
+by submitting a dishonest proof that cannot be contested due to gas exhaustion.
+In this scenario, an adversary could submit a fraud proof that cannot be
+invalidated by honest parties; this would be a significant security
+vulnerability in the protocol.
+
+As we already discussed, the gas consumption for contesting a proof that
+represent dishonest chains that is relatively short fork of the honest chain
+is around $1.3$ million gas. This cost, however, increases as the fork point of
+the fraud proof is getting closer to genesis. This is due to the fact that
+the operation of calculating the score of each proof is proportional to the
+number of disjoint blocks. This means that the most expensive scenario of
+contesting is when $\pis$ represents a dishonest chain that forks the honest
+chain at genesis.
+
+Our experiments show that the gas cost of contesting a proof for a dishonest
+chain that spans almost the same number of blocks as the honest chain and forks
+the honest chain in genesis is around $5.9$ million gas. This illustrates that
+the verifier is resilient to Denial-of-Service attack even in the most extreme
+scenarios. In the following Section, we also provide a cryptoeconomic analysis
+about the collateral needed in order to provide incentives to honest proves
+that need to contest genesis forks.
+
