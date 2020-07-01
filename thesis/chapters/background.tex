@@ -12,14 +12,15 @@ possible inputs to see if they produce a match, or use a rainbow table of
 matched hashes. Cryptographic hash functions are a basic tool of modern
 cryptography.
 
+\noindent
 The ideal cryptographic hash function has the following main properties:
 
 \begin{enumerate}
-\item it is deterministic, meaning that the same message always results in the same hash
-\item it is quick to compute the hash value for any given message
-\item it is infeasible to generate a message that yields a given hash value
-\item it is infeasible to find two different messages with the same hash value
-\item a small change to a message should change the hash value so extensively that the new hash value appears uncorrelated with the old hash value (avalanche effect)
+\item It is deterministic, meaning that the same message always results in the same hash
+\item It is quick to compute the hash value for any given message
+\item It is infeasible to generate a message that yields a given hash value
+\item It is infeasible to find two different messages with the same hash value
+\item A small change to a message should change the hash value so extensively that the new hash value appears uncorrelated with the old hash value (avalanche effect)
 \end{enumerate}
 
 \section{Merkle Trees}
