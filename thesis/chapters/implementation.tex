@@ -532,8 +532,8 @@ with the main chain. A proof $\tilde\pi$, which is minimal fork of $\pi$, has
 the following attributes:
 
 \begin{enumerate}
-\item $\pi\{\lca\} = \tilde\pi[0]$
-\item $\pi\{\lca{:}\} \cap \tilde\pi[1{:}] = \emptyset$
+    \item $\pi_1[lca] = \pi_2[0]$
+    \item $\pi_1[lca{:}] \cap \pi_2[1{:}] = \emptyset$
 \end{enumerate}
 
 By requiring $\pitr$ to be a minimal fork of $\pis$, we prevent adversaries
