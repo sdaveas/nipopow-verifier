@@ -1,7 +1,94 @@
-\chapter{Conclusion}
-\section{Summary}
-\section{Future Work}
+\chapter{Conclusion} \section{Summary}
+
+In this work we present a gas-efficient Bitcoin superlight client in Solidity.
+The core of our construction is the cryptographic primitive Non-Interactive
+Proofs of Proof of Work which is based on the notion of superblocks. Our work
+is the first practical implementation of NIPoPoW verification in Solidity; by
+constructing such a tool, we deem the NIPoPoW protocol to be practical. In the
+process of implementing our client, we developed several techniques that
+leveraged the decrease of gas consumption. All of our proposals address the
+gas-efficient implementation of the protocol in Solidity. We claim that one of
+these paradigms, a design pattern we term \emph{hash-and-resubmit}, may also be
+applicable to other smart contracts in order to facilitate gas saving and lead
+to better performance. The rest of the techniques are developed are explicit
+refinements to the NIPoPoW protocol. Overall, we have have achieved to
+eliminate the vast majority of storage variables of the contract, and to make
+the complexity of each phase (submit and contest) constant to the size of the
+proof by leveraging an optimistic scheme. These refinements were the key to
+deliver a gas-efficient implementation, and are the main difference in
+comparison with the previous work. Finally, we present a cryptographic analysis
+of our work in several scenarios, the result of which deem our
+implementation to be practical.
+
+\section{Discussion and Future Work}
+
+Towards the completion of your primary goal, which has been the topic of this
+thesis, several new questions surfaced; we list those ideas below as relevant
+future work regarding the implementation of practical superlight clients, as
+the next steps towards the establishment of the blockchain interoperability.
+
 \subsection{Implementation Under a Velvet Fork}
+
+In our work, the interlink structure is stored in the block header of each
+block. Hence, we are addressing a hard fork. These kind of fork are improbable
+to be adopted by the Bitcoin community. However, a soft fork or a velvet fork
+can also be used to encapsulate the information needed in a manner that does
+not affect the size of block headers; this can be done by utilizing the extra
+bytes in the \emph{coinbase} transaction. In fact, recent
+work~\cite{velvet-nipopows} have shown that by adding the root of a Merlke
+Mountain Range in the information of each block is sufficient to ensure
+structural correctness of the proof under a velvet fork.
+
+Naturally, the process of this information by the verifier will result to some
+gas increase, since the verification of the MMR will also be needed in order to
+ensure that submitted proofs are valid. We claim that, since the verification
+of proofs is now constant, this cost will be negligible, however we do not
+illustrate this in our implementation.
+
 \subsection{Proceeding to Bitcoin Transaction Verification}
+
+In this thesis, we focus on verifying the existence of blocks inside a chain.
+On can claim that this contribution is not sufficient for a realistic
+application since users are mostly concerned about the verification of more
+explicit information, such as the existence of a transaction.
+
+Similarly to the implementation of a velvet fork, we claim that the addition of
+a transaction verification will not add significant burden in terms of gas,
+since this operation is constant to the size of the blockchain (and, hence, to
+the size of the proof). In bitcoin, the verification of a transactions is
+equivalent to the verification of a Merkle Tree. We have observed that the gas
+cost for a simple Merkle Tree inclusion proof is negligible; however, the scope
+of this thesis does not include the implementation of transaction verification.
+We strongly believe that the addition of this feature will not change the state
+of the gas consumption of out client significantly, but we leave the
+experimental demonstration for future work.
+
 \subsection{Verify Ethereum Events}
+
+A logical step after the implementation of a practical Bitcoin superlight
+client, is the implementation of an Ethereum superlight client. We understand
+that the verification of NIPoPoWs for Ethereum events will be significantly
+more challenging than the verification of Bitcoin NIPoPoWs due to the
+considerably larger size of Ethereum block headers size. Most probably, new
+techniques will to be adopted, such as shading and multi-stage submission.  We
+believe that the optimizations we introduce in the scope of implementing a
+Bitcoin superlight client will be useful for the Ethereum superlight client. We
+leave the implementation of Ethereum NIPoPoW verification as a future work.
+
 \subsection{Formally Prove Protocol Changes}
+
+Towards creating our client, we have proceeded to several protocol refinements.
+Although we strongly believe that the security of the protocol is not affected,
+we do not provide formal security proofs for this claim. We leave the
+construction of formal proofs that prove the security under our refined
+protocol as a future work.
+
+\subsection{Hash-and-Resubmit Variations}
+
+As we already discussed, there is a variation to the \emph{hash-and-resubmit}
+pattern that uses Merkle Trees. Although this variation does not beat the plain
+version of the pattern in terms of performance, we believe that different
+policies regarding the segmentation of the dispatched data can lead to better
+performance. Specifically, we believe that different chunk size will leverage
+less demanding hashing operations. We also leave this research as a future
+work.
