@@ -744,11 +744,11 @@ single Ethereum block.
 
 \section{Resilience Against DOS Attacks}
 
-We will now examine whether an adversary can perform an attack to the verifier
-by submitting a dishonest proof that cannot be contested due to gas exhaustion.
-In this scenario, an adversary could submit a fraud proof that cannot be
-invalidated by honest parties; this would be a significant security
-vulnerability in the protocol.
+We will now show that our client is resilient against Denial-of-Service attacks
+that exploit gas exhaustion. It is important for the verifier to be
+invulnerable to such attacks; if not, an adversary is be able to submit a fraud
+proofs that cannot be invalidated by an honest party because the gas needed for
+the contest phase exceeds the block gas limit.
 
 As we already discussed, the gas consumption for contesting a proof that
 represent dishonest chains that is relatively short fork of the honest chain
