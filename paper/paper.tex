@@ -1,14 +1,9 @@
 \newif\ifanonymous
 \anonymoustrue
 
-\documentclass[
-    sigconf,
-    anonymous
-]{acmart}
+\documentclass{llncs}
 
 \usepackage{preamble}
-
-\input{ccs-metadata}
 
 \begin{document}
 
@@ -19,7 +14,7 @@
 \maketitle
 \input{body}
 
-\bibliographystyle{ACM-Reference-Format}
+\bibliographystyle{splncs04}
 \bibliography{refs}
 
 \end{document}
