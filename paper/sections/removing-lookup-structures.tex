@@ -60,13 +60,13 @@ $\pis$ at a block that is prior to $\boi$.
         \includegraphics[width=0.8\columnwidth]{figures/boi-position.pdf}
     \end{center}
     \caption{Fork of two proofs.
-    % Solid lines connect blocks of $\pis$,
-    % and dashed lines connect blocks of $\pic$.
-    % In this configuration,
-    % blocks in dashed circles are aimless blocks of interest, and the block
-    % in the solid circle is a meaningful block of interest. Blocks B, C and E are
-    % aimless because they exist in $\pic$. Block A is aimless because it
-    % belongs to the subchain $\pis\{{:}\lca\}$
+    Solid lines connect blocks of $\pis$,
+    and dashed lines connect blocks of $\pic$.
+    In this configuration,
+    blocks in dashed circles are aimless blocks of interest, and the block
+    in the solid circle is a meaningful block of interest. Blocks B, C and E are
+    aimless because they exist in $\pic$. Block A is aimless because it
+    belongs to the subchain $\pis\{{:}\lca\}$
     }
     \label{fig:boi-position}
 \vspace*{-3mm}
@@ -98,20 +98,20 @@ the following attributes:
 
 By requiring $\pitr$ to be a minimal fork of $\pis$, we prevent adversaries
 from dispatching an augmented $\pitr$ to claim better score against $\pis$.
-% Such an attempt is displayed in Figure~\ref{fig:adversary-minimal-fork}.
+Such an attempt is displayed in Figure~\ref{fig:adversary-minimal-fork}.
 
-% \begin{figure}[h]
-%     \begin{center}
-%         \includegraphics[width=0.85\columnwidth]{figures/adversary-minimal-fork.pdf}
-%     \end{center}
-% \vspace*{-5mm}
-%     \caption{An adversary attests to contest with a malformed proof. Adversary
-%         proof consists of blocks \{A, X, B, C, D'\} that achieve better score
-%         against submit proof \{A, B, C, D\}. This attempt is rejected due to
-%         the minimal-fork requirement.}
-%     \label{fig:adversary-minimal-fork}
-% \vspace*{-5mm}
-% \end{figure}
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[width=0.85\columnwidth]{figures/adversary-minimal-fork.pdf}
+    \end{center}
+\vspace*{-5mm}
+    \caption{An adversary attests to contest with a malformed proof. Adversary
+        proof consists of blocks \{A, X, B, C, D'\} that achieve better score
+        against submit proof \{A, B, C, D\}. This attempt is rejected due to
+        the minimal-fork requirement.}
+    \label{fig:adversary-minimal-fork}
+\vspace*{-5mm}
+\end{figure}
 
 In Algorithm~\ref{alg:minimal-fork}, we show how the minimal fork technique is
 incorporated into our client replacing DAG and ancestors. In
