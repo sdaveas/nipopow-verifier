@@ -85,8 +85,15 @@ will become confirmed prior to the contestation period expiring. Critical applic
 that require a higher assurance of success must consider larger deviations from the
 mean.
 
+We display the cost of submitting a proof in
+Figure~\ref{fig:cryptoeconomics-submit}. The horizontal axis shows the cost of
+submit in USD and Ether (using ether prices of $1$ ether = $217.41$
+USD as of June 2020). The vertical axis shows the number of blocks needed for
+at least one confirmation. We observe that $0.50$ USD are
+enough to ensure that the submission is confirmed within 5 blocks.
+
 We plot our cryptoeconomic recommendations based on our measurements in
-Figure~\ref{fig:cryptoeconomics}. The horizontal axis shows the collateral denominated in
+Figure~\ref{fig:cryptoeconomics-collateral}. The horizontal axis shows the collateral denominated in
 both Ether and USD (using ether prices of $1$ ether = $246.41$ USD as of June 2020).
 We assume that the rational contester will pay a contestation gas cost up to the
 collateral itself. The vertical axis shows the recommended contestation period.
@@ -101,14 +108,39 @@ proof of $250$ blocks. The contesting proof stands at a fork point after which t
 original proof deviates with $100$ blocks, while the contesting proof deviates with
 $200$ disjoint blocks.
 
+The analysis of this
+experiment is displayed in Figure~\ref{fig:cryptoeconomics-collateral-100}. We
+also illustrate the expected price of contesting proofs when the fork point of
+the adversarial chain is the $genesis$ block. Although we claim that this is an
+improbable case, we show that the verifier can handle such extreme scenarios,
+and thus is invulnerable to DOS attacks.
+The analysis of genesis-fork is displayed in
+Figure~\ref{fig:cryptoeconomics-collateral-genesis}.
+
 \begin{figure}[h]
-\vspace*{-3mm}
-    \begin{center}
-        \includegraphics[width=0.8\columnwidth]{figures/collateral-contest.pdf}
-    \end{center}
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/cryptoeconomics-submit.pdf}
+    \caption{Cost of submitting a NIPoPoW proof.}
+    \label{fig:cryptoeconomics-submit}
+\end{figure}
+
+\begin{figure}[!h]
+    \centering
+    \begin{subfigure}{1\columnwidth}
+        \includegraphics[width=1\columnwidth]{figures/cryptoeconomics-collateral-100.pdf}
+        \caption{Cost of collateral when the fork point is 100 blocks prior to the
+        tip (expected scenario).}
+        \label{fig:cryptoeconomics-collateral-100}
+    \end{subfigure}
+    \begin{subfigure}{1\columnwidth}
+        \begin{center}
+            \includegraphics[width=1\columnwidth]{figures/cryptoeconomics-collateral-genesis.pdf}
+        \end{center}
+        \caption{Cost of collateral when the fork point is Genesis (most expensive scenario).}
+        \label{fig:cryptoeconomics-collateral-genesis}
+    \end{subfigure}
     \caption{Cryptoeconomic recommendations for the NIPoPoW superlight client.}
-    \label{fig:cryptoeconomics}
-\vspace*{-3mm}
+    \label{fig:cryptoeconomics-collateral}
 \end{figure}
 
 We conclude that consumption of cross-chain data within the Ethereum blockchain can
