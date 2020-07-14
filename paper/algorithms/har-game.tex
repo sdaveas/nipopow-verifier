@@ -1,7 +1,7 @@
 \newcommand{\arr}{\textsf{a}}
 \begin{algorithm}
     \caption{\label{alg:game-storage}\emph{best array} using storage}
-    \begin{algorithmic}[H]
+    \begin{algorithmic}[1]
 
     \Contract{best-array}
         \State{$\textsf{best} \gets \emptyset$;
@@ -31,7 +31,7 @@
 
 \begin{algorithm}
     \caption{\label{alg:game-memory}\emph{best array} using hash-and-resubmit}
-    \begin{algorithmic}[H]
+    \begin{algorithmic}[1]
         \Contract{best-array}
         \State{$\textsf{hash} \gets \emptyset$;
                $\textsf{holder} \gets \emptyset$}
