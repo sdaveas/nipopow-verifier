@@ -1,19 +1,14 @@
 \begin{algorithm}[H]
 
-    \caption{\label{alg:avoid-premining}The \textsf{NIPoPoW} client mitigation
-    to premining attack}
+    \caption{\label{alg:initial}The \textsf{NIPoPoW} verifier implementation by
+        Christoglou et.\ al.
+    }
     \begin{algorithmic}[1]
 
     \Contract{crosschain}
-    \State $\textsf{events} \gets \bot$; $\genesis \gets \bot$
+    \State $\textsf{events} \gets \bot$
     \State $\textsf{DAG} \gets \bot$; $\textsf{ancestors} \gets \bot$
-    \Function{\sf initialize}{$\genesis_{remote}$}
-        \State $\genesis$ $\gets \genesis_{remote}$
-        \Comment{initialize with the genesis of the underlying chain}
-    \EndFunction
     \Function{\sf submit}{$\pis$, $e$}
-        \State \textsf{require}($\pis$[0] = $\genesis$)
-        \Comment{assert correct genesis}
         \State \textsf{require}($\textsf{events$[e]$} = \bot$)
         \State \textsf{require}($\textsf{valid-interlinks}(\pi)$)
         \State \textsf{events$[e].\pi$} $\gets$ $\pis$
@@ -23,8 +18,6 @@
         \State \textsf{ancestors} $=$ $\bot$
         \EndFunction
     \Function{\sf contest}{$\pic$, $e$}
-        \State \textsf{require}($\pic$[0] = $\genesis$)
-        \Comment{assert correct genesis}
         \State \textsf{require}(\textsf{events}$[e]$ $\ne$ $\bot$)
         \State \textsf{require}(\textsf{valid-interlinks}($\pic$))
         \State $lca$ = \textsf{find-lca}($\textsf{events}[e].\pi$, $\pic$)

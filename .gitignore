@@ -1,3 +1,8 @@
 .soliumignore
 .soliumrc.json
-
+/paper/paper.fdb_latexmk
+/paper/paper.fls
+/paper/paper.synctex.gz
+/thesis/thesis.bbl
+/thesis/thesis.blg
+/thesis/thesis.out

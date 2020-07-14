@@ -1,0 +1,66 @@
+% \newcommand{\name}{Shuttle}
+
+% hash-and-resubmit
+% notation
+\newcommand{\contract}{\mathsf{S}}
+\newcommand{\invoker}{\mathsf{E_{1}}}
+\newcommand{\observer}{\mathsf{E_{2}}}
+\newcommand{\data}{\mathsf{d}}
+\newcommand{\datas}{\mathsf{d^*}}
+\newcommand{\proc}{\textsf{func}}
+%example
+\newcommand{\pla}{\mathsf{P_1}}
+\newcommand{\plb}{\mathsf{P_2}}
+\newcommand{\arra}{\mathsf{a_1}}
+\newcommand{\arras}{\mathsf{a_1^*}}
+\newcommand{\arrb}{\mathsf{a_2}}
+\newcommand{\holder}{\mathsf{holder}}
+
+%proofs notation
+\newcommand{\genesis}{\mathcal{G}}
+\newcommand{\pr}{\mathsf{\pi}}
+\newcommand{\es}{\mathsf{E_{s}}}
+\newcommand{\ec}{\mathsf{E_{c}}}
+\newcommand{\pis}{\mathsf{\pi_{s}}}
+\newcommand{\pisa}{\mathsf{\pi_{s}^*}}
+\newcommand{\pic}{\mathsf{\pi_{c}}}
+\newcommand{\pitr}{\mathsf{\pi_{c}^{f}}}
+\newcommand{\pitrl}{\mathsf{\pi_{c}^{f, \uparrow^{b}}}}
+\newcommand{\boi}{\mathsf{B}}
+\newcommand{\pred}{\mathsf{p}}
+\newcommand{\lca}{\mathsf{LCA}}
+
+\algblockdefx[Contract]{Contract}{EndContract}
+[1]{\textbf{contract #1}}
+[0]{\textbf{end contract}}
+
+\algblockdefx[Payable]{Payable}{EndPayable}
+[2]{\textbf{payable function #1}(#2)}
+[0]{\textbf{end function}}
+
+\algblockdefx[Internal]{Internal}{EndInternal}
+[2]{\textbf{internal function #1}(#2)}
+[0]{\textbf{end function}}
+
+\newcommand{\CommentLine}[1]{
+    \State \(\triangleright\) \textit{#1}
+}
+
+\newcommand{\conc}{\mathbin{\|}}
+% \DeclareMathOperator{\Ex}{\mathbb{E}}
+
+%prelims
+\newcommand{\chain}{\mathsf{C}}
+\newcommand{\upchain}{\negthickspace\uparrow}
+\newcommand{\downchain}{\negthickspace\downarrow\,}
+\newcommand{\tx}{\mathsf{tx}}
+\newcommand{\coinbase}{\mathsf{tx}_{\mathsf{cb}}}
+
+\def\Let#1#2{\State $#1\gets#2$}
+\algblockdefx[Operator]{Operator}{EndOperator}
+[1]{\textbf{operator #1}}
+[0]{\textbf{end operator}}
+\newcommand{\true}{\textsf{true}}
+\newcommand{\false}{\textsf{false}}
+
+\newcommand{\coll}{$z$}

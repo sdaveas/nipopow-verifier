@@ -1,6 +1,6 @@
 \begin{algorithm}
 
-    \caption{\label{alg:har-nipopow}The \textsf{NIPoPoW} client using hash-and-resubmit}
+    \caption{\label{alg:har-nipopow}The \textsf{NIPoPoW} client using hash-and-resubmit pattern}
     \begin{algorithmic}[1]
 
     \Contract{crosschain}
@@ -18,7 +18,8 @@
         e))
         \State \textsf{ancestors} $=$ $\bot$
         \State \textsf{events$[e]$.hash} $\gets$ \textsf{H}($\pis$)
-        \Comment{enable pattern}
+        \Comment{enable pattern by storing the hash of $\pis$ instead of
+        $\pis$}
         \EndFunction
     \Function{\sf contest}{$\pisa$, $\pic$, $e$}
         \Comment{provide proofs}
@@ -26,7 +27,7 @@
         \State \textsf{require}(\textsf{events$[e]$.hash} $=$ \textsf{H}($\pisa$))
         \Comment{verify $\pisa$}
         \State \textsf{require}($\pic$[0] = $\genesis$)
-        \State \textsf{require}(\textsf{valid-interlinks}($\pic$))
+        \State \textsf{require}(\textsf{valid-interlinks}($\pi_{cont}$))
         \State $lca$ = \textsf{find-lca}($\pisa$, $\pic$)
         \State \textsf{require}($\pic$ $\geq_m$ $\pisa$)
         \State \textsf{DAG} $\gets$ \textsf{DAG} $\cup$ $\pic$
