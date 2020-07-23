@@ -2,126 +2,86 @@
 
 Now that we freely eliminate large arrays, we can focus on other
 types of storage variables. The challenge we face is that the protocol of
-NIPoPoWs depends on a Directed Acyclic Graph (DAG) of blocks which is a
-mutable hashmap. This DAG is needed because interlinks of superblocks can be
-adversarially defined. By using DAG, the set of ancestor blocks of a block is
+NIPoPoWs depends on a Directed Acyclic Graph (DAG) of blocks which is constructed
+using a mutable hashmap in the recommended implementation. This DAG is needed because, in the infix part of a NIPoPoW,
+an adversary can skip blocks that
+should normally be included in an honest proof. By using a DAG, the set of
+ancestor blocks of a block is
 extracted by performing a simple graph search. For the evaluation of the
-predicate, the set of \emph{ancestors} of the best blockchain tip is used.
-Ancestors are created to avoid an adversary who presents an honest chain but
-skips the blocks of interest.
+predicate, the set of previously encountered \emph{ancestors} of the
+tip of the longest blockchain is used.
+The set of ancestors is created to avoid an adversary who presents an honest chain but
+skips the block of interest.
 
 This logic is intuitive and efficient to implement in most traditional
-programming languages such as C++, JAVA, Python, JavaScript, etc. However, as
-our analysis demonstrates, such an implementation in Solidity is significantly
-expensive. Albeit Solidity supports constant-time look-up structures, hashmaps
-are only contained in storage. This affects the performance of the client,
+programming languages. However, as
+our analysis demonstrates, such an implementation in Solidity is
+expensive. Although Solidity supports constant-time look-up structures, native hashmaps
+are only possible to hold in storage. This affects the performance of the client,
 especially for large proofs.
 
-We make a keen observation regarding potential positions of the \emph{block of
-interest} in proofs, which leads us to the construction of an architecture that
-does not require a DAG, the ancestors or other complementary structures. To
-support this claim, we adopt the notation from~\cite{nipopows}. We also
-consider the predicate $\pred$ to be of the type: ``does block $\boi$ exist
+We make a series of observations regarding the potential positions of the \emph{block of
+interest} within proofs, which lead us to the construction of an architecture that
+does not require maintaining a DAG, ancestors, or other complementary structures. We
+consider the predicate $\pred$ to be of the form: ``does block $\boi$ exist
 inside proof $\pr$?'', where $\boi$ denotes the block of interest of proof
-$\pr$. The entity that performs the submission is $\es$, and the entity that
-initiates a contest is $\ec$.
+$\pr$. Let $\es$ denote the node that performs the submission and the $\ec$
+denote the node that initiates a contest.
+
+The node $\es$ is submitting the proof $\pis$ in an attempt to convince the verifier that
+the predicate $\pred$ is \emph{true}, while $\ec$ is submitting the proof $\pic$
+in an attempt to convince the verifier that the predicate is \emph{false}.
+We call a proof \emph{pointless} if it does not contribute to its purpose
+of convincing the verifier. Namely, $\pis$ is pointless if it does contribute to convincing
+the verifier of the \emph{truth} of the predicate, while $\pic$ is pointless if it
+does not contribute to convincing the verifier of the \emph{falsity} of the predicate. We call
+non-pointless proofs \emph{meaningful}.
 
 \noindent \textbf{Position of block of interest.} NIPoPoWs are sets of sampled
-interlinked blocks, meaning that they can be perceived as chains. Since proofs
-$\pis$ and $\pic$ differ, a fork is created at the index of
-their last common ancestor ($\lca$). The block of interest lies at a certain
-index within $\pis$ and indicates a stable predicate~\cite{nipopows,
-generic-client} that is $\true$ for $\pis$. A submission in which $\boi$ is
-absent from $\pis$ is aimless, because it automatically fails since no element
-of $\pis$ satisfies $\pred$. On the contrary, $\pic$ tries to prove the
-\emph{falseness} of the underlying predicate. This means that, if the block of
-interest is included in $\pic$, then the contest is aimless. We freely use the
-term aimless to also characterize components that are included in such actions
-i.e.\ aimless proof, aimless blocks etc. We use the term meaningful to describe
-non-aimless actions and components.
+interlinked blocks that form chains. Since proofs
+$\pis$ and $\pic$ differ (otherwise the contesting proof would not be accepted),
+a fork is created at
+their last common ancestor $\lca$. Since $\pis$ claims the \emph{truth} of the
+predicate, the block of interest $\boi$ lies at a certain
+stable index~\cite{nipopows,
+generic-client} within $\pis$. A submission in which $\boi$ is
+absent from $\pis$ is pointless, since no element
+of $\pis$ satisfies $\pred$. On the contrary, if the block of
+interest is included in $\pic$, then the contest is pointless.
 
 \newcommand{\block}{\mathsf{B}}
 
-In the NIPoPoW protocol, proofs' segments $\pis\{{{:}}\lca\}$ and
-$\pic\{{:}\lca\}$ are merged to prevent adversaries from skipping
+In the NIPoPoW protocol, proof segments $\pis\{{{:}}\lca\}$ and
+$\pic\{{:}\lca\}$ are merged into a single chronologically ordered chain to prevent adversaries from skipping
 blocks, and the predicate is evaluated against $\pis\{{:}\lca\} \cup
-\pic\{{:}\lca\}$. We observe that $\pic\{{:}\lca\}$ can be omitted, because no
-block $\block$ exists such that \{$\block : \block \notin \pis\{{:}\lca\} \land
-\block \in \pic\{{:}\lca\}$\} where $\block$ results into positive evaluation
-of the predicate. This is due to the fact that, in a meaningful contest, $\boi$
+\pic\{{:}\lca\}$. We observe that $\pic\{{:}\lca\}$ can be omitted during the predicate's evaluation, because no
+block $\boi$ exists in $\pic\{{:}\lca\}$ that is missing from $\pis\{{:}\lca\}$
+and for which the predicate holds. This is due to the fact that, in a meaningful contest, $\boi$
 is not included in $\pic$. Consequently, $\pic$ is only meaningful if it forks
-$\pis$ at a block that is prior to $\boi$.
+$\pis$ at a block prior to $\boi$.
 
-\renewcommand{\block}{}
-
-\begin{figure}[h]
-\vspace*{-3mm}
-    \begin{center}
-        \includegraphics[width=0.8\columnwidth]{figures/boi-position.pdf}
-    \end{center}
-    \caption{Fork of two proofs.
-    Solid lines connect blocks of $\pis$,
-    and dashed lines connect blocks of $\pic$.
-    In this configuration,
-    blocks in dashed circles are aimless blocks of interest, and the block
-    in the solid circle is a meaningful block of interest. Blocks B, C and E are
-    aimless because they exist in $\pic$. Block A is aimless because it
-    belongs to the subchain $\pis\{{:}\lca\}$
-    }
-    \label{fig:boi-position}
-\vspace*{-3mm}
-\end{figure}
-
-In Figure~\ref{fig:boi-position} we display a fork of two proofs. Solid lines
-connect blocks of $\pis$ and dashed lines connect blocks of $\pic$. By
-examining which scenarios are meaningful based on different positions of the
-block of interest, we observe that blocks \texttt{B}, \texttt{C} and \texttt{E}
-do not qualify, because they are included in $\pic$. Block \texttt{A} is
-included in $\pis\{{:}\lca\}$, which means that $\pic$ is an aimless contest
-because the $\lca$ comes after the block of interest. Therefore, A is an
-aimless block as a component of an aimless contest. Given this configuration,
-the only meaningful block of interest is \texttt{D} and its predecessors (which
-we leave out from this figure).
-
-\noindent \textbf{Minimal forks.} By combining the above observations, we
-derive that $\pic$ can be truncated into $\pic\{\lca{:}\}$ without affecting
-the correctness of the protocol. We term this truncated proof $\pitr$.
-Security is preserved by requiring $\pitr$ to be a \emph{minimal fork} of
-$\pis$. A minimal fork is a fork chain that shares exactly one common block
-with the main chain. A proof $\tilde\pi$, which is minimal fork of $\pi$, has
-the following attributes:
+\noindent \textbf{Minimal forks.} Given the above observation, we modify our construction
+to ask the contester to only send those blocks of $\pic$ that follow the $\lca$ block.
+We term this truncated chain $\pitr = \pic\{\lca{:}\}$.
+In Algorithm~\ref{alg:minimal-fork}, we show how the minimal fork technique is
+incorporated into our client, replacing DAG and ancestor structures.
+Security is preserved by requiring that the provided $\pitr$ is a \emph{minimal fork}, namely
+that it satisfies the following:
 
 \begin{enumerate}
-\item $\pi\{lca\} = \tilde\pi[0]$
-\item $\pi\{lca{:}\} \cap \tilde\pi[1{:}] = \emptyset$
+\item $\pis\{\lca\} = \pitr[0]$
+\item $\pis\{\lca{:}\} \cap \pitr[1{:}] = \emptyset$
 \end{enumerate}
 
-By requiring $\pitr$ to be a minimal fork of $\pis$, we prevent adversaries
-from dispatching an augmented $\pitr$ to claim better score against $\pis$.
-Such an attempt is displayed in Figure~\ref{fig:adversary-minimal-fork}.
+The verifier checks that the above conditions are met in line~\ref{alg:minimal-fork:minimal-fork}.
 
-\begin{figure}[h]
-    \begin{center}
-        \includegraphics[width=0.85\columnwidth]{figures/adversary-minimal-fork.pdf}
-    \end{center}
-\vspace*{-5mm}
-    \caption{An adversary attests to contest with a malformed proof. Adversary
-        proof consists of blocks \{A, X, B, C, D'\} that achieve better score
-        against submit proof \{A, B, C, D\}. This attempt is rejected due to
-        the minimal-fork requirement.}
-    \label{fig:adversary-minimal-fork}
-\vspace*{-5mm}
-\end{figure}
-
-In Algorithm~\ref{alg:minimal-fork}, we show how the minimal fork technique is
-incorporated into our client replacing DAG and ancestors. In
+In
 Figure~\ref{fig:minimal-fork} we show how the performance of the client
 improves. We use the same test case as in \emph{hash-and-resubmit}.
-
-By applying the minimal-fork technique, he achieve a 55\% decrease in gas
-consumption. \emph{Submit} phase now costs {4{,}700{,}000} gas, and
-the \emph{contest} phase costs {4{,}900{,}000} million gas. This is a notable
-result, since each phase now fits inside an Ethereum block.
+We achieve a 55\% decrease in gas
+consumption. The \emph{submit} phase now costs {4{,}700{,}000} gas, and
+the \emph{contest} phase costs {4{,}900{,}000} gas. Notably, after these
+changes, each phase individually fits within an Ethereum block.
 
 \input{algorithms/minimal-fork}
 
