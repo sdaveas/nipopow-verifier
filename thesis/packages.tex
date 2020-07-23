@@ -1,0 +1,29 @@
+\usepackage[utf8]{inputenc}
+\usepackage[greek,english]{babel}
+\usepackage{alphabeta}
+
+\usepackage[margin=2cm]{geometry}           % set up page margins
+\usepackage{wrapfig, blindtext}             % tables in text
+\usepackage[official]{eurosym}              % euro sign
+\newcommand\todo[1]{\textcolor{blue}{#1}}   % add todos
+\usepackage{booktabs}                       % rulers in tables
+\usepackage{pgfplots}                       % plot pdfs
+\usepackage{subcaption}                     % subfigures
+\usepackage[shortlabels]{enumitem}          % enumerate with letters
+\usepackage{algorithm}                      % algorithms
+\usepackage{algpseudocode}                  % algorithm
+\usepackage[colorlinks=true,citecolor=blue,linkcolor=blue]{hyperref}
+\usepackage{amsmath,amssymb,stmaryrd}
+\usepackage{graphicx}
+\graphicspath{{./images/}}
+% \usepackage{dblfnote}                       % multi-column footnotes
+
+\input{packages/solidity-highlighting}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small Implementing a Gas-Efficient Superlight Bitcoin Client In Solidity}
+\lfoot{\small Stelios Daveas \hspace{0.9cm} p. \thepage}
+
+\input{macros}

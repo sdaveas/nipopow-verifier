@@ -1,0 +1,44 @@
+\begin{algorithm}
+
+    \caption{\label{alg:har-nipopow}The \textsf{NIPoPoW} client using hash-and-resubmit pattern}
+    \begin{algorithmic}[1]
+
+    \Contract{crosschain}
+    \State $\textsf{events} \gets \bot;$ $\genesis \gets \bot$
+    \Function{\sf initialize}{$\genesis_{remote}$}
+        \State $\genesis$ $\gets \genesis_{remote}$
+    \EndFunction
+    \Function{\sf submit}{$\pis$, $e$}
+        \State \textsf{require}($\textsf{events$[e]$} = \bot$)
+        \State \textsf{require}($\pis$[0] = $\genesis$)
+        \State \textsf{require}($\textsf{valid-interlinks}(\pi)$)
+        \State \textsf{DAG} $\gets$ \textsf{DAG} $\cup$ $\pis$
+        \State \textsf{ancestors} $\gets$ \textsf{find-ancestors(DAG, $\pis$[-1])}
+        \State \textsf{require}(\textsf{evaluate-predicate}(\textsf{ancestors},
+        e))
+        \State \textsf{ancestors} $=$ $\bot$
+        \State \textsf{events$[e]$.hash} $\gets$ \textsf{H}($\pis$)
+        \Comment{enable pattern by storing the hash of $\pis$ instead of
+        $\pis$}
+        \EndFunction
+    \Function{\sf contest}{$\pisa$, $\pic$, $e$}
+        \Comment{provide proofs}
+        \State \textsf{require}(\textsf{events}$[e]$ $\ne$ $\bot$)
+        \State \textsf{require}(\textsf{events$[e]$.hash} $=$ \textsf{H}($\pisa$))
+        \Comment{verify $\pisa$}
+        \State \textsf{require}($\pic$[0] = $\genesis$)
+        \State \textsf{require}(\textsf{valid-interlinks}($\pi_{cont}$))
+        \State $lca$ = \textsf{find-lca}($\pisa$, $\pic$)
+        \State \textsf{require}($\pic$ $\geq_m$ $\pisa$)
+        \State \textsf{DAG} $\gets$ \textsf{DAG} $\cup$ $\pic$
+        \State \textsf{ancestors} $\gets$
+        \textsf{find-ancestors}($\textsf{DAG}$, $\pisa$[-1])
+        \State \textsf{require}($\neg$\textsf{evaluate-predicate}(\textsf{ancestors}, $e$))
+        \State \textsf{ancestors} $=$ $\bot$
+        \State \textsf{events$[e]$} $\gets$ $\bot$
+    \EndFunction
+    \EndContract
+    \vskip8pt
+    \end{algorithmic}
+\end{algorithm}
+

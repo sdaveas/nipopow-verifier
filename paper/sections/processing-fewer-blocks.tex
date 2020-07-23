@@ -5,110 +5,112 @@ to the size of the proof. This includes the proof validation and the evaluation
 of score. We now present two techniques that allow for equivalent operations of
 constant complexity.
 
-\textsf{Optimistic schemes.} In smart contracts, in order to ensure that users
-comply with the underlying application's rules, certain actions need to be
-performed on-chain, e.g.\ verification of data, balance checks, etc. In a
-different approach, actions that deviate from the protocol are reverted after
-honest users indicate them, not allowing diverging entities to gain advantages.
-Such applications that do not check the validity of actions by default, but
+\noindent \textbf{Optimistic schemes.} In smart contracts, in order to ensure that users
+comply with the underlying protocol, certain actions are typically
+performed on-chain, e.g., verification of data, balance checks, etc. In a
+different recently introduced approach, the contract does not perform the
+verification initially, but accepts the execution's results at face value.
+Actions that deviate from the protocol are reverted only after
+honest users indicate them, therefore disallowing them.
+Such smart contracts that do not check the validity of actions by default, but
 rather depend on the intervention of honest users are characterized
-``optimistic''. In the Ethereum community, several projects
-~\cite{piza,plasma,rollups-1,rollups-2} have emerged that incorporate the notion of
-optimistic interactions. We observe that such a schema can be embedded into the
-NIPoPoW protocol, resulting in significant performance gain.
+``optimistic''. In the Ethereum community, several projects ~\cite{piza,plasma,rollups-1,rollups-2} have emerged that incorporate the notion of
+optimistic interactions. We observe that such an optimization applies to the
+NIPoPoW protocol.
 
 We discussed how the verification in the NIPoPoW protocol is realized in two
-phases. In \emph{submit} phase, the verification of the $\pis$ is performed.
-This is necessary in order to prevent adversaries from injecting blocks that do
-not belong to the chain, or changing existing blocks. A proof is valid for
-submission if it is \emph{structurally correct}. Correctly structured NIPoPoWs
-have the following requirements: (a) the first block of the proof is the
-genesis block of the underlying blockchain and (b) every block has a valid
-interlink.
+phases. In the \emph{submit} phase, the verification of $\pis$ is performed.
+This is necessary in order to prevent adversaries from submitting structurally
+invalid proofs. A proof is \emph{structurally valid} if:
+(a) the first block of the proof is the
+\emph{genesis} block of the underlying blockchain and
+(b) every block has a valid
+interlink that points to the previous one in the proof.
 
 Asserting the existence of genesis in the first index of a proof is an
 inexpensive operation of constant complexity. However, confirming the interlink
 correctness of all blocks is a process of linear complexity to the size of the
-proof. Albeit the verification is performed in memory, sufficiently large
-proofs result into costly submissions since their validation consist the most
+proof. Although the verification is performed in memory, sufficiently large
+proofs result into costly submissions since their validation constitutes the most
 demanding function of the \emph{submit} phase. In
-Table~\ref{tab:valid-interlink-cost} we display the cost of
+Table~\ref{tab:valid-interlink-cost} we display the cost of the
 \textsf{valid-interlink} function which determines the structural correctness
 of a proof in comparison with the overall gas used in \textsf{submit}.
 
 \input{tables/valid-interlink-cost}
 
 \newcommand{\dispute}{\emph{dispute\ }} \noindent \textbf{Dispute phase.} We
-observe that the addition of a phase in our protocol alleviates the burden of
+add a new \dispute phase to our protocol. It alleviates the burden of
 verifying all elements of the proof by enabling the indication of an individual
-incorrect block. This phase, which we term \dispute phase, leverages selective
-verification of the submitted proof at a certain index. As a constant
-operation, this significantly reduces the gas cost of the verification process.
+incorrect block. This phase allows an honest party to indicate a particular index
+where $\pis$ is structurally incorrect. This check takes constant gas.
 
-In the NIPoPoW protocol, when a proof $\pis$ is submitted by $\es$, it is
-retrieved by a node $\ec$ from the calldata and the proof is checked for its
-validity \emph{off-chain}. We observe that, in
-order to prove a structurally invalid $\pis$, $\ec$ only needs to
-indicate the index in which $\pis$ fails the interlink verification. In the
-protocol that incorporates \emph{dispute} phase, $\ec$ calls
-$\textsf{dispute}$($\pisa$, $i$) for a structurally incorrect proof, where $i$
-indicates the disputing index of $\pisa$. Therefore, only one block is
-interpreted \emph{on-chain} rather than the entire span of $\pisa$.
+The process works as follows. Initially, a proof $\pis$ is submitted.
+An honest contester monitors the network for proof submissions. This data can be found
+in the \texttt{calldata} of a smart contract call transaction. In case
+she notices $\pis$ is structurally invalid, she computes the index of the
+first block at which it contains an invalid interlink connection. This computation
+occurs off-chain.
+The contester calls
+$\textsf{dispute}$($\pis$, $i$), where $i$
+indicates the disputing index of $\pis$. Therefore, the interlink connection between
+only two subsequent blocks in the proof is
+checked \emph{on-chain} rather than the entire span of $\pis$.
 
 Note that this additional phase does not imply increased rounds of
-interactions between $\es$ and $\ec$. If $\pis$ is invalidated in
-\emph{dispute} phase, then \emph{contest} phase is skipped. Similarly, if
-$\pis$ is structurally correct, but represents a dishonest chain, then $\ec$
-proceeds directly to \emph{contest} phase without the invocation of \emph{dispute}.
+interactions between the parties. If $\pis$ is invalidated in the
+\dispute phase, then the \emph{contest} phase is skipped. Similarly, if
+$\pis$ is structurally correct, but represents a dishonest chain, then the contester
+proceeds directly to the \emph{contest} phase without invoking of \emph{dispute}.
 
 \input{tables/dispute-cost}
 
 In Table~\ref{tab:dispute-cost} we display the gas consumption for
 two independent cycles of interactions:
 \begin{enumerate}
-    \item \emph{Submit} and \emph{dispute} for is structurally incorrect
+    \item \emph{Submit} and \emph{dispute} for a structurally invalid
         $\pis$.
-    \item \emph{Submit} and \emph{contest} for structurally correct
+    \item \emph{Submit} and \emph{contest} for a structurally valid
         $\pis$ that represents a dishonest chain.
 \end{enumerate}
 
-\noindent In Algorithm~\ref{alg:dispute-best-level}, we show the implementation
-of the \emph{dispute} phase. The integration of \emph{dispute} phase leaves
+In lines \ref{alg:dispute-best-level:dispute-start}--\ref{alg:dispute-best-level:dispute-end}
+of Algorithm~\ref{alg:dispute-best-level}, we show the implementation
+of the \emph{dispute} phase. The introduction of the \emph{dispute} phase leaves
 \textsf{contest} unchanged.
 
 \noindent \textbf{Isolating the best level.} As we discussed, \emph{dispute}
 and \emph{contest} phases are mutually exclusive. Unfortunately, the same
 constant-time verification as in the \emph{dispute} phase cannot be applied in a
 contest without increasing the rounds of interactions for the users. However,
-we derive a major optimization for the \emph{contest} phase by observing the
+we derive a subsequent optimization for the \emph{contest} phase by observing the
 process of score evaluation.
 
 In NIPoPoWs, after the last common ancestor is found, each proof fork
-is evaluated in terms of proof-of-work score. Each level encapsulates a different
-score of proof-of-work, and the level with the best score is representative
-of the underlying proof. Since the common blocks of the two proofs naturally
-gather the same score, only the disjoint portions need to be addressed.
-Consequently, the position of the $\lca$ determines the span of the proofs that
+is evaluated in terms of the proof-of-work score of its blocks after the $\lca$
+block. Each level captures a different
+score, and the level with the best score for the fork is used for the comparison
+(see Algorithm~\ref{alg.nipopow-verifier}).
+The position of $\lca$ determines the span of the proofs that
 will be included in the score evaluation process. Furthermore, it is impossible
 to determine the score of a proof in the \emph{submit} phase because the position
 of $\lca$ is yet unknown.
 
-After $\pis$ is retrieved from the calldata, the score of both proofs is
-calculated. This means that the level in which each proof encapsulates the
-most proof-of-work for each proof is known to $\ec$. In the light of this
-observation, $\ec$ only submits the blocks which consist the \emph{best level}
+After $\pis$ is retrieved from the calldata, the contester can calculate off-chain
+the score of both proofs. This means that the contester knows the level at which each
+proof captures the best score for each fork. In light of this
+observation, it suffices for the contester to submit the blocks that constitute the \emph{best level}
 of $\pic$. The number of these blocks is constant, as it is determined by the
-security parameter $m$, which is irrelevant to the size of the underlying
+security parameter $m$, which is independent of the size of the underlying
 blockchain. We illustrate the blocks that participate in the formulation of a
 proof's score and the best level of contesting proof in
 Figure~\ref{fig:score-at-levels}.
 
-The calculation of the best level of $\pic$ is an \emph{off-chain} process.
-An adversarial $\ec$ is certainly able to dispatch a level of $\pic$ which is
-different than the best level. However, this is an irrational action, since
-different levels only undermine the score of $\pic$. On the contrary, due to
+An adversarial contester can send a level of $\pic$ which is
+different than the best. However, this is pointless, since
+different levels only undermine her score. On the contrary, due to
 the consistency property of \emph{hash-and-resubmit}, $\pis$ cannot be altered.
-We denote the best level of $\pitr$ as $\pitrl$.
+We denote $b$ the best level of $\pitr$ and the subchain at that level as $\pitrl$.
 
 \begin{figure}[!h]
 \vspace*{-5mm}
@@ -124,27 +126,24 @@ We denote the best level of $\pitr$ as $\pitrl$.
 \end{figure}
 
 In Algorithm~\ref{alg:dispute-best-level}, we show the implementation of the
-\emph{contest} phase under the best-level enhancement. The utilization of
-this methodology greatly increases the performance of the client,
+\emph{contest} phase under the best-level enhancement. This greatly improves the performance of the client,
 because the complexity of the majority of $\textsf{contest}$ functions is
-related to the size of $\pic$. In Table~\ref{tab:best-level-cost}, we
-demonstrate the difference in gas consumption in the \emph{contest} phase after
-using \emph{best-level}. The performance of most functions is increased by
+proportional to the size of $\pic$. In Table~\ref{tab:best-level-cost}, we
+demonstrate the difference in gas consumption in the various stages of the \emph{contest} phase before and after
+using \emph{best-level}. The performance of most functions is improved by
 approximately 85\%. This is due to the fact that the size of $\pic$ is
 decreased accordingly. For $m=15$, $\pitrl$ consists of 31 blocks, while
 $\pitr$ consists of 200 blocks.  Notably, the calculation of score for $\pitrl$
-needs 97\% less gas. We achieve such a discrepancy because the process of score
-calculation for multiple levels demands the use of a temporary hashmap which is
-a storage structure. In contrast, the evaluation of the score of an individual level
+needs 97\% less gas than the na\"ive implementation, because the evaluation of the score of an individual level
 is performed entirely in memory.
 
 \input{tables/best-level-cost}
 
-In Figure ~\ref{fig:dispute-best-level}, we illustrate the performance gain of
-the client using \emph{dispute} phase and the best-level contesting proof. The
-aggregated gas consumption of \emph{submit} and \emph{contest} phases is
-reduced to 3,500,000 gas. This is a critical threshold regarding applicability of
-the contract, since a cycle of interactions now effortlessly fits inside a
+In Figure~\ref{fig:dispute-best-level}, we illustrate the performance gains of
+the client using the \emph{dispute} phase and the \emph{best-level} method. The
+aggregated gas consumption of the \emph{submit} and \emph{contest} phases is
+reduced to {3{,}500{,}000} gas. This makes the contract practical,
+since a complete cycle of interactions now effortlessly fits inside a
 single Ethereum block.
 
 \input{algorithms/dispute-best-level}
@@ -155,8 +154,8 @@ single Ethereum block.
         \includegraphics[width=0.9\columnwidth]{figures/dispute-best-level.pdf}
     \end{center}
 \vspace*{-5mm}
-    \caption{Performance improvement using optimistic schema in submit phase
-        and best level proof in contesting proof (lower is better). Gas
+    \caption{Performance improvement using \emph{optimistic} evaluation in the submit phase
+        and \emph{best level} contestation (lower is better). Gas
         consumption is decreased by approximately 65\%.}
     \label{fig:dispute-best-level}
 \vspace*{-5mm}

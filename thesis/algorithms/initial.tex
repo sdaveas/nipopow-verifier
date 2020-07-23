@@ -1,0 +1,36 @@
+\begin{algorithm}[H]
+
+    \caption{\label{alg:initial}The \textsf{NIPoPoW} verifier implementation by
+        Christoglou et.\ al.
+    }
+    \begin{algorithmic}[1]
+
+    \Contract{crosschain}
+    \State $\textsf{events} \gets \bot$
+    \State $\textsf{DAG} \gets \bot$; $\textsf{ancestors} \gets \bot$
+    \Function{\sf submit}{$\pis$, $e$}
+        \State \textsf{require}($\textsf{events$[e]$} = \bot$)
+        \State \textsf{require}($\textsf{valid-interlinks}(\pi)$)
+        \State \textsf{events$[e].\pi$} $\gets$ $\pis$
+        \State \textsf{DAG} $\gets$ \textsf{DAG} $\cup$ $\pi$
+        \State \textsf{ancestors} $\gets$ \textsf{find-ancestors(DAG, $\pi$[-1])}
+        \State \textsf{require}(\textsf{evaluate-predicate}(\textsf{ancestors}, e))
+        \State \textsf{ancestors} $=$ $\bot$
+        \EndFunction
+    \Function{\sf contest}{$\pic$, $e$}
+        \State \textsf{require}(\textsf{events}$[e]$ $\ne$ $\bot$)
+        \State \textsf{require}(\textsf{valid-interlinks}($\pic$))
+        \State $lca$ = \textsf{find-lca}($\textsf{events}[e].\pi$, $\pic$)
+        \State \textsf{require}($\pic$ $\geq_m$ $\textsf{events}[e].\pi$)
+        \State \textsf{DAG} $\gets$ \textsf{DAG} $\cup$ $\pic$
+        \State \textsf{ancestors} $\gets$
+        \textsf{find-ancestors}($\textsf{DAG}$, $\textsf{events}[e].\pi$[-1])
+        \State \textsf{require}($\neg$\textsf{evaluate-predicate}(\textsf{ancestors}, $e$))
+        \State \textsf{ancestors} $=$ $\bot$
+        \State \textsf{events$[e]$} $\gets$ $\bot$
+    \EndFunction
+    \EndContract
+    \vskip8pt
+    \end{algorithmic}
+\end{algorithm}
+

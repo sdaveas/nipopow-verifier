@@ -111,9 +111,8 @@ $200$ disjoint blocks.
 The analysis of this
 experiment is displayed in Figure~\ref{fig:cryptoeconomics-collateral-100}. We
 also illustrate the expected price of contesting proofs when the fork point of
-the adversarial chain is the $genesis$ block. Although we claim that this is an
-improbable case, we show that the verifier can handle such extreme scenarios,
-and thus is invulnerable to DOS attacks.
+the adversarial chain is at $Genesis$. Although we claim that this is an
+improbable case, we show that the verifier can handle such extreme scenarios.
 The analysis of genesis-fork is displayed in
 Figure~\ref{fig:cryptoeconomics-collateral-genesis}.
 
@@ -143,10 +142,11 @@ Figure~\ref{fig:cryptoeconomics-collateral-genesis}.
     \label{fig:cryptoeconomics-collateral}
 \end{figure}
 
-We conclude that consumption of cross-chain data within the Ethereum blockchain can
-be obtained at very reasonable cost. If the waiting time is set to just $10$ Ethereum blocks
-(approximately $2$ minute in expectation), a collateral of just $0.50$ USD is sufficient
-to cover for up to one standard deviation in confirmation time. Note that the
-collateral of an honest party is not consumed and is returned to the party upon the
-expiration of the contestation period. We therefore deem our implementation to be
-practical.
+We conclude that consumption of cross-chain data within the Ethereum blockchain
+can be obtained at very reasonable cost. If the waiting time is set to just
+$10$ Ethereum blocks (approximately $2$ minute in expectation), a collateral of
+just $0.50$ USD is sufficient to cover for up to one standard deviation in
+confirmation time. Note that the collateral of an honest party is not consumed
+and is returned to the party upon the expiration of the contestation period. We
+therefore deem our implementation to be practical.
+

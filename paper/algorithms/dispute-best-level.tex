@@ -12,19 +12,16 @@
         \State \textsf{require}(\textsf{evaluate-predicate}(\textsf{$\pis$}, $e$))
         \State \textsf{events$[e]$.hash} $\gets$ \textsf{H}($\pis$)
     \EndFunction
-    \Function{\sf dispute}{$\pisa$, $e$, $i$}
+    \Function{\sf dispute}{$\pisa$, $e$, $i$}\label{alg:dispute-best-level:dispute-start}
         \Comment{$i$: Dispute index}
         \State \textsf{require}(\textsf{events}$[e]$ $\ne$ $\bot$)
         \State \textsf{require}(\textsf{events$[e]$.hash} $=$ \textsf{H}($\pisa$))
         \State \textsf{require}($\neg \textsf{valid-single-interlink}(\pis, i)$)
         \State \textsf{events$[e]$} $\gets$ $\bot$
-    \EndFunction
+    \EndFunction\label{alg:dispute-best-level:dispute-end}
     \Function{\sf valid-single-interlink}{$\pi$, $i$}
-        \State $l\gets\pi[i].\mathsf{level}$
-        \If{$\pi[i{+}1].\mathsf{intelink}[l] = \pi[i]$}
-        \State \Return true
-        \EndIf
-        \State \Return false
+        \State $\mu\gets\textsf{level}(\pi[i])$
+        \State\Return{$\pi[i{+}1].\mathsf{intelink}[\mu] = \pi[i]$}
     \EndFunction
     \Function{\sf contest}{$\pisa$, $\pitrl$, $e$, $f$}
         \State \textsf{require}(\textsf{events}$[e]$ $\ne$ $\bot$)
@@ -38,17 +35,12 @@
         \State \textsf{events$[e]$} $\gets$ $\bot$
     \EndFunction
     \Function{\sf arg-at-level}{$\pi$}
-        \State $l \gets \pi[-1].\textsf{level}$
+        \State $\mu \gets \textsf{level}(\pi[-1])$
         \Comment{Pick proof level from a block}
-        \State $score \gets 0$
-        \Comment{Set score counter to 0}
-        \For{b in $\pi$}
-        \If{(b.\textsf{level}$\neq$$l$)}
-        \State{\textbf{continue}}
-        \EndIf
-            \State $score \gets score {+} 2^l$
+        \For{$b \in \pi$}
+            \State$\textsf{assert}(\textsf{level}(b) = \mu)$
         \EndFor
-        \State \Return{score}
+        \State \Return{$2^\mu |\pi|$}
     \EndFunction
     \EndContract
     \vskip8pt

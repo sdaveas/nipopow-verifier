@@ -1,30 +1,62 @@
-\begin{abstract}
+\begin{center}
+    \section*{Abstract}
+\end{center}
 
-Superlight clients enable the verification of proof-of-work-based blockchains
-by checking only a small representative number of block headers instead of all
-the block headers as done in SPV. Such clients can be embedded within other
-blockchains by implementing them as smart contracts, allowing for cross-chain
-verification. One such interesting instance is the consumption of Bitcoin data
-within Ethereum by implementing a Bitcoin superlight client in Solidity. While
-such theoretical constructions have demonstrated security and efficiency, no
-practical implementation exists. In this work, we put forth the first practical
-Solidity implementation of a superlight client which implements the NIPoPoW
-superblocks protocol. Our implementation is open source and we demonstrate it
-is production-ready by providing full test coverage. Contrary to previous work,
-our Solidity smart contract achieves sufficient gas-efficiency to allow a proof
-and counter-proof to fit within the gas limit of a block, making it practical.
-We provide extensive experimental measurements for gas. The optimizations that
-enable gas-efficiency heavily leverage a novel technique which we term
-hash-and-resubmit, which almost completely eliminates persistent storage
-requirements, the most expensive operation of smart contracts in terms of gas.
-Instead, the contract asks contesters to resubmit data and checks their
-veracity by hashing it. We show that such techniques can be used to bring down
-gas costs significantly and may have applications to other contracts. We also
-identify and rectify multiple implementation security issues of previous work
-such as premining vulnerabilities. Lastly, our implementation allows us to
-calculate concrete cryptoeconomic parameters for the superblocks NIPoPoWs
-protocol and in particular to make recommendations about the monetary value of
-the collateral parameters. We provide such parameter recommendations over a
-variety of liveness and adversarial bound settings.
+During the last years, significant effort has been put into enabling blockchain
+interoperability, and several protocols have been proposed towards establishing
+crosschain communication. Most notably, superlight clients, a new generation of
+verifiers, have emerged. These clients demand only a poly-logarithmic number of
+block headers in order to verify transactions, rather than the entire span of
+the underlying chain. Albeit these constructions have been established
+theoretically, no practical implementation exists to date. In this paper, we
+focus on Non-Interactive Proofs of Proof of Work (NIPoPoWs), a probabilistic
+structure based on superblocks that is provably secure and provides succinct
+proofs of events in a blockchain. In particular, we discuss a gas-efficient
+implementation for the verification of NIPoPoWs in Solidity, enabling
+crosschain events from Bitcoin to Ethereum. We explore patterns and techniques
+that considerably reduce gas consumption, and may have applications to other
+smart contracts. We introduce a pattern that we term ``hash-and-resubmit'' that
+eliminates persistent storage almost entirely, leading to significant increase
+of performance. Furthermore, we alleviate the burden of expensive on-chain
+operations, which we transfer off-chain, and we make use of an optimistic
+schema that replaces functionalities of linear complexity with constant
+operations. Lastly, we make a cryptoeconomic analysis, and set concrete values
+regarding the cost that comes with using our client. Our implementation in
+Solidity is accompanied by thorough unit tests. We display the performance gain
+of our solution compared to previous work, and we mitigate security issues we
+encountered such as premining.
 
-\end{abstract}
+\newpage
+
+\begin{center}
+    \section*{Περίληψη}
+\end{center}
+
+Τα τελευταία χρόνια, έχει καταβληθεί σημαντική προσπάθεια για να καταστεί
+δυνατή η διαλειτουργικότητα των blockchain και αρκετά πρωτόκολλα έχουν προταθεί
+για τη καθιέρωση της επικοινωνίας μεταξύ διαφορετικών αλυσίδων. Μια
+αξιοσημείωτη τεχνολογία που έχει αυτό το στόχο είναι οι “υπερ-ελαφρείς”
+πελάτες, μια νέα γενιά επαληθευτών. Αυτοί οι πελάτες απαιτούν μόνο έναν
+πολυ-λογαριθμικό αριθμό κεφαλίδων μπλοκ για να επαληθεύσουν συναλλαγές, και όχι
+τις κεφαλίδες ολόκληρης της υποκείμενης αλυσίδας. Αν και αυτές οι κατασκευές
+έχουν γερά θεωρητικά θεμέλια, δεν έχει γίνει πρακτική εφαρμογή τους μέχρι
+σήμερα. Σε αυτή την εργασία, εστιάζουμε στις Μη-Διαδραστικές Αποδείξεις
+Απόδειξης Εργασίας (Non-Interactive Proofs of Proof of Work - NIPoPoWs), μια
+πιθανοτική κατασκευή που βασίζεται στην λογική των superblock, είναι
+αποδεδειγμένα ασφαλής και παρέχει αποδείξεις γεγονότων σε ένα Blockchain που
+είναι σύντομες και περιεκτικές. Συγκεκριμένα, παρουσιάζουμε μια αποδοτική ως
+προς τη κατανάλωση gas υλοποίηση σε Solidity για την επαλήθευση των NIPoPoW,
+επιτρέποντας τη γνωστοποίηση γεγονότων από την αλυσίδα του Bitcoin στη αλυσίδα
+του Ethereum. Εισάγουμε μοτίβα και τεχνικές που μειώνουν σημαντικά την
+κατανάλωση του gas και ενδέχεται να έχουν εφαρμογές σε άλλα έξυπνα συμβόλαια.
+Παρουσιάζουμε ένα μοτίβο που ονομάζουμε ``hash-and-resubmit'', το οποίο εξαλείφει
+σχεδόν εξ ολοκλήρου τη μόνιμη μνήμη του έξυπνου συμβολαίου μας, οδηγώντας σε
+σημαντική αύξηση της απόδοσης. Επιπλέον, μετριάζουμε το βάρος δαπανηρών πράξεων
+στην αλυσίδα, τις οποίες μεταφέρουμε εκτός αλυσίδας, και χρησιμοποιούμε ένα
+αισιόδοξο σχήμα (optimistic scheme) που αντικαθιστά λειτουργίες γραμμικής
+πολυπλοκότητας με λειτουργίες σταθερού χρόνου. Τέλος, κάνουμε μια
+κρυπτο-οικονομική ανάλυση και καθορίζουμε συγκεκριμένες τιμές σχετικά με το
+κόστος της χρήσης του πελάτη μας. Η εφαρμογή μας στη Solidity συνοδεύεται από
+ενδελεχή unit tests. Παρουσιάζουμε επίσης τη διαφορά απόδοσης της λύσης μας σε
+σύγκριση με προηγούμενη σχετική εργασία και εξαλείφουμε τα ζητήματα ασφάλειας
+που συναντήσαμε, όπως το premining.
