@@ -25,14 +25,14 @@
         \State \textsf{require}(\textsf{$\neg$evaluate-predicate}($\pitr$, $e$))
         \State \textsf{events$[e]$} $\gets$ $\bot$
     \EndFunction
-    \Function{\sf minimal-fork}{$\pi_1$, $\pi_2$, $f$}
+    \Function{\sf minimal-fork}{$\pi_1$, $\pi_2$, $f$}\label{alg:minimal-fork:minimal-fork}
     \If{$\pr_1$[f] $\neq$ $\pr_2[0]$}
     \Comment{Check fork head}
         \State\Return false
     \EndIf
-    \For{$b_1\ in\ \pi_1[f{+}1{:}]$}
+    \For{$b_1 \in \pi_1[f{+}1{:}]$}
     \Comment{Check disjoint proofs}
-        \If{$b_2\ in\ \pi_2[1{:}]$}
+        \If{$b_2 \in \pi_2[1{:}]$}
             \State\Return false
         \EndIf
     \EndFor
