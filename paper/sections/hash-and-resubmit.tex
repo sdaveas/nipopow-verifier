@@ -49,9 +49,11 @@ amount of gas. However, this approach does not address consistency, which is
 also one of our critical targets. Lastly, there have been proposals~\cite{memory-array}
 to replace storage read operations, but they do not address write operations.
 
-
+\begin{landscape}\centering
+\vspace*{\fill}
 \begin{figure*}
-    \includegraphics[width=1\textwidth]{figures/har-pattern.pdf}
+    \centering
+    \includegraphics[width=\linewidth]{figures/har-pattern.pdf}
 
     \caption{The \emph{hash-and-resubmit} pattern. First, an invoker calls
         \proc$_1$($\data_0$). Then $\data_0$ is processed \emph{on-chain} and
@@ -70,6 +72,8 @@ to replace storage read operations, but they do not address write operations.
 
         \label{fig:har-pattern}
 \end{figure*}
+\vfill
+\end{landscape}
 
 \noindent
 \textbf{Applicability.}
