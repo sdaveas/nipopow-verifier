@@ -113,9 +113,8 @@ the consistency property of \emph{hash-and-resubmit}, $\pis$ cannot be altered.
 We denote $b$ the best level of $\pitr$ and the subchain at that level as $\pitrl$.
 
 \begin{figure}
-    \begin{center}
-        \includegraphics[width=0.8\columnwidth]{figures/blocks-of-best-level.pdf}
-    \end{center}
+    \centering
+    \includegraphics[width=0.6\columnwidth]{figures/blocks-of-best-level.pdf}
     \caption{Fork of two proofs. Striped blocks determine the
     score of each proof. Black blocks belong to the level that
     has the best score. Only black blocks are part of the best level of the
@@ -147,9 +146,8 @@ single Ethereum block.
 \input{algorithms/dispute-best-level}
 
 \begin{figure}
-    \begin{center}
-        \includegraphics[width=0.9\columnwidth]{figures/dispute-best-level.pdf}
-    \end{center}
+    \centering
+    \includegraphics[width=0.7\columnwidth]{figures/dispute-best-level.pdf}
     \caption{Performance improvement using \emph{optimistic} evaluation in the submit phase
         and \emph{best level} contestation (lower is better). Gas
         consumption is decreased by approximately 65\%.}

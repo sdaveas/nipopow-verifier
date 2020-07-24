@@ -17,9 +17,8 @@ dispatched, accompanied by the siblings that reconstruct the MTR of
 $\data$.
 
 \begin{figure}
-    \begin{center}
-        \includegraphics[width=0.8\linewidth]{figures/merkle-har.pdf}
-    \end{center}
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/merkle-har.pdf}
     \caption{\textbf{I.} The calculation of root in \emph{hash} phase.
     \textbf{II.} The verification of the root in \emph{resubmit} phase.
     \textsf{H}($k$) denotes the digest of element $k$. \textsf{H}($kl$) denotes the
@@ -55,9 +54,8 @@ The merkle variation can be potentially improved by dividing $\data$ in
 chunks larger than 1 element. We leave this analysis for future work.
 
 \begin{figure}[H]
-    \begin{center}
-        \includegraphics[width=0.9\columnwidth]{figures/har-vs-mhar.pdf}
-    \end{center}
+    \centering
+    \includegraphics[width=0.7\columnwidth]{figures/har-vs-mhar.pdf}
     \caption{Trade-offs between \emph{hash-and-resubmit} variations. In the
     vertical axis the gas consumption is displayed. In the horizontal axis the
     size of $\data$. The size of $d_0$ is 10KB bytes, and the hash functions we

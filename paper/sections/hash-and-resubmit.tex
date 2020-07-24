@@ -185,9 +185,8 @@ version, which consumes approximately only $1/10^{th}$ of the block gas limit
 for arrays of $1{,}000$ elements.
 
 \begin{figure}
-\begin{center}
-\includegraphics[width=0.9 \columnwidth]{figures/har-example.pdf}
-\end{center}
+\centering
+\includegraphics[width=0.7\columnwidth]{figures/har-example.pdf}
 \caption{Gas-cost reduction of Algorithm~\ref{alg:game-storage} using the \emph{hash-and-resubmit} pattern (lower
 is better). By avoiding gas-heavy storage operations, the aggregated cost of
 \textsf{submit} and \textsf{contest} is decreased by 95\%.}
@@ -248,9 +247,8 @@ In Algorithm~\ref{alg:har-nipopow} we show how the \emph{hash-and-resubmit} patt
 is leveraged by our modified NIPoPoW client.
 
 \begin{figure}
-    \begin{center}
-        \includegraphics[width=1\columnwidth]{figures/nipopow-subm-cont}
-    \end{center}
+    \centering
+    \includegraphics[width=0.8\columnwidth]{figures/nipopow-subm-cont}
     \caption{Forked chains for our gas analysis.}
     \label{fig:chains}
 \end{figure}
@@ -274,7 +272,7 @@ of gas consumption between consecutive values of proof sizes.
 
 \begin{figure}
     \begin{center}
-        \includegraphics[width=0.9\columnwidth]{figures/har-nipopows.pdf}
+        \includegraphics[width=0.7\columnwidth]{figures/har-nipopows.pdf}
     \end{center}
     \caption{Gas consumption of our NIPoPoWs verifier enhanced with hash-and-resubmit
         compared to previous work (lower is better) using a secure value of $m$.
