@@ -138,6 +138,10 @@ the original issuer.
     \label{fig.hierarchy}
 \end{figure}
 
+
+\input{algorithms/prelims/alg.nipopow-verifier.tex}
+\input{algorithms/prelims/alg.nipopow-verifier-inf.tex}
+
 \noindent \textbf{Verifier.} The verifier is an application that performs
 operations on proofs and does not need to be aware of the state of each chain.
 Upon receiving two proofs, $\pi_1$ and $\pi_2$, the NIPoPoW verifier first
@@ -157,10 +161,6 @@ compared by checking whether $2^{\mu_1} \lvert \pi_1\{b{:}\}\upchain^{\mu_1}
 \rvert \geq 2^{\mu_2} \lvert \pi_2\{b{:}\}\upchain^{\mu_2} \rvert$ and the
 proof with the largest score is deemed the winner. The comparison is
 illustrated in Algorithm~\ref{alg.nipopow-verifier}.
-
-\input{algorithms/prelims/alg.nipopow-verifier.tex}
-
-\input{algorithms/prelims/alg.nipopow-verifier-inf.tex}
 
 An adversary prover could skip the blocks of interest and present an honest and
 longer chain that is considered a better proof. For that reason, the last step

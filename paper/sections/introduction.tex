@@ -39,7 +39,7 @@ client for the remote chain and validates all incoming information~\cite{btcrela
 This approach, however, is
 impractical because a sizable amount of storage is needed to host entire
 chains as they grow in time. As of June 2020, Bitcoin~\cite{nakamoto} chain
-spans roughly 245 GB, and Ethereum~\cite{wood, buterin} has exceeded 300
+spans roughly 245 GB, and Ethereum~\cite{wood,buterin} has exceeded 300
 GB\footnote{Size of blockchain derived from https://www.statista.com,
 https://etherscan.io}.
 
@@ -111,14 +111,14 @@ A summary of our contributions in this paper is as follows:
 \item We develop the first on-chain decentralized client that securely verifies
 crosschain events and is practical. Our client establishes a trustless and
 efficient solution to the interoperability problem. We implement\footnote{Our
-implementation, unit tests and experiments can be found in https://github.com/superlightBitcoinClientInSolidity/verifier. The implementation will be released as open source software and deanonymized
-in the proceedings version of this paper.} our client
+implementation, unit tests and experiments can be found in \url{https://github.com/sdaveas/nipopow-verifier} and are released as open source software.}
+our client
 in Solidity, and we verify Bitcoin events to the Ethereum blockchain. The
 security assumptions we make are no other than
-SPV's~\cite{eclipse, eclipse-ethereum}.
+SPV's~\cite{eclipse,eclipse-ethereum}.
 \item We present a novel pattern which we term \emph{hash-and-resubmit}. Our
 pattern significantly improves performance of Ethereum smart
-contracts~\cite{wood, buterin} in terms of gas consumption by utilizing the
+contracts~\cite{wood,buterin} in terms of gas consumption by utilizing the
 \emph{calldata} space of Ethereum blockchain to eliminate high-cost storage
 operations.
 \item We create an \emph{optimistic} schema which we incorporate into the design

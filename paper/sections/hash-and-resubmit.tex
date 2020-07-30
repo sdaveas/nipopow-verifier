@@ -11,7 +11,7 @@ previous work~\cite{gglou}.
 \textbf{Motivation.}
 It is essential for smart contracts to store data in the blockchain. However,
 interacting with the storage of a contract is among the most expensive
-operations of the EVM~\cite{wood, buterin}. Therefore, only necessary data
+operations of the EVM~\cite{wood,buterin}. Therefore, only necessary data
 should be stored and redundancy should be avoided when possible. This is
 contrary to conventional software architecture, where storage is considered
 cheap. Usually, data access performance in traditional systems is
@@ -38,8 +38,9 @@ has a direct correspondence to a monetary cost.
 % of memory operations in relation with storage operations.
 
 \noindent \textbf{Related patterns.} Towards implementing gas-efficient smart
-contracts~\cite{contract-opt-1, contract-opt-2, slither, madmax}, several
-methodologies have been proposed. In order to eliminate storage operations
+contracts, several
+methodologies have been proposed~\cite{contract-opt-1,contract-opt-2,slither,madmax}.
+In order to eliminate storage operations
 using data signatures, the utilization of IPFS~\cite{ipfs} has been
 proposed~\cite{ipfs-1,ipfs-2}. However, these solutions do not address
 \emph{availability}, which is one of our main requirements. Another solution
@@ -48,10 +49,11 @@ amount of gas. However, this approach does not address consistency, which is
 also one of our critical targets. Lastly, there have been proposals~\cite{memory-array}
 to replace storage read operations, but they do not address write operations.
 
-
-\begin{figure*}[h]
-    \begin{center} \includegraphics[width=0.8\textwidth]{figures/har-pattern.pdf}
-    \end{center}
+\begin{landscape}\centering
+\vspace*{\fill}
+\begin{figure*}
+    \centering
+    \includegraphics[width=\linewidth]{figures/har-pattern.pdf}
 
     \caption{The \emph{hash-and-resubmit} pattern. First, an invoker calls
         \proc$_1$($\data_0$). Then $\data_0$ is processed \emph{on-chain} and
@@ -70,6 +72,8 @@ to replace storage read operations, but they do not address write operations.
 
         \label{fig:har-pattern}
 \end{figure*}
+\vfill
+\end{landscape}
 
 \noindent
 \textbf{Applicability.}
@@ -185,17 +189,13 @@ June 2020), for arrays of size 500 and above, contrary to the optimized
 version, which consumes approximately only $1/10^{th}$ of the block gas limit
 for arrays of $1{,}000$ elements.
 
-\begin{figure}[!h]
-\vspace*{-5mm}
-\begin{center}
-\includegraphics[width=0.9 \columnwidth]{figures/har-example.pdf}
-\end{center}
-\vspace*{-5mm}
+\begin{figure}
+\centering
+\includegraphics[width=0.7\columnwidth]{figures/har-example.pdf}
 \caption{Gas-cost reduction of Algorithm~\ref{alg:game-storage} using the \emph{hash-and-resubmit} pattern (lower
 is better). By avoiding gas-heavy storage operations, the aggregated cost of
 \textsf{submit} and \textsf{contest} is decreased by 95\%.}
 \label{fig:har-example}
-\vspace*{-5mm}
 \end{figure}
 
 \noindent \textbf{Consequences.} The consequence of applying the
@@ -251,13 +251,11 @@ for the verifier.
 In Algorithm~\ref{alg:har-nipopow} we show how the \emph{hash-and-resubmit} pattern
 is leveraged by our modified NIPoPoW client.
 
-\begin{figure}[!h]
-    \begin{center}
-        \includegraphics[width=1\columnwidth]{figures/nipopow-subm-cont}
-    \end{center}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\columnwidth]{figures/nipopow-subm-cont}
     \caption{Forked chains for our gas analysis.}
     \label{fig:chains}
-\vspace*{-3mm}
 \end{figure}
 
 In Figure~\ref{fig:har-nipopow}, we illustrate how \emph{hash-and-resubmit}
@@ -277,14 +275,12 @@ of gas consumption between consecutive values of proof sizes.
 
 \input{algorithms/har-nipopow}
 
-\begin{figure}[!h]
+\begin{figure}
     \begin{center}
-        \includegraphics[width=0.9\columnwidth]{figures/har-nipopows.pdf}
+        \includegraphics[width=0.7\columnwidth]{figures/har-nipopows.pdf}
     \end{center}
-\vspace*{-5mm}
     \caption{Gas consumption of our NIPoPoWs verifier enhanced with hash-and-resubmit
         compared to previous work (lower is better) using a secure value of $m$.
         Gas consumption is decreased by approximately 50\%.}
     \label{fig:har-nipopow}
-\vspace*{-5mm}
 \end{figure}

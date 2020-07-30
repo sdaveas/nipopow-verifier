@@ -14,8 +14,7 @@ Actions that deviate from the protocol are reverted only after
 honest users indicate them, therefore disallowing them.
 Such smart contracts that do not check the validity of actions by default, but
 rather depend on the intervention of honest users are characterized
-``optimistic''. In the Ethereum community, several projects ~\cite{piza,
-plasma, rollups-1, rollups-2} have emerged that incorporate the notion of
+``optimistic''. In the Ethereum community, several projects ~\cite{piza,plasma,rollups-1,rollups-2} have emerged that incorporate the notion of
 optimistic interactions. We observe that such an optimization applies to the
 NIPoPoW protocol.
 
@@ -113,17 +112,14 @@ different levels only undermine her score. On the contrary, due to
 the consistency property of \emph{hash-and-resubmit}, $\pis$ cannot be altered.
 We denote $b$ the best level of $\pitr$ and the subchain at that level as $\pitrl$.
 
-\begin{figure}[!h]
-\vspace*{-5mm}
-    \begin{center}
-        \includegraphics[width=0.8\columnwidth]{figures/blocks-of-best-level.pdf}
-    \end{center}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\columnwidth]{figures/blocks-of-best-level.pdf}
     \caption{Fork of two proofs. Striped blocks determine the
     score of each proof. Black blocks belong to the level that
     has the best score. Only black blocks are part of the best level of the
     contesting proof.}
     \label{fig:score-at-levels}
-\vspace*{-3mm}
 \end{figure}
 
 In Algorithm~\ref{alg:dispute-best-level}, we show the implementation of the
@@ -149,15 +145,11 @@ single Ethereum block.
 
 \input{algorithms/dispute-best-level}
 
-\begin{figure}[!h]
-\vspace*{-3mm}
-    \begin{center}
-        \includegraphics[width=0.9\columnwidth]{figures/dispute-best-level.pdf}
-    \end{center}
-\vspace*{-5mm}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\columnwidth]{figures/dispute-best-level.pdf}
     \caption{Performance improvement using \emph{optimistic} evaluation in the submit phase
         and \emph{best level} contestation (lower is better). Gas
         consumption is decreased by approximately 65\%.}
     \label{fig:dispute-best-level}
-\vspace*{-5mm}
 \end{figure}

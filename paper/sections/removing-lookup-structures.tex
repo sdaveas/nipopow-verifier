@@ -43,8 +43,7 @@ $\pis$ and $\pic$ differ (otherwise the contesting proof would not be accepted),
 a fork is created at
 their last common ancestor $\lca$. Since $\pis$ claims the \emph{truth} of the
 predicate, the block of interest $\boi$ lies at a certain
-stable index~\cite{nipopows,
-generic-client} within $\pis$. A submission in which $\boi$ is
+stable index~\cite{nipopows,generic-client} within $\pis$. A submission in which $\boi$ is
 absent from $\pis$ is pointless, since no element
 of $\pis$ satisfies $\pred$. On the contrary, if the block of
 interest is included in $\pic$, then the contest is pointless.
@@ -85,13 +84,10 @@ changes, each phase individually fits within an Ethereum block.
 
 \input{algorithms/minimal-fork}
 
-\begin{figure}[h]
-    \begin{center}
-        \includegraphics[width=0.9\columnwidth]{figures/minimal-fork.pdf}
-    \end{center}
-\vspace*{-5mm}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\columnwidth]{figures/minimal-fork.pdf}
     \caption{Performance improvement using minimal fork (lower is better). The
         gas consumption is decreased by approximately 55\%.}
     \label{fig:minimal-fork}
-\vspace*{-5mm}
 \end{figure}
