@@ -4,7 +4,6 @@
 %\usepackage[LGR,T1]{fontenc}
 %\usepackage{uarial}
 %\renewcommand{\familydefault}{\sfdefault}
-
 \usepackage{xltxtra}
 \usepackage{polyglossia}
 %\setdefaultlanguage{greek}
@@ -41,11 +40,17 @@
 \renewcommand{\headrulewidth}{0pt}
 \lhead{\small Implementing a Gas-Efficient Superlight Bitcoin Client In Solidity}
 
-\lfoot{\small S. Daveas \hspace{0.9cm} p. \thepage}
+\lfoot{\small S. Daveas}
+\rfoot{\thepage}
 
 \usepackage{titlesec, blindtext}
-\newcommand{\hsp}{\hspace{20pt}}
-\titleformat{\chapter}[hang]{\Huge\bfseries}{\thechapter{.}\hsp}{0pt}{\Huge\bfseries\MakeUppercase}
+\newcommand{\hsp}{\hspace{15pt}}
+\titleformat{\chapter}[hang]{\centering\Large\bfseries}{\thechapter{.}\hsp}{0pt}{\Large\bfseries\MakeUppercase}
+\titleformat*{\section}{\large\bfseries}
+
+\fancypagestyle{plain}{%
+\fancyfoot[LE, RO]{\thepage}
+\fancyfoot[LO, RE]{\small S. Daveas}}
 
 \usepackage{caption}
 \captionsetup[figure]{font=small,labelfont=bf,textfont={bf,bf}}
