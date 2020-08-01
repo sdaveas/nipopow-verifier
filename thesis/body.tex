@@ -19,19 +19,21 @@
 \pagebreak
 \thispagestyle{empty}
 \input{subtitle-greek.tex}
+\newpage
 
 \input{abstract}
 
 \thispagestyle{empty}
-\newpage
-
-\def\listfigurename{\textsc{List of Figures}}
-\addtocontents{toc}{}
-\emptypage\tableofcontents
 
 \input{acknowledgements}
-
 \newpage
+
+\renewcommand{\contentsname}{CONTENTS}
+\emptypage\tableofcontents
+
+\def\listfigurename{\textsc{LIST OF FIGURES}}
+\emptypage\listoffigures
+
 \pagestyle{fancy}
 \setcounter{page}{1}
 \input{chapters/introduction.tex}
@@ -40,7 +42,6 @@
 \input{chapters/implementation.tex}
 \input{chapters/cryptoeconomics.tex}
 \input{chapters/conclusion.tex}
-\emptypage\listoffigures
 
 \bibliographystyle{abbrv}
 {\footnotesize \bibliography{refs}}
