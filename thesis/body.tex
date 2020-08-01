@@ -3,8 +3,8 @@
 \input{title}
 
 \clearpage
-\thispagestyle{empty}
-\pagebreak
+\pagestyle{empty}
+\clearpage
 \maketitle
 
 \thispagestyle{empty}
@@ -26,7 +26,7 @@
 \newpage
 
 \addtocontents{toc}{}
-\tableofcontents
+\emptypage\tableofcontents
 \thispagestyle{empty}
 \setcounter{page}{1}
 
@@ -38,7 +38,7 @@
 \input{chapters/implementation.tex}
 \input{chapters/cryptoeconomics.tex}
 \input{chapters/conclusion.tex}
-\listoffigures
+\emptypage\listoffigures
 
 \bibliographystyle{abbrv}
 \bibliography{refs}

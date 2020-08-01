@@ -39,3 +39,15 @@
 \lfoot{\small Stelios Daveas \hspace{0.9cm} p. \thepage}
 
 \input{macros}
+
+\makeatletter
+\newcommand{\emptypage}[1]{%
+  \cleardoublepage
+  \begingroup
+  \let\ps@plain\ps@empty
+  \pagestyle{empty}
+  #1
+  \cleardoublepage
+  \endgroup
+}
+\makeatletter
