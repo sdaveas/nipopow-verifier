@@ -44,7 +44,10 @@
 
 \usepackage{titlesec, blindtext}
 \newcommand{\hsp}{\hspace{20pt}}
-\titleformat{\chapter}[hang]{\Huge\bfseries}{\thechapter{.}\hsp}{0pt}{\Huge\bfseries}
+\titleformat{\chapter}[hang]{\Huge\bfseries}{\thechapter{.}\hsp}{0pt}{\Huge\bfseries\MakeUppercase}
+
+\usepackage{caption}
+\captionsetup[figure]{font=small,labelfont=bf,textfont={bf,bf}}
 
 \input{macros}
 
