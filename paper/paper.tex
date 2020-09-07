@@ -7,6 +7,12 @@
     \documentclass{llncs}
 \fi
 
+\ifconference
+\newcommand\ourfigurescale{1}
+\else
+\newcommand\ourfigurescale{0.7}
+\fi
+
 \usepackage{preamble}
 \ifconference
     \input{ccs-metadata}
