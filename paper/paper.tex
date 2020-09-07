@@ -22,7 +22,11 @@
 \ifconference\maketitle\fi
 \input{body}
 
+\ifconference
+\bibliographystyle{ACM-Reference-Format}
+\else
 \bibliographystyle{splncs04}
+\fi
 \bibliography{refs}
 
 \end{document}
