@@ -1,4 +1,8 @@
+\ifconference
+\begin{table*}
+\else
 \begin{table}
+\fi
 \centering
 \begin{tabular}{ccccccc|cc}
             & \textbf{Phase} & \textbf{Gas} (millions) &  &              & \textbf{Phase} & \textbf{Gas} (millions) & \textbf{Phase} & \textbf{Gas} (millions) \\ \cline{2-3} \cline{6-9}
@@ -13,4 +17,8 @@ Gas consumption for two independent sets of interactions submit/dispute and
 submit/contest.}
 
 \label{tab:dispute-cost}
+\ifconference
+\end{table*}
+\else
 \end{table}
+\fi
