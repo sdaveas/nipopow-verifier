@@ -1,0 +1,19 @@
+\section{Leveraging a Velvet Fork}
+
+In our work, we are addressing a hard fork; the interlink structure is stored
+in the block header of each block, which affects the consensus protocol.
+History shows that a hard fork or a soft fork is improbable to be adopted by
+the Bitcoin community. However, a velvet fork can also serve the purposes of
+our client by utilizing part of the auxiliary bytes of the coinbase
+transaction. As a result, our proposed client can be used without the need of
+adjusting the size of block headers; in fact, recent
+work~\cite{velvet-nipopows} shows that the addition of a Merkle Mountain Range
+root in the information of each block is sufficient to ensure provably secure
+structural correctness of the proof under a velvet fork.
+
+Naturally, the processing of this information will result in increased gas usage
+due to additional on-chain computations that are needed for the verification of
+the MMR root. However, since the verification of proofs is constant to the size
+of the blocks under the optimistic scheme we adopt, the added cost will also be
+constant. We thus claim that our client remains efficient under a velvet fork
+as the gas usage will only be increased by a constant factor.
