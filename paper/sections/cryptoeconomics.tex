@@ -119,6 +119,8 @@ Figure~\ref{fig:cryptoeconomics-collateral-genesis}.
 \begin{figure}
     \centering
     \includegraphics[width=\ourfigurescale\columnwidth]{figures/cryptoeconomics-submit.pdf}
+
+    \vspace{-4mm}
     \caption{Cost of submitting a NIPoPoW proof.}
     \label{fig:cryptoeconomics-submit}
 \end{figure}
@@ -128,6 +130,7 @@ Figure~\ref{fig:cryptoeconomics-collateral-genesis}.
     \begin{subfigure}{\ourfigurescale\columnwidth}
         \centering
         \includegraphics[width=1.036\columnwidth]{figures/cryptoeconomics-collateral-100.pdf}
+        \vspace{-4mm}
         \caption{Cost of collateral when the fork point is 100 blocks prior to the
         tip (expected scenario).}
         \label{fig:cryptoeconomics-collateral-100}
@@ -135,9 +138,11 @@ Figure~\ref{fig:cryptoeconomics-collateral-genesis}.
     \begin{subfigure}{\ourfigurescale\columnwidth}
         \centering
         \includegraphics[width=1\columnwidth]{figures/cryptoeconomics-collateral-genesis.pdf}
+        \vspace{-4mm}
         \caption{Cost of collateral when the fork point is Genesis (most expensive scenario).}
         \label{fig:cryptoeconomics-collateral-genesis}
     \end{subfigure}
+    \vspace{-4mm}
     \caption{Cryptoeconomic recommendations for the NIPoPoW superlight client.}
     \label{fig:cryptoeconomics-collateral}
 \end{figure}
@@ -149,4 +154,3 @@ just $0.50$ USD is sufficient to cover for up to one standard deviation in
 confirmation time. Note that the collateral of an honest party is not consumed
 and is returned to the party upon the expiration of the contestation period. We
 therefore deem our implementation to be practical.
-

@@ -86,7 +86,10 @@ contest without increasing the rounds of interactions for the users. However,
 we derive a subsequent optimization for the \emph{contest} phase by observing the
 process of score evaluation.
 
+\vspace{-2mm}
 \input{tables/best-level-cost}
+\vspace{-8mm}
+
 In NIPoPoWs, after the last common ancestor is found, each proof fork
 is evaluated in terms of the proof-of-work score of its blocks after the $\lca$
 block. Each level captures a different
@@ -134,7 +137,6 @@ decreased accordingly. For $m=15$, $\pitrl$ consists of 31 blocks, while
 $\pitr$ consists of 200 blocks.  Notably, the calculation of score for $\pitrl$
 needs 97\% less gas than the na\"ive implementation, because the evaluation of the score of an individual level
 is performed entirely in memory.
-
 
 In Figure~\ref{fig:dispute-best-level}, we illustrate the performance gains of
 the client using the \emph{dispute} phase and the \emph{best-level} method. The
