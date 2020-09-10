@@ -112,7 +112,8 @@ in the block header and verified by proof-of-work. However, the miner does not
 know which level a candidate block will attain prior to mining it. For this
 purpose, each block is proposed to include a pointer to the most recently
 preceding $\mu$-superblock, for every $\mu$
-as illustrated in Figure~\ref{fig.hierarchy}.
+% as illustrated in Figure~\ref{fig.hierarchy}
+.
 As these levels are only $\log|\chain|$, this only adds $\log|\chain|$ extra
 pointers to each block header.
 
@@ -128,15 +129,15 @@ the originally submitted. If no contest happen, the collateral is returned to
 the original issuer.
 \input{algorithms/prelims/alg.nipopow-prover.tex}
 
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.9\columnwidth,keepaspectratio]{figures/prelims/level-shadows.pdf}
-    \caption{The interlinked blockchain. Each superblock is drawn taller
-    according to its achieved level. Each block links to all the blocks that are
-    not being overshadowed by their descendants. The most recent (right-most)
-    block links to the four blocks it has direct line-of-sight to.}
-    \label{fig.hierarchy}
-\end{figure}
+% \begin{figure}[ht]
+%     \centering
+%     \includegraphics[width=0.9\columnwidth,keepaspectratio]{figures/prelims/level-shadows.pdf}
+%     \caption{The interlinked blockchain. Each superblock is drawn taller
+%     according to its achieved level. Each block links to all the blocks that are
+%     not being overshadowed by their descendants. The most recent (right-most)
+%     block links to the four blocks it has direct line-of-sight to.}
+%     \label{fig.hierarchy}
+% \end{figure}
 
 
 \input{algorithms/prelims/alg.nipopow-verifier.tex}
