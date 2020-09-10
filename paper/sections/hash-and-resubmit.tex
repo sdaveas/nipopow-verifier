@@ -18,24 +18,25 @@ cheap. Usually, data access performance in traditional systems is
 measured with respect to time and space. In Ethereum, however, performance is related to gas
 consumption. Access to persistent data costs a substantial amount of gas, which
 has a direct correspondence to a monetary cost.
-% One way to mitigate gas cost of reading variables
-% from the blockchain is to declare them as public. This leads to the creation of a
-% \emph{getter} function in the background, allowing free access to the value of
-% the variable. But this treatment does not prevent the initial population of
-% storage data and write operations which are significantly expensive for large
-% sizes of data.
 
-% By using the \emph{hash-and-resubmit} pattern, large structures are omitted
-% from storage entirely, and are contained in memory. When a function call is
-% performed, the signature and arguments of the function are included in the
-% transactions field of the body of a block. The contents of blocks are public to
-% the network, therefore this information is locally available to full nodes. By
-% simply observing blocks, a node retrieves data sent to the contract by other
-% users. To interact publicly with this data without the utilization storage, the
-% node \emph{resends} the observed data to the blockchain. The concept of
-% resending data is redundant in conventional systems. However, this technique
-% is very efficient to use in Solidity due to the significantly lower gas cost
-% of memory operations in relation with storage operations.
+One way to mitigate gas cost of reading variables
+from the blockchain is to declare them as public. This leads to the creation of a
+\emph{getter} function in the background, allowing free access to the value of
+the variable. But this treatment does not prevent the initial population of
+storage data and write operations which are significantly expensive for large
+sizes of data.
+
+By using the \emph{hash-and-resubmit} pattern, large structures are omitted
+from storage entirely, and are contained in memory. When a function call is
+performed, the signature and arguments of the function are included in the
+transactions field of the body of a block. The contents of blocks are public to
+the network, therefore this information is locally available to full nodes. By
+simply observing blocks, a node retrieves data sent to the contract by other
+users. To interact publicly with this data without the utilization storage, the
+node \emph{resends} the observed data to the blockchain. The concept of
+resending data is redundant in conventional systems. However, this technique
+is very efficient to use in Solidity due to the significantly lower gas cost
+of memory operations in relation with storage operations.
 
 \noindent \textbf{Related patterns.} Towards implementing gas-efficient smart
 contracts, several
@@ -193,7 +194,7 @@ June 2020), for arrays of size 500 and above, contrary to the optimized
 version, which consumes approximately only $1/10^{th}$ of the block gas limit
 for arrays of $1{,}000$ elements.
 
-\begin{figure}
+\begin{figure}[H]
 \centering
 \includegraphics[width=\ourfigurescale\columnwidth]{figures/har-example.pdf}
 \caption{Gas-cost reduction of Algorithm~\ref{alg:game-storage} using the \emph{hash-and-resubmit} pattern (lower
@@ -288,3 +289,4 @@ of gas consumption between consecutive values of proof sizes.
         Gas consumption is decreased by approximately 50\%.}
     \label{fig:har-nipopow}
 \end{figure}
+
