@@ -1,21 +1,38 @@
-\newif\ifanonymous
-%\anonymoustrue
+\newif\ifconference
+\conferencetrue
 
-\documentclass{llncs}
+\ifconference
+    \documentclass[sigconf]{acmart}
+\else
+    \documentclass{llncs}
+\fi
+
+\ifconference
+\newcommand\ourfigurescale{1}
+\else
+\newcommand\ourfigurescale{0.7}
+\fi
 
 \usepackage{preamble}
-\pagestyle{plain}
+\ifconference
+    \input{ccs-metadata}
+\fi
 
 \begin{document}
 
 \input{title}
-\maketitle
+\ifconference\else\maketitle\fi
 \input{abstract}
 \input{keywords}
 
+\ifconference\maketitle\fi
 \input{body}
 
+\ifconference
+\bibliographystyle{ACM-Reference-Format}
+\else
 \bibliographystyle{splncs04}
+\fi
 \bibliography{refs}
 
 \end{document}

@@ -49,11 +49,13 @@ amount of gas. However, this approach does not address consistency, which is
 also one of our critical targets. Lastly, there have been proposals~\cite{memory-array}
 to replace storage read operations, but they do not address write operations.
 
+\ifconference\else
 \begin{landscape}\centering
+\fi
 \vspace*{\fill}
 \begin{figure*}
     \centering
-    \includegraphics[width=\linewidth]{figures/har-pattern.pdf}
+    \includegraphics[width=0.9\linewidth]{figures/har-pattern.pdf}
 
     \caption{The \emph{hash-and-resubmit} pattern. First, an invoker calls
         \proc$_1$($\data_0$). Then $\data_0$ is processed \emph{on-chain} and
@@ -73,7 +75,9 @@ to replace storage read operations, but they do not address write operations.
         \label{fig:har-pattern}
 \end{figure*}
 \vfill
+\ifconference\else
 \end{landscape}
+\fi
 
 \noindent
 \textbf{Applicability.}
@@ -191,7 +195,7 @@ for arrays of $1{,}000$ elements.
 
 \begin{figure}
 \centering
-\includegraphics[width=0.7\columnwidth]{figures/har-example.pdf}
+\includegraphics[width=\ourfigurescale\columnwidth]{figures/har-example.pdf}
 \caption{Gas-cost reduction of Algorithm~\ref{alg:game-storage} using the \emph{hash-and-resubmit} pattern (lower
 is better). By avoiding gas-heavy storage operations, the aggregated cost of
 \textsf{submit} and \textsf{contest} is decreased by 95\%.}
@@ -277,7 +281,7 @@ of gas consumption between consecutive values of proof sizes.
 
 \begin{figure}
     \begin{center}
-        \includegraphics[width=0.7\columnwidth]{figures/har-nipopows.pdf}
+        \includegraphics[width=\ourfigurescale\columnwidth]{figures/har-nipopows.pdf}
     \end{center}
     \caption{Gas consumption of our NIPoPoWs verifier enhanced with hash-and-resubmit
         compared to previous work (lower is better) using a secure value of $m$.
