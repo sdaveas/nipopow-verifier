@@ -95,6 +95,17 @@ Other attempts have been made to address the verification of Bitcoin
 transactions to the Ethereum blockchain, most notably BTC
 Relay~\cite{btcrelay}, which requires storing a full copy of all Bitcoin
 block headers within the Ethereum chain.
+zkRelay~\cite{zkrelay}, which is based on ZoKrates~\cite{zokrates}, uses
+zkSNARKS~\cite{zksnarks}. The cost of on-chain verification is constant and
+relatively low (522,865 gas units per proof). However, the off-chain cost of
+constructing and verifying zk-proofs is rather demanding in terms of space and
+time complexity; for a batch of 504 blocks, 100 gigabytes of RAM are needed, and
+the calculations of constructing and verifying proofs need up to 26 minutes.
+This may be a promising solution for individuals that have access to such
+resources, but targets a limited group of peers. Construction and verification
+costs can be amortized by reducing the block batch size, but this leads to
+increased total gas consumption due to the increased number of submitted
+proofs.
 
 \noindent
 \textbf{Our contributions.}
