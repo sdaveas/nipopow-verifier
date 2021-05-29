@@ -5,8 +5,6 @@ from solcx import set_solc_version, get_solc_version, compile_source, compile_fi
 import web3
 from web3 import Web3, EthereumTesterProvider, contract
 
-import eth_tester
-from eth_tester import EthereumTester, PyEVMBackend
 
 
 class ContractInterface:
@@ -31,7 +29,6 @@ class ContractInterface:
 
         self.genesis_overrides=genesis_overrides
 
-        self.backends_to_inits['Py-EVM'] = self.init_backend_pyevm
         self.backends_to_inits['ganache'] = self.init_backend_ganache
         self.backends_to_inits['geth'] = self.init_backend_geth
 
@@ -100,10 +97,6 @@ class ContractInterface:
             print(self.available_backends())
             exit()
 
-    def init_backend_pyevm(self):
-        custom_genesis_params = PyEVMBackend._generate_genesis_params(overrides=self.genesis_overrides)
-        py_backend = PyEVMBackend(genesis_parameters=custom_genesis_params)
-        self.w3 = Web3(EthereumTesterProvider(EthereumTester(py_backend)))
 
     def init_backend_ganache(self):
         url = 'http://127.0.0.1'
