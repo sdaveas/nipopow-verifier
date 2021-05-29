@@ -1,6 +1,6 @@
 # Inspired by https://github.com/pryce-turner/web3_python_tutorials
 import solcx
-from solcx import set_solc_version, get_solc_version, compile_source, compile_files, link_code
+from solcx import install_solc, compile_source, compile_files, link_code
 
 import web3
 from web3 import Web3, EthereumTesterProvider, contract
@@ -67,7 +67,6 @@ class ContractInterface:
             print("Installing now ...")
             solcx.install_solc(self.solc_version)
             print("... OK")
-        set_solc_version(self.solc_version)
 
     def link(self, contract_bin, libraries):
         for library_name in libraries.keys():
