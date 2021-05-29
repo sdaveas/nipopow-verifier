@@ -182,7 +182,7 @@ class ContractInterface:
 
             print('Gas profing saved to', output_file)
         except Exception as e:
-            print('Unable to run profiles', e)
+            print('Unable to run line-per-line profiling because [', e, ']. Skipping ...')
 
     def deploy(self, compiled_contracts, constructor_arguments=[]):
         contract_instances = []
